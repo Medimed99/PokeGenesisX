@@ -1,0 +1,16 @@
+Substituer un visuel
+--------------------
+Deposez ici un fichier PNG a transparence, puis relancez :
+
+    python3 build_chars.py && python3 build.py
+
+  prof.png       portrait du professeur   (cadre 40x40 conseille)
+  missingno.png  silhouette de MissingNo  (cadre 64x64 conseille)
+
+Le script recadre et centre sans deformer. Si le fichier est absent, la version
+dessinee dans build_chars.py est utilisee.
+
+Note : ces deux visuels ne figurent dans aucun des depots communautaires
+utilises par le projet (PokeAPI/sprites ne contient que des Pokemon, et son
+identifiant 0 est un point d'interrogation gris, pas MissingNo). C'est la
+raison pour laquelle ils sont dessines par defaut, et non un choix editorial.
