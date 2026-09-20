@@ -1,0 +1,24 @@
+{
+  "name": "Pokémon Code Genesis",
+  "short_name": "Code Genesis",
+  "description": "Jeu de collection fan-made. Le monde est un fichier corrompu ; vous êtes l'Archiviste.",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#04060b",
+  "theme_color": "#04060b",
+  "icons": [
+    {
+      "src": "assets/pz.1675f4a0.png",
+      "sizes": "400x40",
+      "type": "image/png"
+    },
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

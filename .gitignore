@@ -1,0 +1,10 @@
+# sprites bruts telecharges : regenerables via build_atlas.py et build_cardart.py
+sprites/
+# sorties intermediaires
+build/
+node_modules/
+.vercel/
+.DS_Store
+# donnees sources retelechargeables
+data/
+pmd/

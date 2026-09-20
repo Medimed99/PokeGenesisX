@@ -1,0 +1,12 @@
+{
+  "name": "pokemon-code-genesis",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Jeu de collection fan-made, fichier unique sans dependance.",
+  "scripts": {
+    "build": "python3 build_web.py && node tools/inject-config.mjs",
+    "build:standalone": "python3 build.py",
+    "test": "node test.js && node smoke.js && node battletest.js && node admintest.js && node nettest.js && node lexicon.js",
+    "balance": "node econ.js && node expsim.js && node pacing.js"
+  }
+}
