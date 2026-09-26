@@ -1,0 +1,36 @@
+Substituer un visuel
+--------------------
+Deposez ici un fichier PNG a transparence, puis relancez :
+
+    python3 build_chars.py && python3 build.py
+
+  prof.png       portrait du professeur   (cadre 40x40 conseille)
+  missingno.png  silhouette de MissingNo  (cadre 64x64 conseille)
+
+Le script recadre et centre sans deformer. Si le fichier est absent, la version
+dessinee dans build_chars.py est utilisee.
+
+Note : ces deux visuels ne figurent dans aucun des depots communautaires
+utilises par le projet (PokeAPI/sprites ne contient que des Pokemon, et son
+identifiant 0 est un point d'interrogation gris, pas MissingNo). C'est la
+raison pour laquelle ils sont dessines par defaut, et non un choix editorial.
+
+Professeur en pied (cinematiques)
+---------------------------------
+Deposer assets/prof_full.png : le sprite du professeur en pied, fond transparent.
+Les marges vides sont retirees et les proportions conservees. Puis relancer :
+
+    python3 build_chars.py && python3 build.py && python3 build_web.py
+
+Sans ce fichier, les cinematiques montrent le professeur sur le moniteur du
+laboratoire. Avec, il se tient debout dans la piece, comme dans l'intro des
+jeux de base.
+
+Portraits fournis (professeur, MissingNo)
+-----------------------------------------
+assets/prof.png       portrait du professeur (dialogues, moniteur)
+assets/missingno.png  MissingNo (rencontre de faille, avatar, cinematiques)
+
+PNG a fond transparent, carre de preference. Les marges vides sont retirees,
+et le fichier garde sa finesse jusqu'a 128 px de cote (au-dela, il est reduit
+sans lissage). Pixel art recommande : l'affichage agrandit sans lisser.

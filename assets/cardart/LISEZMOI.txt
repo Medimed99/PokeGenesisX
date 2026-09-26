@@ -1,0 +1,18 @@
+Substituer l'illustration d'une carte
+-------------------------------------
+Deposez un PNG a transparence nomme <serie>_<numero>.png, puis relancez :
+
+    python3 build_cardart.py && python3 build.py && python3 build_web.py
+
+Series : art  g5  g3  g2  g1
+Exemples :
+    art_384.png    Rayquaza, serie Rendu courant
+    g1_150.png     Mewtwo, serie Rendu primordial
+
+Le script recadre, centre et lisse sans deformer. Cadre conseille : 512x512 ou
+plus, le sujet detoure sur fond transparent. Une illustration fournie remplace
+celle du depot communautaire, sans aucune modification de code.
+
+Attention aux droits : les illustrations d'artistes identifies ne sont pas
+reutilisables sans leur accord. Ce dossier existe pour vos propres visuels,
+ceux que vous commandez, ou ceux que vous produisez.
