@@ -45,16 +45,18 @@ const STORY = [
 ]},
 
 { id:"guardian_first", art:146, lines:[
-  {w:"sys", t:"Verrou détecté en périphérie du secteur."},
+  {w:"sys", t:"Verrou détecté au sommet de la Tour. Aile 2."},
+  {w:"pz", t:"La Tour n'est pas un terrain d'entraînement. C'est l'endroit où l'archive empile ce qu'elle n'arrive plus à ranger. Et tout en haut, quelque chose monte la garde."},
   {w:"pz", t:"Sa signature est celle d'un légendaire. Son comportement est celui d'un pare-feu."},
-  {w:"pz", t:"Prépare une équipe. Ce ne sera pas une capture."}
+  {w:"pz", t:"Prépare une équipe de quatre. Ce ne sera pas une capture."}
 ]},
 
 { id:"boss_first_done", art:-1, lines:[
   {w:"sys", t:"Verrou levé. Fragment de secteur réattribué."},
   {w:"pz", t:"Il n'a pas été détruit. Il a été… relâché. Il a cessé de tenir la porte, c'est tout."},
   {w:"pz", t:"Je crois qu'il ne voulait pas la tenir."},
-  {w:"pz", t:"Je ne sais pas qui lui a demandé de le faire. Ce n'est ni toi ni moi, et il n'y a personne d'autre."}
+  {w:"pz", t:"Je ne sais pas qui lui a demandé de le faire. Ce n'est ni toi ni moi, et il n'y a personne d'autre."},
+  {w:"sys", t:"Anomalie : une faille s'est ouverte là où se tenait le verrou. Accès « La Brèche » disponible."}
 ]},
 
 { id:"missingno_1", art:0, lines:[
@@ -217,7 +219,7 @@ const STORY = [
 { id:"pz_first_guardian_fail", art:-1, lines:[
   {w:"pz", m:"Pain", t:"Ton équipe est revenue au tampon. Aucune perte définitive — le système recharge les états précédents."},
   {w:"pz", t:"Un verrou ne se force pas au niveau. Il se force au type. Vérifie sa signature avant d'y retourner : le tableau d'efficacité pèse plus lourd que dix niveaux d'écart."},
-  {w:"pz", m:"Determined", t:"Et emmène tes Pokémon dans la Descente. Les survivants gardent ce qu'ils gagnent."}
+  {w:"pz", m:"Determined", t:"Et emmène tes Pokémon en Expédition. Les survivants gardent ce qu'ils gagnent."}
 ]},
 
 { id:"pz_cycle", art:-1, lines:[

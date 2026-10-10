@@ -14,10 +14,10 @@ global.AudioContext = undefined;
 global.setInterval = () => 0;   /* pas de boucles pendant les tests */
 
 const fs = require("fs");
-const ORDER = ['_dexblob.js','_atlas.js','_atlas_shiny.js','_pmd.js','_items.js','_lore.js','_pzportrait.js','_chars.js','_cardart.js','00-slugs.js','01-data.js','02-story.js','10-core.js','15-fx.js','20-ui.js','30-capture.js','32-world.js','33-fishing.js','34-research.js','36-lore.js','37-cine.js','38-forage.js','39-daily.js','39b-events.js',
-  '35-modules.js','40-battle.js','50-expedition.js','52-expgear.js','54-tower.js','56-breche.js','57-breche-run.js','58-breche-ui.js','59-breche-plus.js','59m-breche-map.js','59a-breche-attacks.js','59p-breche-pmd.js','59f-breche-feel.js','59g-breche-bossfight.js','59d-descente.js','59e-descente-ui.js','59s-breche-share.js','60-poker.js','70-collection.js','72-bag.js','73-cards.js','74-eggs.js','75-extras.js','76-items.js','77-secrets.js','78-milestones.js','79-ux.js','80-guide.js','81-cosmetics.js','85-journal.js','90-admin.js','95-online.js','96-pwa.js','99-boot.js'];
+const ORDER = ['_dexblob.js','_atlas.js','_atlas_shiny.js','_pmd.js','_items.js','_lore.js','_pzportrait.js','_chars.js','_trainers.js','_cardart.js','00-slugs.js','01-data.js','02-story.js','10-core.js','15-fx.js','20-ui.js','30-capture.js','32-world.js','33-fishing.js','34-research.js','36-lore.js','37-cine.js','38-forage.js','39-daily.js','39b-events.js',
+  '35-modules.js','40-battle.js','41-arena.js','50-expedition.js','51-expscene.js','51m-expmap.js','52-expgear.js','54-tower.js','55-squad.js','55b-squad-ui.js','56-breche.js','57-breche-run.js','58-breche-ui.js','59-breche-plus.js','59m-breche-map.js','59a-breche-attacks.js','59p-breche-pmd.js','59f-breche-feel.js','59g-breche-bossfight.js','59d-descente.js','59e-descente-ui.js','59s-breche-share.js','60-poker.js','70-collection.js','72-bag.js','73-cards.js','74-eggs.js','75-extras.js','76-items.js','77-secrets.js','78-milestones.js','79-ux.js','80-guide.js','81-cosmetics.js','85-journal.js','90-admin.js','95-online.js','96-pwa.js','99-boot.js'];
 const code = ORDER.map(f=>fs.readFileSync("src/"+f,"utf8")).join("\n");
-eval(code + "\n;" + 'global.__api={POKE,POKE_IDS,evalHand,genMap,EXP_ROWS,deepFill,newState,catchChance,typeMult,RARITY,ACHIEVEMENTS,JOKERS,STORY,anteTarget,makeFighter,damageCalc,xpForLevel,handBase,HANDS,newDeck,movesFor,dexTotal,famOf,stageOf,DIRECTIVES,INFOS,TUTOS,PZ_EVENTS,atlasIndex,ATLAS_N,ATLAS_BACK0,SLUGS,cardChips,grantCardV,grantSecretCard,cardVariants,cardHas,cardOwnedCount,cardTotal,CARD_MONS,CARD_SERIES_DEF,CARD_ORDER,rollCardSeries,randomCard,migrateCards,CARD_INDEX,cardChecksum,cardBytes,tcardHtml,cardBackHtml,GEN_TAG,boosterRank,seriesName,seriesFound,monFound,cardEnvOf,CARD_ENV,resolveName,KNOWN_NAMES,sixthItem,glitchSixthItem,GEN_MARKS,checkChainMark,specialDay,isNightWindow,PZ_POKE_LINES,SIXTH_SLOTS,KONAMI,karpDealDay,karpDealAvailable,BST_BANDS,bstBand,wildIdFor,NODE_W,nodeTypeFor,EXP_ITEMS,rollExpItem,itemMinFloor,EXP_MODES,expRunModes,genMap,traitLevels,traitBonus,TOWER_TRAITS,HABITATS,HABITAT_IDS,habitatWeight,isNight,WEATHER,WEATHER_IDS,weatherDef,speciesInHabitat,FRAGMENTS,RIFT_ARC,checkFragments,riftTick,riftStage,fragmentsFound,signatureMove,moveTierName,STRATA,DRILLS,ECHO_PERKS,forage,forageRate,clickValue,drillCost,depthCost,echoGain,unlocked,offlineHours,forageTick,EXCLUSIVES,EXCL_SOURCE,isExclusive,RODS,fishPool,newFishEncounter,speciesForRarity,eggPool,repelRarity,lureMul,rstreak,rstreakCatch,rstreakBreak,RSTREAK_MILES,PERMANENTS,charmMul,runeMul,shinyOdds,friendCheck,friendEvo,canEvolve,codeHash,CODES,isSafariDay,SAFARI_POOL,botSpecies,botRate,botHours,FACTIONS,FACTION_RANKS,factionRank,factionMul,factionPts,todayRows,todayPending,REGIONS,unlockedRegions,nextEncounter,newEncounter,rollRarity,fleeChance,RARITY,CINEMAS,CINE_WHO,CINE_T,corruptText,CINE_POS,moduleUnlocked,checkAchievements,dcIsBossFloor,dcFinish,dcMigrateLegacy,towerState,SCREENS,dcUseItem,dcPickup,dcBuy,dcReact,dcTerrainTurn,dcPylons,dcCorrode,dcKo,dcPassable,dcMakeEnt,DC_ITEMS,DC_HELD,DC_BAG,dcAcceptRecruit,dcNewRun,dcGenFloor,dcPath,dcTurn,dcAim,dcLeader,dcSerialize,dcRestore,dcDescend,dcMoves,dcBossTurn,DC_W,DC_H,DC_FLOORS,brSummonBoss,brBossDown,BR_PATTERNS,BR_KIT_BY_TYPE,brBossKit,brTerrainReact,brTerrainUnder,brDecal,brHit,brAddZone,brMapNear,brMapPre,brUpdate,ACTIONS,ITEM_IDX,TREASURE_KEYS,BALLS,BERRIES,STONES,CHESTS,PERMANENTS,TREASURES,EXP_ITEMS,REPELS,ringGrade,RING_GRADES,evSeason,evSeasonKey,evWeeklyLegend,evWeekIndex,evState,evTier,evRunPoints,EV_TRACK,EV_SEASONS,brShareText,BR_KIND,BR_ATK,BR_LEGEND,brArchFor,brFire,brWeaponStats,brSpawnFoe,pwaAfterIntro,pwaInstallable,pwaEnv,brChunkAt,brPushOut,brMastery,BR_TERRAIN,brMissionsFor,brNewRun,brUpdate,brXpNeed,brChoices,brWeaponStats,brDaily,brGuardianWin,brNextEvo,brState,BR_ARCH,BR_ITEMS,ACTIVITIES,COSMETICS,FX_LAYERS,badgeCine,secretCine,BADGES,HANDS,MODULE_REQ,SCREENS,adminHash,ADMIN_HASH,ATELIER_TABS,STORY,RIFT_ARC,directStory,cineFor,RESEARCH_TASKS,researchOf,researchLevel,researchMax,researchTick,taskGoal,RESEARCH_TIERS,TALENTS,talentOf,PERFECT_ODDS,rollPerfect,weekStamp,REPORT_ROWS,lineRoot,towerLevel,towerBand,BUFF_STATS,TRAINERS,expEnemyLevel,setBuddy,buddyTick,buddyTier,buddyBonus,buddy,rollWeekly,weeklyTick,weeklyRollover,openChest,WEEKLY_POOL,BUDDY_FINDS,BUDDY_MAX_TIER,BUDDY_TIER_AFF,CHESTS,addToDex,weekKey,aimBonus,BOOSTS,startBoost,boostActive,LUCKY_DAYS,rollLuckyDay,luckyF,TREASURES,rollTreasure,treasureValue,REGION_TIERS,checkRegionTiers,regionTiersDone,rollContract,contractTick,CONTRACTS,CYCLE_MODS,PERKS,cycleReward,perkLv,loreOf,LORE,PZ_EMOS,pzMood,HELD_ITEMS,grantHeld,heldActive,PLANETS,SPECTRALS,QUEST_POOLS,questMix,rollQuests,setS:function(v){S=v},getS:function(){return S},setENC:function(v){ENC=v},getENC:function(){return ENC},getCINE:function(){return CINE},getCineLast:function(){return CINE_LAST},playStory:playStory};');
+eval(code + "\n;" + 'global.__api={POKE,POKE_IDS,evalHand,genMap,EXP_ROWS,deepFill,newState,catchChance,typeMult,RARITY,ACHIEVEMENTS,JOKERS,STORY,anteTarget,makeFighter,damageCalc,xpForLevel,handBase,HANDS,newDeck,movesFor,dexTotal,famOf,stageOf,DIRECTIVES,INFOS,TUTOS,PZ_EVENTS,atlasIndex,ATLAS_N,ATLAS_BACK0,SLUGS,cardChips,grantCardV,grantSecretCard,cardVariants,cardHas,cardOwnedCount,cardTotal,CARD_MONS,CARD_SERIES_DEF,CARD_ORDER,rollCardSeries,randomCard,migrateCards,CARD_INDEX,cardChecksum,cardBytes,tcardHtml,cardBackHtml,GEN_TAG,boosterRank,seriesName,seriesFound,monFound,cardEnvOf,CARD_ENV,resolveName,KNOWN_NAMES,sixthItem,glitchSixthItem,GEN_MARKS,checkChainMark,specialDay,isNightWindow,PZ_POKE_LINES,SIXTH_SLOTS,KONAMI,karpDealDay,karpDealAvailable,BST_BANDS,bstBand,wildIdFor,NODE_W,nodeTypeFor,EXP_ITEMS,rollExpItem,itemMinFloor,EXP_MODES,expRunModes,genMap,traitLevels,traitBonus,TOWER_TRAITS,HABITATS,HABITAT_IDS,habitatWeight,isNight,WEATHER,WEATHER_IDS,weatherDef,speciesInHabitat,FRAGMENTS,RIFT_ARC,checkFragments,riftTick,riftStage,fragmentsFound,signatureMove,moveTierName,STRATA,DRILLS,ECHO_PERKS,forage,forageRate,clickValue,drillCost,depthCost,echoGain,unlocked,offlineHours,forageTick,EXCLUSIVES,EXCL_SOURCE,isExclusive,RODS,fishPool,newFishEncounter,speciesForRarity,eggPool,repelRarity,lureMul,rstreak,rstreakCatch,rstreakBreak,RSTREAK_MILES,PERMANENTS,charmMul,runeMul,shinyOdds,friendCheck,friendEvo,canEvolve,codeHash,CODES,isSafariDay,SAFARI_POOL,botSpecies,botRate,botHours,FACTIONS,FACTION_RANKS,factionRank,factionMul,factionPts,todayRows,todayPending,REGIONS,unlockedRegions,nextEncounter,newEncounter,rollRarity,fleeChance,RARITY,CINEMAS,CINE_WHO,CINE_T,corruptText,CINE_POS,moduleUnlocked,checkAchievements,sqSkillsOf,sqLeaderOf,sqNewBattle,sqNext,sqTurnStart,sqAct,sqSkip,sqAI,sqFinish,sqUpgrade,sqState,sqStars,sqZoneOpen,SQ_ZONES,SQ_STAGES,sqWaves,sqSkillLv,MAP_ROWS,MAP_SHAPE,EXP_MAPS,expGainLevels,expExpected,EXP_GAIN,startExpedition,openSector,afterFightRewards,lineRoot,createBattle,bStep,bSpeed,arOn,arNeed,AR_KIND,AR_BIOME,dcIsBossFloor,dcFinish,dcMigrateLegacy,towerState,SCREENS,dcUseItem,dcPickup,dcBuy,dcReact,dcTerrainTurn,dcPylons,dcCorrode,dcKo,dcPassable,dcMakeEnt,DC_ITEMS,DC_HELD,DC_BAG,dcAcceptRecruit,dcNewRun,dcGenFloor,dcPath,dcTurn,dcAim,dcLeader,dcSerialize,dcRestore,dcDescend,dcMoves,dcBossTurn,DC_W,DC_H,DC_FLOORS,brSummonBoss,brBossDown,BR_PATTERNS,BR_KIT_BY_TYPE,brBossKit,brTerrainReact,brTerrainUnder,brDecal,brHit,brAddZone,brMapNear,brMapPre,brUpdate,ACTIONS,ITEM_IDX,TREASURE_KEYS,BALLS,BERRIES,STONES,CHESTS,PERMANENTS,TREASURES,EXP_ITEMS,REPELS,ringGrade,RING_GRADES,evSeason,evSeasonKey,evWeeklyLegend,evWeekIndex,evState,evTier,evRunPoints,EV_TRACK,EV_SEASONS,brShareText,BR_KIND,BR_ATK,BR_LEGEND,brArchFor,brFire,brWeaponStats,brSpawnFoe,pwaAfterIntro,pwaInstallable,pwaEnv,brChunkAt,brPushOut,brMastery,BR_TERRAIN,brMissionsFor,brNewRun,brUpdate,brXpNeed,brChoices,brWeaponStats,brDaily,brGuardianWin,brGuardianFor,sqLockOpen,sqLockWaves,sqLockGate,sqLockLevel,sqLockAt,sqLockFinish,brNextEvo,brState,BR_ARCH,BR_ITEMS,ACTIVITIES,COSMETICS,FX_LAYERS,badgeCine,secretCine,BADGES,HANDS,MODULE_REQ,SCREENS,adminHash,ADMIN_HASH,ATELIER_TABS,STORY,RIFT_ARC,directStory,cineFor,RESEARCH_TASKS,researchOf,researchLevel,researchMax,researchTick,taskGoal,RESEARCH_TIERS,TALENTS,talentOf,PERFECT_ODDS,rollPerfect,weekStamp,REPORT_ROWS,lineRoot,towerLevel,towerBand,BUFF_STATS,TRAINERS,expEnemyLevel,setBuddy,buddyTick,buddyTier,buddyBonus,buddy,rollWeekly,weeklyTick,weeklyRollover,openChest,WEEKLY_POOL,BUDDY_FINDS,BUDDY_MAX_TIER,BUDDY_TIER_AFF,CHESTS,addToDex,weekKey,aimBonus,BOOSTS,startBoost,boostActive,LUCKY_DAYS,rollLuckyDay,luckyF,TREASURES,rollTreasure,treasureValue,REGION_TIERS,checkRegionTiers,regionTiersDone,rollContract,contractTick,CONTRACTS,CYCLE_MODS,PERKS,cycleReward,perkLv,loreOf,LORE,PZ_EMOS,pzMood,HELD_ITEMS,grantHeld,heldActive,PLANETS,SPECTRALS,QUEST_POOLS,questMix,rollQuests,setS:function(v){S=v},getS:function(){return S},setENC:function(v){ENC=v},getENC:function(){return ENC},getCINE:function(){return CINE},getCineLast:function(){return CINE_LAST},playStory:playStory};');
 const A = global.__api;
 let pass=0, fail=0;
 const t = (n, cond, extra) => { cond?pass++:(fail++,console.log("  ECHEC:",n,extra||"")); };
@@ -82,7 +82,7 @@ t("index hors bornes rejete", A.atlasIndex(9999)===-1 && A.atlasIndex(0)===-1);
 t("386 identifiants de sprites", A.SLUGS.length===386);
 
 /* --- guidage --- */
-t("16 directives", A.DIRECTIVES.length===16, A.DIRECTIVES.length);
+t("17 directives", A.DIRECTIVES.length===17, A.DIRECTIVES.length);
 t("directives evaluables", A.DIRECTIVES.every(d=>typeof d.chk==="function" && typeof d.goal==="function"));
 t("chaque directive a une recompense et un indice",
   A.DIRECTIVES.every(d=>d.rw && Object.keys(d.rw).length && d.hint && d.hint.length>10));
@@ -117,8 +117,8 @@ t("legendaire plus dur", A.catchChance("poke") < cPoke);
 let mapOk = true, bossOk = true;
 for(let s=0;s<200;s++){
   const m = A.genMap(s*7919+13);
-  if(m.length!==A.EXP_ROWS){ mapOk=false; break; }
-  if(m[A.EXP_ROWS-1].length!==1 || m[A.EXP_ROWS-1][0].t!=="boss") bossOk=false;
+  if(m.length!==A.MAP_ROWS){ mapOk=false; break; }
+  if(m[A.MAP_ROWS-1].length!==1 || m[A.MAP_ROWS-1][0].t!=="boss") bossOk=false;
   for(let y=1;y<m.length;y++){
     for(let i=0;i<m[y].length;i++){
       if(!m[y-1].some(p=>p.next.includes(i))){ mapOk=false; }
@@ -141,7 +141,7 @@ t("antes croissantes", A.anteTarget(1,0) < A.anteTarget(1,2) && A.anteTarget(1,2
 
 /* --- contenu --- */
 t("27 scenes narratives", A.STORY.length===27, A.STORY.length);
-t("83 succes", A.ACHIEVEMENTS.length===83, A.ACHIEVEMENTS.length);
+t("87 succes", A.ACHIEVEMENTS.length===87, A.ACHIEVEMENTS.length);
 t("29 programmes", A.JOKERS.length===29, A.JOKERS.length);
 t("6 paliers de rarete", A.RARITY.length===6);
 
@@ -193,7 +193,7 @@ t("rollover hebdomadaire conserve la semaine en cours",
 t("rollover hebdomadaire renouvelle une semaine perimee",
   (()=>{ A.getS().weekly.week="2000-S1"; A.weeklyRollover();
          return A.getS().weekly.week===A.weekKey() && A.getS().weekly.quests.every(q=>q.prog===0); })());
-t("9 modeles hebdomadaires", A.WEEKLY_POOL.length===9, A.WEEKLY_POOL.length);
+t("10 modeles hebdomadaires", A.WEEKLY_POOL.length===10, A.WEEKLY_POOL.length);
 
 /* --- coffres --- */
 A.setS(A.newState());
@@ -859,12 +859,24 @@ t("la carte offre de vrais choix", (()=>{
       for(const n of map[y]){ total++; if(n.next.length > 1) branch++; }
   }
   const part = branch / total;
-  return part > 0.15 && part < 0.6;      /* ni couloir, ni brouillard */
+  return part > 0.15 && part < 0.75;     /* ni couloir, ni brouillard : le treillis de Pokelike */
 })());
 t("le départ et l'arrivée sont uniques", (()=>{
   A.setS(A.newState());
   const map = A.genMap(7);
   return map[map.length - 1].length === 1 && map[0].length === 2;
+})());
+t("carte : une route ne glisse jamais de plus d'un couloir, et chaque dresseur montre son type", (()=>{
+  A.setS(A.newState());
+  for(let seed = 1; seed <= 200; seed++){
+    const map = A.genMap(seed);
+    for(let y = 0; y < map.length - 2; y++)
+      for(const n of map[y]){
+        for(const j of n.next) if(Math.abs(map[y + 1][j].c - n.c) > 1) return false;
+        if(n.t === "trainer" && !A.TRAINERS[n.tr]) return false;
+      }
+  }
+  return true;
 })());
 
 
@@ -1752,15 +1764,175 @@ t("fin de Descente : compteurs, niveaux définitifs, record et renforts", (()=>{
   return S0.stats.expRuns === 1 && S0.stats.expWins === 1 && S0.dex[149].lvl === lv0 + 3
     && S0.descente.endlessBest === 11 && A.towerState().points === pts0 + 2 * 2 + 3 && A.towerState().best === 11;
 })());
-t("une Expédition ou une ascension en cours est close proprement, une seule fois", (()=>{
+t("l'Expédition et la Tour ont repris leurs écrans, et rien ne clôt plus un parcours en cours", (()=>{
   A.setS(A.newState()); A.addToDex(25, 10, false);
   const S0 = A.getS(); S0.expedition = {team:[{id:25, hp:5}]}; S0.towerRun = {floor:3};
   A.dcMigrateLegacy();
-  const ok = !S0.expedition && !S0.towerRun && S0.dex[25].lvl === 11;
-  A.dcMigrateLegacy();
-  return ok && S0.dex[25].lvl === 11;
+  return A.SCREENS.expedition !== A.SCREENS.descente && A.SCREENS.tower !== A.SCREENS.descente
+    && !!S0.expedition && !!S0.towerRun && S0.dex[25].lvl === 10;
 })());
-t("les anciens écrans de l'Expédition et de la Tour mènent à la Descente", A.SCREENS.expedition === A.SCREENS.descente && A.SCREENS.tower === A.SCREENS.descente);
+t("aucune règle CSS ne détourne la classe des petits boutons (.xs)", !/(^|\n)\.xs[{.:]/.test(fs.readFileSync("src/style.css","utf8")));
+t("Tour : un objet ou un remplaçant en attente reste à l'écran", (()=>{
+  A.setS(A.newState()); for(let i = 1; i <= 151; i++) A.addToDex(i, 30, false);
+  const S0 = A.getS();
+  S0.towerRun = {stage:2, step:0, team:[{id:6, level:20, hp:50, maxHp:50, item:null}], pick:[{k:"item", id:"i_orbe"}]};
+  const quiet = f => { try { f(); } catch(e){} };      /* le rendu d'ecran n'existe pas ici */
+  quiet(()=>A.ACTIONS.towertake({i:"0"}));
+  const a = S0.towerRun.give === "i_orbe";
+  quiet(()=>A.ACTIONS.towertake({i:"0"}));       /* double toucher : sans effet */
+  quiet(()=>A.ACTIONS.towergive({i:"0"}));
+  return a && S0.towerRun.team[0].item === "i_orbe" && !S0.towerRun.give;
+})());
+t("carte : toujours le même treillis, un champion au bout des secteurs intermédiaires", (()=>{
+  A.setS(A.newState());
+  for(let seed = 1; seed <= 100; seed++){
+    const mid = A.genMap(seed, {mapIdx:0, maps:3}), fin = A.genMap(seed, {mapIdx:2, maps:3});
+    if(mid.map(r=>r.length).join() !== A.MAP_SHAPE.join()) return false;
+    if(mid[A.MAP_ROWS - 1][0].t !== "champ" || fin[A.MAP_ROWS - 1][0].t !== "boss") return false;
+    if(mid[A.MAP_ROWS - 2].filter(n=>n.t === "rest").length !== 1) return false;   /* un Centre, pas deux */
+  }
+  return true;
+})());
+t("progression : herbes +1, dresseur +2, rien d'autre ; l'évolution se fait au bon niveau", (()=>{
+  A.setS(A.newState());
+  const run = {team:[{id:4, level:14, hp:20, maxHp:20}, {id:25, level:14, hp:0, maxHp:20}], relics:[]};
+  const a = A.expGainLevels(run, A.EXP_GAIN.fight);
+  const b = A.expGainLevels(run, A.EXP_GAIN.trainer);
+  return A.EXP_GAIN.fight === 1 && A.EXP_GAIN.trainer === 2 && !A.EXP_GAIN.draft
+    && run.team[0].level === 17 && run.team[0].id === 5 && b.evos.length === 1
+    && run.team[1].level === 14;                    /* un Pokemon tombe ne progresse pas */
+})());
+t("progression : on part de la forme de base, au niveau 5, et l'archive reçoit les niveaux", (()=>{
+  A.setS(A.newState()); A.addToDex(6, 40, false); A.addToDex(25, 10, false); A.addToDex(1, 5, false);
+  const S0 = A.getS();
+  const fake = {getElementById:()=>null};
+  try { A.startExpedition([6, 25, 1]); } catch(e){}
+  const run = S0.expedition;
+  return run && run.team[0].id === 4 && run.team[0].base === 6 && run.team[0].level >= 5 && run.team[0].level <= 8
+    && run.maps === A.EXP_MAPS && run.map.length === A.MAP_ROWS && !!run.leader;
+})());
+t("progression : les adversaires suivent le parcours attendu, pas l'équipe réelle", (()=>{
+  const r1 = {maps:3, step:0, floor:0}, r2 = {maps:3, step:20, floor:10};
+  return A.expEnemyLevel(r1, 0) < A.expEnemyLevel(r2, 0) && A.expEnemyLevel(r1, 0) <= 6
+    && A.expExpected(8) > A.expExpected(7) + 3;      /* le badge fait un saut */
+})());
+/* --- la Tour : combats d'equipe --- */
+t("Tour : chaque espèce a trois compétences valides", (()=>{
+  for(const id of A.POKE_IDS){
+    const k = A.sqSkillsOf(id);
+    if(k.length !== 3 || k.some(s=>!s.n || !s.kind || !s.t)) return false;
+    if(k[0].cd !== 0 || !(k[1].cd > 0) || !(k[2].cd > 0)) return false;
+    if(k[0].n === k[1].n || k[0].n === k[2].n) return false;
+  }
+  return true;
+})());
+t("Tour : les puissants ont un passif de meneur, pas les formes de base", !A.sqLeaderOf(4) && !!A.sqLeaderOf(149) && !!A.sqLeaderOf(150) && A.sqLeaderOf(150).v > A.sqLeaderOf(149).v - 0.01);
+function tsqRun(B){ let g = 0; while(!B.over && g++ < 1500){ const u = A.sqNext(B); if(!u) break; A.sqTurnStart(B, u); if(u.hp <= 0) continue;
+  if(u.stunned){ A.sqSkip(B, u); continue; } const a = A.sqAI(B, u); A.sqAct(B, u, a.si, a.ti); } return B; }
+t("Tour : un combat se termine, et une équipe forte franchit le premier palier", (()=>{
+  A.setS(A.newState()); for(const id of [149, 6, 9, 3]) A.addToDex(id, 40, false);
+  let wins = 0;
+  for(let i = 0; i < 10; i++){ const B = tsqRun(A.sqNewBattle([149, 6, 9, 3], 0, 0)); if(!B.over) return false; if(B.result) wins++; }
+  return wins >= 9;
+})());
+t("Tour : trois vagues, un boss dans la dernière, le boss de la carte au dernier palier", (()=>{
+  const w = A.sqWaves(2, A.SQ_STAGES - 1);
+  return w.length === 3 && w[2].some(m=>m.boss && m.id === A.SQ_ZONES[2].boss) && !w[0].some(m=>m.boss);
+})());
+t("Tour : étoiles, paliers suivants et parchemins", (()=>{
+  A.setS(A.newState()); for(const id of [149, 6, 9, 3]) A.addToDex(id, 60, false);
+  const B = tsqRun(A.sqNewBattle([149, 6, 9, 3], 0, 0));
+  if(!B.result) return false;
+  const lv0 = A.getS().dex[149].lvl;
+  const R = A.sqFinish(B), q = A.sqState();
+  return A.sqStars(0, 0) >= 1 && R.first && q.scrolls >= 2 && !A.sqZoneOpen(1) && R.xps.length === 4
+    && A.getS().dex[149].sxp + A.getS().dex[149].lvl > lv0;
+})());
+t("Tour : monter une compétence coûte des parchemins et vaut pour la lignée", (()=>{
+  A.setS(A.newState()); A.addToDex(6, 30, false); const q = A.sqState(); q.scrolls = 3;
+  const ok = A.sqUpgrade(6, 1);
+  return ok && q.scrolls === 0 && A.sqSkillLv(4)[1] === 2 && !A.sqUpgrade(6, 1);
+})());
+/* --- les verrous légendaires : au sommet des ailes de la Tour --- */
+function tKanto(n){ const r = A.REGIONS[0]; let k = 0; for(let id = r.from; id <= r.to && k < n; id++){ if(A.POKE[id] && !A.POKE[id].leg){ A.addToDex(id, 30, false); k++; } } }
+t("verrous : fermés tant que le boss de l'aile n'est pas battu, même avec l'archive pleine", (()=>{
+  A.setS(A.newState()); tKanto(40);
+  const r = A.REGIONS[0], q = A.sqState();
+  const before = A.sqLockOpen(r, 0);
+  q.st["0:1:" + (A.SQ_STAGES - 1)] = 1;
+  return !before && A.sqLockOpen(r, 0) && !A.sqLockOpen(r, 1) && A.sqLockGate(r, 1).z === 3 && A.sqLockGate(A.REGIONS[1], 0).d === 1;
+})());
+t("verrous : chaque aile 2, 4, 6 en porte un par difficulté", A.sqLockAt(1, 0).g.id === 146 && A.sqLockAt(5, 2).g.id === 384 && !A.sqLockAt(0, 0) && !A.sqLockAt(2, 1));
+t("verrous : la Brèche ne les fait plus apparaître", (()=>{
+  A.setS(A.newState()); tKanto(40); return A.brGuardianFor("kanto") === null;
+})());
+t("verrous : le gardien ignore l'étourdissement et se reconfigure à mi-vie avec deux renforts", (()=>{
+  A.setS(A.newState()); for(const id of [6, 9, 3, 65]) A.addToDex(id, 40, false);
+  const r = A.REGIONS[0];
+  const B = A.sqNewBattle([6, 9, 3, 65], 1, A.SQ_STAGES - 1, {waves:A.sqLockWaves(r, 0), lock:{r:"kanto", i:0}});
+  if(B.waves.length !== 2 || !B.waves[1][0].guardian) return false;
+  /* on charge directement la vague du gardien */
+  const B2 = A.sqNewBattle([6, 9, 3, 65], 1, A.SQ_STAGES - 1, {waves:[B.waves[1]], lock:{r:"kanto", i:0}});
+  const g = B2.foes[0];
+  if(!g.guardian) return false;
+  /* une attaque qui etourdit a coup sur */
+  const u = B2.allies[0]; u.skills[1] = {n:"t", t:13, kind:"atk", mult:0.01, cd:0, fx:[{k:"stun", p:1, t:1}]};
+  const evs = A.sqAct(B2, u, 1, 0);
+  const immune = evs.some(e=>e.k === "fx" && e.b === "immune") && !g.fx.some(e=>e.k === "stun");
+  g.hp = Math.floor(g.maxHp * 0.45);
+  const evs2 = A.sqAct(B2, B2.allies[1], 0, 0);
+  const ph = evs2.find(e=>e.k === "phase");
+  return immune && ph && ph.adds.length === 2 && B2.foes.length === 3 && g.phased && g.fx.some(e=>e.k === "atkup");
+})());
+t("verrous : la victoire libère le légendaire, émet sa carte et donne des parchemins", (()=>{
+  A.setS(A.newState()); for(const id of [6, 9, 3, 65]) A.addToDex(id, 40, false);
+  const r = A.REGIONS[0], q = A.sqState(), sc0 = q.scrolls;
+  const B = A.sqNewBattle([6, 9, 3, 65], 1, A.SQ_STAGES - 1, {waves:A.sqLockWaves(r, 0), lock:{r:"kanto", i:0}});
+  B.over = true; B.result = true;
+  const R = A.sqFinish(B), S = A.getS();
+  const R2 = A.sqFinish(B);
+  return R.first && S.bosses.includes("kanto:146") && !!S.dex[146] && q.scrolls > sc0 + 3 && R.gw && R.gw.card && !R2.first && S.bosses.length === 1;
+})());
+t("verrous : la Brèche s'ouvre avec le premier verrou, plus avec l'Expédition seule", (()=>{
+  A.setS(A.newState()); const S = A.getS(); S.level = 14; tKanto(30); S.stats.expWins = 2;
+  const a = A.moduleUnlocked("breche");
+  S.bosses.push("kanto:146");
+  return !a && A.moduleUnlocked("breche");
+})());
+t("verrous : les Data Guardians se découvrent avec le boss de la première aile", (()=>{
+  A.setS(A.newState()); const S = A.getS(); S.level = 11; tKanto(10);
+  const a = A.moduleUnlocked("boss"); A.sqState().st["0:0:" + (A.SQ_STAGES - 1)] = 1;
+  return !a && A.moduleUnlocked("boss");
+})());
+t("le hub propose l'Expédition, plus la Descente", A.ACTIVITIES.some(a=>a.go === "expedition") && !A.ACTIVITIES.some(a=>a.go === "descente"));
+/* --- l'arène : elle raconte le combat, elle ne le change pas --- */
+t("arène : sans canvas, elle s'efface et le pas de temps reste celui du moteur", (()=>{
+  const al = [A.makeFighter(6, 40)], fo = [A.makeFighter(9, 40)];
+  A.createBattle(al, fo, {ai:true, speed:2});
+  return A.arOn() === false && A.bStep(640) === 320 && A.arNeed(640) === 640;
+})());
+t("arène : passer le combat annule toute attente", (()=>{
+  const B = A.createBattle([A.makeFighter(6, 40)], [A.makeFighter(9, 40)], {ai:true, speed:1});
+  B.skip = true;
+  return A.bStep(640) === 0;
+})());
+t("arène : maintenir le doigt triple la vitesse choisie", (()=>{
+  const B = A.createBattle([A.makeFighter(6, 40)], [A.makeFighter(9, 40)], {ai:true, speed:2});
+  B.turbo = true;
+  return A.bSpeed() === 6 && A.bStep(600) === 100;
+})());
+t("arène : une vitesse inférieure à ×1 héritée d'une ancienne sauvegarde est ramenée à ×1",
+  A.createBattle([A.makeFighter(6, 40)], [A.makeFighter(9, 40)], {ai:true, speed:0.5}).speed === 1);
+t("arène : chaque type a sa manière de frapper et son décor", (()=>{
+  for(let ty = 1; ty <= 18; ty++) if(!A.AR_KIND[ty] || !A.AR_BIOME[ty]) return false;
+  return true;
+})());
+t("arène : un gardien a droit à sa mise en scène, un combat ordinaire non", (()=>{
+  const b1 = A.createBattle([A.makeFighter(6, 40)], [A.makeFighter(9, 40)], {ai:true, stage:"boss"});
+  const b2 = A.createBattle([A.makeFighter(6, 40)], [A.makeFighter(9, 40)], {ai:true});
+  const b3 = A.createBattle([A.makeFighter(6, 40)], [A.makeFighter(150, 40)], {boss:{}});
+  return b1.stage === "boss" && b2.stage === null && b3.stage === "boss";
+})());
 
 
 t("une victoire de Descente distribue tout ce que distribuait l'Expédition", (()=>{

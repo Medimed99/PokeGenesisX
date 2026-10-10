@@ -928,7 +928,7 @@ ACTIONS.regioninfo = d => {
       <div class="tiny dim mono-num" style="margin-top:3px">
         ${g.have} / ${g.need} espèces de ${esc(g.prev.name)} pour le dernier verrou</div>
     </div>
-    <button class="btn pri wide" data-act="goto" data-to="boss">Voir les Data Guardians</button>`, true);
+    <button class="btn pri wide" data-act="goto" data-to="boss">Voir les verrous dans la Tour</button>`, true);
 };
 ACTIONS.setregion = d => { S.region = d.r; ENC = null; saveSoon(); refresh(); };
 ACTIONS.throw = d => throwBall(d.b);

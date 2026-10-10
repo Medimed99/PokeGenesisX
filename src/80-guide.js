@@ -69,12 +69,25 @@ const INFOS = {
     définitifs. C'est le lien principal entre l'expédition et les Data Guardians.</p>
     <p>En combat, le tableau des types décide de presque tout : un ×2 vaut mieux que dix niveaux.</p>`},
 
+  tower:{n:"La Tour", d:`
+    <p>Des combats d'équipe à <b>quatre</b>, avec les Pokémon de votre archive à leur niveau. Le premier est le
+    <b>meneur</b> : s'il a un passif, toute l'équipe en profite.</p>
+    <p>Chaque Pokémon a <b>trois compétences</b> tirées de ses types : une attaque de base, une compétence à
+    recharge, une ultime. La <b>Vitesse</b> remplit la jauge de tour : le plus rapide joue plus souvent.</p>
+    <p>Six ailes de sept paliers, trois vagues par palier, un boss au septième, en trois difficultés.
+    Les <b>parchemins</b>, que seule la Tour donne, font monter les compétences ; l'expérience y fait monter
+    le niveau d'archive.</p>
+    <p>Au sommet des ailes 2, 4 et 6 se tiennent les <b>verrous légendaires</b> : ceux de Kanto en Normal,
+    de Johto en Difficile, de Hoenn en Enfer.</p>`},
   expedition:{n:"L'expédition", d:`
-    <p>Un parcours de douze étages. Vous partez du <b>haut</b> et descendez vers le
-    <b>noyau</b>, en bas. À chaque étage, vous choisissez une route parmi celles reliées à votre
-    position : le chemin ne se refait pas.</p>
-    <p>Les points de vie <b>ne se régénèrent pas</b> entre les combats. Seuls les nœuds Repos,
-    les restaurations et certaines reliques soignent.</p>
+    <p>Trois cartes au même dessin, chacune gardée par un <b>Champion</b> dont le type reste secret.
+    Vous partez du <b>haut</b> et descendez vers lui ; son badge ouvre la carte suivante, et au bout
+    de la troisième attend le <b>noyau</b>.</p>
+    <p>On part de la <b>forme de base, au niveau 5</b>. Hautes herbes <b>+1</b>, dresseurs et élites
+    <b>+2</b>, champion <b>+3</b>, le reste <b>+0</b>. Les Pokémon évoluent en route. Un échange rend
+    un Pokémon quatre niveaux au-dessus.</p>
+    <p>Les points de vie ne remontent qu'en partie après un combat. Le Centre Pokémon, avant le
+    Champion, soigne tout.</p>
     <p>Les <b>reliques</b> modifient toute l'équipe pour le reste du run. Les <b>Bits</b> ne
     servent qu'à l'intérieur du parcours.</p>
     <p>La <b>corruption</b> monte quand vous prenez des risques : meilleur butin, ennemis plus forts.
@@ -111,8 +124,12 @@ const INFOS = {
   boss:{n:"Les Data Guardians", d:`
     <p>Neuf légendaires transformés en pare-feu, trois par secteur. Ils ne se capturent pas :
     ils se relâchent.</p>
-    <p>Chacun demande un nombre d'espèces archivées dans son secteur, et que le précédent soit
-    tombé. À mi-vie, ils changent de configuration et frappent plus fort.</p>
+    <p>Ils se tiennent au sommet des ailes 2, 4 et 6 de la <b>Tour</b> (Kanto en Normal, Johto en
+    Difficile, Hoenn en Enfer). Pour capter la signature de l'un d'eux, il faut avoir battu le boss
+    de son aile, archivé assez d'espèces de son secteur, et levé le verrou précédent.</p>
+    <p>Deux vagues d'escorte, puis lui seul. Insensible à l'étourdissement et aux pertes de jauge,
+    il se reconfigure à mi-vie : purge, Attaque +, deux renforts. Le dernier verrou d'un secteur
+    ouvre le suivant ; le premier levé ouvre la Brèche.</p>
     <p>Une première victoire ajoute l'espèce à votre archive, émet une <b>carte légendaire</b>
     et rend un gros bloc d'intégrité.</p>`},
 
@@ -330,9 +347,20 @@ const TUTOS = {
   ]},
   expedition:{steps:[
     {sel:"#map-scroll", t:"Une couche non cartographiée : le système y a improvisé sa propre géographie quand il a manqué de place."},
-    {sel:"#map-scroll", t:"Tu pars du haut et tu descends vers son noyau. Les nœuds éclairés sont les seuls accessibles, et le chemin ne se refait pas."},
-    {sel:".team-strip", t:"Les points de vie ne se régénèrent pas entre les combats. La menace, ici, c'est l'usure."},
-    {sel:"#screen", t:"Ce qui survit en revient renforcé de façon permanente. C'est la seule façon de préparer un verrou."}
+    {sel:"#map-scroll", t:"Tu pars de la porte, en haut, vers le Champion du secteur, en bas. Touche un nœud lointain : je te dis ce qu'il cache."},
+    {sel:".team-strip", t:"Ton équipe repart au niveau 5. Hautes herbes +1, dresseurs +2, le reste rien. C'est ta route qui fait ta force."},
+    {sel:"#screen", t:"Trois badges… enfin, deux badges et le noyau. Ce qui survit en revient renforcé pour de bon."}
+  ]},
+  tower:{steps:[
+    {sel:".sw-world", t:"La Tour. L'archive y empile ce qu'elle n'arrive plus à ranger : six ailes de souvenirs corrompus, posées les unes sur les autres."},
+    {sel:".sw-world", t:"Chaque aile a sept paliers, et un boss au septième. Le battre ouvre l'aile suivante, puis les difficultés Difficile et Enfer."},
+    {sel:".sw-teambar", t:"Ici, on ne repart pas de zéro : tes Pokémon combattent à leur niveau d'archive, à quatre. Le premier mène les autres."},
+    {sel:".sw-lockbar", t:"Et tout en haut des ailes 2, 4 et 6, quelque chose monte la garde. Tu le sentiras quand tu en seras capable."}
+  ]},
+  towerprep:{steps:[
+    {sel:".sw-waves", t:"Avant chaque palier, tu vois ce qui t'attend. Regarde les types : c'est eux qui décident, plus que les niveaux."},
+    {sel:".sw-slots", t:"Le premier emplacement porte la couronne. Les Pokémon puissants y donnent un passif à toute l'équipe."},
+    {sel:".sw-go", t:"En combat, chaque Pokémon a trois compétences : une attaque, une à recharge, une ultime. Les parchemins de la Tour les font monter."}
   ]},
   poker:{steps:[
     {sel:"#screen", t:"Les données rares ne se rangent pas au hasard : elles se regroupent par motifs. Espèces identiques, familles, types."},
@@ -356,6 +384,8 @@ let TUTO = null;
 function tutoSeen(k){ return (S.tutos||[]).includes(k); }
 /* aucune autre couche ne doit etre ouverte : sinon le tutoriel se superpose */
 function overlayBusy(){
+  /* une scene d'Expedition en cours : on ne l'interrompt pas */
+  if(typeof xsOpenNow === "function" && xsOpenNow()) return true;
   for(const id of ["story", "sheet-root", "discover", "levelup", "boot"]){
     const el = document.getElementById(id);
     if(el && el.className && el.className.indexOf("on") >= 0) return true;
@@ -457,10 +487,13 @@ const DIRECTIVES = [
    rw:{shards:40}, hint:"Le premier verrou légendaire s'ouvre à 25 espèces de Kanto."},
   {id:"d11", n:"Faire évoluer un Pokémon",      chk:()=>S.stats.evolutions>=1, goal:()=>[S.stats.evolutions,1],
    rw:{coins:1200, stones:{fire:1}}, hint:"Pokédex, fiche d'une espèce que tu as en plusieurs exemplaires.", go:"dex"},
+  {id:"d13", n:"Réussir une Expédition", chk:()=>S.stats.expWins>=1,  goal:()=>[S.stats.expWins,1],
+   rw:{shards:60}, hint:"Tes survivants gagneront des niveaux définitifs.", go:"expedition"},
+  {id:"d13b", n:"Battre le boss de la Forêt de Jade", chk:()=>typeof sqStars === "function" && sqStars(0, SQ_STAGES - 1, 0) > 0,
+   goal:()=>[typeof sqStars === "function" && sqStars(0, SQ_STAGES - 1, 0) > 0 ? 1 : 0, 1],
+   rw:{coins:1500}, hint:"La Tour : quatre Pokémon de ton archive, à leur niveau. Le septième palier porte le boss.", go:"tower"},
   {id:"d12", n:"Lever un premier verrou",       chk:()=>S.bosses.length>=1,  goal:()=>[S.bosses.length,1],
-   rw:{cores:2}, hint:"Prépare une équipe qui a l'avantage de type.", go:"breche"},
-  {id:"d13", n:"Vaincre le gardien d'une Descente", chk:()=>S.stats.expWins>=1,  goal:()=>[S.stats.expWins,1],
-   rw:{shards:60}, hint:"Tes survivants gagneront des niveaux définitifs.", go:"descente"},
+   rw:{cores:2}, hint:"Au sommet de la deuxième aile de la Tour. Prends une équipe qui a l'avantage de type.", go:"boss"},
   {id:"d14", n:"Franchir une ante au Poké-Poker", chk:()=>S.pokerMeta.bestAnte>=1, goal:()=>[S.pokerMeta.bestAnte,1],
    rw:{shards:80}, hint:"Cherche les familles d'évolution dans ta main.", go:"poker"},
   {id:"d15", n:"Compléter la moitié de Kanto",  chk:()=>dexCount("kanto")>=76, goal:()=>[dexCount("kanto"),76],

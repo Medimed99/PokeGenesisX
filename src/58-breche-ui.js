@@ -103,11 +103,11 @@ function brNextEvent(R){
     const what = d === 12 ? "MissingNo" : d % 3 === 0 ? "écho légendaire" : "palier " + d;
     return {txt:`${what} dans ${Math.floor(left / 60)}:${String(Math.floor(left % 60)).padStart(2,"0")}`, hot: left < 10 || d === 12};
   }
-  if(R.bossOn) return {txt: R.boss ? "Gardien en vue" : "", hot:true};
+  if(R.bossOn) return {txt: R.boss ? "Alpha en vue" : "", hot:true};
   const ev = [];
   if(R.nextElite < R.bossAt) ev.push({t:R.nextElite, n:"Élite"});
   if(R.nextMini < R.bossAt) ev.push({t:R.nextMini, n:"Alpha"});
-  ev.push({t:R.bossAt, n:"Gardien"});
+  ev.push({t:R.bossAt, n:"Alpha"});
   ev.sort((a, b)=>a.t - b.t);
   const e = ev[0], left = Math.max(0, e.t - R.t);
   return {txt:`${e.n} dans ${Math.floor(left / 60)}:${String(Math.floor(left % 60)).padStart(2,"0")}`, hot: left < 10};
@@ -458,7 +458,8 @@ function brGuardianWin(g){
   const out = {first, card:null};
   if(first){
     S.bosses.push(guardianKey(r.key, g.id)); factionPts(50);
-    addToDex(g.id, guardianLevel(r, i), false);
+    /* il rejoint l'archive a peu pres au niveau ou on l'a affronte : il doit pouvoir servir */
+    addToDex(g.id, Math.max(guardianLevel(r, i), typeof sqLockLevel === "function" ? sqLockLevel(r, i) - 4 : 0), false);
     addIntegrity(g.core ? 5 : 2.5);
     const cs = rollCardSeries(g.id, g.core ? 3.2 : 1.8);
     grantCardV(cs, g.id); out.card = cs;
@@ -471,7 +472,7 @@ function brFinish(R, won, quit){
   const st = brState();
   const survived = R.t, deep = R.endless ? Math.max(0, R.t - R.bossAt) : 0;
   R.won = R.won || won;
-  const fw = R.won ? consumeFirstWin("boss") : 1;
+  const fw = R.won ? consumeFirstWin("breche") : 1;
   const depth = R.depth || 0, loot = (R.mods && R.mods.loot) || 1;
   const data = Math.round((R.kills * 0.35 + survived / 5 + R.lv * 3 + (R.won ? 80 : 0) + depth * depth * 12 + (R.echoes || 0) * 60 + (R.bonusData || 0)) * fw * loot * (R.daily ? 1.5 : 1));
   const coins = Math.round((R.kills * 4 + (R.won ? 900 : 0) + depth * 600) * fw * loot);
@@ -576,7 +577,10 @@ ACTIONS.bragain = () => {
 /* ============================================================
    LE HALL
    ============================================================ */
+/* les verrous legendaires se levent desormais au sommet de la Tour :
+   la Breche se conclut toujours sur son Alpha */
 function brGuardianFor(region){
+  if(!SQ_LOCK_IN_BRECHE) return null;
   const r = regionDef(region);
   for(let i = 0; i < r.guardians.length; i++){
     const g = r.guardians[i];
@@ -585,6 +589,7 @@ function brGuardianFor(region){
   }
   return null;
 }
+const SQ_LOCK_IN_BRECHE = false;
 function brHabOpen(region, k){ return !HABITATS[k].need || dexCount(region) >= HABITATS[k].need; }
 const BR_MODS = [
   {k:"horde", n:"Horde", d:"50 % d'ennemis en plus"},
@@ -645,15 +650,12 @@ SCREENS.breche = {
       </div>
       <div class="segbar">
         <button class="${BR_LOBBY_TAB==="run"?"on":""}" data-act="brtab" data-t="run">${ic("map")}<span>Horde</span></button>
-        <button class="${BR_LOBBY_TAB==="descent"?"on":""}" data-act="brtab" data-t="descent">${ic("boss")}<span>Descente</span>
-          ${dcState().saved ? `<i class="badge"></i>` : ""}</button>
         <button class="${BR_LOBBY_TAB==="season"?"on":""}" data-act="brtab" data-t="season">${ic("star")}<span>Saison</span>
           ${evClaimable() + evCommClaimable() ? `<i class="badge"></i>` : ""}</button>
         <button class="${BR_LOBBY_TAB==="arch"?"on":""}" data-act="brtab" data-t="arch">${ic("grid")}<span>Archive</span>
           <span class="br-datapill">${fmt(st.data)}</span></button>
       </div>
-      ${BR_LOBBY_TAB === "descent" ? dcLobbyHtml()
-        : BR_LOBBY_TAB === "season" ? evSeasonPanel() + evWeeklyPanel() + evCommunityPanel()
+      ${BR_LOBBY_TAB === "season" ? evSeasonPanel() + evWeeklyPanel() + evCommunityPanel()
         : BR_LOBBY_TAB === "arch" ? this.arch(st) : `
       <div class="br-daily" data-act="brdaily">
         <div class="br-dhead"><span class="br-dtag">BRÈCHE DU JOUR</span><span class="tiny dim">même graine pour tous</span></div>
@@ -683,8 +685,8 @@ SCREENS.breche = {
       <div class="br-guard">${g
         ? `<span class="guardsil">${sprite(g.id, false, "sm")}</span><div><div class="tiny">Gardien de la Brèche : <b>signature détectée</b></div>
            <div class="tiny muted">Tenez 8 minutes. Le vaincre lève un verrou de ${esc(regionDef(st.region).name)}.</div></div>`
-        : `<div class="guardunknown">?</div><div><div class="tiny">Gardien : un alpha de l'habitat</div>
-           <div class="tiny muted">Aucun verrou détectable ici pour l'instant. Restaurez davantage d'espèces.</div></div>`}</div>
+        : `<div class="guardunknown">?</div><div><div class="tiny">Au bout des 8 minutes : <b>l'Alpha de la Brèche</b></div>
+           <div class="tiny muted">Un Pokémon de l'habitat, gonflé par la faille. Les verrous légendaires, eux, se tiennent au sommet de la Tour.</div></div>`}</div>
 
       <div class="br-starter" data-act="brstarter">
         <span class="sprbox" style="width:52px;height:52px">${sprite(st.starter, S.dex[st.starter] && S.dex[st.starter].shiny, "")}</span>

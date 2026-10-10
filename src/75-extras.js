@@ -201,7 +201,7 @@ const HELD_ITEMS = {
   h_coin:  {n:"Bourse percée",     rar:0, k:"coin",  spr:52,  d:"+20% de PokéCoins sur chaque capture."},
   h_xp:    {n:"Amplificateur",     rar:1, k:"xp",    spr:113, d:"+25% d'expérience."},
   h_berry: {n:"Baie Miracle",      rar:1, k:"catch", spr:43,  d:"+12% de taux de capture."},
-  h_rest:  {n:"Restes",            rar:1, k:"exp",   spr:143, d:"+1 Potion dans le sac au départ de chaque Descente."},
+  h_rest:  {n:"Restes",            rar:1, k:"exp",   spr:143, d:"+1 Potion dans le sac au départ de chaque Expédition."},
   h_aff:   {n:"Collier de lien",   rar:2, k:"aff",   spr:133, d:"Double l'affinité gagnée par le compagnon."},
   h_rune:  {n:"Pièce Rune",        rar:2, k:"poker", spr:150, d:"Double les Fragments gagnés au Poké-Poker."},
   h_guard: {n:"Bandeau tactique",  rar:2, k:"boss",  spr:68,  d:"+12% de statistiques contre les Data Guardians."},
@@ -263,9 +263,10 @@ const WEEKLY_POOL = [
   {id:"w_catch", n:"Restaurer {n} entités",              goal:[220,340,520], stat:"wkCatch"},
   {id:"w_new",   n:"Archiver {n} espèces inédites",      goal:[14,22,30],    stat:"wkNew"},
   {id:"w_rare",  n:"Capturer {n} Pokémon rares ou plus", goal:[30,50,80],    stat:"wkRare"},
-  {id:"w_exp",   n:"Vaincre {n} gardiens de la Descente",           goal:[3,5,8],       stat:"wkExp"},
+  {id:"w_exp",   n:"Réussir {n} Expéditions",           goal:[3,5,8],       stat:"wkExp"},
   {id:"w_poker", n:"Encaisser {n} manches de Poké-Poker",goal:[20,32,48],    stat:"wkPoker"},
-  {id:"w_boss",  n:"Affronter {n} Data Guardians",       goal:[2,3,5],       stat:"wkBoss"},
+  {id:"w_boss",  n:"Affronter {n} verrous légendaires",  goal:[2,3,5],       stat:"wkBoss"},
+  {id:"w_tower", n:"Remporter {n} combats dans la Tour", goal:[15,25,40],    stat:"wkTower"},
   {id:"w_evo",   n:"Faire évoluer {n} Pokémon",          goal:[5,8,12],      stat:"wkEvo"},
   {id:"w_fish",  n:"Remonter {n} prises à la pêche",               goal:[25,40,60],    stat:"wkFish"},
   {id:"w_energy",n:"Forer {n} d'Énergie",    goal:[25000,60000,120000], stat:"wkEnergy"}
@@ -283,7 +284,8 @@ function weekKey(){
   return t.getFullYear() + "-S" + Math.ceil(((t - y0) / 86400000 + 1) / 7);
 }
 const WEEKLY_NEEDS = {wkFish:()=>!!S.rod, wkEnergy:()=>moduleUnlocked("idle"),
-  wkPoker:()=>moduleUnlocked("poker"), wkBoss:()=>moduleUnlocked("boss"), wkExp:()=>moduleUnlocked("expedition")};
+  wkPoker:()=>moduleUnlocked("poker"), wkBoss:()=>moduleUnlocked("boss") && (S.bosses.length > 0 || (typeof sqLockReady === "function" && sqLockReady())),
+  wkExp:()=>moduleUnlocked("expedition"), wkTower:()=>moduleUnlocked("tower")};
 function weeklyDoable(q){ const need = WEEKLY_NEEDS[q.stat]; return !need || need(); }
 function rollWeekly(){
   const tier = clamp(Math.floor(S.level/14), 0, 2);
@@ -296,7 +298,7 @@ function rollWeekly(){
       id:q.id, n:q.n.replace("{n}", fmt(q.goal[tier])), goal:q.goal[tier],
       stat:q.stat, prog:0, claimed:false
     })),
-    wk: {wkCatch:0, wkNew:0, wkRare:0, wkExp:0, wkPoker:0, wkBoss:0, wkEvo:0, wkFish:0, wkEnergy:0}
+    wk: {wkCatch:0, wkNew:0, wkRare:0, wkExp:0, wkPoker:0, wkBoss:0, wkTower:0, wkEvo:0, wkFish:0, wkEnergy:0}
   };
 }
 function weeklyRollover(){
@@ -305,7 +307,7 @@ function weeklyRollover(){
 /* les compteurs hebdomadaires suivent les memes evenements que les quotidiens */
 const DAILY_TO_WEEKLY = {
   dayCatch:"wkCatch", dayNew:"wkNew", dayRare:"wkRare", dayExp:"wkExp",
-  dayPokerBlinds:"wkPoker", dayBoss:"wkBoss", dayEvo:"wkEvo", dayFish:"wkFish", dayEnergy:"wkEnergy"
+  dayPokerBlinds:"wkPoker", dayBoss:"wkBoss", dayTower:"wkTower", dayEvo:"wkEvo", dayFish:"wkFish", dayEnergy:"wkEnergy"
 };
 function weeklyTick(stat, n){
   if(!S.weekly) return;

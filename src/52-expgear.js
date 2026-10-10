@@ -103,24 +103,6 @@ function applyExpItem(m, f){
   f._fullAtStart = f.hp >= f.maxHp;
 }
 
-/* ---------- nœud d'équipement ---------- */
-function expItemNode(run){
-  run.itemDraft = rollExpItem(run.floor, 3);
-  save();
-  sheet(`${sheetHead("Cache d'équipement")}
-    <div class="tiny muted" style="margin-bottom:10px">Trois objets, un seul emporté.
-      Il faudra ensuite choisir qui le porte — un Pokémon ne tient qu'un objet à la fois.</div>
-    <div class="draftrow">
-      ${run.itemDraft.map(id=>{ const it = EXP_ITEMS[id];
-        return `<div class="draftcard ir${it.rar}" data-act="expitempick" data-id="${id}">
-          ${itemIcon("exp:" + id, 48) || `<span class="sprbox" style="width:52px;height:52px">${sprite(it.spr,false,"")}</span>`}
-          <div class="dc-n">${esc(it.n)}</div>
-          <div class="dc-s" style="font-size:8.5px;white-space:normal">${esc(it.d)}</div>
-        </div>`;}).join("")}
-    </div>
-    <button class="btn ghost wide" style="margin-top:11px" data-act="expdraftskip">
-      Ne rien prendre · +${70 + run.floor*7} Bits</button>`);
-}
 ACTIONS.expitempick = d => {
   const run = S.expedition, id = d.id, it = EXP_ITEMS[id];
   sheet(`${sheetHead("Qui le porte ?")}
@@ -129,7 +111,7 @@ ACTIONS.expitempick = d => {
       ${run.team.map((m,i)=>{
         const cur = itemOf(m);
         return `<div class="tp-row">
-          <span class="sprbox" style="width:38px;height:38px">${sprite(m.id, S.dex[m.id]?.shiny, "")}</span>
+          <span class="sprbox" style="width:38px;height:38px">${sprite(m.id, runShiny(m), "")}</span>
           <div class="grow"><div class="tiny">${esc(POKE[m.id].name)}
             <span class="dim">N.${m.level}</span></div>
             <div class="tiny ${cur?"vi":"dim"}">${cur ? "porte déjà " + esc(cur.n) : "aucun objet"}</div></div>
@@ -151,7 +133,8 @@ ACTIONS.expitemgive = d => {
 
 /* consultation de l'équipement en cours de parcours */
 ACTIONS.expgear = () => {
-  const run = S.expedition;
+  const run = teamRun();
+  if(!run){ closeSheet(); return; }
   sheet(`${sheetHead("Équipement de l'équipe")}
     <div class="tiny muted" style="margin-bottom:9px">Un Pokémon ne tient qu'un objet.
       Les reliques, elles, valent pour toute l'équipe.</div>
@@ -159,7 +142,7 @@ ACTIONS.expgear = () => {
       ${run.team.map(m=>{
         const it = itemOf(m);
         return `<div class="tp-row ${m.hp<=0?"ghost":""}">
-          <span class="sprbox" style="width:36px;height:36px">${sprite(m.id, S.dex[m.id]?.shiny, "")}</span>
+          <span class="sprbox" style="width:36px;height:36px">${sprite(m.id, runShiny(m), "")}</span>
           <div class="grow"><div class="tiny">${esc(POKE[m.id].name)} <span class="dim">N.${m.level}</span></div>
             ${it ? `<div class="tiny vi">${esc(it.n)}</div>
                     <div class="tiny muted">${esc(it.d)}</div>`
@@ -178,13 +161,13 @@ ACTIONS.expgear = () => {
    donc au meme endroit. */
 const EXP_MODES = {
   classic: {n:"Classique",
-            d:"Douze étages, un noyau au bout. Un Pokémon tombé revient au combat suivant à 25%.",
+            d:"Trois cartes, deux Champions, un noyau. Un Pokémon tombé revient au combat suivant à 25%.",
             c:"var(--cyan)", mult:1},
   nuzlocke:{n:"Nuzlocke",
             d:"Le même parcours, mais un Pokémon tombé est perdu jusqu'au bout. Ni recrutement, ni échange.",
             c:"var(--magenta)", mult:1.8},
-  tower:   {n:"Tour de Données",
-            d:"Des étages sans fin, aucun noyau. Traits de type, renforts permanents, et votre record au classement.",
+  tower:   {n:"La Tour",
+            d:"Combats d'équipe à quatre : meneur, trois compétences par Pokémon, six ailes de paliers et les verrous légendaires.",
             c:"var(--violet)", mult:1, go:"tower"}
 };
 /* la Tour n'est pas un mode de parcours : c'est une destination */

@@ -16,15 +16,15 @@ global.URL={createObjectURL:()=>""}; global.Blob=function(){};
 global.setTimeout=()=>0; global.setInterval=()=>0; global.clearInterval=noop; global.clearTimeout=noop;
 
 const fs=require("fs");
-const ORDER=['_dexblob.js','_atlas.js','_atlas_shiny.js','_pmd.js','_items.js','_lore.js','_pzportrait.js','_chars.js','_cardart.js','00-slugs.js','01-data.js','02-story.js','10-core.js','15-fx.js','20-ui.js','30-capture.js','32-world.js','33-fishing.js','34-research.js','36-lore.js','37-cine.js','38-forage.js','39-daily.js','39b-events.js',
- '35-modules.js','40-battle.js','50-expedition.js','52-expgear.js','54-tower.js','56-breche.js','57-breche-run.js','58-breche-ui.js','59-breche-plus.js','59m-breche-map.js','59a-breche-attacks.js','59p-breche-pmd.js','59f-breche-feel.js','59g-breche-bossfight.js','59d-descente.js','59e-descente-ui.js','59s-breche-share.js','60-poker.js','70-collection.js','72-bag.js','73-cards.js','74-eggs.js','75-extras.js','76-items.js','77-secrets.js','78-milestones.js','79-ux.js','80-guide.js','81-cosmetics.js','85-journal.js','90-admin.js','95-online.js','96-pwa.js','99-boot.js'];
+const ORDER=['_dexblob.js','_atlas.js','_atlas_shiny.js','_pmd.js','_items.js','_lore.js','_pzportrait.js','_chars.js','_trainers.js','_cardart.js','00-slugs.js','01-data.js','02-story.js','10-core.js','15-fx.js','20-ui.js','30-capture.js','32-world.js','33-fishing.js','34-research.js','36-lore.js','37-cine.js','38-forage.js','39-daily.js','39b-events.js',
+ '35-modules.js','40-battle.js','41-arena.js','50-expedition.js','51-expscene.js','51m-expmap.js','52-expgear.js','54-tower.js','55-squad.js','55b-squad-ui.js','56-breche.js','57-breche-run.js','58-breche-ui.js','59-breche-plus.js','59m-breche-map.js','59a-breche-attacks.js','59p-breche-pmd.js','59f-breche-feel.js','59g-breche-bossfight.js','59d-descente.js','59e-descente-ui.js','59s-breche-share.js','60-poker.js','70-collection.js','72-bag.js','73-cards.js','74-eggs.js','75-extras.js','76-items.js','77-secrets.js','78-milestones.js','79-ux.js','80-guide.js','81-cosmetics.js','85-journal.js','90-admin.js','95-online.js','96-pwa.js','99-boot.js'];
 eval(ORDER.map(f=>fs.readFileSync("src/"+f,"utf8")).join("\n") + "\n;global.G=" +
   JSON.stringify(null) + "||{};" +
   "G.api={newState:newState,setS:v=>S=v,getS:()=>S,SCREENS:SCREENS,ACTIONS:ACTIONS,newEncounter:newEncounter," +
   "onCatch:onCatch,onFail:onFail,getENC:()=>ENC,setENC:v=>ENC=v,dailyRollover:dailyRollover,POKE:POKE," +
   "addToDex:addToDex,startPoker:startPoker,pkStartRound:pkStartRound,pkPlay:pkPlay,pkToggle:pkToggle," +
   "pkScore:pkScore,pkRollShop:pkRollShop,JOKERS:JOKERS,BOOSTERS:BOOSTERS,LICENCES:LICENCES,HANDS:HANDS,pkRenderLive:pkRenderLive,skipResolve:skipResolve,commitResolve:commitResolve," +
-  "startExpedition:startExpedition,expRest:expRest,expTreasure:expTreasure,expShop:expShop,expEvent:expEvent," +
+  "startExpedition:startExpedition,EXP_EVENTS:EXP_EVENTS,expFloorOf:expFloorOf,MAP_ROWS:MAP_ROWS,openSector:openSector,POKE:POKE,enterNode:enterNode,expRest:expRest,expTreasure:expTreasure,expShop:expShop,expEvent:expEvent," +
   "genMap:genMap,createBattle:createBattle,makeFighter:makeFighter,renderArena:renderArena,teamPicker:teamPicker," +
   "checkAchievements:checkAchievements,rollQuests:rollQuests,claimQuest:claimQuest,claimLogin:claimLogin," +
   "grantCardV:grantCardV,grantSecretCard:grantSecretCard,cardVariants:cardVariants,cardHas:cardHas,cardOwnedCount:cardOwnedCount,cardTotal:cardTotal,CARD_MONS:CARD_MONS,CARD_SERIES_DEF:CARD_SERIES_DEF,CARD_ORDER:CARD_ORDER,rollCardSeries:rollCardSeries,randomCard:randomCard,migrateCards:migrateCards,CARD_INDEX:CARD_INDEX,dexTotal:dexTotal,REGIONS:REGIONS,ownedSorted:ownedSorted,canEvolve:canEvolve," +
@@ -175,23 +175,30 @@ t("poker : chaque booster propose un choix", ()=>{
 A.getS().poker=null;
 
 /* 7. Expedition : parcours complet hors combats */
-t("expedition : parcours des 12 etages", ()=>{
+t("expedition : parcours de tous les secteurs", ()=>{
   A.startExpedition(A.getS().team.slice(0,3));
   const run=A.getS().expedition;
   A.SCREENS.expedition.html();
-  let y=0, col=run.avail[0];
-  while(y<12){
-    const node=run.map[y][col];
-    run.row=y; run.col=col; run.floor=y; node.done=true;
-    if(node.t==="rest") A.expRest(run);
-    else if(node.t==="treasure") A.expTreasure(run);
-    else if(node.t==="shop"){ A.expShop(run); run.shopStock=null; }
-    else if(node.t==="event"){ A.expEvent(run); const o=run._ev.opts[0].f(run); if(typeof o!=="string") throw new Error("event"); delete run._ev; }
-    A.SCREENS.expedition.html();
-    if(y===11) break;
-    run.avail=node.next; col=node.next[0]; y++;
+  for(let k=0;k<run.maps;k++){
+    let y=0, col=run.avail[0];
+    while(true){
+      const node=run.map[y][col];
+      run.row=y; run.col=col; run.floor=A.expFloorOf(run.mapIdx,y,run.maps); run.step=run.mapIdx*A.MAP_ROWS+y; node.done=true;
+      if(node.t==="rest") A.expRest(run);
+      else if(node.t==="treasure") A.expTreasure(run);
+      else if(node.t==="shop"){ A.expShop(run); run.shopStock=null; }
+      else if(node.t==="event"){ A.expEvent(run); const o=A.EXP_EVENTS[run.pend.e].opts[0].f(run); if(typeof o!=="string") throw new Error("event"); }
+      else if(node.t==="draft"||node.t==="swap"){ A.enterNode(run,node); if(!run.pend||!run.pend.list||!run.pend.list.length) throw new Error("scene vide : "+node.t); }
+      else { A.enterNode(run,node); if(!run.pend||run.pend.k!=="enc"||!run.pend.foes.length) throw new Error("rencontre sans adversaire : "+node.t);
+        if(node.t==="champ" && run.pend.foes.some(f=>!A.POKE[f.id].types.includes(run.leader.t))) throw new Error("equipe du champion hors type"); }
+      run.pend=null;
+      A.SCREENS.expedition.html();
+      if(y===run.map.length-1) break;
+      run.avail=node.next; col=node.next[0]; y++;
+    }
+    if(k<run.maps-1) A.openSector(run, run.mapIdx+1);
   }
-  if(run.relics.length===undefined) throw new Error("reliques cassees");
+  if(run.mapIdx!==run.maps-1) throw new Error("secteurs incomplets");
 });
 A.getS().expedition=null;
 

@@ -64,7 +64,7 @@ function newState(){
     stats: {catches:0, shinies:0, bestStreak:0, expWins:0, expRuns:0, pokerWins:0, pokerBest:0,
             energyTotal:0, evolutions:0, fish:0, throws:0, spend:0, bossWins:0, boxOpens:0},
     daily: {day:"", firstWin:{}, dayCatch:0, dayNew:0, dayStreak:0, dayFish:0, daySpend:0, dayExp:0,
-            dayPokerBlinds:0, dayRare:0, dayEvo:0, dayEnergy:0, dayThrow:0, dayBoss:0, dayExcellent:0},
+            dayPokerBlinds:0, dayRare:0, dayEvo:0, dayEnergy:0, dayThrow:0, dayBoss:0, dayTower:0, dayExcellent:0},
     quests: [], questDay: "", lastQuestIds: [],
     weekly: null,
     buddy: null,
@@ -122,6 +122,8 @@ function load(){
     const merged = deepFill(d, base);
     merged.v = SAVE_VER;
     merged.cards = migrateCards(merged.cards);
+    /* l'ancienne ascension de la Tour n'existe plus : un parcours en cours n'a nulle part ou reprendre */
+    merged.towerRun = null;
     return merged;
   } catch(e){ console.warn("sauvegarde illisible", e); return null; }
 }
@@ -245,7 +247,9 @@ function rollQuests(){
   const chosen = [], used = new Set();
   for(const tier of mix){
     /* jamais une quete impossible : la peche exige une canne, le forage son module */
-    const doable = q => !(q.stat === "dayFish" && !S.rod) && !(q.stat === "dayEnergy" && !moduleUnlocked("idle"));
+    const NEED = {dayEnergy:"idle", dayExp:"expedition", dayTower:"tower", dayPokerBlinds:"poker", dayBoss:"boss"};
+    const doable = q => !(q.stat === "dayFish" && !S.rod) && !(NEED[q.stat] && !moduleUnlocked(NEED[q.stat]))
+      && !(q.stat === "dayBoss" && !(typeof sqLockReady === "function" && (sqLockReady() || S.bosses.length)));
     const pool = QUEST_POOLS[tier].filter(q=>doable(q) && !used.has(q.id) && !banned.has(q.id));
     /* si l'anti-repetition vide le réserve, on relache la contrainte plutot que d'echouer */
     const src = pool.length ? pool : QUEST_POOLS[tier].filter(q=>doable(q) && !used.has(q.id));
@@ -294,7 +298,7 @@ function dailyRollover(){
   const t = today();
   if(S.daily.day !== t){
     S.daily = {day:t, dayCatch:0, dayNew:0, dayStreak:0, dayFish:0, daySpend:0, dayExp:0,
-               dayPokerBlinds:0, dayRare:0, dayEvo:0, dayEnergy:0, dayThrow:0, dayBoss:0, dayExcellent:0, firstWin:{}};
+               dayPokerBlinds:0, dayRare:0, dayEvo:0, dayEnergy:0, dayThrow:0, dayBoss:0, dayTower:0, dayExcellent:0, firstWin:{}};
   }
   if(S.questDay !== t) rollQuests();
   /* serie de connexion */
@@ -418,8 +422,9 @@ function fmtTime(ms){
 
 /* --- deverrouillage des modules --- */
 /* Ordre de deblocage : chaque module prepare le suivant.
-   L'expedition monte le niveau de l'equipe, ce qui est la seule preparation
-   possible aux verrous — elle doit donc venir avant eux, pas apres.
+   Capture -> Expedition (les niveaux) -> Tour (l'equipe de quatre, les
+   competences) -> verrous legendaires au sommet des ailes de la Tour ->
+   le premier verrou leve laisse une faille : la Breche -> le Poke-Poker.
    La couveuse ne s'ouvre pas a un niveau : elle s'ouvre le jour ou le joueur
    ramene un oeuf d'expedition, ce qui en fait une decouverte et non un palier. */
 const MODULE_REQ = {
@@ -427,15 +432,34 @@ const MODULE_REQ = {
   pokebox:   {lv:2,  d:"Niveau d'Archiviste 2"},
   idle:      {lv:5,  d:"Niveau d'Archiviste 5"},
   expedition:{lv:8,  d:"Niveau 8 et 3 Pokémon dans l'équipe", extra:()=>S.team.length>=3},
-  boss:      {lv:12, d:"Niveau 12, 25 espèces archivées et un gardien de la Descente vaincu",
-              extra:()=>dexTotal()>=25 && S.stats.expWins>=1},
-  /* la Breche absorbe les Data Guardians : memes conditions, meme place */
-  breche:    {lv:12, d:"Niveau 12, 25 espèces archivées et un gardien de la Descente vaincu",
-              extra:()=>dexTotal()>=25 && S.stats.expWins>=1},
-  eggs:      {lv:1,  d:"Ramener quelque chose d'inattendu de la Descente",
+  tower:     {lv:10, d:"Niveau 10 et 4 espèces archivées", extra:()=>dexTotal()>=4},
+  /* les Data Guardians se tiennent au sommet des ailes de la Tour : on les
+     decouvre en battant le boss de la premiere aile */
+  boss:      {lv:10, d:"Battre le boss de la Forêt de Jade, dans la Tour",
+              extra:()=>dexTotal()>=4 && (S.bosses.length>0 || (typeof sqStars === "function" && sqStars(0, SQ_STAGES - 1, 0) > 0))},
+  /* la Breche s'ouvre par la faille que laisse le premier verrou leve
+     (les parties qui y avaient deja joue la gardent) */
+  breche:    {lv:12, d:"Niveau 12 et un premier verrou légendaire levé dans la Tour",
+              extra:()=>S.bosses.length>=1 || !!(S.breche && S.breche.runs)},
+  eggs:      {lv:1,  d:"Ramener quelque chose d'inattendu d'une Expédition",
               extra:()=>!!S.flags.eggFound, hidden:1},
   poker:     {lv:15, d:"Niveau 15 et un verrou levé", extra:()=>S.bosses.length>=1}
 };
+/* ce qu'il reste a faire pour ouvrir une salle : seulement les conditions non remplies */
+const MODULE_NEED = {
+  expedition:[["3 Pokémon dans l'équipe", ()=>S.team.length>=3]],
+  tower:     [["4 espèces archivées", ()=>dexTotal()>=4]],
+  breche:    [["un premier verrou légendaire levé dans la Tour", ()=>S.bosses.length>=1 || !!(S.breche && S.breche.runs)]],
+  poker:     [["un verrou légendaire levé", ()=>S.bosses.length>=1]]
+};
+function moduleMissing(k){
+  const r = MODULE_REQ[k]; if(!r) return [];
+  const out = [];
+  if(S.level < r.lv) out.push(`Niveau d'Archiviste ${r.lv} (actuel : ${S.level})`);
+  for(const [t, ok] of (MODULE_NEED[k] || [])) if(!ok()) out.push(t);
+  if(!out.length && !moduleUnlocked(k)) out.push(r.d);
+  return out;
+}
 function moduleUnlocked(k){
   const r = MODULE_REQ[k]; if(!r) return true;
   if(S.level < r.lv) return false;

@@ -506,7 +506,7 @@ SCREENS.online = {
 
   board(){
     const metrics = [["integrity","Intégrité"],["dex_count","Pokédex"],["level","Niveau"],
-                     ["shinies","Chromatiques"],["best_streak","Série"],["best_ante","Poké-Poker"],["tower","Sans fond"],
+                     ["shinies","Chromatiques"],["best_streak","Série"],["best_ante","Poké-Poker"],["tower","Tour"],
                      ["guardians","Verrous"],["breche_depth","Faille profonde"],["breche_clears","Brèches"]];
     return `
       <div class="chipbar">
@@ -523,7 +523,7 @@ SCREENS.online = {
                 const me = r.user_id === Net.userId();
                 const val = {integrity:r.integrity+"%", dex_count:r.dex_count+"/386", level:"niv."+r.level,
                   shinies:r.shinies, best_streak:r.best_streak, best_ante:"ante "+r.best_ante,
-                  tower:"étage "+(r.tower||0), guardians:r.guardians+"/9"}[NET_BOARD_METRIC];
+                  tower:"palier "+(r.tower||0), guardians:r.guardians+"/9"}[NET_BOARD_METRIC];
                 return `<div class="item ${me?"on":""}">
                   <div class="lb-rank ${i<3?"top":""}">${i+1}</div>
                   <div class="grow"><div class="t">${esc(r.name||"Archiviste")}

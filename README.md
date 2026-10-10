@@ -158,7 +158,145 @@ sur la classe censée le cacher.
 La première scène est l'ouverture, **« L'écriture interrompue »** : le monde d'avant, la panne,
 le redémarrage, le réveil. Elle remplace l'ancienne scène d'ouverture et se revoit depuis le journal.
 
-## La Descente — livraison 1 (`59d`, `59e`)
+## L'Arène — les combats mis en scène (`41`)
+
+Retour d'expérience : la Descente (donjon au tour par tour) était trop longue et peu addictive.
+**L'Expédition et la Tour ont repris leur place dans le hub** ; la Descente n'est plus proposée
+(son code reste dans le build, sans point d'entrée, et aucune sauvegarde n'est touchée).
+La recette retenue est celle d'un Pokélike : carte à embranchements, combats automatiques,
+recrues à choisir — en version immersive. Première pierre : l'arène.
+
+- **Le moteur (`40`) reste seul juge.** L'arène n'invente aucun chiffre : elle écoute ce que le
+  moteur annonce (`arHook` : une attaque part, un coup porte, un K.O., une relève) et le rejoue
+  sur un canvas, dans l'ordre. Sans canvas (tests Node, vieux navigateur), `arOn()` renvoie faux
+  et le combat se déroule comme avant.
+- **Deux équipes face à face** : champions au centre, réserves en colonne sur leur bord, sprites
+  de marche PMD avec poses d'attaque, de tir et de douleur (repli sur le sprite fixe tant que la
+  planche n'est pas arrivée).
+- **Une manière de frapper par type** (`AR_KIND`) : charge, lames, jet continu, rayon, foudre,
+  éboulement, fissure, anneaux psychiques… Le nom de la capacité peut l'emporter sur le type
+  (`arKindOf` : une « Griffe » charge, un « Rayon » tire).
+- **Le poids des coups** : recul, flash blanc, tremblement proportionnel aux dégâts, arrêt sur
+  image et resserrement de caméra sur un critique ou un coup super efficace, traces au sol,
+  barre de vie à deux temps, K.O. en défragmentation, saut de joie à la victoire.
+- **Un décor par type d'adversaire** (`AR_BIOME`), généré une fois par combat.
+- **Les gardiens** (noyau d'Expédition, gardien d'étage de la Tour, verrous) ont leur carte de
+  nom ; chaque membre de l'équipe d'un noyau est annoncé comme une phase.
+- **Rythme** : ×1 / ×2 / ×4, maintenir le doigt sur l'arène triple la vitesse, un bouton passe
+  le combat. `bStep()` remplace les délais fixes du moteur : il attend la fin de la mise en scène.
+- Le journal écrit chaque ligne au moment où l'image la montre.
+
+À suivre (deuxième livraison) : la carte-voyage, les recrues révélées comme des cartes, les
+événements racontés par Porygon-Z.
+
+## La Tour — combats d'équipe façon Summoners War (`55`, `55b`)
+
+- **Équipe de 4** Pokémon de l'archive, à leur niveau d'archive (les niveaux se gagnent en Expédition).
+  Le premier est le **meneur** : les espèces puissantes (BST ≥ 470, légendaires) ont un passif tiré de
+  leur meilleure statistique (`sqLeaderOf` : Attaque, Défense, PV, Vitesse, ou critique pour les
+  Dragons et Ténèbres).
+- **3 compétences** par espèce (`sqSkillsOf`) : attaque de base du type principal, compétence à
+  recharge (`SQ_S2`, par type principal), ultime (`SQ_S3`, par second type). Effets : brûlure,
+  poison, étourdissement, ralentissement, Défense/Attaque −, Attaque/Défense/Vitesse +, bouclier,
+  soin, purge, jauge ±, perce-défense.
+- **Jauge de tour** à la Vitesse (`sqNext`), recharges, effets qui s'usent en fin de tour.
+- **Scénario** : six secteurs sur une carte du monde, **sept paliers** chacun (le septième est le boss
+  du secteur), trois vagues par palier, trois difficultés **Normal / Difficile / Enfer** (+16 et +32
+  niveaux, monstres plus solides), chacune ouverte par le boss de la précédente. Étoiles : 3 sans
+  perte, 2 avec une perte, 1 sinon.
+- **Préparation** (comme Summoners War) : les vagues à affronter, quatre emplacements dont le meneur,
+  la liste de ses Pokémon en grille, le bouton COMBAT.
+- **Combat en vue de trois quarts** : l'équipe en bas à gauche tournée vers le haut-droite, les
+  monstres en haut à droite, profondeur ; fiche par Pokémon (type, PV, jauge, effets et durées),
+  boutons ronds de compétence (appui long = description), flèche rouge sur la cible, vagues en
+  points, pause, AUTO et ×1/×2/×3, cinématique des ultimes.
+- **Expérience** : chaque combat en donne à l'équipe (`sqGiveXp`) et fait monter le niveau d'archive.
+- **Parchemins** (récompense propre à la Tour) : monter une compétence (+8 % par niveau, recharge −1
+  au niveau 5), pour toute la lignée. Les renforts de lignée de l'ancienne Tour restent appliqués.
+- **Manuel** (compétence puis cible au toucher) ou **automatique** (`sqAI`), vitesses ×1/×2/×4.
+- **Verrous légendaires** (les Data Guardians, `sqLockGate`, `sqLockWaves`, `sqPhase`, `sqLockFinish`) :
+  au sommet des ailes 2, 4 et 6, un par difficulté — Kanto en Normal, Johto en Difficile, Hoenn en
+  Enfer. Ouvert quand le boss de l'aile est battu dans cette difficulté, que l'archive compte assez
+  d'espèces du secteur (`guardianAvailable`) et que le verrou précédent est levé. Une vague d'escorte
+  à ses types, puis lui seul (niveau = boss de l'aile + 4, `sqLockLevel`), insensible à
+  l'étourdissement et aux pertes de jauge ; à mi-vie il se reconfigure (purge, Attaque + 3 tours, deux
+  renforts). La victoire passe par `brGuardianWin` (archive, carte légendaire, intégrité, noyaux) et
+  donne des parchemins ; rejouable, récompenses réduites. L'ancien écran `boss` mène ici.
+- **Déblocages** : Tour (niveau 10) → Data Guardians découverts au boss de la Forêt de Jade → le premier
+  verrou levé ouvre la **Brèche** (niveau 12 ; les parties qui y avaient joué la gardent) → Poké-Poker.
+  La Brèche se termine toujours sur son Alpha (`brGuardianFor` rend `null`).
+- Simulation : `node squadsim.js <avance de niveau>` ; verrous : `node squadsim.js 0 locks <niv. de
+  compétence> [smart]` (équipes au hasard : 5 à 50 % ; équipes choisies au type : 40 à 100 %).
+
+## Audit de cohérence (octobre 2026)
+
+- **Bonus de première victoire** séparés par mode (`FIRST_WIN` : Expédition, Tour, Brèche, verrous, Poker) ;
+  la Tour double PokéCoins et Fragments et ajoute un parchemin. *Aujourd'hui* liste la Tour (et un verrou
+  prêt) et la Brèche du jour.
+- **Quêtes jamais impossibles** : quotidiennes et hebdomadaires filtrées par salle ouverte (`NEED`,
+  `WEEKLY_NEEDS`) ; quêtes de Tour (`dayTower`, `wkTower`). Contrats : jamais un type absent du secteur,
+  libellé lisible.
+- **Salle suivante** : seules les conditions non remplies s'affichent (`moduleMissing`).
+- **Tour** : tutoriels (`tower`, `towerprep`), équipe proposée d'office (`sqDefaultTeam`), succès (4), directive
+  « Battre le boss de la Forêt de Jade », scènes et directives vérifiées après chaque combat ; l'équipe de la Tour
+  n'écrase plus l'équipe de capture.
+- **Verrous** : chaque gardien libéré laisse une dernière phrase (`bye`), gardée sur l'écran des verrous ; une
+  défaite déclenche le conseil de Porygon-Z ; le légendaire rejoint l'archive à un niveau utilisable.
+- Ancienne ascension de la Tour (`S.towerRun`) purgée au chargement ; textes sans accents corrigés (succès,
+  secteurs, titres des gardiens).
+
+## L'Expédition façon Pokélike — secteurs, treillis, progression (`50`, `51`, `51m`)
+
+- **Trois cartes au même dessin** (`MAP_SHAPE` = 2, 3, 4, 3, 4, 3, 2 puis le Champion) : chaque nœud
+  mène aux deux nœuds en diagonale sous lui ; les liaisons forment des losanges et ne se croisent
+  jamais. Juste avant le Champion, un seul Centre Pokémon (soin complet) : le prendre coûte l'autre case.
+- **Champions** (`LEADERS` : Pierre, Ondine, Major Bob, Erika, Koga, Morgane, Auguste, Giovanni, Peter,
+  Agatha, Olga, Aldo) : silhouette et « ? » sur la carte, type révélé au combat, trois Pokémon de ce
+  type. Le badge donne +3 niveaux, 40 % de soin et une relique à choisir parmi trois ; la carte
+  suivante s'ouvre. La troisième carte se termine sur le Noyau.
+- **Progression** (`EXP_GAIN`) : départ de la forme de base (`lineRoot`) au niveau 5 (jusqu'à +3
+  selon l'archive) ; hautes herbes +1, dresseur et élite +2, champion +3, le reste +0 ; évolution
+  au niveau d'évolution ; échange = +4 niveaux sur le Pokémon cédé ; recrue au niveau de l'équipe.
+  Les adversaires suivent la progression attendue (`expExpected`), pas l'équipe réelle.
+- **Espèces à leur place** (`minLevelOf`, `levelWildId`) : un adversaire de niveau 10 est une forme
+  de base ; l'espèce suit le niveau du combat.
+- **Équilibrage** (`node expsim.js`) : route offensive bien menée ~40 % de runs au bout, au hasard ~8 %,
+  en évitant les combats ~2 % — la route est la décision principale.
+- **Carte en pixel art** (`51m`) : terrain peint une fois par secteur (prairie, forêt, grotte, plage,
+  glacier, volcan, puis la faille), bâtiment et porte de départ en haut, grille du Champion en bas,
+  sentiers en pointillés, sprites de carte des dresseurs (un par type, Rouge Feu) et icônes des
+  services (hautes herbes, Poké Ball, sac, Centre, Boutique, « ? »).
+- L'archive reçoit les niveaux permanents sur l'espèce choisie au départ (`m.base`), même évoluée.
+
+## L'Expédition vécue — scènes (`51`, `_trainers`)
+
+- **Carte par couloirs** (`genMap`) : quatre couloirs, quatre marcheurs qui restent dans leur
+  couloir ou glissent d'un cran ; un pas qui croiserait une liaison est refusé. Les nœuds sont
+  placés à leur couloir : une route qui ne bouge pas descend tout droit. Trois départs.
+- **Lisibilité** : les routes encore possibles sont éclairées, les autres s'estompent. Toucher un
+  nœud lointain l'examine (type de dresseur, ce qu'il promet) et trace le chemin qui y mène.
+- **Dresseurs** : chaque nœud Archiviste a son dresseur dès la génération (`n.tr`), et une classe
+  par type (`TRAINER_TYPE_CLASS`) : un dresseur Feu a toujours le visage d'un Pyromane. Les Élites
+  sont des Topdresseurs ; le Noyau ne dit rien. Portraits extraits par `build_trainers.py`
+  depuis la décompilation pret/pokefirered (© Nintendo / Creatures / GAME FREAK).
+- **Le voyage** : le meneur de l'équipe (sprite de marche PMD) marche jusqu'au nœud choisi.
+- **Les scènes** (`51`) remplacent les feuilles : rencontre (rayures, dresseur, « VS », ou herbes
+  qui frémissent et Pokémon qui surgit), noyau (silhouette), victoire (équipe, Bits qui défilent,
+  soin visible, relique qui se retourne), trois Poké Balls de recrutement, coffre qui tremble puis
+  s'ouvre, feu de camp, boutique de Kecleon, terminal d'échange de Porygon, événement raconté par
+  Porygon-Z.
+- **Rien ne se perd** : tout ce qu'une scène attend est dans `run.pend` (y compris les adversaires
+  d'une rencontre, tirés à l'entrée du nœud). Fermer l'application en plein recrutement, coffre ou
+  combat rouvre la même scène.
+- **L'ordre de l'équipe** : toucher deux membres les échange (Expédition et Tour).
+- **Tour** : le choix d'un objet ou d'un remplaçant reste à l'écran tant qu'il n'est pas fait
+  (une feuille fermée bloquait l'ascension) ; le bouton Objets lit l'équipe de la Tour.
+
+## La Descente — retirée du hub (`59d`, `59e`)
+
+> Conservée pour mémoire. Les sections ci-dessous décrivent un mode qui n'est plus accessible.
+
+### Livraison 1
 
 L'Expédition refondue en **donjon mystère au tour par tour**, dans la Brèche (onglet « Descente »).
 Manuel par défaut, **automatique** en option. **Sauvegardée à chaque pas** : on quitte, on reprend.
@@ -219,8 +357,9 @@ Mesuré en mode automatique (`node dcsim.js 30`) : des starters battent le gardi
 
 ## La Brèche — le survivors-like
 
-Le module d'action du jeu, qui **remplace les Data Guardians** : les verrous légendaires y sont les
-gardiens, vaincus avec exactement les mêmes récompenses (`brGuardianWin`). Trois fichiers :
+Le module d'action du jeu. Il s'ouvre par la faille que laisse le premier verrou légendaire levé
+dans la Tour ; les verrous eux-mêmes se combattent désormais dans la Tour, la Brèche se conclut sur
+son Alpha. Trois fichiers :
 `56-breche.js` (moteur : sprites corrompus, sols, armes, pools), `57-breche-run.js` (la partie :
 vagues, boss, rendu), `58-breche-ui.js` (interface, hall, Archive, intégration).
 
@@ -233,7 +372,7 @@ découvre en jouant. Élites toutes les 60 s (coffre), alpha à 4 min, encerclem
 **gardien à 8 min**, puis la **faille profonde** en mode infini.
 
 **Autour.** Brèche du jour à graine partagée ; Archive à reconstruire avec les Données (gagnées même
-en cas de défaite) ; la Brèche nourrit la recherche, restaure des élites au Pokédex et lève les verrous.
+en cas de défaite) ; la Brèche nourrit la recherche et restaure des élites au Pokédex.
 Aucune énergie, aucune limite de runs, aucune série qui se brise.
 
 **Calibrage mesuré** (`node brsim.js 10` : runs complètes sans navigateur, deux profils) —

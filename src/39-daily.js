@@ -51,10 +51,21 @@ function todayRows(){
       add(false, "capture", "Capture autonome", "Session terminée : des Pokémon attendent.", "idle", true);
   }
   if(moduleUnlocked("expedition"))
-    add(!firstWinAvailable("expedition"), "boss", "La Descente",
+    add(!firstWinAvailable("expedition"), "boss", "L'Expédition",
         S.expedition ? "Un parcours est en cours." :
         firstWinAvailable("expedition") ? "Première victoire du jour : récompenses ×2." : "Bonus du jour utilisé.",
-        "descente", !!(S.descente && S.descente.saved) || firstWinAvailable("expedition"));
+        "expedition", !!S.expedition || firstWinAvailable("expedition"));
+  if(moduleUnlocked("tower")){
+    const lk = typeof sqLockReady === "function" && sqLockReady();
+    add(!firstWinAvailable("tower") && !lk, lk ? "lock" : "user", "La Tour",
+        lk ? "Un verrou légendaire attend au sommet d'une aile." :
+        firstWinAvailable("tower") ? "Première victoire du jour : récompenses ×2 et un parchemin." : "Bonus du jour utilisé.",
+        lk ? "boss" : "tower", lk || firstWinAvailable("tower"));
+  }
+  if(moduleUnlocked("breche") && typeof brState === "function"){
+    const done = brState().daily.day === today();
+    add(done, "boss", "Brèche du jour", done ? "Tentée aujourd'hui." : "Même graine pour tous, Données ×1,5.", "breche", !done);
+  }
   if(moduleUnlocked("poker"))
     add(!firstWinAvailable("poker"), "cards", "Poké-Poker",
         firstWinAvailable("poker") ? "Première victoire du jour : récompenses ×2." : "Bonus du jour utilisé.",
@@ -309,7 +320,7 @@ ACTIONS.rivalgo = () => {
     foes.push(makeFighter(pool.length ? pick(pool) : randInt(1,151), clamp(avg + 2, 5, 100), {boost:1.05}));
   }
   createBattle(allies, foes, {
-    ai: true, speed: S.settings.battleSpeed || 1, title: rv.n.split(",")[0].toUpperCase(),
+    ai: true, speed: S.settings.battleSpeed || 1, title: rv.n.split(",")[0].toUpperCase(), stage: "elite",
     onEnd: win => {
       S.stats.rivals = (S.stats.rivals || 0) + (win ? 1 : 0);
       if(win){
@@ -469,7 +480,7 @@ SCREENS.faction = {
           <div class="tiny dim" style="margin-top:3px">${fmt(pts)} / ${fmt(next)} points</div>`
           : `<div class="tiny ok" style="margin-top:5px">Rang maximal.</div>`}
         <div class="tiny dim" style="margin-top:6px">Points : 1 par capture, 5 par tâche de recherche,
-          20 par gardien de la Descente, 50 par verrou levé.</div>
+          20 par Expédition réussie, 50 par verrou levé.</div>
       </div>` : ""}
       <div class="list">${Object.entries(FACTIONS).map(([k,f])=>`
         <div class="factioncard ${cur===k?"on":""}" style="--fc:${f.c}">

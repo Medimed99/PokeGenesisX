@@ -20,14 +20,18 @@ const ACTIVITIES = [
    d:"Frapper la sphère, descendre de strate en strate, lancer la capture autonome.",
    st:()=>`${fmt(Math.round(forageRate()*10)/10)} Énergie / s · strate ${forage().depth + 1}`,
    alert:()=>forage().vein > Date.now() || (typeof botReady === "function" && botReady())},
-  {k:"expedition", n:"La Descente", i:"map", go:"descente",
-   d:"Un donjon au tour par tour : choisissez vos portes, recrutez, affrontez le gardien — ou plongez sans fond.",
-   st:()=>(S.descente && S.descente.saved) ? "Descente en cours" : `${(S.descente && S.descente.wins) || 0} gardien(s) vaincu(s)`,
-   alert:()=>!!(S.descente && S.descente.saved), fw:"expedition"},
+  {k:"expedition", n:"L'Expédition", i:"map", go:"expedition",
+   d:"Une carte à embranchements, des combats mis en scène, des recrues à choisir. Dix minutes, un noyau au bout.",
+   st:()=>S.expedition ? `Expédition en cours · secteur ${(S.expedition.mapIdx || 0) + 1}` : `${S.stats.expWins} réussie(s)`,
+   alert:()=>!!S.expedition, fw:"expedition"},
+  {k:"tower", n:"La Tour", i:"user", go:"tower",
+   d:"Combats d'équipe à quatre, six ailes de paliers, et à leur sommet les verrous légendaires.",
+   st:()=>{ const b = typeof sqBestStage === "function" ? sqBestStage() : 0; return b ? `Palier ${b} / ${SQ_ZONES.length * SQ_STAGES * SQ_DIFFS.length} · ${S.bosses.length} / 9 verrous` : "Jamais gravie"; },
+   alert:()=>typeof sqLockReady === "function" && sqLockReady(), fw:"tower"},
   {k:"breche", n:"La Brèche", i:"boss", go:"breche",
    d:"Tenir huit minutes face à la faille. Vos Pokémon attaquent seuls, vous choisissez.",
-   st:()=>{ const b = brState(); return b.runs ? `${b.clears} refermée(s) · ${S.bosses.length} / 9 verrous` : "Jamais ouverte"; },
-   alert:()=>brState().daily.day !== today() && moduleUnlocked("breche"), fw:"boss"},
+   st:()=>{ const b = brState(); return b.runs ? `${b.clears} refermée(s) · ${b.runs} partie(s)` : "Jamais ouverte"; },
+   alert:()=>brState().daily.day !== today() && moduleUnlocked("breche"), fw:"breche"},
   {k:"poker", n:"Poké-Poker", i:"cards", go:"poker",
    d:"Composer des mains de Pokémon, empiler des programmes.",
    st:()=>S.poker ? `Ante ${S.poker.ante} en cours` : `Meilleure ante ${S.pokerMeta.bestAnte||0}`,
@@ -61,7 +65,7 @@ SCREENS.modules = {
         ${next ? `<div class="modcard locked nextroom">
             <div class="ic">${ic("lock")}</div>
             <div class="grow"><div class="t">Salle suivante</div>
-              <div class="lockmsg">S'ouvre à : ${esc(MODULE_REQ[next.k].d)}</div></div>
+              <div class="lockmsg">Il reste : ${esc(moduleMissing(next.k).join(" · "))}</div></div>
           </div>` : ""}
       </div>
       ${locked.length > 1 ? `<div class="tiny dim" style="text-align:center;margin-top:8px">

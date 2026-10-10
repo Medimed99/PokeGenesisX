@@ -161,6 +161,7 @@ function towerFight(){
   createBattle(allies, foes, {
     ai: true, speed: S.settings.battleSpeed || 1,
     title: boss ? `ÉTAGE ${R.stage} — GARDIEN` : `ÉTAGE ${R.stage} — ${R.step + 1}/${TOWER_STEPS - 1}`,
+    stage: boss ? "boss" : null,
     onEnd: win => {
       for(const f of allies) if(f.ref) f.ref.hp = Math.max(0, f.hp);
       if(!win){ endTower(); return; }
@@ -241,6 +242,9 @@ SCREENS.tower = {
     const R = S.towerRun;
     if(!R) return this.lobby(T);
     if(R.pick) return this.offers(R);
+    /* un objet ou une recrue en attente : le choix reste a l'ecran tant qu'il n'est pas fait */
+    if(R.give && EXP_ITEMS[R.give]) return this.give(R);
+    if(R.swapIn && POKE[R.swapIn]) return this.swapIn(R);
     return this.run(R, T);
   },
 
@@ -295,10 +299,12 @@ SCREENS.tower = {
       </div>` : `<div class="panel tight"><div class="tiny muted">Aucun trait actif :
         il faut deux Pokémon d'un même type dans l'équipe.</div></div>`}
 
-      <div class="team-strip">${R.team.map(m=>{
+      <div class="h sm">ÉQUIPE <span class="dim tiny">— touchez deux membres pour les échanger</span></div>
+      <div class="team-strip">${R.team.map((m,i)=>{
         const pct = Math.max(0, m.hp/m.maxHp*100);
         const it = itemOf(m);
-        return `<div class="tmem ${m.hp<=0?"ko":""}">
+        return `<div class="tmem ${m.hp<=0?"ko":""} ${TEAM_SEL===i?"sel":""}" data-act="teamtap" data-i="${i}">
+          <span class="tpos">${i+1}</span>
           <span class="lv">${m.level}</span>
           <span class="sprbox" style="width:40px;height:40px">${sprite(m.id, S.dex[m.id]?.shiny, "")}</span>
           <div class="nm">${esc(POKE[m.id].name)}</div>
@@ -308,10 +314,40 @@ SCREENS.tower = {
 
       <button class="throwbtn" style="margin-top:11px" data-act="towerfight">
         ${R.step === TOWER_STEPS-1 ? "AFFRONTER LE GARDIEN" : "COMBAT SUIVANT"}</button>
-      <div class="btn-grid c2" style="margin-top:8px">
+      <div class="btn-grid c3" style="margin-top:8px">
+        <button class="btn sm" data-act="exporder">${ic("grid")} Ordre</button>
         <button class="btn sm" data-act="expgear">${ic("box")} Objets</button>
         <button class="btn sm dan" data-act="towerquit">Redescendre</button>
       </div>`;
+  },
+
+  give(R){
+    const it = EXP_ITEMS[R.give];
+    return `<div class="h">${ic("box")} QUI PORTE ${esc(it.n.toUpperCase())} ?</div>
+      <div class="sub">${esc(it.d)}</div>
+      <div class="tp-sel">
+        ${R.team.map((m,i)=>{ const cur = itemOf(m);
+          return `<div class="tp-row ${m.hp<=0?"ghost":""}">
+            <span class="sprbox" style="width:38px;height:38px">${sprite(m.id, S.dex[m.id]?.shiny, "")}</span>
+            <div class="grow"><div class="tiny">${esc(POKE[m.id].name)} <span class="dim">N.${m.level}</span></div>
+              <div class="tiny ${cur?"vi":"dim"}">${cur ? "porte déjà " + esc(cur.n) : "aucun objet"}</div></div>
+            <button class="btn xs ${cur?"dan":"pri"}" data-act="towergive" data-i="${i}">${cur?"Remplacer":"Donner"}</button>
+          </div>`; }).join("")}
+      </div>
+      <button class="btn ghost wide" style="margin-top:10px" data-act="towergive" data-i="-1">Reposer l'objet</button>`;
+  },
+  swapIn(R){
+    const id = R.swapIn;
+    return `<div class="h">${ic("refresh")} REMPLACER QUI ?</div>
+      <div class="sub">Par <b>${esc(POKE[id].name)}</b>, au niveau ${towerLevel(R.stage)}.</div>
+      <div class="tp-sel">
+        ${R.team.map((m,i)=>`<div class="tp-row">
+          <span class="sprbox" style="width:38px;height:38px">${sprite(m.id, S.dex[m.id]?.shiny, "")}</span>
+          <div class="grow"><div class="tiny">${esc(POKE[m.id].name)} <span class="dim">N.${m.level}</span></div></div>
+          <button class="btn xs" data-act="towerswapdo" data-i="${i}">Remplacer</button>
+        </div>`).join("")}
+      </div>
+      <button class="btn ghost wide" style="margin-top:10px" data-act="towerskip">Ne rien changer</button>`;
   },
 
   offers(R){
@@ -358,6 +394,8 @@ ACTIONS.towerquit2 = () => { closeSheet(); endTower(); };
 
 ACTIONS.towertake = d => {
   const R = S.towerRun, T = towerState();
+  /* un double toucher, ou une feuille fermee : le choix est deja fait, on redessine */
+  if(!R || !R.pick || !R.pick[+d.i]){ closeSheet(); go(R ? "tower" : "expedition"); return; }
   const o = R.pick[+d.i];
   R.pick = null;
   if(o.k === "buff"){ T.points++; toast("Renfort supplémentaire à attribuer", "warn", "star"); }
@@ -365,19 +403,14 @@ ACTIONS.towertake = d => {
     for(const m of R.team) m.hp = m.hp > 0 ? m.maxHp : Math.floor(m.maxHp * 0.5);
     toast("Équipe réparée", "", "heart");
   }
-  else if(o.k === "item"){
-    save();
-    ACTIONS.expitempickTower = null;
-    towerGiveItem(o.id);
-    return;
-  }
+  else if(o.k === "item"){ R.give = o.id; }
   else if(o.k === "recruit"){
     const f = makeFighter(o.id, towerLevel(R.stage), {});
     applyTowerBuffs(o.id, f);
     R.team.push({id:o.id, level:towerLevel(R.stage), hp:f.maxHp, maxHp:f.maxHp, item:null});
     toast(POKE[o.id].name + " rejoint l'ascension", "", "check");
   }
-  else if(o.k === "swap"){ towerSwap(o.id); return; }
+  else if(o.k === "swap"){ R.swapIn = o.id; }
   save(); go("tower");
 };
 function towerGiveItem(id){
@@ -397,7 +430,10 @@ function towerGiveItem(id){
 }
 ACTIONS.towergive = d => {
   const R = S.towerRun;
-  R.team[+d.i].item = d.id;
+  if(!R){ go("expedition"); return; }
+  const id = d.id || R.give, m = R.team[+d.i];
+  if(m && id && EXP_ITEMS[id]){ m.item = id; toast(`${POKE[m.id].name} porte ${EXP_ITEMS[id].n}`, "", "check"); }
+  R.give = null;
   save(); closeSheet(); go("tower");
 };
 function towerSwap(id){
@@ -414,9 +450,13 @@ function towerSwap(id){
       </div>
     <button class="btn ghost wide" style="margin-top:10px" data-act="towerskip">Ne rien changer</button>`);
 }
-ACTIONS.towerskip = () => { closeSheet(); save(); go("tower"); };
+ACTIONS.towerskip = () => { if(S.towerRun) S.towerRun.swapIn = null; closeSheet(); save(); go(S.towerRun ? "tower" : "expedition"); };
 ACTIONS.towerswapdo = d => {
-  const R = S.towerRun, id = +d.id;
+  const R = S.towerRun;
+  if(!R){ go("expedition"); return; }
+  const id = +(d.id || R.swapIn);
+  R.swapIn = null;
+  if(!POKE[id] || !R.team[+d.i]){ save(); closeSheet(); go("tower"); return; }
   const f = makeFighter(id, towerLevel(R.stage), {});
   applyTowerBuffs(id, f);
   R.team[+d.i] = {id, level:towerLevel(R.stage), hp:f.maxHp, maxHp:f.maxHp, item:null};
