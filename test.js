@@ -15,9 +15,9 @@ global.setInterval = () => 0;   /* pas de boucles pendant les tests */
 
 const fs = require("fs");
 const ORDER = ['_dexblob.js','_atlas.js','_atlas_shiny.js','_pmd.js','_items.js','_lore.js','_pzportrait.js','_chars.js','_trainers.js','_cardart.js','00-slugs.js','01-data.js','02-story.js','10-core.js','15-fx.js','20-ui.js','30-capture.js','32-world.js','33-fishing.js','34-research.js','36-lore.js','37-cine.js','38-forage.js','39-daily.js','39b-events.js',
-  '35-modules.js','40-battle.js','41-arena.js','50-expedition.js','51-expscene.js','51m-expmap.js','52-expgear.js','54-tower.js','55-squad.js','55b-squad-ui.js','56-breche.js','57-breche-run.js','58-breche-ui.js','59-breche-plus.js','59m-breche-map.js','59a-breche-attacks.js','59p-breche-pmd.js','59f-breche-feel.js','59g-breche-bossfight.js','59d-descente.js','59e-descente-ui.js','59s-breche-share.js','60-poker.js','70-collection.js','72-bag.js','73-cards.js','74-eggs.js','75-extras.js','76-items.js','77-secrets.js','78-milestones.js','79-ux.js','80-guide.js','81-cosmetics.js','85-journal.js','90-admin.js','95-online.js','96-pwa.js','99-boot.js'];
+  '35-modules.js','40-battle.js','41-arena.js','50-expedition.js','51-expscene.js','51m-expmap.js','52-expgear.js','54-tower.js','55-squad.js','55b-squad-ui.js','56-breche.js','57-breche-run.js','58-breche-ui.js','59-breche-plus.js','59m-breche-map.js','59a-breche-attacks.js','59p-breche-pmd.js','59f-breche-feel.js','59g-breche-bossfight.js','59s-breche-share.js','60-poker.js','70-collection.js','72-bag.js','73-cards.js','74-eggs.js','75-extras.js','76-items.js','77-secrets.js','78-milestones.js','79-ux.js','80-guide.js','81-cosmetics.js','85-journal.js','90-admin.js','95-online.js','96-pwa.js','99-boot.js'];
 const code = ORDER.map(f=>fs.readFileSync("src/"+f,"utf8")).join("\n");
-eval(code + "\n;" + 'global.__api={POKE,POKE_IDS,evalHand,genMap,EXP_ROWS,deepFill,newState,catchChance,typeMult,RARITY,ACHIEVEMENTS,JOKERS,STORY,anteTarget,makeFighter,damageCalc,xpForLevel,handBase,HANDS,newDeck,movesFor,dexTotal,famOf,stageOf,DIRECTIVES,INFOS,TUTOS,PZ_EVENTS,atlasIndex,ATLAS_N,ATLAS_BACK0,SLUGS,cardChips,grantCardV,grantSecretCard,cardVariants,cardHas,cardOwnedCount,cardTotal,CARD_MONS,CARD_SERIES_DEF,CARD_ORDER,rollCardSeries,randomCard,migrateCards,CARD_INDEX,cardChecksum,cardBytes,tcardHtml,cardBackHtml,GEN_TAG,boosterRank,seriesName,seriesFound,monFound,cardEnvOf,CARD_ENV,resolveName,KNOWN_NAMES,sixthItem,glitchSixthItem,GEN_MARKS,checkChainMark,specialDay,isNightWindow,PZ_POKE_LINES,SIXTH_SLOTS,KONAMI,karpDealDay,karpDealAvailable,BST_BANDS,bstBand,wildIdFor,NODE_W,nodeTypeFor,EXP_ITEMS,rollExpItem,itemMinFloor,EXP_MODES,expRunModes,genMap,traitLevels,traitBonus,TOWER_TRAITS,HABITATS,HABITAT_IDS,habitatWeight,isNight,WEATHER,WEATHER_IDS,weatherDef,speciesInHabitat,FRAGMENTS,RIFT_ARC,checkFragments,riftTick,riftStage,fragmentsFound,signatureMove,moveTierName,STRATA,DRILLS,ECHO_PERKS,forage,forageRate,clickValue,drillCost,depthCost,echoGain,unlocked,offlineHours,forageTick,EXCLUSIVES,EXCL_SOURCE,isExclusive,RODS,fishPool,newFishEncounter,speciesForRarity,eggPool,repelRarity,lureMul,rstreak,rstreakCatch,rstreakBreak,RSTREAK_MILES,PERMANENTS,charmMul,runeMul,shinyOdds,friendCheck,friendEvo,canEvolve,codeHash,CODES,isSafariDay,SAFARI_POOL,botSpecies,botRate,botHours,FACTIONS,FACTION_RANKS,factionRank,factionMul,factionPts,todayRows,todayPending,REGIONS,unlockedRegions,nextEncounter,newEncounter,rollRarity,fleeChance,RARITY,CINEMAS,CINE_WHO,CINE_T,corruptText,CINE_POS,moduleUnlocked,checkAchievements,sqSkillsOf,sqLeaderOf,sqNewBattle,sqNext,sqTurnStart,sqAct,sqSkip,sqAI,sqFinish,sqUpgrade,sqState,sqStars,sqZoneOpen,SQ_ZONES,SQ_STAGES,sqWaves,sqSkillLv,MAP_ROWS,MAP_SHAPE,EXP_MAPS,expGainLevels,expExpected,EXP_GAIN,startExpedition,openSector,afterFightRewards,lineRoot,createBattle,bStep,bSpeed,arOn,arNeed,AR_KIND,AR_BIOME,dcIsBossFloor,dcFinish,dcMigrateLegacy,towerState,SCREENS,dcUseItem,dcPickup,dcBuy,dcReact,dcTerrainTurn,dcPylons,dcCorrode,dcKo,dcPassable,dcMakeEnt,DC_ITEMS,DC_HELD,DC_BAG,dcAcceptRecruit,dcNewRun,dcGenFloor,dcPath,dcTurn,dcAim,dcLeader,dcSerialize,dcRestore,dcDescend,dcMoves,dcBossTurn,DC_W,DC_H,DC_FLOORS,brSummonBoss,brBossDown,BR_PATTERNS,BR_KIT_BY_TYPE,brBossKit,brTerrainReact,brTerrainUnder,brDecal,brHit,brAddZone,brMapNear,brMapPre,brUpdate,ACTIONS,ITEM_IDX,TREASURE_KEYS,BALLS,BERRIES,STONES,CHESTS,PERMANENTS,TREASURES,EXP_ITEMS,REPELS,ringGrade,RING_GRADES,evSeason,evSeasonKey,evWeeklyLegend,evWeekIndex,evState,evTier,evRunPoints,EV_TRACK,EV_SEASONS,brShareText,BR_KIND,BR_ATK,BR_LEGEND,brArchFor,brFire,brWeaponStats,brSpawnFoe,pwaAfterIntro,pwaInstallable,pwaEnv,brChunkAt,brPushOut,brMastery,BR_TERRAIN,brMissionsFor,brNewRun,brUpdate,brXpNeed,brChoices,brWeaponStats,brDaily,brGuardianWin,brGuardianFor,sqLockOpen,sqLockWaves,sqLockGate,sqLockLevel,sqLockAt,sqLockFinish,brNextEvo,brState,BR_ARCH,BR_ITEMS,ACTIVITIES,COSMETICS,FX_LAYERS,badgeCine,secretCine,BADGES,HANDS,MODULE_REQ,SCREENS,adminHash,ADMIN_HASH,ATELIER_TABS,STORY,RIFT_ARC,directStory,cineFor,RESEARCH_TASKS,researchOf,researchLevel,researchMax,researchTick,taskGoal,RESEARCH_TIERS,TALENTS,talentOf,PERFECT_ODDS,rollPerfect,weekStamp,REPORT_ROWS,lineRoot,towerLevel,towerBand,BUFF_STATS,TRAINERS,expEnemyLevel,setBuddy,buddyTick,buddyTier,buddyBonus,buddy,rollWeekly,weeklyTick,weeklyRollover,openChest,WEEKLY_POOL,BUDDY_FINDS,BUDDY_MAX_TIER,BUDDY_TIER_AFF,CHESTS,addToDex,weekKey,aimBonus,BOOSTS,startBoost,boostActive,LUCKY_DAYS,rollLuckyDay,luckyF,TREASURES,rollTreasure,treasureValue,REGION_TIERS,checkRegionTiers,regionTiersDone,rollContract,contractTick,CONTRACTS,CYCLE_MODS,PERKS,cycleReward,perkLv,loreOf,LORE,PZ_EMOS,pzMood,HELD_ITEMS,grantHeld,heldActive,PLANETS,SPECTRALS,QUEST_POOLS,questMix,rollQuests,setS:function(v){S=v},getS:function(){return S},setENC:function(v){ENC=v},getENC:function(){return ENC},getCINE:function(){return CINE},getCineLast:function(){return CINE_LAST},playStory:playStory};');
+eval(code + "\n;" + 'global.__api={POKE,POKE_IDS,evalHand,genMap,EXP_ROWS,deepFill,newState,catchChance,typeMult,RARITY,ACHIEVEMENTS,JOKERS,STORY,anteTarget,makeFighter,damageCalc,xpForLevel,handBase,HANDS,newDeck,movesFor,dexTotal,famOf,stageOf,DIRECTIVES,INFOS,TUTOS,PZ_EVENTS,atlasIndex,ATLAS_N,ATLAS_BACK0,SLUGS,cardChips,grantCardV,grantSecretCard,cardVariants,cardHas,cardOwnedCount,cardTotal,CARD_MONS,CARD_SERIES_DEF,CARD_ORDER,rollCardSeries,randomCard,migrateCards,CARD_INDEX,cardChecksum,cardBytes,tcardHtml,cardBackHtml,GEN_TAG,boosterRank,seriesName,seriesFound,monFound,cardEnvOf,CARD_ENV,resolveName,KNOWN_NAMES,sixthItem,glitchSixthItem,GEN_MARKS,checkChainMark,specialDay,isNightWindow,PZ_POKE_LINES,SIXTH_SLOTS,KONAMI,karpDealDay,karpDealAvailable,BST_BANDS,bstBand,wildIdFor,NODE_W,nodeTypeFor,EXP_ITEMS,rollExpItem,itemMinFloor,EXP_MODES,expRunModes,genMap,traitLevels,traitBonus,TOWER_TRAITS,HABITATS,HABITAT_IDS,habitatWeight,isNight,WEATHER,WEATHER_IDS,weatherDef,speciesInHabitat,FRAGMENTS,RIFT_ARC,checkFragments,riftTick,riftStage,fragmentsFound,signatureMove,moveTierName,STRATA,forage,forageRate,forageAdvance,digPower,digAff,digRate,crewIds,wallEvery,wallCap,genWall,digHit,digClaim,DIG_LOOT,FOR_UPS,offlineHours,forageTick,EGG_TIERS,EXCLUSIVES,EXCL_SOURCE,isExclusive,RODS,fishPool,newFishEncounter,speciesForRarity,eggPool,repelRarity,lureMul,rstreak,rstreakCatch,rstreakBreak,RSTREAK_MILES,PERMANENTS,charmMul,runeMul,shinyOdds,friendCheck,friendEvo,canEvolve,codeHash,CODES,isSafariDay,SAFARI_POOL,botSpecies,botRate,botHours,FACTIONS,FACTION_RANKS,factionRank,factionMul,factionPts,todayRows,todayPending,REGIONS,unlockedRegions,nextEncounter,newEncounter,rollRarity,fleeChance,RARITY,CINEMAS,CINE_WHO,CINE_T,corruptText,CINE_POS,moduleUnlocked,checkAchievements,sqSkillsOf,sqLeaderOf,sqNewBattle,sqNext,sqTurnStart,sqAct,sqSkip,sqAI,sqFinish,sqUpgrade,sqState,sqStars,sqZoneOpen,SQ_ZONES,SQ_STAGES,sqWaves,sqSkillLv,MAP_ROWS,MAP_SHAPE,EXP_MAPS,expGainLevels,expExpected,EXP_GAIN,startExpedition,openSector,afterFightRewards,lineRoot,createBattle,bStep,bSpeed,arOn,arNeed,AR_KIND,AR_BIOME,towerState,SCREENS,brSummonBoss,brBossDown,BR_PATTERNS,BR_KIT_BY_TYPE,brBossKit,brTerrainReact,brTerrainUnder,brDecal,brHit,brAddZone,brMapNear,brMapPre,brUpdate,ACTIONS,ITEM_IDX,TREASURE_KEYS,BALLS,BERRIES,STONES,CHESTS,PERMANENTS,TREASURES,EXP_ITEMS,REPELS,ringGrade,RING_GRADES,evSeason,evSeasonKey,evWeeklyLegend,evWeekIndex,evState,evTier,evRunPoints,EV_TRACK,EV_SEASONS,brShareText,BR_KIND,BR_ATK,BR_LEGEND,brArchFor,brFire,brWeaponStats,brSpawnFoe,pwaAfterIntro,pwaInstallable,pwaEnv,brChunkAt,brPushOut,brMastery,BR_TERRAIN,brMissionsFor,brNewRun,brUpdate,brXpNeed,brChoices,brWeaponStats,brDaily,brGuardianWin,brGuardianFor,sqLockOpen,sqLockWaves,sqLockGate,sqLockLevel,sqLockAt,sqLockFinish,brNextEvo,brState,BR_ARCH,BR_ITEMS,ACTIVITIES,COSMETICS,FX_LAYERS,badgeCine,secretCine,BADGES,HANDS,MODULE_REQ,SCREENS,adminHash,ADMIN_HASH,ATELIER_TABS,STORY,RIFT_ARC,directStory,cineFor,RESEARCH_TASKS,researchOf,researchLevel,researchMax,researchTick,taskGoal,RESEARCH_TIERS,TALENTS,talentOf,PERFECT_ODDS,rollPerfect,weekStamp,REPORT_ROWS,lineRoot,towerLevel,towerBand,BUFF_STATS,TRAINERS,expEnemyLevel,setBuddy,buddyTick,buddyTier,buddyBonus,buddy,rollWeekly,weeklyTick,weeklyRollover,openChest,WEEKLY_POOL,BUDDY_FINDS,BUDDY_MAX_TIER,BUDDY_TIER_AFF,CHESTS,addToDex,weekKey,aimBonus,BOOSTS,startBoost,boostActive,LUCKY_DAYS,rollLuckyDay,luckyF,TREASURES,rollTreasure,treasureValue,REGION_TIERS,checkRegionTiers,regionTiersDone,rollContract,contractTick,CONTRACTS,CYCLE_MODS,PERKS,cycleReward,perkLv,loreOf,LORE,PZ_EMOS,pzMood,HELD_ITEMS,grantHeld,heldActive,PLANETS,SPECTRALS,QUEST_POOLS,questMix,rollQuests,setS:function(v){S=v},getS:function(){return S},setENC:function(v){ENC=v},getENC:function(){return ENC},getCINE:function(){return CINE},getCineLast:function(){return CINE_LAST},playStory:playStory};');
 const A = global.__api;
 let pass=0, fail=0;
 const t = (n, cond, extra) => { cond?pass++:(fail++,console.log("  ECHEC:",n,extra||"")); };
@@ -141,7 +141,7 @@ t("antes croissantes", A.anteTarget(1,0) < A.anteTarget(1,2) && A.anteTarget(1,2
 
 /* --- contenu --- */
 t("27 scenes narratives", A.STORY.length===27, A.STORY.length);
-t("87 succes", A.ACHIEVEMENTS.length===87, A.ACHIEVEMENTS.length);
+t("84 succes", A.ACHIEVEMENTS.length===84, A.ACHIEVEMENTS.length);
 t("29 programmes", A.JOKERS.length===29, A.JOKERS.length);
 t("6 paliers de rarete", A.RARITY.length===6);
 
@@ -880,77 +880,69 @@ t("carte : une route ne glisse jamais de plus d'un couloir, et chaque dresseur m
 })());
 
 
-/* --- le forage --- */
-t("neuf strates, besoins et rendements croissants", (()=>{
+/* --- le forage : l'équipe creuse, on fouille les parois --- */
+t("neuf strates, de plus en plus profondes et dures, chacune avec sa matière et ses bons types", (()=>{
   if(A.STRATA.length !== 9) return false;
-  for(let i=1;i<9;i++){
-    if(A.STRATA[i].need <= A.STRATA[i-1].need) return false;
-    if(A.STRATA[i].mul  <= A.STRATA[i-1].mul)  return false;
+  for(let i=1;i<9;i++) if(A.STRATA[i].need <= A.STRATA[i-1].need || A.STRATA[i].hard <= A.STRATA[i-1].hard) return false;
+  return A.STRATA.every(s=>s.good.length && s.pal.length === 3 && s.mat);
+})());
+t("sans équipe, personne ne creuse ; avec une équipe, la profondeur et l'Énergie montent", (()=>{
+  A.setS(A.newState()); const S0 = A.getS(); S0.level = 6;
+  for(const id of [74, 27, 50]) A.addToDex(id, 15, false);
+  const f = A.forage(); f.crew = [];
+  const a = A.forageAdvance(600);
+  f.crew = [74, 27, 50];
+  const b = A.forageAdvance(600);
+  return a.m === 0 && b.m > 10 && f.energy > 0 && A.forageRate() > 0;
+})());
+t("les bons types creusent deux fois plus vite dans leur strate", (()=>{
+  A.setS(A.newState()); A.addToDex(74, 20, false); A.addToDex(4, 20, false);
+  return A.digAff(74, 0) === 2 && A.digAff(4, 0) === 1 && A.digAff(4, 3) === 2 && A.digAff(12, 3) === 0.5
+    && A.digPower(74, 0) > A.digPower(4, 0) * 1.5;
+})());
+t("une longue absence traverse plusieurs strates, et la réserve de parois plafonne", (()=>{
+  A.setS(A.newState());
+  for(const id of [76, 95, 112]) A.addToDex(id, 80, false);
+  const f = A.forage(); f.crew = [76, 95, 112];
+  const r = A.forageAdvance(8 * 3600);
+  return r.strata.length >= 2 && f.walls === A.wallCap() && f.depth >= 2 && A.wallEvery() === 420;
+})());
+t("une paroi : objets sans chevauchement, fer à l'écart, et tout se dégage à force de coups", (()=>{
+  A.setS(A.newState());
+  for(let k = 0; k < 20; k++){
+    const w = A.genWall(k % 9);
+    const cells = w.items.flatMap(it=>it.cells);
+    if(new Set(cells).size !== cells.length || w.items.length < 2) return false;
+    if(w.iron.flat().some(c=>cells.includes(c))) return false;
   }
-  return true;
+  const w = A.genWall(2); w.stab = w.max = 9999;
+  for(let pass = 0; pass < 8 && !w.over; pass++) for(let y = 0; y < w.H; y++) for(let x = 0; x < w.W; x++) A.digHit(w, "pick", x, y);
+  return w.over && !w.collapsed && w.items.every(it=>it.found);
 })());
-t("chaque strate sous la Surface ouvre une mécanique", (()=>{
-  const ks = A.STRATA.slice(1).map(x=>x.unlock && x.unlock.k);
-  return ks.every(Boolean) && new Set(ks).size === ks.length;
-})());
-t("aucune sonde ne produit avant la Couche molle", (()=>{
+t("une paroi s'effondre quand sa stabilité tombe à zéro, et l'on garde ce qui est dégagé", (()=>{
   A.setS(A.newState());
+  const w = A.genWall(0);
+  for(let i = 0; i < 200 && !w.over; i++) A.digHit(w, "hammer", 0, 0);
+  return w.over && w.collapsed && w.stab === 0;
+})());
+t("les objets d'une paroi arrivent bien : fragments, pierres, fossiles, Pokémon endormis", (()=>{
+  A.setS(A.newState()); const S0 = A.getS();
+  const w = A.genWall(3);
+  w.items = [{k:"red", found:true}, {k:"fire", found:true}, {k:"helix", found:true}, {k:"mon", mon:74, found:true}, {k:"pearl", found:false}];
+  const sh = S0.shards || 0;
+  const rows = A.digClaim(w);
+  return rows.length === 4 && (S0.shards || 0) > sh && S0.stones.fire === 1 && S0.eggs.bag.f_helix === 1 && !!S0.dex[74];
+})());
+t("un fossile déterré renferme toujours la même espèce", A.EGG_TIERS.f_helix.fossil === 138 && A.eggPool("f_amber").join() === "142");
+t("une partie d'avant la refonte garde sa profondeur", (()=>{
+  A.setS(A.newState()); const S0 = A.getS();
+  S0.forage = {energy:500, total:900, depth:4, drills:{main:3}, echoes:5, perks:{}};
   const f = A.forage();
-  f.drills = {main: 10};
-  const avant = f.energy;
-  A.forageTick(60);
-  return f.energy === avant && !A.unlocked("auto");
+  return f.m === A.STRATA[4].need && f.depth === 4 && f.energy === 500 && f.echoes === 5 && !f.drills;
 })());
-t("les sondes produisent une fois la Couche molle atteinte", (()=>{
-  A.setS(A.newState());
-  const f = A.forage();
-  f.depth = 1; f.drills = {main: 10};
-  A.forageTick(10);
-  return f.energy > 0 && A.forageRate() > 0;
-})());
-t("le coût d'une sonde croît avec le nombre possédé", (()=>{
-  A.setS(A.newState());
-  const f = A.forage(), d = A.DRILLS[0];
-  const c0 = A.drillCost(d);
-  f.drills[d.k] = 10;
-  return A.drillCost(d) > c0 * 5;
-})());
-t("la frappe vaut toujours au moins une unité", (()=>{
-  A.setS(A.newState());
-  return A.clickValue() >= 1;
-})());
-t("pas d'Échos avant la Faille mineure", (()=>{
-  A.setS(A.newState());
-  const f = A.forage();
-  f.total = 1e12; f.depth = 5;
-  return A.echoGain() === 0;
-})());
-t("le recalibrage rend des Échos une fois la Faille atteinte", (()=>{
-  A.setS(A.newState());
-  const f = A.forage();
-  f.total = 6e9; f.depth = 6;
-  return A.echoGain() > 0;
-})());
-t("six axes de recalibrage, coûts croissants", (()=>{
-  const ks = Object.keys(A.ECHO_PERKS);
-  if(ks.length !== 6) return false;
-  return ks.every(k=>{ const p = A.ECHO_PERKS[k];
-    return p.max > 0 && p.cost(1) > p.cost(0) && typeof p.d(0) === "string"; });
-})());
-t("le réservoir hors ligne se repousse", (()=>{
-  A.setS(A.newState());
-  const f = A.forage();
-  const base = A.offlineHours();
-  f.depth = 4; f.perks = {e_offline: 3};
-  return A.offlineHours() > base;
-})());
-t("la Pénétration réduit le coût de descente", (()=>{
-  A.setS(A.newState());
-  const f = A.forage();
-  f.depth = 2;
-  const c0 = A.depthCost();
-  f.perks = {e_depth: 3};
-  return A.depthCost() < c0;
+t("la réserve de parois repousse aussi le plafond hors ligne", (()=>{
+  A.setS(A.newState()); const base = A.offlineHours(); A.forage().up.cart = 2;
+  return A.offlineHours() === base + 4 && A.wallCap() === 5;
 })());
 
 
@@ -1119,7 +1111,7 @@ t("la chaîne reste tenable à la Poké Ball (calcul exact)", (()=>{
 /* --- standard des cinématiques : chaque scène est vérifiée ---
    Le vocabulaire est fermé. Une scène qui sort du standard échoue ici,
    avant d'échouer à l'écran. */
-const CINE_BEATS = ["bars","bg","card","actor","leave","mood","say","fx","code","rain","sfx","wait","par"];
+const CINE_BEATS = ["bars","bg","card","actor","leave","mood","say","ask","fx","code","rain","sfx","wait","par"];
 const CINE_FX = ["shake","flash","glitch","rgb","noise","blackout"];
 const CINE_BGS = ["labo","void","terminal","faille"];
 function cineLint(sc){
@@ -1640,137 +1632,12 @@ t("un combat de boss se joue en actes : entrée, arène, pylônes, ultime, final
 
 
 /* --- la Descente --- */
-function dcRun(seed, team){ A.setS(A.newState()); for(let i = 1; i <= 151; i++) A.addToDex(i, 20, false);
-  return A.dcNewRun({region:"kanto", hab:"route", team:team || [4, 7, 1], seed}); }
-t("chaque étage de la Descente est entièrement connexe, escalier compris", (()=>{
-  for(let seed = 1; seed <= 25; seed++){
-    const D = dcRun(seed * 977), L = A.dcLeader(D);
-    for(let fl = 1; fl < A.DC_FLOORS; fl++){
-      /* l'escalier est toujours atteignable a pied, meme pour un Pokemon qui ne nage pas */
-      if(!D.stairs || !A.dcPath(D, L.x, L.y, D.stairs.x, D.stairs.y, L)) return false;
-      /* et chaque salle offre au moins une case praticable atteignable */
-      for(const r of D.rooms){ let ok = false;
-        for(let x = r.x; x < r.x + r.w && !ok; x++) for(let y = r.y; y < r.y + r.h && !ok; y++)
-          if(A.dcPassable(D, L, x, y) && ((x === L.x && y === L.y) || A.dcPath(D, L.x, L.y, x, y, L))) ok = true;
-        if(!ok) return false; }
-      A.dcDescend(D);
-    }
-  }
-  return true;
-})());
-t("la sauvegarde de la Descente restitue la partie à l'identique", (()=>{
-  const D = dcRun(4242); for(let k = 0; k < 6; k++) A.dcTurn(D, {k:"wait"});
-  const json = A.dcSerialize(D), R2 = A.dcRestore(json);
-  return A.dcSerialize(R2) === json && R2.ents.length === D.ents.length && R2.floor === D.floor;
-})());
-t("un pas consomme un tour ; une attaque sans cible n'en consomme pas", (()=>{
-  const D = dcRun(99), L = A.dcLeader(D), t0 = D.turn;
-  const free = [[1,0],[0,1],[-1,0],[0,-1],[1,1],[-1,-1],[1,-1],[-1,1]].find(([dx, dy])=>D.tiles[(L.y + dy) * A.DC_W + L.x + dx] !== 0 && !D.ents.some(o=>o.x === L.x + dx && o.y === L.y + dy));
-  const moved = A.dcTurn(D, {k:"move", dx:free[0], dy:free[1]}) && D.turn === t0 + 1;
-  const aim = A.dcAim(D, A.dcLeader(D), 1);
-  return moved && aim === null;                      /* au depart, aucun ennemi a portee */
-})());
-t("le recrutement ajoute le Pokémon à l'équipe", (()=>{
-  const D = dcRun(7); D.recruitAsk = {id:16, lv:4};
-  A.dcAcceptRecruit(D, true);
-  return D.ents.some(e=>e.side === "ally" && e.id === 16) && D.recruits.includes(16);
-})());
-t("l'ultime du gardien laisse une case sûre à portée de chaque Pokémon", (()=>{
-  const D = dcRun(5, [149, 65, 130]); D.floor = A.DC_FLOORS - 1; A.dcDescend(D);
-  const b = D.ents.find(e=>e.uid === D.boss), rm = D.rooms[1];
-  const allies = D.ents.filter(e=>e.side === "ally");
-  allies.forEach((a, i)=>{ a.x = rm.x + 3 + i * 3; a.y = rm.y + 4; });
-  D.scen.phase = 2; b.hp = Math.round(b.maxHp * 0.2);
-  A.dcBossTurn(D, 0);
-  if(!D.warn || !D.warn.ult) return false;
-  return allies.every(a=>D.warn.safe.some(([x, y])=>Math.max(Math.abs(x - a.x), Math.abs(y - a.y)) <= 3));
-})());
-t("chaque Pokémon a quatre capacités, dont une ultime ou une signature", (()=>{
-  for(let i = 1; i <= 151; i++){ if(!A.POKE[i]) continue; const m = A.dcMoves(i);
-    if(m.length !== 4 || !m[3].pw || !(m[3].ult || m[3].sig)) return false; }
-  return A.dcMoves(150)[3].sig === true;
-})());
 
 
 /* --- Descente, livraisons 2 et 3 --- */
-t("le sac : ramasser, plafond de huit, Pokédollars, utiliser, équiper", (()=>{
-  const D = dcRun(11), L = A.dcLeader(D);
-  D.bag = []; D.items = [{x:L.x, y:L.y, k:"$120"}]; A.dcPickup(D, L);
-  const money = D.money === 120;
-  for(let k = 0; k < 9; k++){ D.items = [{x:L.x, y:L.y, k:"sitrus"}]; A.dcPickup(D, L); }
-  const cap = D.bag.length === A.DC_BAG;
-  L.hp = 5; const used = A.dcUseItem(D, 0) && L.hp > 5 && D.bag.length === A.DC_BAG - 1;
-  D.bag.push({k:"h:i_loupe"});
-  const eq = A.dcUseItem(D, D.bag.length - 1, L.uid) && L.held === "i_loupe";
-  return money && cap && used && eq;
-})());
-t("le Rappel relève automatiquement un Pokémon mis K.O.", (()=>{
-  const D = dcRun(12); const a = D.ents.filter(e=>e.side === "ally")[1];
-  D.bag = [{k:"revive"}]; a.hp = 0; A.dcKo(D, a, null, 0);
-  return a.hp > 0 && D.bag.length === 0 && !D.lost.includes(a.id);
-})());
-t("les portes : la source soigne, l'échoppe vend", (()=>{
-  const D = dcRun(13);
-  A.dcDescend(D, "source");
-  let spring = false; for(const t of D.tiles) if(t === 11) spring = true;
-  A.dcDescend(D, "marchand"); D.money = 9999;
-  const bought = A.dcBuy(D, 0) && D.money < 9999 && D.shop[0].sold;
-  return spring && D.ents.filter(e=>e.side === "foe").length >= 0 && bought;
-})());
-t("le terrain réagit : glace sur l'eau, incendie qui se propage, foudre dans l'eau, lave figée", (()=>{
-  const D = dcRun(14); const W = A.DC_W, idx = (x, y) => y * W + x;
-  /* un plan d'eau, une prairie, une coulee de lave, faits a la main */
-  for(let x = 2; x < 6; x++){ D.tiles[idx(x, 2)] = 3; D.tiles[idx(x, 5)] = 4; D.tiles[idx(x, 8)] = 5; }
-  A.dcReact(D, 15, [[2, 2]], 0);
-  const ice = D.tiles[idx(2, 2)] === 6;
-  A.dcReact(D, 10, [[2, 5]], 0);
-  for(let k = 0; k < 6; k++) A.dcTerrainTurn(D, 0);
-  const spread = D.tiles[idx(3, 5)] === 7 || D.tiles[idx(4, 5)] === 7;
-  const f = A.dcMakeEnt(D, "foe", 118, 10, 4, 2); const hp0 = f.hp;
-  A.dcReact(D, 13, [[3, 2]], 0);
-  const shock = f.hp < hp0;
-  A.dcReact(D, 11, [[2, 8]], 0);
-  return ice && spread && shock && D.tiles[idx(2, 8)] === 8;
-})());
-t("le gardien en actes : pylônes qui le protègent, corruption qui ronge l'arène", (()=>{
-  const D = dcRun(15, [149, 65, 130]); D.floor = A.DC_FLOORS - 1; A.dcDescend(D);
-  const b = D.ents.find(e=>e.uid === D.boss);
-  A.dcCorrode(D, 1); A.dcPylons(D, b);
-  const pyl = D.ents.filter(e=>e.pylon);
-  const rm = D.rooms[1]; const corr = D.tiles[rm.y * A.DC_W + rm.x] === 9;
-  const safe = pyl.every(p=>D.tiles[p.y * A.DC_W + p.x] !== 9);
-  D.scen.phase = 2;
-  for(const p of pyl){ p.hp = 0; A.dcKo(D, p, null, 0); }
-  return pyl.length === 3 && corr && safe && !b.shield;
-})());
 
 
 /* --- livraison 4 --- */
-t("Descente sans fond : un gardien tous les cinq étages, et l'on continue après lui", (()=>{
-  A.setS(A.newState()); for(let i = 1; i <= 151; i++) A.addToDex(i, 20, false);
-  const D = A.dcNewRun({region:"kanto", hab:"route", team:[149, 65, 130], seed:31, endless:true});
-  const floors = [5, 10, 15].every(f=>A.dcIsBossFloor(D, f)) && !A.dcIsBossFloor(D, 6);
-  D.floor = 4; A.dcDescend(D);
-  const b = D.ents.find(e=>e.uid === D.boss); b.hp = 0; A.dcKo(D, b, A.dcLeader(D), 0);
-  return floors && !D.won && D.stairs && D.stairs.x === b.x && D.bossesDown === 1;
-})());
-t("fin de Descente : compteurs, niveaux définitifs, record et renforts", (()=>{
-  A.setS(A.newState()); for(let i = 1; i <= 151; i++) A.addToDex(i, 20, false);
-  const S0 = A.getS(); S0.breche = {data:0, upg:{}, region:"kanto", hab:"route"};
-  const D = A.dcNewRun({region:"kanto", hab:"route", team:[149, 65, 130], seed:32, endless:true});
-  D.floor = 11; D.bossesDown = 2; D.over = "lost";
-  const lv0 = S0.dex[149].lvl, pts0 = A.towerState().points || 0;
-  A.dcFinish(D);
-  return S0.stats.expRuns === 1 && S0.stats.expWins === 1 && S0.dex[149].lvl === lv0 + 3
-    && S0.descente.endlessBest === 11 && A.towerState().points === pts0 + 2 * 2 + 3 && A.towerState().best === 11;
-})());
-t("l'Expédition et la Tour ont repris leurs écrans, et rien ne clôt plus un parcours en cours", (()=>{
-  A.setS(A.newState()); A.addToDex(25, 10, false);
-  const S0 = A.getS(); S0.expedition = {team:[{id:25, hp:5}]}; S0.towerRun = {floor:3};
-  A.dcMigrateLegacy();
-  return A.SCREENS.expedition !== A.SCREENS.descente && A.SCREENS.tower !== A.SCREENS.descente
-    && !!S0.expedition && !!S0.towerRun && S0.dex[25].lvl === 10;
-})());
 t("aucune règle CSS ne détourne la classe des petits boutons (.xs)", !/(^|\n)\.xs[{.:]/.test(fs.readFileSync("src/style.css","utf8")));
 t("Tour : un objet ou un remplaçant en attente reste à l'écran", (()=>{
   A.setS(A.newState()); for(let i = 1; i <= 151; i++) A.addToDex(i, 30, false);
@@ -1935,27 +1802,15 @@ t("arène : un gardien a droit à sa mise en scène, un combat ordinaire non", (
 })());
 
 
-t("une victoire de Descente distribue tout ce que distribuait l'Expédition", (()=>{
-  A.setS(A.newState()); for(let i = 1; i <= 151; i++) A.addToDex(i, 20, false);
-  const S0 = A.getS(); S0.breche = {data:0, upg:{}, region:"kanto", hab:"route"};
-  const eggCount = () => Object.values((S0.eggs && S0.eggs.bag) || {}).reduce((a, b)=>a + b, 0) + ((S0.eggs && S0.eggs.inc) || []).length;
-  const eggs0 = eggCount(), integ0 = S0.integrity || 0, cores0 = S0.cores || 0, cards0 = Object.keys(S0.cards || {}).length;
-  const D = A.dcNewRun({region:"kanto", hab:"route", team:[149, 65, 130], seed:33}); D.floor = 5; D.over = "won";
-  A.dcFinish(D);
-  return eggCount() === eggs0 + 1 && (S0.integrity || 0) > integ0 && (S0.cores || 0) > cores0
-    && Object.keys(S0.cards || {}).length >= cards0 && S0.stats.expWins === 1 && S0.flags.expNoHeal === true;
+
+
+
+t("aucune action n'est définie deux fois (une action écrasée bloquait « Archiver »)", (()=>{
+  const order = fs.readFileSync(__dirname + "/build.py", "utf8").match(/ORDER = \[([\s\S]*?)\]/)[1].split(",").map(x=>x.trim().replace(/'/g, "")).filter(Boolean);
+  const seen = {}; let dup = [];
+  for(const f of order) for(const m of fs.readFileSync(__dirname + "/src/" + f, "utf8").matchAll(/^ACTIONS\.(\w+)\s*=/gm)){
+    if(seen[m[1]] && seen[m[1]] !== f) dup.push(m[1]); seen[m[1]] = f; }
+  return dup.length === 0;
 })());
-
-
-t("abandonner une Descente dès le départ ne rapporte rien", (()=>{
-  A.setS(A.newState()); for(let i = 1; i <= 151; i++) A.addToDex(i, 20, false);
-  const S0 = A.getS(); S0.breche = {data:0, upg:{}, region:"kanto", hab:"route"};
-  A.checkAchievements();              /* les succes du Pokedex d'essai sont deja attribues : on ne mesure que la Descente */
-  const lv0 = S0.dex[149].lvl, sh0 = S0.shards || 0, co0 = S0.coins;
-  const D = A.dcNewRun({region:"kanto", hab:"route", team:[149, 65, 130], seed:34}); D.over = "lost"; D.quit = true;
-  A.dcFinish(D);
-  return S0.dex[149].lvl === lv0 && (S0.shards || 0) === sh0 && S0.coins === co0 && S0.breche.data === 0;
-})());
-
 console.log(`\n${pass} tests reussis, ${fail} echecs`);
 process.exit(fail?1:0);

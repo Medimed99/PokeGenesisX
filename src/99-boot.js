@@ -157,15 +157,22 @@ function boot(){
       playCine(CINE_INTRO, ()=>{
         if(!S.story.includes("intro")) S.story.push("intro");
         save(); go("capture");
-        /* juste apres l'ouverture : le conseil d'installation, puis le tutoriel */
-        pwaAfterIntro(()=>tutoMaybe("intro"));
+        /* juste apres l'ouverture : le nom (si la scene a ete passee avant la question),
+           le conseil d'installation, puis le tutoriel */
+        const next = () => pwaAfterIntro(()=>tutoMaybe("intro"));
+        if(!S.flags.named) askNameSheet(false, next);
+        else if(checkNameSecret()) tutoMaybe("intro");
+        else next();
       });
       checkAchievements();
       save();
       return;
     }
     go("capture");
-    {
+    /* une partie d'avant le nom : Porygon-Z le demande, une seule fois */
+    if(!S.flags.named && S.name && S.name !== "ARCHIVISTE") S.flags.named = true;
+    if(!S.flags.named && !S.flags.nameAsked && S.story.includes("intro")) setTimeout(()=>askNameSheet(true), 1200);
+    else {
       if(!showOfflineReport()){ if(!showReport()){ if(!showLuckyDay()){
         if(!checkStoryTriggers()) refresh(); } } }
     }

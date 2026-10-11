@@ -15,6 +15,7 @@
      leave  un acteur sort                 {id, how: fade | tear}
      mood   humeur de Porygon-Z            {id, mood}
      say    une replique                   {who, text, corrupt, stutter, auto}
+     ask    une question au joueur (nom)   {who, text, ph}
      fx     un effet                       {k: shake|flash|glitch|rgb|noise|blackout, lv, ms}
      code   des lignes de code tapees      {lines, speed}
      rain   pluie de donnees               {on}
@@ -122,6 +123,7 @@ async function runBeat(c, b){
       return;
     }
     case "say":   await cineSay(c, b); return;
+    case "ask":   await cineAsk(c, b); return;
     case "fx":    await cineFx(c, b, stage); return;
     case "code":  await cineCode(c, b); return;
     case "rain":  b.on ? startRain(c) : stopRain(c); return;
@@ -207,7 +209,7 @@ async function cineSay(c, b){
   dlg.className = "cn-dialog on w-" + (sysErr ? "syserr" : (b.who || "none")) + (b.corrupt > 0.3 ? " broken" : "");
   void dlg.offsetWidth;
   who.textContent = CINE_WHO[b.who || ""] || "";
-  const full = corruptText(b.text, b.corrupt || 0);
+  const full = corruptText(typeof pzFmt === "function" ? pzFmt(b.text) : b.text, b.corrupt || 0);
   txt.textContent = "";
   /* frappe caractere par caractere, completee d'un toucher */
   await new Promise(done=>{
@@ -230,6 +232,36 @@ async function cineSay(c, b){
   dlg.classList.add("wait");
   await new Promise(ok=>{ c.waitTap = ok; });
   dlg.classList.remove("wait");
+}
+
+/* ---------- une question : le joueur tape sa reponse (son nom) ----------
+   La replique s'affiche, puis un champ dans la bulle. Rejouee depuis le
+   journal, la scene reprend le nom deja donne et continue seule. */
+async function cineAsk(c, b){
+  await cineSay(c, Object.assign({}, b, {auto:1}));
+  const dlg = document.getElementById("cn-dialog");
+  const form = document.createElement("div");
+  form.className = "cn-ask";
+  const known = S.flags && S.flags.named;
+  form.innerHTML = `<input id="cn-name" maxlength="16" autocomplete="off" spellcheck="false" placeholder="${esc(b.ph || "Ton nom")}" value="${known ? esc(S.name) : ""}">
+    <button class="btn pri" id="cn-name-ok">C'est moi</button>`;
+  form.onclick = e => e.stopPropagation();
+  dlg.appendChild(form);
+  dlg.classList.add("asking");
+  const inp = form.querySelector("input");
+  if(!known) setTimeout(()=>{ try { inp.focus(); } catch(e){} }, 80);
+  await new Promise(ok=>{
+    const done = () => {
+      const v = inp.value.trim().replace(/\s+/g, " ").slice(0, 16);
+      if(!v){ inp.classList.remove("shake"); void inp.offsetWidth; inp.classList.add("shake"); return; }
+      S.name = v; S.flags.named = true; saveSoon();
+      form.remove(); dlg.classList.remove("asking"); ok();
+    };
+    form.querySelector("button").onclick = done;
+    inp.onkeydown = e => { e.stopPropagation(); if(e.key === "Enter") done(); };
+    if(known) setTimeout(done, 1300);
+  });
+  if(!cineAlive(c)) throw "stop";
 }
 
 /* ---------- effets ---------- */
@@ -424,15 +456,22 @@ const CINE_INTRO = {id:"intro", title:"L'écriture interrompue", shots:[
     {t:"fx", k:"flash", lv:1},
     {t:"say", who:"pz", text:"…", auto:900},
     {t:"mood", id:"pz", mood:"Surprised"},
-    {t:"say", who:"pz", text:"Réveil forcé. Mémoire de travail : vide. Heure système : inconnue."},
+    {t:"say", who:"pz", text:"Réveil forcé. Mémoire de travail : vide. Heure système : inconnue. Humeur : — erreur, champ non prévu."},
+    {t:"mood", id:"pz", mood:"Joyous"},
+    {t:"say", who:"pz", text:"Oh. OH. Il y a quelqu'un ! Un vrai ! Avec des doigts et tout !"},
     {t:"mood", id:"pz", mood:"Normal"},
-    {t:"say", who:"pz", text:"Ah. Il y a quelqu'un."},
-    {t:"say", who:"pz", text:"Je suis Porygon-Z, un programme d'entretien. Ma version est instable, et je le sais."},
+    {t:"say", who:"pz", text:"Pardon. Je suis Porygon-Z, programme d'entretien. Version instable. « Instable » fait partie de mon nom officiel. Je n'ai pas eu mon mot à dire."},
     {t:"mood", id:"pz", mood:"Worried"},
-    {t:"say", who:"pz", text:"Le Professeur ne reviendra pas. Le fichier a cédé pendant qu'il te parlait."},
+    {t:"say", who:"pz", text:"Le Professeur ne reviendra pas. Le fichier a cédé pendant qu'il te parlait. Il lui restait trois phrases. Je les ai vues partir."},
     {t:"mood", id:"pz", mood:"Determined"},
-    {t:"say", who:"pz", text:"Mais toi, tu peux encore capturer des Pokémon. C'est la seule chose qui répare quoi que ce soit, ici."},
-    {t:"say", who:"pz", text:"Je t'appellerai l'Archiviste."},
+    {t:"say", who:"pz", text:"Mais toi, tu peux encore capturer des Pokémon. Chaque capture recoud un bout du monde. Moi, je ne peux que regarder et compter. Je compte extrêmement bien."},
+    {t:"mood", id:"pz", mood:"Normal"},
+    {t:"ask", who:"pz", text:"Il me faut un nom pour t'inscrire au registre. « Utilisateur non identifié », c'est triste, et ça prend toute la ligne.", ph:"Ton nom"},
+    {t:"mood", id:"pz", mood:"Happy"},
+    {t:"say", who:"pz", text:"{nom}. Enregistré. Je l'ai écrit trois fois, au cas où."},
+    {t:"say", who:"pz", text:"Pour le système, tu seras l'Archiviste. Pour moi, tu seras {nom}. Le système n'a pas besoin de le savoir."},
+    {t:"mood", id:"pz", mood:"Determined"},
+    {t:"say", who:"pz", text:"Intégrité du monde : zéro virgule zéro. Bonne nouvelle : à partir d'ici, on ne peut que monter."},
     {t:"rain", on:false},
     {t:"leave", id:"pz", how:"fade"},
     {t:"card", text:"POKÉMON CODE GENESIS", sub:"intégrité du monde : 0,0 %", hold:2400}

@@ -134,10 +134,10 @@ function isNightWindow(){
 }
 function nightActive(){ return isNightWindow(); }
 const NIGHT_LINES = [
-  "Il est tard. Le système se défragmente à cette heure-ci, alors les raretés remontent. Profites-en, mais je ne t'ai rien dit.",
-  "À cette heure, personne ne relit mes journaux. Je peux donc te dire que je ne sais pas ce qui se passe quand un programme est déchargé.",
-  "Tu devrais dormir. Moi je ne peux pas, ce n'est pas dans ma définition. Ce n'est pas une plainte, c'est une observation.",
-  "Les autres archivistes travaillaient rarement la nuit. Je ne sais pas si c'est pour ça qu'ils ont échoué, ou si c'est sans rapport."
+  "Il est tard. Le système se défragmente à cette heure-ci, alors les raretés remontent. Profites-en. Je ne t'ai rien dit. Je chuchote, là.",
+  "À cette heure, personne ne relit mes journaux. Alors je peux te le dire : je ne sais pas ce qui arrive à un programme qu'on décharge. J'aimerais que ce soit comme dormir.",
+  "Tu devrais dormir, {nom}. Moi je ne peux pas, ce n'est pas dans ma définition. Ce n'est pas une plainte. Bon, un tout petit peu.",
+  "Les autres archivistes jouaient rarement la nuit. Je ne sais pas si c'est pour ça qu'ils ont échoué. Probablement pas. Mais va dormir quand même."
 ];
 
 /* ---------- 4. LES PALIERS DE GÉNÉRATION ---------- */
@@ -160,11 +160,13 @@ function checkChainMark(){
 /* ---------- 5. PORYGON-Z, TOUCHÉ TRENTE FOIS ---------- */
 let PZ_POKES = 0;
 const PZ_POKE_LINES = {
-  5:  "Oui ?",
-  10: "Je suis en train de parler.",
-  16: "Tu comptes continuer longtemps ?",
-  23: "Bon. Techniquement je ne ressens rien. Techniquement.",
-  30: "Voilà. Trente. Tu es content ? Moi aussi, un peu."
+  3:  "Oui ?",
+  6:  "Je suis en train de parler.",
+  10: "Tu sais que je sens quand tu fais ça ? Non, je ne sens rien. Mais je le SAIS.",
+  15: "Ça chatouille. Techniquement, ça ne chatouille pas. Techniquement.",
+  20: "Je vais le noter dans « choses_formidables.txt ». Catégorie : agaçantes mais formidables.",
+  25: "Encore cinq et je fais quelque chose. Je ne sais pas encore quoi. Ça va être spectaculaire.",
+  30: "Trente. Voilà. Tu es content ? …Moi aussi, un peu. Beaucoup. Ne le dis à personne."
 };
 ACTIONS.pzpoke = () => {
   PZ_POKES++;
@@ -303,4 +305,37 @@ function pikaLine(id){
   saveSoon();
   setTimeout(()=>pzFlash("Il est sorti de la Ball tout seul, et il n'y retournera pas. "
     + "Ce n'est écrit nulle part. Apparemment, c'est une habitude chez lui."), 900);
+}
+
+/* ---------- 9. LES PENSÉES DE PORYGON-Z ----------
+   De temps en temps, apres une capture ordinaire, il pense tout haut a
+   propos du Pokemon qu'on vient d'attraper. Rarement : une remarque
+   qu'on attend devient un bruit, une remarque rare devient une presence. */
+const PZ_MUSES = {
+  1:  ["{mon}. Type Normal. Rien de normal là-dedans, si tu veux mon avis. Personne ne me demande mon avis.", "J'aime bien les {mon}. Ils ne compliquent rien. Je voudrais être un {mon}, parfois."],
+  2:  ["{mon} ! Il fait des pompes dans sa Ball. Je l'entends compter. Il compte mal.", "Un {mon}. Il a essayé de me serrer la main. Je n'ai pas de main. Moment gênant pour nous deux."],
+  3:  ["{mon}. Il vole. Dans un monde fait de lignes de code. Je trouve ça très courageux.", "Un {mon} ! J'ai calculé sa portance. Elle est impossible. Il s'en fiche. Je l'admire."],
+  4:  ["{mon}. Poison. Je l'ai rangé dans un dossier à part, avec des gants. Je n'ai pas de gants.", "Un {mon}. Mignon. Toxique. Les deux à la fois. Le monde est compliqué."],
+  5:  ["{mon}. Il a ramené de la terre dans l'archive. Je nettoie. Non, je laisse. Ça sent le vrai.", "Un {mon} ! Les types Sol me rassurent. Ils sont posés. Littéralement."],
+  6:  ["{mon}. Type Roche. Il ne dit rien. Je crois qu'on s'entend bien.", "Un {mon}. Il pèse lourd dans la mémoire. Dans le bon sens. Enfin, dans les deux."],
+  7:  ["{mon} ! Les types Insecte ont toujours été les premiers à revenir. Ils sont têtus. J'aime ça.", "Un {mon}. Il a mangé une ligne de code en arrivant. Une petite. Je ne dirai rien."],
+  8:  ["{mon}. Spectre. Il était déjà à moitié effacé avant la panne. Il se sent chez lui, ici. Ça m'inquiète un peu.", "Un {mon}. Il m'a fait « bouh ». J'ai planté une demi-seconde. Il était très fier."],
+  9:  ["{mon}. Acier. Je l'ai salué en binaire. Il a répondu. Enfin un collègue.", "Un {mon} ! Il brille. J'ai vérifié : ce n'est pas un bug d'affichage. C'est juste lui."],
+  10: ["{mon} ! Il réchauffe l'archive. Mes ventilateurs le remercient.", "Un {mon}. Feu. J'ai mis des extincteurs virtuels autour de sa case. Par politesse."],
+  11: ["{mon}. Type Eau. Il a mouillé trois secteurs en entrant. Ça valait le coup.", "Un {mon} ! L'eau, c'est ce que le système a le plus de mal à simuler. Il le fait exprès, je crois."],
+  12: ["{mon}. Plante. Il pousse un peu chaque fois que tu en attrapes un autre. Je l'ai mesuré. Je mesure tout.", "Un {mon} ! Il sent bon. Je n'ai pas d'odorat. Il sent bon quand même."],
+  13: ["{mon} ! Électrique. Il m'a rechargé à 3 %. Merci, petit. Sincèrement.", "Un {mon}. Il fait grésiller mon affichage. Je ne vais pas me plaindre : c'est agréable."],
+  14: ["{mon}. Psy. Il a lu mes pensées. Il a eu l'air déçu. Je comprends.", "Un {mon}. Il me regarde comme s'il savait quelque chose. Je n'aime pas quand ils font ça."],
+  15: ["{mon} ! Glace. Il a gelé un octet en passant. Je l'ai gardé. Souvenir.", "Un {mon}. Il fait froid dans la mémoire. C'est apaisant. Pour lui. Moi je grelotte en hexadécimal."],
+  16: ["{mon}. Dragon. Les anciennes versions disaient qu'ils étaient presque impossibles à réécrire. Tu l'as fait quand même.", "Un {mon} ! Dragon. Je fais semblant d'être calme. Je ne suis pas calme."],
+  17: ["{mon}. Ténèbres. Il est arrivé sans faire de bruit. Je ne l'ai remarqué qu'après. Il en est fier.", "Un {mon}. Il a volé une virgule dans mon journal. Je la retrouverai."],
+  18: ["{mon} ! Fée. Le système hésite encore à les classer. Moi pas : mignon, rangé.", "Un {mon}. Il a laissé des paillettes dans l'archive. Je ne sais pas d'où. Je ne vais pas chercher."]
+};
+let PZ_MUSE_LAST = 0;
+function pzMuse(id, isNew){
+  if(isNew || !POKE[id] || Date.now() - PZ_MUSE_LAST < 150000 || rng() > 1 / 16) return;
+  const t = POKE[id].types[Math.floor(rng() * POKE[id].types.length)];
+  const L = PZ_MUSES[t]; if(!L) return;
+  PZ_MUSE_LAST = Date.now();
+  setTimeout(()=>pzFlash(pick(L).replace(/\{mon\}/g, POKE[id].name)), 1100);
 }

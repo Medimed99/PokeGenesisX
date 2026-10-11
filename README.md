@@ -228,6 +228,37 @@ recrues à choisir — en version immersive. Première pierre : l'arène.
 - Simulation : `node squadsim.js <avance de niveau>` ; verrous : `node squadsim.js 0 locks <niv. de
   compétence> [smart]` (équipes au hasard : 5 à 50 % ; équipes choisies au type : 40 à 100 %).
 
+## Le Forage refait (`38-forage.js`)
+
+Inspiré de PokeClicker (tes Pokémon travaillent), du Souterrain de Diamant/Perle (la fouille de paroi) et de
+Mr. Mine (la profondeur comme récit, des trouvailles qui t'attendent).
+- **Équipe de forage** de 3 à 6 Pokémon de l'archive (`crewIds`, `digPower` = niveau × (0,6 + BST/700) × affinité).
+  Neuf strates (`STRATA`) avec une matière, une dureté et des **bons types** (×2) ou mauvais (×½). Au-delà du
+  Noyau, la dureté croît sans fin. Avance strate par strate, en direct comme hors ligne (`forageAdvance`).
+- **Parois** : une toutes les 7 minutes de forage (`WALL_SECS`), réserve de 3 à 8. Fouille sur une grille 12×9
+  (`genWall`, `digHit`) : pioche (précise, 1 de stabilité) ou marteau (large, 2), fer indestructible, effondrement.
+  Butin (`DIG_LOOT`) : éclats → Fragments, trésors, pierres d'évolution (une strate favorise chacune), fossiles
+  précis (`f_helix`, `f_dome`, `f_amber`, `f_root`, `f_claw` → couveuse), Pierre Ovale → ébauche, Pierre Dure
+  et Os Rare → Noyaux, objets tenus, et des **Pokémon endormis** des types de la strate qui rejoignent le Pokédex.
+- **Énergie Onirique** (par mètre, croissante avec la strate) : améliorations `FOR_UPS` (galeries, rails, étais,
+  pioche, radar, réserve/hors ligne, lampe) et capture autonome, inchangée.
+- Ancienne partie : la strate devient une profondeur en mètres, les Échos restent (+3 % de forage chacun).
+- Rythme : `node forsim.js`.
+
+## Porygon-Z et le nom du joueur
+
+- **Le nom** : dans l'ouverture, Porygon-Z demande le nom dans sa bulle (temps `ask` des cinématiques,
+  `cineAsk`). Ouverture passée, ou partie plus ancienne : il le demande une fois (`askNameSheet`).
+  Les noms secrets (`checkNameSecret`) sont reconnus au passage.
+- **`{nom}`** dans n'importe quelle réplique (récit, bandeaux, bulles, tutoriels) devient le nom du joueur
+  (`pzFmt`, `pzName` ; « Archiviste » par défaut).
+- **Sa voix** (en tête de `02-story.js`) : curieux, précis jusqu'à l'absurde, il se corrige en pleine
+  phrase, s'emballe puis se reprend, se cache derrière ses « routines ». Il tient un fichier
+  « choses_formidables.txt » qui revient jusqu'à la fin. Pensées occasionnelles après une capture
+  (`PZ_MUSES`, une sur seize au plus toutes les deux minutes et demie).
+- La Descente abandonnée est sortie du jeu (`attic/`) : elle redéfinissait l'action `dcdone` et bloquait
+  le bouton « Archiver ». Un test interdit désormais toute action définie deux fois.
+
 ## Audit de cohérence (octobre 2026)
 
 - **Bonus de première victoire** séparés par mode (`FIRST_WIN` : Expédition, Tour, Brèche, verrous, Poker) ;

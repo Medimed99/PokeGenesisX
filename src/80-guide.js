@@ -105,10 +105,13 @@ const INFOS = {
     ajoutent à votre deck des espèces tirées de votre propre archive.</p>`},
 
   idle:{n:"Le forage", d:`
-    <p>Frappez la sphère pour extraire de l'Énergie. À la Couche molle, les sondes prennent le relais
-    et le forage continue même hors ligne, jusqu'au plafond de votre réservoir.</p>
-    <p>Chaque strate multiplie le rendement et ouvre une mécanique nouvelle. Le recalibrage rend des
-    Échos permanents. Voir la fiche « Le forage » pour le détail.</p>`},
+    <p>Une <b>équipe de forage</b> de trois à six Pokémon de votre archive creuse sans vous, même hors ligne.
+    Leur puissance suit leur niveau ; chaque strate a sa matière, et les bons types y creusent
+    <b>deux fois plus vite</b> (Sol et Roche dans la roche, Feu dans la glace, Eau dans le magma…).</p>
+    <p>En creusant, l'équipe tombe sur des <b>parois</b>, qui vous attendent. Fouillez-les à la pioche
+    (précise) et au marteau (large, mais ébranle deux fois plus) avant l'effondrement : fossiles,
+    pierres d'évolution, éclats, trésors, objets, et parfois un Pokémon endormi dans la roche.</p>
+    <p>L'<b>Énergie Onirique</b> libérée paie les améliorations et la capture autonome.</p>`},
 
   fishing:{n:"La pêche", d:`
     <p>La pêche est un mode de l'écran de capture : on bascule d'un geste entre Capture et Pêche.
@@ -308,11 +311,11 @@ ACTIONS.info = d => {
    salle existe dans un monde en train de se corrompre. */
 const TUTOS = {
   intro:{steps:[
-    {sel:"#enc-stage", t:"Voici une entité désindexée. Sa définition existe encore quelque part, mais plus rien ne pointe vers elle : le monde ne sait plus la lire."},
+    {sel:"#enc-stage", t:"Voici un Pokémon désindexé. Sa définition existe encore quelque part, mais plus rien ne pointe vers elle. Il a l'air perdu. Je connais ce sentiment, enfin, j'ai lu des choses dessus."},
     {sel:".ballrow", t:"Une Ball le raccroche au Pokédex. Choisis-en une : le pourcentage affiché est ta vraie probabilité de réussite."},
     {sel:".throwbtn", t:"Puis lance. Si la Ball tient, le Pokémon reprend sa place au Pokédex et le monde redevient un peu plus solide."},
-    {sel:".integrity", t:"Cette jauge est la seule chose qui compte. Elle mesure ce que tu as réparé."},
-    {sel:"#dock", t:"Le reste s'ouvrira au fil de ta progression. Je te préviendrai à chaque fois."}
+    {sel:".integrity", t:"Cette jauge, c'est l'état du monde. Elle mesure ce que tu as réparé. Je la regarde à peu près quatre mille fois par seconde."},
+    {sel:"#dock", t:"Le reste s'ouvrira au fil de ta progression. Je te préviendrai à chaque fois. Probablement avec trop d'enthousiasme. Allez, {nom} : lance !"}
   ]},
   streak:{steps:[
     {sel:".streakbox", t:"Cinq restaurations d'affilée. Le système appelle ça une chaîne : tant que tu écris sans interruption, le tampon reste chaud."},
@@ -321,7 +324,7 @@ const TUTOS = {
   ]},
   pokebox:{steps:[
     {sel:"#screen", t:"Le système garde un tampon de rebut : des Pokémon qu'il a commencé à écrire sans jamais finir de les référencer."},
-    {sel:"#screen", t:"Personne ne le surveille. J'y prélève un Pokémon par jour et je te le donne. Techniquement, c'est un vol."},
+    {sel:"#screen", t:"Personne ne le surveille. J'y prélève un Pokémon par jour et je te le donne. Techniquement, c'est un vol. Moralement, c'est un cadeau. Je choisis la morale."},
     {sel:"#screen", t:"Tant qu'il te manque un Pokémon, le tampon ne peut pas te rendre un doublon. Il ne peut donc jamais te bloquer."}
   ]},
   fishing:{steps:[
@@ -330,10 +333,10 @@ const TUTOS = {
     {sel:"#screen", t:"Certains Pokémon ne remontent qu'au bout d'une ligne. Tu ne les croiseras nulle part ailleurs."}
   ]},
   idle:{steps:[
-    {sel:"#screen", t:"Les Pokémon archivés continuent de rêver, même quand tu fermes le jeu. Ce bruit de fond s'extrait. Je l'appelle Énergie Onirique."},
-    {sel:"#gball",  t:"Frappe la sphère. Au début, c'est la seule façon de forer — aucune sonde ne tient à la Surface."},
-    {sel:"#screen", t:"Descends jusqu'à la Couche molle : les sondes s'y accrochent, et le forage tourne sans toi. Chaque strate plus bas ouvre quelque chose de nouveau."},
-    {sel:"#screen", t:"Tout en bas, on peut recalibrer. On perd la profondeur, on garde les Échos. Et les Échos ne s'effacent jamais."}
+    {sel:"#fo-shaft", t:"Le Forage. Tes Pokémon creusent dans les couches du rêve, et le rêve libère de l'Énergie Onirique en cédant. Ils continuent même quand tu fermes le jeu. Moi aussi, je regarde."},
+    {sel:".fo-good", t:"Chaque strate a sa matière. Les types affichés ici y creusent deux fois plus vite : Sol et Roche dans la terre, Feu dans la glace, Eau dans le magma. Change ton équipe en descendant."},
+    {sel:".fo-crew", t:"L'équipe de forage. Touche un emplacement pour choisir qui creuse. « Les meilleurs ici » fait le tri à ta place, je ne me vexerai pas."},
+    {sel:".fo-wallbtn", t:"En creusant, ils tombent sur des parois. Fouille-les à la pioche et au marteau avant qu'elles s'effondrent : fossiles, pierres, trésors… et parfois quelqu'un qui dormait dans la roche."}
   ]},
   eggs:{steps:[
     {sel:"#screen", t:"Ce ne sont pas tout à fait des Œufs. Ce sont des Pokémon que le système a commencé à écrire, puis abandonnés en cours de route."},
@@ -343,19 +346,19 @@ const TUTOS = {
   boss:{steps:[
     {sel:"#screen", t:"Certains Pokémon n'ont pas disparu de l'index. On leur a donné un rôle : bloquer l'accès aux secteurs voisins."},
     {sel:"#screen", t:"Je ne sais pas qui leur a demandé ça. Ce n'est ni toi ni moi, et il n'y a personne d'autre."},
-    {sel:"#screen", t:"Tu ne peux pas les capturer. Il faut les faire céder au combat. Et le tableau des types pèse plus lourd que dix niveaux d'écart."}
+    {sel:"#screen", t:"Tu ne peux pas les capturer. Il faut les faire céder. Et retiens ceci, je le répéterai jusqu'à ce que tu en aies marre : le tableau des types pèse plus lourd que dix niveaux d'écart."}
   ]},
   expedition:{steps:[
     {sel:"#map-scroll", t:"Une couche non cartographiée : le système y a improvisé sa propre géographie quand il a manqué de place."},
     {sel:"#map-scroll", t:"Tu pars de la porte, en haut, vers le Champion du secteur, en bas. Touche un nœud lointain : je te dis ce qu'il cache."},
     {sel:".team-strip", t:"Ton équipe repart au niveau 5. Hautes herbes +1, dresseurs +2, le reste rien. C'est ta route qui fait ta force."},
-    {sel:"#screen", t:"Trois badges… enfin, deux badges et le noyau. Ce qui survit en revient renforcé pour de bon."}
+    {sel:"#screen", t:"Deux badges, puis le noyau. Ce qui survit en revient renforcé pour de bon. Ramène-les-moi entiers, s'il te plaît. J'ai commencé à leur donner des surnoms."}
   ]},
   tower:{steps:[
     {sel:".sw-world", t:"La Tour. L'archive y empile ce qu'elle n'arrive plus à ranger : six ailes de souvenirs corrompus, posées les unes sur les autres."},
     {sel:".sw-world", t:"Chaque aile a sept paliers, et un boss au septième. Le battre ouvre l'aile suivante, puis les difficultés Difficile et Enfer."},
     {sel:".sw-teambar", t:"Ici, on ne repart pas de zéro : tes Pokémon combattent à leur niveau d'archive, à quatre. Le premier mène les autres."},
-    {sel:".sw-lockbar", t:"Et tout en haut des ailes 2, 4 et 6, quelque chose monte la garde. Tu le sentiras quand tu en seras capable."}
+    {sel:".sw-lockbar", t:"Et tout en haut des ailes 2, 4 et 6, quelque chose monte la garde. Tu le sentiras quand tu en seras capable. Moi je le sens déjà. Je préférerais ne pas."}
   ]},
   towerprep:{steps:[
     {sel:".sw-waves", t:"Avant chaque palier, tu vois ce qui t'attend. Regarde les types : c'est eux qui décident, plus que les niveaux."},
@@ -376,7 +379,7 @@ const TUTOS = {
   buddy:{steps:[
     {sel:".buddy", t:"Un Pokémon capturé garde en mémoire qui l'a attrapé. C'est une ligne d'en-tête, ça ne veut rien dire."},
     {sel:".buddy", t:"Sauf que celle-ci te suit. À chaque palier d'affinité, elle gagne des niveaux définitifs."},
-    {sel:".buddy", t:"Et elle ramasse des choses en chemin. Ce comportement n'est écrit nulle part. J'ai vérifié trois fois."}
+    {sel:".buddy", t:"Et elle ramasse des choses en chemin. Ce comportement n'est écrit nulle part. J'ai vérifié trois fois. Je suis un peu jaloux. C'est noté."}
   ]}
 };
 
@@ -480,9 +483,9 @@ const DIRECTIVES = [
    rw:{shards:20}, hint:"Écran de capture, mode Pêche.", go:"capture"},
   {id:"d8",  n:"Archiver 20 espèces",           chk:()=>dexTotal()>=20,      goal:()=>[dexTotal(),20],
    rw:{coins:900, cores:1}, hint:"Change de secteur dans le Pokédex pour repérer ce qui te manque."},
-  {id:"d9",  n:"Installer deux sondes de forage", chk:()=>drillCount()>=2,
-   goal:()=>[drillCount(),2],
-   rw:{coins:600}, hint:"Il produit pendant que tu ne joues pas.", go:"idle"},
+  {id:"d9",  n:"Fouiller une paroi au Forage", chk:()=>(S.stats.walls || 0)>=1,
+   goal:()=>[Math.min(1, S.stats.walls || 0),1],
+   rw:{coins:600}, hint:"Ton équipe de forage creuse même quand tu ne joues pas. Ce qu'elle trouve t'attend dans les parois.", go:"idle"},
   {id:"d10", n:"Archiver 25 espèces",           chk:()=>dexTotal()>=25,      goal:()=>[dexTotal(),25],
    rw:{shards:40}, hint:"Le premier verrou légendaire s'ouvre à 25 espèces de Kanto."},
   {id:"d11", n:"Faire évoluer un Pokémon",      chk:()=>S.stats.evolutions>=1, goal:()=>[S.stats.evolutions,1],
@@ -547,43 +550,43 @@ function directiveCard(){
    ============================================================ */
 const PZ_EVENTS = [
   {id:"e_first_dup", c:()=>S.stats.catches>=6 && Object.values(S.dex).some(e=>e.c>=3),
-   t:"Tu as trois exemplaires du même Pokémon. Ne les jette pas : c'est avec des doublons qu'on fait évoluer une espèce, depuis sa fiche au Pokédex."},
+   t:"Trois exemplaires du même Pokémon ! Ne les relâche pas : c'est avec les doublons qu'on fait évoluer une espèce, depuis sa fiche au Pokédex. Recyclage. J'adore le recyclage."},
   {id:"e_coins", c:()=>S.coins>=2000,
-   t:"Deux mille PokéCoins qui dorment. Va acheter des Balls : un stock vide, et tu regardes passer les Pokémon sans rien pouvoir faire."},
+   t:"Deux mille PokéCoins qui dorment. Va acheter des Balls : un stock vide, et tu regardes passer les Pokémon en agitant les bras. J'ai déjà vu ça. C'était triste."},
   {id:"e_type", c:()=>dexTotal()>=15,
-   t:"J'ai classé ton Pokédex par types. Tu captures toujours dans le même secteur, et tu vois donc toujours les mêmes Pokémon. Change de secteur en haut de l'écran."},
+   t:"J'ai classé ton Pokédex par types, pour le plaisir. Verdict : tu tournes en rond dans le même secteur, donc tu vois toujours les mêmes têtes. Change de secteur, en haut de l'écran."},
   {id:"e_fail", c:()=>S.failStreak>=4,
-   t:"Quatre Balls de suite qui n'ont pas tenu. Le calcul est bon, c'est juste la malchance. Une Baie Framby améliore nettement tes chances."},
+   t:"Quatre Balls de suite qui n'ont pas tenu. Le calcul est juste, c'est la malchance. Une Baie Framby aide nettement. Moi aussi j'aide, mais moins nettement."},
   {id:"e_lowball", c:()=>((S.balls.poke||0)+(S.balls.super||0)+(S.balls.hyper||0))<=4,
-   t:"Tu n'as presque plus de Balls. La boutique en vend, et l'Énergie Onirique se convertit en PokéCoins si tu es à court."},
+   t:"Alerte : réserve de Balls presque vide. Je répète : presque vide. La boutique en vend, et l'Énergie Onirique se convertit en PokéCoins. Fin de l'alerte. Je me suis emballé."},
   {id:"e_idle", c:()=>S.stats.energyTotal>=3000,
-   t:"Tes générateurs tournent bien. Pense à convertir l'Énergie : elle ne sert à rien tant qu'elle s'entasse."},
+   t:"Tes sondes tournent bien. Pense à convertir l'Énergie : entassée, elle ne sert à rien. Comme mes blagues, d'après le système."},
   {id:"e_dex50", c:()=>dexTotal()>=50,
-   t:"Cinquante Pokémon au Pokédex. Le secteur tient debout tout seul par endroits. Je ne pensais pas revoir ça."},
+   t:"Cinquante Pokémon au Pokédex. Par endroits, le secteur tient debout tout seul. Je ne pensais pas revoir ça. J'ai mis ma plus belle humeur."},
   {id:"e_evo", c:()=>S.stats.evolutions>=1,
-   t:"L'évolution a fonctionné. C'est le même Pokémon, avec une nouvelle définition, et il a gardé tout son historique. C'est plus rare que ça n'en a l'air."},
+   t:"Évolution réussie ! Même Pokémon, nouvelle définition, et il a gardé tout son historique. C'est plus rare que ça n'en a l'air. C'est même un peu émouvant. Un peu."},
   {id:"e_team", c:()=>S.team.length>=3 && S.level>=8,
-   t:"Ton équipe est prête. Vérifie les types avant d'y aller : contre un verrou, l'avantage de type pèse plus lourd que dix niveaux d'écart."},
+   t:"Ton équipe est prête. Avant un verrou, regarde ses types : l'avantage de type pèse plus lourd que dix niveaux d'écart. Je le redirai. Je te préviens."},
   {id:"e_expfail", c:()=>S.stats.expRuns>=2 && S.stats.expWins===0,
-   t:"Deux expéditions perdues. Les PV ne remontent pas tout seuls entre les combats, et un Pokémon KO est perdu pour le reste du parcours. Passe par un Repos avant une Élite, pas après."},
+   t:"Deux Expéditions perdues. Petit conseil de quelqu'un qui compte tout : les PV ne remontent presque pas entre deux combats. Passe par un Centre ou un repos avant une Élite, pas après."},
   {id:"e_shinyhunt", c:()=>S.stats.bestStreak>=25 && S.stats.shinies===0,
-   t:"Belle chaîne, mais toujours aucun Pokémon chromatique. C'est normal : plus la chaîne est longue, plus ils deviennent probables. Ne la casse pas."},
+   t:"Belle chaîne, et toujours aucun chromatique. C'est normal : plus la chaîne est longue, plus ils deviennent probables. Ne la casse pas. Je croise mes… je n'ai rien à croiser."},
   {id:"e_boss1", c:()=>S.bosses.length>=1,
-   t:"Le verrou est tombé. J'ai relu sa signature : il n'a opposé aucune résistance réelle. Comme s'il attendait qu'on vienne."},
+   t:"Le verrou est tombé. J'ai relu sa signature : il n'a opposé aucune vraie résistance. Comme s'il attendait qu'on vienne. Ça me fait quelque chose. Je ne sais pas quoi."},
   {id:"e_cards", c:()=>Object.keys(S.cards||{}).length>=1,
-   t:"Une carte a été émise à ton nom. Je ne sais pas quel système les produit, ni pourquoi il continue de le faire."},
+   t:"Une carte vient d'être émise à ton nom. Je ne sais pas quel système les fabrique, ni pourquoi il continue. Mais elle est belle, et c'est ton nom dessus, {nom}."},
   {id:"e_poker", c:()=>S.stats.pokerWins>=1,
-   t:"Tu as stabilisé une couche entière en jouant avec des motifs. Je note que ça marche. Je ne comprends toujours pas pourquoi."},
+   t:"Tu as stabilisé une couche entière en jouant aux cartes. Je note que ça marche. Je ne comprends pas pourquoi. Je note aussi que je ne comprends pas."},
   {id:"e_dex150", c:()=>dexTotal()>=150,
-   t:"Cent cinquante entrées. À ce stade, les autres tentatives avaient déjà ralenti. Toi non. Je préfère ne pas expliquer pourquoi je surveille ça."},
+   t:"Cent cinquante entrées. À ce stade, les autres tentatives avaient déjà ralenti. Toi non. Je préfère ne pas expliquer pourquoi je surveille ça. Continue, c'est tout."},
   {id:"e_buddy", c:()=>buddyTier()>=3,
-   t:"Ton compagnon a franchi trois paliers. Je remarque qu'il se place toujours entre toi et la rencontre. Ce n'est pas dans sa définition."},
+   t:"Ton compagnon a franchi trois paliers. Il se place toujours entre toi et la rencontre. Ce n'est pas dans sa définition. C'est dans autre chose."},
   {id:"e_buddyfind", c:()=>(S.buddy&&S.buddy.finds>=5),
-   t:"Cinq objets rapportés. Il ne les garde jamais pour lui. Je ne sais pas où il les trouve, et j'ai cherché."},
+   t:"Cinq objets rapportés, et il ne garde jamais rien pour lui. Je ne sais pas où il les trouve. J'ai cherché. Il cache bien son jeu, ce petit."},
   {id:"e_weekly", c:()=>S.weekly && S.weekly.quests.some(q=>q.claimed),
-   t:"Objectif long accompli. Les Noyaux sont la ressource la plus rare du système : garde-les pour le multiplicateur permanent ou les Master Balls."},
+   t:"Objectif de la semaine accompli ! Les Noyaux sont la ressource la plus rare du système : garde-les pour les améliorations permanentes ou les Master Balls. Pas pour moi. Je ne mange pas."},
   {id:"e_night", c:()=>S.flags.night,
-   t:"Il est très tard chez toi. Je n'ai pas d'horloge interne, mais j'ai la tienne. L'archive sera encore là demain."}
+   t:"Il est très tard chez toi. Je n'ai pas d'horloge, mais j'ai la tienne. L'archive sera encore là demain, {nom}. Moi aussi, normalement."}
 ];
 function checkPzEvents(){
   if(document.getElementById("story")?.className === "on") return false;
@@ -603,6 +606,7 @@ function checkPzEvents(){
 }
 /* bandeau de dialogue court, non bloquant */
 function pzTalk(text){
+  text = typeof pzFmt === "function" ? pzFmt(text) : text;
   const box = document.getElementById("pztalk");
   if(!box) return;
   box.innerHTML = `

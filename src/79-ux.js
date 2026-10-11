@@ -17,9 +17,9 @@
 /* ---------- le hub : les activités, dans l'ordre d'ouverture ---------- */
 const ACTIVITIES = [
   {k:"idle", n:"Le Forage", i:"bolt", go:"idle",
-   d:"Frapper la sphère, descendre de strate en strate, lancer la capture autonome.",
-   st:()=>`${fmt(Math.round(forageRate()*10)/10)} Énergie / s · strate ${forage().depth + 1}`,
-   alert:()=>forage().vein > Date.now() || (typeof botReady === "function" && botReady())},
+   d:"Tes Pokémon creusent sans toi. Toi, tu fouilles les parois : fossiles, pierres, trésors, Pokémon endormis.",
+   st:()=>{ const f = forage(); return `${STRATA[f.depth].n} · ${fmt(Math.floor(f.m))} m` + (f.walls ? ` · ${f.walls} paroi${f.walls > 1 ? "s" : ""}` : ""); },
+   alert:()=>forage().walls > 0 || (typeof botReady === "function" && botReady())},
   {k:"expedition", n:"L'Expédition", i:"map", go:"expedition",
    d:"Une carte à embranchements, des combats mis en scène, des recrues à choisir. Dix minutes, un noyau au bout.",
    st:()=>S.expedition ? `Expédition en cours · secteur ${(S.expedition.mapIdx || 0) + 1}` : `${S.stats.expWins} réussie(s)`,
@@ -266,10 +266,44 @@ SCREENS.atelier = {
   fx(){ return this.cosGrid("fx"); }
 };
 ACTIONS.atab = d => { ATELIER_TAB = d.t; refresh(); };
+/* ---------- le nom, demandé par Porygon-Z ----------
+   Dans l'ouverture, la question est posée dans la scène. Si l'ouverture a
+   été passée, ou pour une partie plus ancienne, il la pose ici, une fois. */
+let NAME_ASK_DONE = null;
+function askNameSheet(late, done){
+  S.flags.nameAsked = true; saveSoon();
+  NAME_ASK_DONE = done || null;
+  sheet(`<div class="center">
+    ${pzFace(late ? "Worried" : "Happy", 84, "big")}
+    <div class="tiny" style="margin:10px 0 12px;line-height:1.7">${late
+      ? "« Je viens de me rendre compte que je ne t'ai jamais demandé ton nom. Depuis tout ce temps. C'est gênant. Je rougirais, si j'avais des joues. »"
+      : "« Avant que j'oublie — et j'oublie beaucoup, je suis instable — il me faut un nom pour le registre. »"}</div>
+    <input id="nm-ask" class="field" maxlength="16" autocomplete="off" spellcheck="false" placeholder="Ton nom" style="text-align:center;font-size:15px">
+    <button class="btn pri wide" style="margin-top:9px" data-act="nameask">C'est moi</button>
+    <button class="btn ghost wide" style="margin-top:6px" data-act="nameaskno">Garder « Archiviste »</button>
+  </div>`, true);
+  setTimeout(()=>{ const i = document.getElementById("nm-ask"); if(i){ try{ i.focus(); }catch(e){}
+    i.onkeydown = e => { e.stopPropagation(); if(e.key === "Enter") ACTIONS.nameask(); }; } }, 120);
+}
+ACTIONS.nameask = () => {
+  const v = (document.getElementById("nm-ask")?.value || "").trim().replace(/\s+/g, " ").slice(0, 16);
+  if(!v) return;
+  S.name = v; S.flags.named = true; save();
+  closeSheet();
+  pzFlash(pick([`${v}. Enregistré trois fois, au cas où.`, `Enchanté, ${v}. Vraiment. J'ai vérifié : je suis enchanté.`]));
+  const d = NAME_ASK_DONE; NAME_ASK_DONE = null;
+  setTimeout(()=>{ const sec = checkNameSecret(); if(d){ if(sec) tutoMaybe("intro"); else d(); } }, 400);
+};
+ACTIONS.nameaskno = () => {
+  closeSheet();
+  pzFlash("Archiviste, alors. C'est sobre. Ça te va bien.");
+  const d = NAME_ASK_DONE; NAME_ASK_DONE = null; if(d) setTimeout(d, 300);
+};
 ACTIONS.atname = () => {
   const v = (document.getElementById("nm-in")?.value || "").trim();
   if(!v) return;
   S.name = v.slice(0, 16);
+  S.flags.named = true;
   checkNameSecret();
   save(); refresh();
   toast("Nom enregistré", "", "check");

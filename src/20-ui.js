@@ -204,6 +204,7 @@ function toast(msg, kind, icon){
 }
 function pzFlash(txt){
   if(!txt) return;
+  if(typeof pzFmt === "function") txt = pzFmt(txt);
   const box = document.getElementById("toasts");
   if(!box) return;
   const d = document.createElement("div");
@@ -211,7 +212,8 @@ function pzFlash(txt){
   /* le guide reste visible pendant la partie, pas seulement dans les scenes */
   d.innerHTML = pzFace(pzMood(), 26) + `<span>${esc(txt)}</span>`;
   box.appendChild(d);
-  setTimeout(()=>{ d.style.opacity=0; setTimeout(()=>d.remove(),320); }, 2400);
+  /* le temps de lire : une phrase plus longue reste plus longtemps */
+  setTimeout(()=>{ d.style.opacity=0; setTimeout(()=>d.remove(),320); }, Math.min(6500, 2000 + txt.length * 38));
 }
 function buzz(ms){
   if(!S || !S.settings.haptics) return;
@@ -234,6 +236,7 @@ const Sfx = (function(){
     o.connect(g); g.connect(c.destination); o.start(); o.stop(c.currentTime+dur);
   }
   return {
+    tone: beep,
     click(){ beep(420, .05, "square", .035); },
     throwb(){ beep(300, .16, "triangle", .05, 720); },
     wobble(){ beep(520, .07, "square", .04); },

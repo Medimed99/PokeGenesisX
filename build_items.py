@@ -44,7 +44,11 @@ OFFICIAL = {
   "br:encens":"luck-incense", "br:piece":"amulet-coin", "br:cristal":"quick-powder",
   "br:cat1":"silk-scarf", "br:cat2":"black-belt", "br:cat3":"sharp-beak", "br:cat4":"poison-barb", "br:cat5":"soft-sand", "br:cat6":"hard-stone",
   "br:cat7":"silver-powder", "br:cat8":"spell-tag", "br:cat9":"metal-coat", "br:cat10":"charcoal", "br:cat11":"mystic-water", "br:cat12":"miracle-seed",
-  "br:cat13":"magnet", "br:cat14":"twisted-spoon", "br:cat15":"never-melt-ice", "br:cat16":"dragon-fang", "br:cat17":"black-glasses", "br:cat18":"pixie-plate"
+  "br:cat13":"magnet", "br:cat14":"twisted-spoon", "br:cat15":"never-melt-ice", "br:cat16":"dragon-fang", "br:cat17":"black-glasses", "br:cat18":"pixie-plate",
+  # Forage : ce que les parois renferment
+  "dig:helix":"helix-fossil", "dig:dome":"dome-fossil", "dig:amber":"old-amber", "dig:root":"root-fossil", "dig:claw":"claw-fossil",
+  "dig:red":"red-shard", "dig:blue":"blue-shard", "dig:yellow":"yellow-shard", "dig:green":"green-shard",
+  "dig:hard":"hard-stone", "dig:ever":"everstone", "dig:bone":"rare-bone", "dig:oval":"oval-stone", "dig:club":"thick-club", "dig:clay":"light-clay"
 }
 
 def fetch(slug):

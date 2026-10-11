@@ -394,6 +394,7 @@ function onCatch(ballKey){
   rivalTick();
   if(ENC.shiny) researchTick(ENC.id, "shiny", 1);
   pikaLine(ENC.id);
+  if(typeof pzMuse === "function") pzMuse(ENC.id, isNew);
   contractTick(ENC.id, isNew);
 
   /* recompenses */
