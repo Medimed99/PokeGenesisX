@@ -1,8 +1,8 @@
 /* Service worker : les images portent une empreinte, on peut donc les garder
    indefiniment. Le HTML passe par le reseau d'abord, pour qu'une nouvelle
    version soit prise en compte des le rechargement suivant. */
-const CACHE = "pcg-93cb3885";
-const PRECACHE = ["./", "./index.html", "./manifest.webmanifest", "./icon.svg", "assets/atlas.bbef68a8.png", "assets/pz.1675f4a0.png", "assets/prof.52b677ef.png", "assets/missingno.cbd9cdec.png", "assets/cardart.028415fa.png"];
+const CACHE = "pcg-0b26fc21";
+const PRECACHE = ["./", "./index.html", "./manifest.webmanifest", "./icon.svg", "./icon-192.png", "./icon-512.png", "./apple-touch-icon.png", "assets/atlas.bbef68a8.png", "assets/pz.1675f4a0.png", "assets/prof.52b677ef.png", "assets/missingno.cbd9cdec.png", "assets/atlas_shiny.7226dda6.png", "assets/cardart.028415fa.png"];
 
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(PRECACHE)).then(() => self.skipWaiting()));
@@ -22,17 +22,17 @@ self.addEventListener("fetch", e => {
   if(url.pathname.startsWith("/rest/") || url.pathname.startsWith("/auth/")) return;
 
   if(url.pathname.includes("/assets/")){
+    /* on ne garde que les reponses valides : une erreur 404 mise en cache serait
+       resservie indefiniment, meme une fois le fichier publie */
     e.respondWith(caches.match(e.request).then(hit => hit || fetch(e.request).then(r => {
-      const copy = r.clone();
-      caches.open(CACHE).then(c => c.put(e.request, copy));
+      if(r.ok){ const copy = r.clone(); caches.open(CACHE).then(c => c.put(e.request, copy)); }
       return r;
     })));
     return;
   }
   e.respondWith(fetch(e.request)
     .then(r => {
-      const copy = r.clone();
-      caches.open(CACHE).then(c => c.put(e.request, copy));
+      if(r.ok){ const copy = r.clone(); caches.open(CACHE).then(c => c.put(e.request, copy)); }
       return r;
     })
     .catch(() => caches.match(e.request).then(hit => hit || caches.match("./index.html"))));

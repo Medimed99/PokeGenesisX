@@ -76,6 +76,8 @@ function installSpriteVars(){
   const r = document.documentElement.style;
   r.setProperty("--pzstrip", `url("${PZ_STRIP}")`);
   r.setProperty("--atlas", `url("${ATLAS_URL}")`);
+  if(typeof ATLAS_SHINY_URL !== "undefined") r.setProperty("--atlas-shiny", `url("${ATLAS_SHINY_URL}")`);
+  if(typeof ITEMS_URL !== "undefined") r.setProperty("--items", `url("${ITEMS_URL}")`);
   r.setProperty("--cardatlas", `url("${CARD_ATLAS}")`);
   r.setProperty("--glitchtile", `url("${MISSING_SPRITE}")`);
 }
@@ -202,6 +204,7 @@ function toast(msg, kind, icon){
 }
 function pzFlash(txt){
   if(!txt) return;
+  if(typeof pzFmt === "function") txt = pzFmt(txt);
   const box = document.getElementById("toasts");
   if(!box) return;
   const d = document.createElement("div");
@@ -209,7 +212,8 @@ function pzFlash(txt){
   /* le guide reste visible pendant la partie, pas seulement dans les scenes */
   d.innerHTML = pzFace(pzMood(), 26) + `<span>${esc(txt)}</span>`;
   box.appendChild(d);
-  setTimeout(()=>{ d.style.opacity=0; setTimeout(()=>d.remove(),320); }, 2400);
+  /* le temps de lire : une phrase plus longue reste plus longtemps */
+  setTimeout(()=>{ d.style.opacity=0; setTimeout(()=>d.remove(),320); }, Math.min(6500, 2000 + txt.length * 38));
 }
 function buzz(ms){
   if(!S || !S.settings.haptics) return;
@@ -232,6 +236,7 @@ const Sfx = (function(){
     o.connect(g); g.connect(c.destination); o.start(); o.stop(c.currentTime+dur);
   }
   return {
+    tone: beep,
     click(){ beep(420, .05, "square", .035); },
     throwb(){ beep(300, .16, "triangle", .05, 720); },
     wobble(){ beep(520, .07, "square", .04); },
@@ -281,17 +286,33 @@ document.addEventListener("click", e=>{
   if(fn){ Sfx.click(); fn(t.dataset, t, e); }
 });
 
-/* --- barre superieure --- */
+/* --- barre superieure ---
+   Le profil y figure en miniature, avec ses cosmetiques : cadre, fond et
+   effet se voient ainsi depuis tous les ecrans, pas seulement le profil. */
+function topbarMe(need){
+  const frame = COSMETICS[S.cos.frame] || {cls:""};
+  const bg = COSMETICS[S.cos.bg] || {};
+  const title = COSMETICS[S.cos.title] || {n:""};
+  const pct = Math.min(100, S.xp / need * 100);
+  return `<div class="tb-me ${typeof heroFxCls === "function" ? heroFxCls() : ""}"
+      style="background:${bg.css || "linear-gradient(180deg,var(--s2),var(--s1))"}"
+      data-act="goto" data-to="profile" title="Profil">
+    ${typeof heroFxLayer === "function" ? heroFxLayer() : ""}
+    <div class="avatar mini ${frame.cls || ""}">${avatarHtml(28)}</div>
+    <div class="tb-id">
+      <div class="tb-name">${esc(S.name)}</div>
+      <div class="tb-title">${esc(title.n)} · niv.${S.level}</div>
+      <div class="tb-xp"><i style="width:${pct.toFixed(1)}%"></i></div>
+    </div>
+  </div>`;
+}
 function renderTopbar(){
   const ev = currentEvent();
   const need = xpForLevel(S.level);
   const cur = [["coins","coin"],["shards","shard"],["cores","core"]];
   document.getElementById("topbar").innerHTML = `
     <div class="tb-row">
-      <div class="tb-id">
-        <div class="tb-name">${esc(S.name)}</div>
-        <div class="tb-sub">Archiviste niv.${S.level} · ${Math.floor(S.xp/need*100)}% XP</div>
-      </div>
+      ${topbarMe(need)}
       <div class="tb-cur">
         ${cur.map(([k,i])=>`<span class="pill" data-cur="${k}">${ic(i)}<b class="mono-num">${fmt(S[k])}</b></span>`).join("")}
       </div>
@@ -307,7 +328,7 @@ function renderTopbar(){
 const DOCK = [
   {k:"capture",  n:"Capture", i:"capture"},
   {k:"modules",  n:"Modules", i:"grid"},
-  {k:"dex",      n:"Pokédex", i:"dex"},
+  {k:"dex",      n:"Collection", i:"dex"},
   {k:"bag",      n:"Sac",     i:"box"},
   {k:"profile",  n:"Profil",  i:"user"}
 ];
@@ -315,6 +336,7 @@ function renderDock(){
   const d = document.getElementById("dock");
   const alerts = {
     modules: canOpenBox() || questsReady(),
+    dex: moduleUnlocked("eggs") && eggState().inc.some(x=>x.steps >= EGG_TIERS[x.tier].steps),
     profile: false
   };
   d.innerHTML = DOCK.map(x=>`<button data-act="nav" data-to="${x.k}" class="${currentScreen===x.k?"on":""}">
@@ -344,8 +366,25 @@ function sheet(html, mid){
   root.innerHTML = `<div class="scrim" data-act="closesheet"></div><div class="sheet ${mid?"mid":""}">${html}</div>`;
 }
 function closeSheet(){ SHEET_OPEN = false;
-  const r = document.getElementById("sheet-root"); if(!r) return; r.className=""; r.innerHTML=""; }
+  const r = document.getElementById("sheet-root"); if(r){ r.className=""; r.innerHTML=""; }
+  /* un parcours peut reprendre a la fermeture (installation de l'app) */
+  if(typeof pwaSheetClosed === "function") pwaSheetClosed(); }
 ACTIONS.closesheet = closeSheet;
+/* ---------- icônes d'objets ----------
+   Sprites officiels (PokeAPI) et icones originales pour les objets propres au
+   jeu, rassembles dans un atlas (build_items.py). itemOr : si l'objet n'a pas
+   d'icone, on retombe sur le pictogramme generique. */
+function itemIcon(key, size){
+  if(typeof ITEM_IDX === "undefined" || ITEM_IDX[key] === undefined) return "";
+  size = size || 32;
+  const i = ITEM_IDX[key], c = i % ITEMS_COLS, r = Math.floor(i / ITEMS_COLS);
+  const px = ITEMS_COLS > 1 ? c / (ITEMS_COLS - 1) * 100 : 0, py = ITEMS_ROWS > 1 ? r / (ITEMS_ROWS - 1) * 100 : 0;
+  return `<span class="itm" style="width:${size}px;height:${size}px;background-size:${ITEMS_COLS * 100}% ${ITEMS_ROWS * 100}%;background-position:${px.toFixed(3)}% ${py.toFixed(3)}%"></span>`;
+}
+function itemOr(key, fallback, size){ return itemIcon(key, size) || ic(fallback || "star"); }
+const TREASURE_KEYS = {"Écaille Cœur":"heart", "Perle":"pearl", "Poussière d'Étoile":"stardust", "Grande Perle":"bigpearl",
+                       "Morceau d'Étoile":"starpiece", "Statue Dorée":"statue"};
+function treasureIcon(t, size){ return itemIcon("treasure:" + (TREASURE_KEYS[t.n] || ""), size); }
 function sheetHead(title){
   return `<div class="sheet-h"><div class="h" style="margin:0">${esc(title)}</div>
     <button class="x" data-act="closesheet">${ic("cross")}</button></div>`;
@@ -355,6 +394,18 @@ function sheetHead(title){
 let storyQueue = [], storyIdx = 0, storyTyping = null, storyDone = null, storyCur = null;
 
 function playStory(id, onDone){
+  /* Une scene qui possede une cinematique la joue TOUJOURS, quel que soit le
+     chemin qui la demande — ouverture, journal, outil de test. Sans ce
+     renvoi, seul le tout premier demarrage montrait la cinematique : le
+     journal et l'outil game master rejouaient l'ancienne scene. */
+  if(typeof cineFor === "function"){
+    const cine = cineFor(id);
+    if(cine){
+      if(id !== "__dyn" && !S.story.includes(id)) S.story.push(id);
+      playCine(cine, onDone);
+      return;
+    }
+  }
   /* une scene peut etre fournie a la volee : l'arc de la faille n'est pas
      dans le catalogue fixe, il se construit au fil des rencontres */
   const dyn = (id === "__dyn" && typeof STORY_DYN !== "undefined") ? STORY_DYN : null;
@@ -449,6 +500,8 @@ function endStory(){
 function seen(id){ return S.story.includes(id); }
 function checkStoryTriggers(){
   if(document.getElementById("story").className === "on") return false;
+  /* une salle qui vient de s'ouvrir : un moment plein ecran, qui ne bloque rien */
+  if(typeof roomMomentsTick === "function") roomMomentsTick();
   const K = dexCount("kanto"), J = dexCount("johto"), H = dexCount("hoenn");
   const beat = (id, cond) => (!seen(id) && cond);
 
@@ -457,6 +510,10 @@ function checkStoryTriggers(){
   if(beat("pz_box", S.stats.boxOpens >= 1)) return playStory("pz_box"), true;
   if(beat("pz_shiny", S.stats.shinies >= 1)) return playStory("pz_shiny"), true;
   if(beat("pz_first_guardian_fail", S.flags.guardFail)) return playStory("pz_first_guardian_fail"), true;
+  if(S.flags.rodReveal && !sheetOpen()){
+    S.flags.rodReveal = false; save();
+    if(showRodDiscovery()) return true;
+  }
   if(S.flags.eggReveal && !sheetOpen()){
     const t = S.flags.eggReveal; S.flags.eggReveal = null; save();
     if(showEggDiscovery(t)) return true;

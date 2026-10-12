@@ -13,8 +13,21 @@ const EGG_TIERS = {
   e_epic:   {n:"Œuf Épique",     steps:60,  rar:[2,3,4],   shinyMul:6,   cores:9,  c:"#b06bff",
              d:"Une espèce rare à altérée. Chance de chromatique multipliée par six."},
   e_origin: {n:"Œuf Originel",   steps:120, rar:[3,4,5],   shinyMul:12,  cores:20, c:"#ffd24a",
-             d:"Les signatures les plus hautes, légendaires comprises. Chromatique très probable."}
+             d:"Les signatures les plus hautes, légendaires comprises. Chromatique très probable."},
+  /* le fossile n'est pas un oeuf : c'est une definition ancienne, deterree
+     par le forage, que la couveuse sait reconstituer */
+  f_fossil: {n:"Fossile",         steps:25,  rar:[],        shinyMul:2,   cores:0,  c:"#c9a86a",
+             d:"Une définition très ancienne, déterrée par le forage. On ne sait pas ce qu'elle contient avant de la reconstituer.",
+             fossil:1},
+  /* les fossiles deterres d'une paroi : on sait ce qu'on a trouve */
+  f_helix:  {n:"Fossile Nautile", steps:25, rar:[], shinyMul:2, cores:0, c:"#c9a86a", d:"Une coquille spiralée. Elle renferme un Amonita.", fossil:138},
+  f_dome:   {n:"Fossile Dôme",    steps:25, rar:[], shinyMul:2, cores:0, c:"#c9a86a", d:"Une carapace bombée. Elle renferme un Kabuto.", fossil:140},
+  f_amber:  {n:"Vieil Ambre",     steps:40, rar:[], shinyMul:2, cores:0, c:"#e0a040", d:"De la résine figée, avec quelque chose dedans. Un Ptéra.", fossil:142},
+  f_root:   {n:"Fossile Racine",  steps:30, rar:[], shinyMul:2, cores:0, c:"#c9a86a", d:"Des racines pétrifiées. Elles renferment un Lilia.", fossil:345},
+  f_claw:   {n:"Fossile Griffe",  steps:30, rar:[], shinyMul:2, cores:0, c:"#c9a86a", d:"Une griffe pétrifiée. Elle renferme un Anorith.", fossil:347}
 };
+/* les fossiles de base, par secteur : leurs evolutions viennent en les faisant evoluer */
+const FOSSILS = {kanto:[138, 140, 142], hoenn:[345, 347]};
 const EGG_SHOP_LEVEL = 20;          /* avant ce niveau, les oeufs se meritent */
 const EGG_SLOT_COST = [0, 0, 5, 12];       /* les deux premiers emplacements sont offerts */
 const EGG_MAX_SLOTS = 4;
@@ -113,11 +126,22 @@ function eggTick(){
 function eggPool(tier){
   const t = EGG_TIERS[tier];
   const out = [];
+  if(t.fossil > 1) return [t.fossil];
+  if(t.fossil){
+    for(const r of unlockedRegions()) for(const id of (FOSSILS[r.key] || [])) out.push(id);
+    return out.length ? out : [138, 140];
+  }
   for(const r of unlockedRegions())
     for(let i = r.from; i <= r.to; i++){
       const p = POKE[i];
-      if(!p || !t.rar.includes(p.rar)) continue;
+      if(!p) continue;
+      const baby = EXCL_SOURCE[i] === "egg";
+      if(!t.rar.includes(p.rar) && !(baby && tier !== "e_origin")) continue;
       if(p.leg && tier !== "e_origin") continue;        /* les légendaires sont réservés */
+      /* aucune exclusivite de peche ou de forage dans un oeuf */
+      if(EXCL_SOURCE[i] && EXCL_SOURCE[i] !== "egg") continue;
+      /* les bebes, eux, ne naissent QUE d'un oeuf : ils y sont favorises */
+      if(EXCL_SOURCE[i] === "egg"){ for(let k = 0; k < 5; k++) out.push(i); continue; }
       if(isGuardianSpecies(i) && !isReleasedGuardian(i)) continue;
       out.push(i);
     }
@@ -297,16 +321,16 @@ SCREENS.eggs = {
             <button class="btn xs ${eggFreeSlot()?"pri":""}" data-act="eggput" data-t="${k}"
               ${eggFreeSlot()?"":"disabled"}>Incuber</button>
           </div>`;}).join("")}
-      </div>` : `<div class="empty">Aucun œuf. Ils ne s'obtiennent qu'en <b>terminant une expédition</b>,
+      </div>` : `<div class="empty">Aucun œuf. Ils ne s'obtiennent qu'en <b>réussissant une Expédition</b>,
           dans ses trésors, ou dans les <b>archives les plus rares</b>.
           <div style="margin-top:10px"><button class="btn sm pri" data-act="goto" data-to="expedition">
-            Aller en expédition</button></div></div>`}
+            Partir en Expédition</button></div></div>`}
 
       <div class="h sm" style="margin-top:12px">ACHETER</div>
       ${S.level < EGG_SHOP_LEVEL
         ? `<div class="empty">Le tampon de rebut ne vend rien à un Archiviste de niveau
             ${S.level}. Revenez au niveau ${EGG_SHOP_LEVEL} — d'ici là, les ébauches se
-            trouvent en expédition.</div>`
+            trouvent au bout d'une Expédition.</div>`
         : `<div class="list">
         ${Object.entries(EGG_TIERS).filter(([,t])=>t.cores > 0).map(([k,t])=>`
           <div class="shopitem">

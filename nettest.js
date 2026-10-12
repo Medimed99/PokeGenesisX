@@ -34,13 +34,37 @@ function mkSession(email){
   return {access_token:at, refresh_token:"rt-"+u.id, user:{id:u.id, email}};
 }
 function ok(body){ return {ok:true, status:200, text:async()=>JSON.stringify(body===undefined?null:body)}; }
-function err(status, msg){ return {ok:false, status, text:async()=>JSON.stringify({message:msg})}; }
+function err(status, msg, code){ return {ok:false, status, text:async()=>JSON.stringify({message:msg, error_code:code})}; }
 
 global.fetch = async (url, opt) => {
   const u = String(url).replace(SRV.url, "");
   const body = opt.body ? JSON.parse(opt.body) : null;
   const auth = (opt.headers && opt.headers.Authorization) || "";
   const bearer = auth.replace("Bearer ", "");
+  SRV.lastAuth = auth; SRV.lastUrl = u;
+  /* --- comptes par mot de passe --- */
+  if(u.startsWith("/auth/v1/signup")){
+    SRV.pw = SRV.pw || {};
+    if(SRV.pw[body.email]) return err(422, "User already registered", "user_already_exists");
+    if(String(body.password).length < 8) return err(422, "Password should be at least 8 characters", "weak_password");
+    SRV.pw[body.email] = body.password;
+    const s0 = mkSession(body.email);
+    SRV.lastSignupData = body.data;
+    return ok(SRV.confirm ? {id:s0.user.id, email:body.email} : s0);
+  }
+  if(u.startsWith("/auth/v1/token?grant_type=password")){
+    if(!SRV.pw || SRV.pw[body.email] !== body.password) return err(400, "Invalid login credentials", "invalid_credentials");
+    return ok(mkSession(body.email));
+  }
+  if(u.startsWith("/auth/v1/recover")){ SRV.lastRecover = body.email; return ok({}); }
+  if(u.startsWith("/auth/v1/logout")) return ok({});
+  if(u.startsWith("/auth/v1/user")){
+    const id = SRV.tokens[bearer];
+    if(!id) return err(401, "invalid JWT");
+    if(opt.method === "PUT"){ SRV.lastNewPw = body.password; }
+    const email = Object.keys(SRV.users).find(e=>SRV.users[e].id === id);
+    return ok({id, email});
+  }
 
 
   if(u.startsWith("/auth/v1/otp")){ SRV.lastOtp = "123456"; return ok({}); }
@@ -111,6 +135,30 @@ global.fetch = async (url, opt) => {
     t.claimed_by = uid;
     return ok([{card_key:t.card_key, species:t.species, series:t.series}]);
   }
+  /* --- Breche du jour : meme contrat que la fonction SQL --- */
+  if(u.startsWith("/rest/v1/rpc/submit_breche_daily")){
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(body.p_day)) return err(400, "invalid input syntax for type date");
+    SRV.daily = SRV.daily || {};
+    const k = uid + "|" + body.p_day, prev = SRV.daily[k];
+    if(!prev || body.p_score > prev.score) SRV.daily[k] = {user_id:uid, day:body.p_day, name:body.p_name, score:body.p_score, depth:body.p_depth, team:body.p_team};
+    return ok(null);
+  }
+  if(u.startsWith("/rest/v1/rpc/add_community")){
+    if(!/^S\d{1,5}$/.test(body.p_week)) return err(400, "semaine invalide");
+    SRV.comm = SRV.comm || {};
+    const k = body.p_week + "|" + uid;
+    SRV.comm[k] = (SRV.comm[k] || 0) + Math.max(0, Math.min(body.p_kills, 20000));
+    return ok(null);
+  }
+  if(u.startsWith("/rest/v1/community_totals")){
+    const w = decodeURIComponent((u.match(/week=eq\.([^&]+)/) || [])[1] || "");
+    const rows = Object.entries(SRV.comm || {}).filter(([k])=>k.startsWith(w + "|"));
+    return ok(rows.length ? [{total:rows.reduce((a, [, v])=>a + v, 0), players:rows.length}] : []);
+  }
+  if(u.startsWith("/rest/v1/breche_daily")){
+    const day = (u.match(/day=eq\.([^&]+)/) || [])[1];
+    return ok(Object.values(SRV.daily || {}).filter(r=>r.day === day).sort((a, b)=>b.score - a.score));
+  }
   if(u.startsWith("/rest/v1/trades")){
     return ok(Object.values(SRV.trades));
   }
@@ -119,13 +167,14 @@ global.fetch = async (url, opt) => {
 
 /* ---------------- chargement du jeu ---------------- */
 const fs = require("fs");
-const ORDER=['_dexblob.js','_atlas.js','_lore.js','_pzportrait.js','_chars.js','_cardart.js','00-slugs.js','01-data.js','02-story.js','10-core.js','15-fx.js','20-ui.js',
- '30-capture.js','32-world.js','34-research.js','36-lore.js','35-modules.js','40-battle.js','50-expedition.js','52-expgear.js','54-tower.js','60-poker.js','70-collection.js','72-bag.js','73-cards.js','74-eggs.js','75-extras.js','76-items.js','77-secrets.js','78-milestones.js','80-guide.js','85-journal.js',
-,'90-admin.js','95-online.js','99-boot.js'];
+const ORDER=['_dexblob.js','_atlas.js','_atlas_shiny.js','_pmd.js','_items.js','_lore.js','_pzportrait.js','_chars.js','_trainers.js','_cardart.js','00-slugs.js','01-data.js','02-story.js','10-core.js','15-fx.js','20-ui.js',
+ '30-capture.js','32-world.js','33-fishing.js','34-research.js','36-lore.js','37-cine.js','37b-moments.js','38-forage.js','39-daily.js','39b-events.js','35-modules.js','40-battle.js','41-arena.js','50-expedition.js','51-expscene.js','51m-expmap.js','52-expgear.js','54-tower.js','55-squad.js','55b-squad-ui.js','56-breche.js','57-breche-run.js','58-breche-ui.js','59-breche-plus.js','59m-breche-map.js','59a-breche-attacks.js','59p-breche-pmd.js','59f-breche-feel.js','59g-breche-bossfight.js','59s-breche-share.js','60-poker.js','70-collection.js','72-bag.js','73-cards.js','74-eggs.js','75-extras.js','76-items.js','77-secrets.js','78-milestones.js','79-ux.js','80-guide.js','81-cosmetics.js','85-journal.js',
+,'90-admin.js','95-online.js','96-pwa.js','99-boot.js'];
 eval(ORDER.map(f=>fs.readFileSync("src/"+f,"utf8")).join("\n") +
  "\n;global.G={Net:Net,newState:newState,setS:v=>S=v,getS:()=>S,SCREENS:SCREENS,ACTIONS:ACTIONS," +
  "netCompare:netCompare,netSummary:netSummary,addToDex:addToDex,grantCardV:grantCardV,grantSecretCard:grantSecretCard,cardVariants:cardVariants,cardHas:cardHas,cardOwnedCount:cardOwnedCount,cardTotal:cardTotal,CARD_MONS:CARD_MONS,CARD_SERIES_DEF:CARD_SERIES_DEF,CARD_ORDER:CARD_ORDER,rollCardSeries:rollCardSeries,randomCard:randomCard,migrateCards:migrateCards,CARD_INDEX:CARD_INDEX," +
- "setScreen:n=>currentScreen=n,dexTotal:dexTotal,Store:Store,netStart:netStart,netAutoSync:netAutoSync,netSetBoard:netSetBoard};");
+ "setScreen:n=>currentScreen=n,dexTotal:dexTotal,Store:Store,netStart:netStart,netAutoSync:netAutoSync,netSetBoard:netSetBoard," +
+ "netSyncSmart:netSyncSmart,netDirty:netDirty,isoDay:isoDay,getConflict:()=>NET_CONFLICT,resetConflict:()=>{NET_CONFLICT=false}};");
 
 const A = G;
 let pass=0, fail=0, errs=[];
@@ -338,7 +387,145 @@ const must = (c, m) => { if(!c) throw new Error(m||"condition non remplie"); };
     A.netStart();
   });
 
+  /* ================= comptes et synchronisation ================= */
+  SRV.reset(); SRV.pw = {}; SRV.daily = {}; SRV.confirm = false; SRV.requireType = null;
+  A.Net.setCfg(SRV.url, SRV.key); A.Net.signOut();
+  let uidA = null;
+  await t("création de compte : connecté aussitôt si la confirmation est désactivée", async ()=>{
+    A.setS(A.newState());
+    const r = await A.Net.signUp("ash@test.fr", "pikachu25", "Ash");
+    must(r.session && A.Net.signedIn(), "pas de session apres inscription");
+    must(SRV.lastSignupData && SRV.lastSignupData.pseudo === "Ash", "pseudo non transmis");
+    uidA = A.Net.userId();
+  });
+  await t("création de compte avec confirmation d'e-mail : pas de session, pas d'erreur", async ()=>{
+    SRV.confirm = true; A.Net.signOut();
+    const r = await A.Net.signUp("misty@test.fr", "staross99", "Misty");
+    must(!r.session && !A.Net.signedIn(), "une session ne doit pas exister avant confirmation");
+    SRV.confirm = false;
+  });
+  await t("mauvais mot de passe : message clair, en français", async ()=>{
+    let m = "";
+    try { await A.Net.signIn("ash@test.fr", "mauvais"); } catch(e){ m = e.message; }
+    must(/incorrect/i.test(m), "message obtenu : " + m);
+  });
+  await t("adresse déjà utilisée : message clair", async ()=>{
+    let m = "";
+    try { await A.Net.signUp("ash@test.fr", "pikachu25", "Ash"); } catch(e){ m = e.message; }
+    must(/existe déjà/.test(m), "message obtenu : " + m);
+  });
+  await t("mot de passe oublié : demande envoyée", async ()=>{
+    await A.Net.recover("ash@test.fr");
+    must(SRV.lastRecover === "ash@test.fr", "demande non transmise");
+    must(/redirect_to=/.test(SRV.lastUrl), "le lien doit revenir vers le jeu");
+  });
+  await t("premier appareil : la progression part dans le cloud", async ()=>{
+    await A.Net.signIn("ash@test.fr", "pikachu25");
+    const S0 = A.getS(); S0.level = 20; S0.stats.catches = 300;
+    await A.netSyncSmart("login");
+    must(SRV.saves[uidA] && SRV.saves[uidA].level === 20, "sauvegarde non envoyee");
+  });
+  await t("nouvel appareil : la progression est récupérée sans question", async ()=>{
+    A.setS(A.newState());                  /* un autre telephone, partie neuve */
+    await A.netSyncSmart("start");
+    must(A.getS().level === 20, "progression non recuperee (niveau " + A.getS().level + ")");
+    must(!A.getConflict(), "aucune question ne devait etre posee");
+    must(!A.netDirty(), "la partie recuperee doit etre marquee synchronisee");
+  });
+  await t("seul cet appareil a progressé : il envoie", async ()=>{
+    const rev0 = SRV.saves[uidA].rev;
+    A.getS().stats.catches += 7;
+    await A.netSyncSmart("auto");
+    must(SRV.saves[uidA].rev === rev0 + 1, "revision non incrementee");
+    must(SRV.saves[uidA].payload.stats.catches === 307, "progression non envoyee");
+  });
+  await t("les deux appareils ont progressé : le jeu demande au lieu d'écraser", async ()=>{
+    const cloud = SRV.saves[uidA];
+    cloud.rev += 3; cloud.level = 25; cloud.payload.level = 25;     /* l'autre telephone a joue */
+    A.getS().stats.catches += 40;                                    /* celui-ci aussi */
+    await A.netSyncSmart("auto");
+    must(A.getConflict(), "un choix devait etre propose");
+    must(A.getS().level === 20, "la partie locale a ete ecrasee sans demander");
+    must(SRV.saves[uidA].level === 25, "le cloud a ete ecrase sans demander");
+    A.resetConflict();
+  });
+  await t("changer de compte sur un même appareil n'écrase pas le cloud de l'autre", async ()=>{
+    A.Net.signOut();
+    await A.Net.signUp("brock@test.fr", "onix1234", "Pierre");
+    const uidB = A.Net.userId();
+    SRV.saves[uidB] = {user_id:uidB, rev:3, level:5, payload:Object.assign(A.newState(), {level:5})};
+    await A.netSyncSmart("login");
+    must(SRV.saves[uidB].level === 5 && SRV.saves[uidB].rev === 3, "le cloud de l'autre compte a ete ecrase");
+    must(A.getConflict(), "un choix devait etre propose");
+    A.resetConflict();
+  });
+  await t("clé « publishable » : jamais envoyée comme jeton", async ()=>{
+    A.Net.signOut();
+    A.Net.setCfg(SRV.url, "sb_publishable_abcdefghijklmnopqrstuv");
+    try { await A.Net.call("/rest/v1/leaderboard?select=name"); } catch(e){}
+    must(SRV.lastAuth === "", "Authorization envoye avec une cle publishable : " + SRV.lastAuth);
+    A.Net.setCfg(SRV.url, "eyJhbGciOiJIUzI1NiJ9.test.signature");
+    try { await A.Net.call("/rest/v1/leaderboard?select=name"); } catch(e){}
+    must(/^Bearer eyJ/.test(SRV.lastAuth), "une cle anon (JWT) doit servir de jeton");
+    A.Net.setCfg(SRV.url, SRV.key);
+  });
+  await t("Brèche du jour : date ISO et meilleur score conservé", async ()=>{
+    await A.Net.signIn("ash@test.fr", "pikachu25");
+    must(/^\d{4}-\d{2}-\d{2}$/.test(A.isoDay()), "date non ISO : " + A.isoDay());
+    await A.Net.submitDaily(1200, 3, [6, 25]);
+    await A.Net.submitDaily(800, 1, [1]);
+    const rows = await A.Net.dailyBoard();
+    must(rows.length === 1 && rows[0].score === 1200 && rows[0].depth === 3, "meilleur score non conserve");
+  });
+  await t("écran Compte rendu dans chaque mode", async ()=>{
+    A.setScreen("online"); A.ACTIONS.nettab({t:"compte"});
+    A.Net.signOut();
+    for(const m of ["signup", "signin", "code"]){
+      A.ACTIONS.netauthmode({m});
+      const h = A.SCREENS.online.html();
+      must(h.length > 200 && !/undefined|\[object Object\]/.test(h), "mode " + m);
+    }
+    await A.Net.signIn("ash@test.fr", "pikachu25");
+    const h = A.SCREENS.online.html();
+    must(/Synchronis/.test(h) && !/undefined/.test(h), "ecran connecte");
+  });
+
+  await t("objectif collectif : les contributions s'additionnent, plafonnées par envoi", async ()=>{
+    SRV.comm = {};
+    await A.Net.signIn("ash@test.fr", "pikachu25");
+    await A.Net.communityAdd("S38", 1200);
+    await A.Net.communityAdd("S38", 99999);            /* plafonne a 20 000 */
+    A.Net.signOut(); await A.Net.signIn("brock@test.fr", "onix1234");
+    await A.Net.communityAdd("S38", 300);
+    const r = await A.Net.communityTotal("S38");
+    must(r.total === 21500 && r.players === 2, "total " + r.total + ", joueurs " + r.players);
+  });
+
   console.log(errs.map(e=>"  ECHEC: "+e).join("\n"));
-  console.log(`\n${pass} verifications reussies, ${fail} echecs`);
+  
+/* ---------- contrat de schéma ----------
+   Chaque champ que le jeu envoie dans la ligne de sauvegarde doit exister
+   comme colonne dans sql/schema.sql, et chaque colonne lue par le classement
+   doit figurer dans la vue. Sans ce test, la colonne « tower » a manqué au
+   schéma pendant plusieurs versions : la sauvegarde en ligne aurait échoué. */
+(function(){
+  const fs = require("fs");
+  const src = fs.readFileSync(__dirname + "/src/95-online.js", "utf8");
+  const sql = fs.readFileSync(__dirname + "/sql/schema.sql", "utf8");
+  const body = src.slice(src.indexOf("const body = {"), src.indexOf("};", src.indexOf("const body = {")));
+  const sent = [...body.matchAll(/^\s*([a-z_]+)\s*[:,]/gm)].map(m=>m[1]);
+  const table = sql.slice(sql.indexOf("create table if not exists public.saves"), sql.indexOf(");", sql.indexOf("create table if not exists public.saves")));
+  const cols = new Set([...table.matchAll(/^\s+([a-z_]+)\s+[a-z]/gm)].map(m=>m[1]));
+  for(const m of sql.matchAll(/add column if not exists ([a-z_]+)/g)) cols.add(m[1]);
+  const missing = sent.filter(k=>!cols.has(k));
+  if(missing.length){ fail++; errs.push("champ envoyé absent du schéma : " + missing.join(", ")); } else pass++;
+  const view = sql.slice(sql.indexOf("create or replace view public.leaderboard"), sql.indexOf("from public.saves", sql.indexOf("create or replace view public.leaderboard")));
+  const vcols = new Set([...view.matchAll(/\b([a-z_]+)\b/g)].map(m=>m[1]));
+  const read = (src.match(/const cols = "([^"]+)"/) || [,""])[1].split(",");
+  const vmiss = read.filter(c=>!vcols.has(c));
+  if(vmiss.length){ fail++; errs.push("colonne lue absente de la vue : " + vmiss.join(", ")); } else pass++;
+})();
+
+console.log(`\n${pass} verifications reussies, ${fail} echecs`);
   process.exit(fail ? 1 : 0);
 })();

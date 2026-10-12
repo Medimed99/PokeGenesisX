@@ -69,12 +69,25 @@ const INFOS = {
     définitifs. C'est le lien principal entre l'expédition et les Data Guardians.</p>
     <p>En combat, le tableau des types décide de presque tout : un ×2 vaut mieux que dix niveaux.</p>`},
 
+  tower:{n:"La Tour", d:`
+    <p>Des combats d'équipe à <b>quatre</b>, avec les Pokémon de votre archive à leur niveau. Le premier est le
+    <b>meneur</b> : s'il a un passif, toute l'équipe en profite.</p>
+    <p>Chaque Pokémon a <b>trois compétences</b> tirées de ses types : une attaque de base, une compétence à
+    recharge, une ultime. La <b>Vitesse</b> remplit la jauge de tour : le plus rapide joue plus souvent.</p>
+    <p>Six ailes de sept paliers, trois vagues par palier, un boss au septième, en trois difficultés.
+    Les <b>parchemins</b>, que seule la Tour donne, font monter les compétences ; l'expérience y fait monter
+    le niveau d'archive.</p>
+    <p>Au sommet des ailes 2, 4 et 6 se tiennent les <b>verrous légendaires</b> : ceux de Kanto en Normal,
+    de Johto en Difficile, de Hoenn en Enfer.</p>`},
   expedition:{n:"L'expédition", d:`
-    <p>Un parcours de douze étages. Vous partez du <b>haut</b> et descendez vers le
-    <b>noyau</b>, en bas. À chaque étage, vous choisissez une route parmi celles reliées à votre
-    position : le chemin ne se refait pas.</p>
-    <p>Les points de vie <b>ne se régénèrent pas</b> entre les combats. Seuls les nœuds Repos,
-    les restaurations et certaines reliques soignent.</p>
+    <p>Trois cartes au même dessin, chacune gardée par un <b>Champion</b> dont le type reste secret.
+    Vous partez du <b>haut</b> et descendez vers lui ; son badge ouvre la carte suivante, et au bout
+    de la troisième attend le <b>noyau</b>.</p>
+    <p>On part de la <b>forme de base, au niveau 5</b>. Hautes herbes <b>+1</b>, dresseurs et élites
+    <b>+2</b>, champion <b>+3</b>, le reste <b>+0</b>. Les Pokémon évoluent en route. Un échange rend
+    un Pokémon quatre niveaux au-dessus.</p>
+    <p>Les points de vie ne remontent qu'en partie après un combat. Le Centre Pokémon, avant le
+    Champion, soigne tout.</p>
     <p>Les <b>reliques</b> modifient toute l'équipe pour le reste du run. Les <b>Bits</b> ne
     servent qu'à l'intérieur du parcours.</p>
     <p>La <b>corruption</b> monte quand vous prenez des risques : meilleur butin, ennemis plus forts.
@@ -91,25 +104,35 @@ const INFOS = {
     <b>programmes</b> s'empilent et transforment complètement une partie. Les <b>boosters</b>
     ajoutent à votre deck des espèces tirées de votre propre archive.</p>`},
 
-  idle:{n:"L'Énergie Onirique", d:`
-    <p>Les entités archivées continuent de produire pendant que vous ne jouez pas. Achetez des
-    générateurs avec des PokéCoins : leur production s'additionne, même hors ligne, jusqu'à
-    douze heures.</p>
-    <p>L'Énergie se convertit en PokéCoins ou en Fragments. Le multiplicateur permanent s'achète
-    en Noyaux et ne se perd jamais.</p>`},
+  idle:{n:"Le forage", d:`
+    <p>Une <b>équipe de forage</b> de trois à six Pokémon de votre archive creuse sans vous, même hors ligne.
+    Leur puissance suit leur niveau ; chaque strate a sa matière, et les bons types y creusent
+    <b>deux fois plus vite</b> (Sol et Roche dans la roche, Feu dans la glace, Eau dans le magma…).</p>
+    <p>En creusant, l'équipe tombe sur des <b>parois</b>, qui vous attendent. Fouillez-les à la pioche
+    (précise) et au marteau (large, mais ébranle deux fois plus) avant l'effondrement : fossiles,
+    pierres d'évolution, éclats, trésors, objets, et parfois un Pokémon endormi dans la roche.</p>
+    <p>L'<b>Énergie Onirique</b> libérée paie les améliorations et la capture autonome.</p>`},
 
-  fishing:{n:"La sonde", d:`
-    <p>Trois profondeurs. Plus vous descendez, plus la prise est rare — et plus la sonde coûte
-    des Fragments.</p>
-    <p>Trois gestes : lancer, <b>ferrer</b> dès que ça mord, puis <b>stabiliser</b> le curseur
-    dans la secteur. La secteur se réduit avec la profondeur.</p>
-    <p>Une prise réussie vous renvoie vers une rencontre normale : il reste à la capturer.</p>`},
+  fishing:{n:"La pêche", d:`
+    <p>La pêche est un mode de l'écran de capture : on bascule d'un geste entre Capture et Pêche.
+    Il faut d'abord trouver une Vieille Canne, qui reste parfois accrochée à un Pokémon capturé.</p>
+    <p>Lancez la ligne, attendez que le bouchon plonge, puis <b>ferrez</b>. Trop tôt, la prise fuit.
+    Trop tard, elle décroche. Si ça tient, la rencontre se déroule comme une capture normale.</p>
+    <p>Au bout de la ligne : les Pokémon Eau, et des espèces qu'on ne trouve <b>que</b> là —
+    Barpau, Rémoraid, Qwilfish, Relicanth, Loupio. Et une fois Hoenn ouvert, avec une canne
+    suffisante, quelque chose de bien plus grand.</p>
+    <p>La Super Canne et la Méga Canne s'achètent en Fragments : elles ferrent mieux, remontent
+    plus de raretés et multiplient la chance de chromatique. La pluie fait mordre plus vite.</p>`},
 
   boss:{n:"Les Data Guardians", d:`
     <p>Neuf légendaires transformés en pare-feu, trois par secteur. Ils ne se capturent pas :
     ils se relâchent.</p>
-    <p>Chacun demande un nombre d'espèces archivées dans son secteur, et que le précédent soit
-    tombé. À mi-vie, ils changent de configuration et frappent plus fort.</p>
+    <p>Ils se tiennent au sommet des ailes 2, 4 et 6 de la <b>Tour</b> (Kanto en Normal, Johto en
+    Difficile, Hoenn en Enfer). Pour capter la signature de l'un d'eux, il faut avoir battu le boss
+    de son aile, archivé assez d'espèces de son secteur, et levé le verrou précédent.</p>
+    <p>Deux vagues d'escorte, puis lui seul. Insensible à l'étourdissement et aux pertes de jauge,
+    il se reconfigure à mi-vie : purge, Attaque +, deux renforts. Le dernier verrou d'un secteur
+    ouvre le suivant ; le premier levé ouvre la Brèche.</p>
     <p>Une première victoire ajoute l'espèce à votre archive, émet une <b>carte légendaire</b>
     et rend un gros bloc d'intégrité.</p>`},
 
@@ -288,11 +311,11 @@ ACTIONS.info = d => {
    salle existe dans un monde en train de se corrompre. */
 const TUTOS = {
   intro:{steps:[
-    {sel:"#enc-stage", t:"Voici une entité désindexée. Sa définition existe encore quelque part, mais plus rien ne pointe vers elle : le monde ne sait plus la lire."},
+    {sel:"#enc-stage", t:"Voici un Pokémon désindexé. Sa définition existe encore quelque part, mais plus rien ne pointe vers elle. Il a l'air perdu. Je connais ce sentiment, enfin, j'ai lu des choses dessus."},
     {sel:".ballrow", t:"Une Ball le raccroche au Pokédex. Choisis-en une : le pourcentage affiché est ta vraie probabilité de réussite."},
     {sel:".throwbtn", t:"Puis lance. Si la Ball tient, le Pokémon reprend sa place au Pokédex et le monde redevient un peu plus solide."},
-    {sel:".integrity", t:"Cette jauge est la seule chose qui compte. Elle mesure ce que tu as réparé."},
-    {sel:"#dock", t:"Le reste s'ouvrira au fil de ta progression. Je te préviendrai à chaque fois."}
+    {sel:".integrity", t:"Cette jauge, c'est l'état du monde. Elle mesure ce que tu as réparé. Je la regarde à peu près quatre mille fois par seconde."},
+    {sel:"#dock", t:"Le reste s'ouvrira au fil de ta progression. Je te préviendrai à chaque fois. Probablement avec trop d'enthousiasme. Allez, {nom} : lance !"}
   ]},
   streak:{steps:[
     {sel:".streakbox", t:"Cinq restaurations d'affilée. Le système appelle ça une chaîne : tant que tu écris sans interruption, le tampon reste chaud."},
@@ -301,18 +324,19 @@ const TUTOS = {
   ]},
   pokebox:{steps:[
     {sel:"#screen", t:"Le système garde un tampon de rebut : des Pokémon qu'il a commencé à écrire sans jamais finir de les référencer."},
-    {sel:"#screen", t:"Personne ne le surveille. J'y prélève un Pokémon par jour et je te le donne. Techniquement, c'est un vol."},
+    {sel:"#screen", t:"Personne ne le surveille. J'y prélève un Pokémon par jour et je te le donne. Techniquement, c'est un vol. Moralement, c'est un cadeau. Je choisis la morale."},
     {sel:"#screen", t:"Tant qu'il te manque un Pokémon, le tampon ne peut pas te rendre un doublon. Il ne peut donc jamais te bloquer."}
   ]},
   fishing:{steps:[
-    {sel:"#screen", t:"Sous les secteurs visibles, il y a des couches plus anciennes. Des versions du monde qu'on a recouvertes sans jamais les effacer."},
-    {sel:"#fish-stage", t:"La sonde descend dedans. Trois gestes : lancer, ferrer dès que ça accroche, puis stabiliser le flux dans la secteur."},
-    {sel:"#screen", t:"Tu remonteras des Pokémon, et parfois des objets qui n'ont rien à faire là. Ne me demande pas d'où ils viennent."}
+    {sel:"#screen", t:"Cette canne, quelqu'un s'en servait avant que les données se figent. Les nappes sous le secteur n'ont jamais été vidées."},
+    {sel:"#screen", t:"Lance, attends que le bouchon plonge, puis ferre. Trop tôt ou trop tard, et ça repart."},
+    {sel:"#screen", t:"Certains Pokémon ne remontent qu'au bout d'une ligne. Tu ne les croiseras nulle part ailleurs."}
   ]},
   idle:{steps:[
-    {sel:"#screen", t:"Un Pokémon rangé au Pokédex ne s'arrête pas quand tu fermes le jeu. Il continue de tourner, en attente d'instructions."},
-    {sel:"#screen", t:"Ce bruit de fond est exploitable. Les générateurs le collectent, même hors ligne, jusqu'à douze heures."},
-    {sel:"#screen", t:"Je l'appelle Énergie Onirique. Retiens ce nom. Il servira plus tard, et pas pour acheter des Balls."}
+    {sel:"#fo-shaft", t:"Le Forage. Tes Pokémon creusent dans les couches du rêve, et le rêve libère de l'Énergie Onirique en cédant. Ils continuent même quand tu fermes le jeu. Moi aussi, je regarde."},
+    {sel:".fo-good", t:"Chaque strate a sa matière. Les types affichés ici y creusent deux fois plus vite : Sol et Roche dans la terre, Feu dans la glace, Eau dans le magma. Change ton équipe en descendant."},
+    {sel:".fo-crew", t:"L'équipe de forage. Touche un emplacement pour choisir qui creuse. « Les meilleurs ici » fait le tri à ta place, je ne me vexerai pas."},
+    {sel:".fo-wallbtn", t:"En creusant, ils tombent sur des parois. Fouille-les à la pioche et au marteau avant qu'elles s'effondrent : fossiles, pierres, trésors… et parfois quelqu'un qui dormait dans la roche."}
   ]},
   eggs:{steps:[
     {sel:"#screen", t:"Ce ne sont pas tout à fait des Œufs. Ce sont des Pokémon que le système a commencé à écrire, puis abandonnés en cours de route."},
@@ -322,13 +346,24 @@ const TUTOS = {
   boss:{steps:[
     {sel:"#screen", t:"Certains Pokémon n'ont pas disparu de l'index. On leur a donné un rôle : bloquer l'accès aux secteurs voisins."},
     {sel:"#screen", t:"Je ne sais pas qui leur a demandé ça. Ce n'est ni toi ni moi, et il n'y a personne d'autre."},
-    {sel:"#screen", t:"Tu ne peux pas les capturer. Il faut les faire céder au combat. Et le tableau des types pèse plus lourd que dix niveaux d'écart."}
+    {sel:"#screen", t:"Tu ne peux pas les capturer. Il faut les faire céder. Et retiens ceci, je le répéterai jusqu'à ce que tu en aies marre : le tableau des types pèse plus lourd que dix niveaux d'écart."}
   ]},
   expedition:{steps:[
     {sel:"#map-scroll", t:"Une couche non cartographiée : le système y a improvisé sa propre géographie quand il a manqué de place."},
-    {sel:"#map-scroll", t:"Tu pars du haut et tu descends vers son noyau. Les nœuds éclairés sont les seuls accessibles, et le chemin ne se refait pas."},
-    {sel:".team-strip", t:"Les points de vie ne se régénèrent pas entre les combats. La menace, ici, c'est l'usure."},
-    {sel:"#screen", t:"Ce qui survit en revient renforcé de façon permanente. C'est la seule façon de préparer un verrou."}
+    {sel:"#map-scroll", t:"Tu pars de la porte, en haut, vers le Champion du secteur, en bas. Touche un nœud lointain : je te dis ce qu'il cache."},
+    {sel:".team-strip", t:"Ton équipe repart au niveau 5. Hautes herbes +1, dresseurs +2, le reste rien. C'est ta route qui fait ta force."},
+    {sel:"#screen", t:"Deux badges, puis le noyau. Ce qui survit en revient renforcé pour de bon. Ramène-les-moi entiers, s'il te plaît. J'ai commencé à leur donner des surnoms."}
+  ]},
+  tower:{steps:[
+    {sel:".sw-world", t:"La Tour. L'archive y empile ce qu'elle n'arrive plus à ranger : six ailes de souvenirs corrompus, posées les unes sur les autres."},
+    {sel:".sw-world", t:"Chaque aile a sept paliers, et un boss au septième. Le battre ouvre l'aile suivante, puis les difficultés Difficile et Enfer."},
+    {sel:".sw-teambar", t:"Ici, on ne repart pas de zéro : tes Pokémon combattent à leur niveau d'archive, à quatre. Le premier mène les autres."},
+    {sel:".sw-lockbar", t:"Et tout en haut des ailes 2, 4 et 6, quelque chose monte la garde. Tu le sentiras quand tu en seras capable. Moi je le sens déjà. Je préférerais ne pas."}
+  ]},
+  towerprep:{steps:[
+    {sel:".sw-waves", t:"Avant chaque palier, tu vois ce qui t'attend. Regarde les types : c'est eux qui décident, plus que les niveaux."},
+    {sel:".sw-slots", t:"Le premier emplacement porte la couronne. Les Pokémon puissants y donnent un passif à toute l'équipe."},
+    {sel:".sw-go", t:"En combat, chaque Pokémon a trois compétences : une attaque, une à recharge, une ultime. Les parchemins de la Tour les font monter."}
   ]},
   poker:{steps:[
     {sel:"#screen", t:"Les données rares ne se rangent pas au hasard : elles se regroupent par motifs. Espèces identiques, familles, types."},
@@ -344,7 +379,7 @@ const TUTOS = {
   buddy:{steps:[
     {sel:".buddy", t:"Un Pokémon capturé garde en mémoire qui l'a attrapé. C'est une ligne d'en-tête, ça ne veut rien dire."},
     {sel:".buddy", t:"Sauf que celle-ci te suit. À chaque palier d'affinité, elle gagne des niveaux définitifs."},
-    {sel:".buddy", t:"Et elle ramasse des choses en chemin. Ce comportement n'est écrit nulle part. J'ai vérifié trois fois."}
+    {sel:".buddy", t:"Et elle ramasse des choses en chemin. Ce comportement n'est écrit nulle part. J'ai vérifié trois fois. Je suis un peu jaloux. C'est noté."}
   ]}
 };
 
@@ -352,6 +387,8 @@ let TUTO = null;
 function tutoSeen(k){ return (S.tutos||[]).includes(k); }
 /* aucune autre couche ne doit etre ouverte : sinon le tutoriel se superpose */
 function overlayBusy(){
+  /* une scene d'Expedition en cours : on ne l'interrompt pas */
+  if(typeof xsOpenNow === "function" && xsOpenNow()) return true;
   for(const id of ["story", "sheet-root", "discover", "levelup", "boot"]){
     const el = document.getElementById(id);
     if(el && el.className && el.className.indexOf("on") >= 0) return true;
@@ -443,20 +480,23 @@ const DIRECTIVES = [
   {id:"d6",  n:"Passer au niveau 3",            chk:()=>S.level>=3,          goal:()=>[S.level,3],
    rw:{balls:{super:8}}, hint:"La sonde des couches s'ouvre à ce niveau."},
   {id:"d7",  n:"Faire une prise à la sonde",    chk:()=>S.stats.fish>=1,     goal:()=>[S.stats.fish,1],
-   rw:{shards:20}, hint:"Onglet Modules, Sonde des couches.", go:"fishing"},
+   rw:{shards:20}, hint:"Écran de capture, mode Pêche.", go:"capture"},
   {id:"d8",  n:"Archiver 20 espèces",           chk:()=>dexTotal()>=20,      goal:()=>[dexTotal(),20],
    rw:{coins:900, cores:1}, hint:"Change de secteur dans le Pokédex pour repérer ce qui te manque."},
-  {id:"d9",  n:"Acheter un générateur d'Énergie", chk:()=>Object.values(S.idle.gens).reduce((a,b)=>a+b,0)>1,
-   goal:()=>[Object.values(S.idle.gens).reduce((a,b)=>a+b,0),2],
-   rw:{coins:600}, hint:"Il produit pendant que tu ne joues pas.", go:"idle"},
+  {id:"d9",  n:"Fouiller une paroi au Forage", chk:()=>(S.stats.walls || 0)>=1,
+   goal:()=>[Math.min(1, S.stats.walls || 0),1],
+   rw:{coins:600}, hint:"Ton équipe de forage creuse même quand tu ne joues pas. Ce qu'elle trouve t'attend dans les parois.", go:"idle"},
   {id:"d10", n:"Archiver 25 espèces",           chk:()=>dexTotal()>=25,      goal:()=>[dexTotal(),25],
    rw:{shards:40}, hint:"Le premier verrou légendaire s'ouvre à 25 espèces de Kanto."},
   {id:"d11", n:"Faire évoluer un Pokémon",      chk:()=>S.stats.evolutions>=1, goal:()=>[S.stats.evolutions,1],
    rw:{coins:1200, stones:{fire:1}}, hint:"Pokédex, fiche d'une espèce que tu as en plusieurs exemplaires.", go:"dex"},
-  {id:"d12", n:"Lever un premier verrou",       chk:()=>S.bosses.length>=1,  goal:()=>[S.bosses.length,1],
-   rw:{cores:2}, hint:"Prépare une équipe qui a l'avantage de type.", go:"boss"},
-  {id:"d13", n:"Terminer une expédition",       chk:()=>S.stats.expWins>=1,  goal:()=>[S.stats.expWins,1],
+  {id:"d13", n:"Réussir une Expédition", chk:()=>S.stats.expWins>=1,  goal:()=>[S.stats.expWins,1],
    rw:{shards:60}, hint:"Tes survivants gagneront des niveaux définitifs.", go:"expedition"},
+  {id:"d13b", n:"Battre le boss de la Forêt de Jade", chk:()=>typeof sqStars === "function" && sqStars(0, SQ_STAGES - 1, 0) > 0,
+   goal:()=>[typeof sqStars === "function" && sqStars(0, SQ_STAGES - 1, 0) > 0 ? 1 : 0, 1],
+   rw:{coins:1500}, hint:"La Tour : quatre Pokémon de ton archive, à leur niveau. Le septième palier porte le boss.", go:"tower"},
+  {id:"d12", n:"Lever un premier verrou",       chk:()=>S.bosses.length>=1,  goal:()=>[S.bosses.length,1],
+   rw:{cores:2}, hint:"Au sommet de la deuxième aile de la Tour. Prends une équipe qui a l'avantage de type.", go:"boss"},
   {id:"d14", n:"Franchir une ante au Poké-Poker", chk:()=>S.pokerMeta.bestAnte>=1, goal:()=>[S.pokerMeta.bestAnte,1],
    rw:{shards:80}, hint:"Cherche les familles d'évolution dans ta main.", go:"poker"},
   {id:"d15", n:"Compléter la moitié de Kanto",  chk:()=>dexCount("kanto")>=76, goal:()=>[dexCount("kanto"),76],
@@ -510,43 +550,43 @@ function directiveCard(){
    ============================================================ */
 const PZ_EVENTS = [
   {id:"e_first_dup", c:()=>S.stats.catches>=6 && Object.values(S.dex).some(e=>e.c>=3),
-   t:"Tu as trois exemplaires du même Pokémon. Ne les jette pas : c'est avec des doublons qu'on fait évoluer une espèce, depuis sa fiche au Pokédex."},
+   t:"Trois exemplaires du même Pokémon ! Ne les relâche pas : c'est avec les doublons qu'on fait évoluer une espèce, depuis sa fiche au Pokédex. Recyclage. J'adore le recyclage."},
   {id:"e_coins", c:()=>S.coins>=2000,
-   t:"Deux mille PokéCoins qui dorment. Va acheter des Balls : un stock vide, et tu regardes passer les Pokémon sans rien pouvoir faire."},
+   t:"Deux mille PokéCoins qui dorment. Va acheter des Balls : un stock vide, et tu regardes passer les Pokémon en agitant les bras. J'ai déjà vu ça. C'était triste."},
   {id:"e_type", c:()=>dexTotal()>=15,
-   t:"J'ai classé ton Pokédex par types. Tu captures toujours dans le même secteur, et tu vois donc toujours les mêmes Pokémon. Change de secteur en haut de l'écran."},
+   t:"J'ai classé ton Pokédex par types, pour le plaisir. Verdict : tu tournes en rond dans le même secteur, donc tu vois toujours les mêmes têtes. Change de secteur, en haut de l'écran."},
   {id:"e_fail", c:()=>S.failStreak>=4,
-   t:"Quatre Balls de suite qui n'ont pas tenu. Le calcul est bon, c'est juste la malchance. Une Baie Framby améliore nettement tes chances."},
+   t:"Quatre Balls de suite qui n'ont pas tenu. Le calcul est juste, c'est la malchance. Une Baie Framby aide nettement. Moi aussi j'aide, mais moins nettement."},
   {id:"e_lowball", c:()=>((S.balls.poke||0)+(S.balls.super||0)+(S.balls.hyper||0))<=4,
-   t:"Tu n'as presque plus de Balls. La boutique en vend, et l'Énergie Onirique se convertit en PokéCoins si tu es à court."},
+   t:"Alerte : réserve de Balls presque vide. Je répète : presque vide. La boutique en vend, et l'Énergie Onirique se convertit en PokéCoins. Fin de l'alerte. Je me suis emballé."},
   {id:"e_idle", c:()=>S.stats.energyTotal>=3000,
-   t:"Tes générateurs tournent bien. Pense à convertir l'Énergie : elle ne sert à rien tant qu'elle s'entasse."},
+   t:"Tes sondes tournent bien. Pense à convertir l'Énergie : entassée, elle ne sert à rien. Comme mes blagues, d'après le système."},
   {id:"e_dex50", c:()=>dexTotal()>=50,
-   t:"Cinquante Pokémon au Pokédex. Le secteur tient debout tout seul par endroits. Je ne pensais pas revoir ça."},
+   t:"Cinquante Pokémon au Pokédex. Par endroits, le secteur tient debout tout seul. Je ne pensais pas revoir ça. J'ai mis ma plus belle humeur."},
   {id:"e_evo", c:()=>S.stats.evolutions>=1,
-   t:"L'évolution a fonctionné. C'est le même Pokémon, avec une nouvelle définition, et il a gardé tout son historique. C'est plus rare que ça n'en a l'air."},
+   t:"Évolution réussie ! Même Pokémon, nouvelle définition, et il a gardé tout son historique. C'est plus rare que ça n'en a l'air. C'est même un peu émouvant. Un peu."},
   {id:"e_team", c:()=>S.team.length>=3 && S.level>=8,
-   t:"Ton équipe est prête. Vérifie les types avant d'y aller : contre un verrou, l'avantage de type pèse plus lourd que dix niveaux d'écart."},
+   t:"Ton équipe est prête. Avant un verrou, regarde ses types : l'avantage de type pèse plus lourd que dix niveaux d'écart. Je le redirai. Je te préviens."},
   {id:"e_expfail", c:()=>S.stats.expRuns>=2 && S.stats.expWins===0,
-   t:"Deux expéditions perdues. Les PV ne remontent pas tout seuls entre les combats, et un Pokémon KO est perdu pour le reste du parcours. Passe par un Repos avant une Élite, pas après."},
+   t:"Deux Expéditions perdues. Petit conseil de quelqu'un qui compte tout : les PV ne remontent presque pas entre deux combats. Passe par un Centre ou un repos avant une Élite, pas après."},
   {id:"e_shinyhunt", c:()=>S.stats.bestStreak>=25 && S.stats.shinies===0,
-   t:"Belle chaîne, mais toujours aucun Pokémon chromatique. C'est normal : plus la chaîne est longue, plus ils deviennent probables. Ne la casse pas."},
+   t:"Belle chaîne, et toujours aucun chromatique. C'est normal : plus la chaîne est longue, plus ils deviennent probables. Ne la casse pas. Je croise mes… je n'ai rien à croiser."},
   {id:"e_boss1", c:()=>S.bosses.length>=1,
-   t:"Le verrou est tombé. J'ai relu sa signature : il n'a opposé aucune résistance réelle. Comme s'il attendait qu'on vienne."},
+   t:"Le verrou est tombé. J'ai relu sa signature : il n'a opposé aucune vraie résistance. Comme s'il attendait qu'on vienne. Ça me fait quelque chose. Je ne sais pas quoi."},
   {id:"e_cards", c:()=>Object.keys(S.cards||{}).length>=1,
-   t:"Une carte a été émise à ton nom. Je ne sais pas quel système les produit, ni pourquoi il continue de le faire."},
+   t:"Une carte vient d'être émise à ton nom. Je ne sais pas quel système les fabrique, ni pourquoi il continue. Mais elle est belle, et c'est ton nom dessus, {nom}."},
   {id:"e_poker", c:()=>S.stats.pokerWins>=1,
-   t:"Tu as stabilisé une couche entière en jouant avec des motifs. Je note que ça marche. Je ne comprends toujours pas pourquoi."},
+   t:"Tu as stabilisé une couche entière en jouant aux cartes. Je note que ça marche. Je ne comprends pas pourquoi. Je note aussi que je ne comprends pas."},
   {id:"e_dex150", c:()=>dexTotal()>=150,
-   t:"Cent cinquante entrées. À ce stade, les autres tentatives avaient déjà ralenti. Toi non. Je préfère ne pas expliquer pourquoi je surveille ça."},
+   t:"Cent cinquante entrées. À ce stade, les autres tentatives avaient déjà ralenti. Toi non. Je préfère ne pas expliquer pourquoi je surveille ça. Continue, c'est tout."},
   {id:"e_buddy", c:()=>buddyTier()>=3,
-   t:"Ton compagnon a franchi trois paliers. Je remarque qu'il se place toujours entre toi et la rencontre. Ce n'est pas dans sa définition."},
+   t:"Ton compagnon a franchi trois paliers. Il se place toujours entre toi et la rencontre. Ce n'est pas dans sa définition. C'est dans autre chose."},
   {id:"e_buddyfind", c:()=>(S.buddy&&S.buddy.finds>=5),
-   t:"Cinq objets rapportés. Il ne les garde jamais pour lui. Je ne sais pas où il les trouve, et j'ai cherché."},
+   t:"Cinq objets rapportés, et il ne garde jamais rien pour lui. Je ne sais pas où il les trouve. J'ai cherché. Il cache bien son jeu, ce petit."},
   {id:"e_weekly", c:()=>S.weekly && S.weekly.quests.some(q=>q.claimed),
-   t:"Objectif long accompli. Les Noyaux sont la ressource la plus rare du système : garde-les pour le multiplicateur permanent ou les Master Balls."},
+   t:"Objectif de la semaine accompli ! Les Noyaux sont la ressource la plus rare du système : garde-les pour les améliorations permanentes ou les Master Balls. Pas pour moi. Je ne mange pas."},
   {id:"e_night", c:()=>S.flags.night,
-   t:"Il est très tard chez toi. Je n'ai pas d'horloge interne, mais j'ai la tienne. L'archive sera encore là demain."}
+   t:"Il est très tard chez toi. Je n'ai pas d'horloge, mais j'ai la tienne. L'archive sera encore là demain, {nom}. Moi aussi, normalement."}
 ];
 function checkPzEvents(){
   if(document.getElementById("story")?.className === "on") return false;
@@ -566,6 +606,7 @@ function checkPzEvents(){
 }
 /* bandeau de dialogue court, non bloquant */
 function pzTalk(text){
+  text = typeof pzFmt === "function" ? pzFmt(text) : text;
   const box = document.getElementById("pztalk");
   if(!box) return;
   box.innerHTML = `

@@ -123,6 +123,616 @@ la rareté vient des données, pas d'un réglage arbitraire.
 Les sauvegardes antérieures sont converties par `migrateCards()` : les quatre anciennes qualités
 correspondent exactement aux quatre premières séries.
 
+## Standard des cinématiques
+
+Le lecteur de dialogues sait afficher des répliques. Une scène importante demande un décor, des
+acteurs, des effets et du rythme : c'est le rôle de `src/37-cine.js`. **Toute scène importante du jeu
+s'écrit avec ce moteur**, et `test.js` vérifie chacune contre le standard.
+
+**Une scène est une liste de plans ; un plan, une liste de temps.** Le vocabulaire est fermé :
+
+| Temps | Rôle | Paramètres |
+|---|---|---|
+| `bars` | bandes de cinéma | `on` |
+| `bg` | décor | `labo`, `void`, `terminal`, `faille` |
+| `card` | carton de titre | `text`, `sub`, `hold` |
+| `actor` / `leave` | entrée, sortie | `kind` prof·pz·mon, `enter` fade·pop·assemble, `how` fade·tear |
+| `mood` | humeur de Porygon-Z | `mood` |
+| `say` | réplique tapée | `who`, `text`, `corrupt` 0–1, `auto` |
+| `fx` | effet | `shake`, `flash`, `glitch`, `rgb`, `noise`, `blackout` — `lv` 1 à 3 |
+| `code` | lignes de terminal | préfixe `>` commande, `!` erreur, `✓` succès |
+| `rain` | pluie de données | `on` |
+| `par` | temps simultanés | `beats` |
+
+**Règles.** Toute scène se passe et s'avance au doigt. Trois intensités d'effet, jamais plus. Trois
+univers de couleur : le monde **d'avant** (chaud, pastel, boîte de texte classique), le **système**
+(sombre, cyan), la **faille** (magenta). Les durées viennent de `CINE_T`, jamais d'un chiffre isolé.
+Le professeur parle **depuis un moniteur** : c'est un message enregistré, et c'est lui qui se
+corrompt. Porygon-Z est **projeté** dans un cadre holographique aux équerres du jeu.
+
+**Vérifier une scène à l'œil** : `python3` + Playwright rejoue la scène dans Chromium au format
+mobile et capture les moments clés ; c'est ainsi qu'ont été trouvés un bruit statique qui ne
+s'arrêtait jamais (lancé deux fois, arrêté une) et une opacité posée en style direct qui l'emportait
+sur la classe censée le cacher.
+
+La première scène est l'ouverture, **« L'écriture interrompue »** : le monde d'avant, la panne,
+le redémarrage, le réveil. Elle remplace l'ancienne scène d'ouverture et se revoit depuis le journal.
+
+## L'Arène — les combats mis en scène (`41`)
+
+Retour d'expérience : la Descente (donjon au tour par tour) était trop longue et peu addictive.
+**L'Expédition et la Tour ont repris leur place dans le hub** ; la Descente n'est plus proposée
+(son code reste dans le build, sans point d'entrée, et aucune sauvegarde n'est touchée).
+La recette retenue est celle d'un Pokélike : carte à embranchements, combats automatiques,
+recrues à choisir — en version immersive. Première pierre : l'arène.
+
+- **Le moteur (`40`) reste seul juge.** L'arène n'invente aucun chiffre : elle écoute ce que le
+  moteur annonce (`arHook` : une attaque part, un coup porte, un K.O., une relève) et le rejoue
+  sur un canvas, dans l'ordre. Sans canvas (tests Node, vieux navigateur), `arOn()` renvoie faux
+  et le combat se déroule comme avant.
+- **Deux équipes face à face** : champions au centre, réserves en colonne sur leur bord, sprites
+  de marche PMD avec poses d'attaque, de tir et de douleur (repli sur le sprite fixe tant que la
+  planche n'est pas arrivée).
+- **Une manière de frapper par type** (`AR_KIND`) : charge, lames, jet continu, rayon, foudre,
+  éboulement, fissure, anneaux psychiques… Le nom de la capacité peut l'emporter sur le type
+  (`arKindOf` : une « Griffe » charge, un « Rayon » tire).
+- **Le poids des coups** : recul, flash blanc, tremblement proportionnel aux dégâts, arrêt sur
+  image et resserrement de caméra sur un critique ou un coup super efficace, traces au sol,
+  barre de vie à deux temps, K.O. en défragmentation, saut de joie à la victoire.
+- **Un décor par type d'adversaire** (`AR_BIOME`), généré une fois par combat.
+- **Les gardiens** (noyau d'Expédition, gardien d'étage de la Tour, verrous) ont leur carte de
+  nom ; chaque membre de l'équipe d'un noyau est annoncé comme une phase.
+- **Rythme** : ×1 / ×2 / ×4, maintenir le doigt sur l'arène triple la vitesse, un bouton passe
+  le combat. `bStep()` remplace les délais fixes du moteur : il attend la fin de la mise en scène.
+- Le journal écrit chaque ligne au moment où l'image la montre.
+
+À suivre (deuxième livraison) : la carte-voyage, les recrues révélées comme des cartes, les
+événements racontés par Porygon-Z.
+
+## La Tour — combats d'équipe façon Summoners War (`55`, `55b`)
+
+- **Équipe de 4** Pokémon de l'archive, à leur niveau d'archive (les niveaux se gagnent en Expédition).
+  Le premier est le **meneur** : les espèces puissantes (BST ≥ 470, légendaires) ont un passif tiré de
+  leur meilleure statistique (`sqLeaderOf` : Attaque, Défense, PV, Vitesse, ou critique pour les
+  Dragons et Ténèbres).
+- **3 compétences** par espèce (`sqSkillsOf`) : attaque de base du type principal, compétence à
+  recharge (`SQ_S2`, par type principal), ultime (`SQ_S3`, par second type). Effets : brûlure,
+  poison, étourdissement, ralentissement, Défense/Attaque −, Attaque/Défense/Vitesse +, bouclier,
+  soin, purge, jauge ±, perce-défense.
+- **Jauge de tour** à la Vitesse (`sqNext`), recharges, effets qui s'usent en fin de tour.
+- **Scénario** : six secteurs sur une carte du monde, **sept paliers** chacun (le septième est le boss
+  du secteur), trois vagues par palier, trois difficultés **Normal / Difficile / Enfer** (+16 et +32
+  niveaux, monstres plus solides), chacune ouverte par le boss de la précédente. Étoiles : 3 sans
+  perte, 2 avec une perte, 1 sinon.
+- **Préparation** (comme Summoners War) : les vagues à affronter, quatre emplacements dont le meneur,
+  la liste de ses Pokémon en grille, le bouton COMBAT.
+- **Combat en vue de trois quarts** : l'équipe en bas à gauche tournée vers le haut-droite, les
+  monstres en haut à droite, profondeur ; fiche par Pokémon (type, PV, jauge, effets et durées),
+  boutons ronds de compétence (appui long = description), flèche rouge sur la cible, vagues en
+  points, pause, AUTO et ×1/×2/×3, cinématique des ultimes.
+- **Expérience** : chaque combat en donne à l'équipe (`sqGiveXp`) et fait monter le niveau d'archive.
+- **Parchemins** (récompense propre à la Tour) : monter une compétence (+8 % par niveau, recharge −1
+  au niveau 5), pour toute la lignée. Les renforts de lignée de l'ancienne Tour restent appliqués.
+- **Manuel** (compétence puis cible au toucher) ou **automatique** (`sqAI`), vitesses ×1/×2/×4.
+- **Verrous légendaires** (les Data Guardians, `sqLockGate`, `sqLockWaves`, `sqPhase`, `sqLockFinish`) :
+  au sommet des ailes 2, 4 et 6, un par difficulté — Kanto en Normal, Johto en Difficile, Hoenn en
+  Enfer. Ouvert quand le boss de l'aile est battu dans cette difficulté, que l'archive compte assez
+  d'espèces du secteur (`guardianAvailable`) et que le verrou précédent est levé. Une vague d'escorte
+  à ses types, puis lui seul (niveau = boss de l'aile + 4, `sqLockLevel`), insensible à
+  l'étourdissement et aux pertes de jauge ; à mi-vie il se reconfigure (purge, Attaque + 3 tours, deux
+  renforts). La victoire passe par `brGuardianWin` (archive, carte légendaire, intégrité, noyaux) et
+  donne des parchemins ; rejouable, récompenses réduites. L'ancien écran `boss` mène ici.
+- **Déblocages** : Tour (niveau 10) → Data Guardians découverts au boss de la Forêt de Jade → le premier
+  verrou levé ouvre la **Brèche** (niveau 12 ; les parties qui y avaient joué la gardent) → Poké-Poker.
+  La Brèche se termine toujours sur son Alpha (`brGuardianFor` rend `null`).
+- Simulation : `node squadsim.js <avance de niveau>` ; verrous : `node squadsim.js 0 locks <niv. de
+  compétence> [smart]` (équipes au hasard : 5 à 50 % ; équipes choisies au type : 40 à 100 %).
+
+## Les moments (`37b-moments.js`)
+
+Deux à six secondes plein écran pour les caps du jeu, entre la cinématique et le toast, toujours passables
+d'un toucher, mis en file s'ils tombent pendant une scène : **nouvelle salle** (battants qui s'ouvrent, avec un
+mot de Porygon-Z — avant, un module s'ouvrait en silence), **nouvelle strate** du Forage (les couches défilent),
+**aile de la Tour franchie** (étendard), **verrou levé** (la silhouette se colore et monte, avec l'adieu du
+gardien), **Pokémon endormi** dans une paroi (il s'ébroue). Une ancienne partie ne rejoue pas les salles déjà
+ouvertes (`S.flags.roomsSeen`).
+
+## Le Forage refait (`38-forage.js`)
+
+Inspiré de PokeClicker (tes Pokémon travaillent), du Souterrain de Diamant/Perle (la fouille de paroi) et de
+Mr. Mine (la profondeur comme récit, des trouvailles qui t'attendent).
+- **Équipe de forage** de 3 à 6 Pokémon de l'archive (`crewIds`, `digPower` = niveau × (0,6 + BST/700) × affinité).
+  Neuf strates (`STRATA`) avec une matière, une dureté et des **bons types** (×2) ou mauvais (×½). Au-delà du
+  Noyau, la dureté croît sans fin. Avance strate par strate, en direct comme hors ligne (`forageAdvance`).
+- **Parois** : une toutes les 7 minutes de forage (`WALL_SECS`), réserve de 3 à 8. Fouille sur une grille 12×9
+  (`genWall`, `digHit`) : pioche (précise, 1 de stabilité) ou marteau (large, 2), fer indestructible, effondrement.
+  Butin (`DIG_LOOT`) : éclats → Fragments, trésors, pierres d'évolution (une strate favorise chacune), fossiles
+  précis (`f_helix`, `f_dome`, `f_amber`, `f_root`, `f_claw` → couveuse), Pierre Ovale → ébauche, Pierre Dure
+  et Os Rare → Noyaux, objets tenus, et des **Pokémon endormis** des types de la strate qui rejoignent le Pokédex.
+- **Énergie Onirique** (par mètre, croissante avec la strate) : améliorations `FOR_UPS` (galeries, rails, étais,
+  pioche, radar, réserve/hors ligne, lampe) et capture autonome, inchangée.
+- Ancienne partie : la strate devient une profondeur en mètres, les Échos restent (+3 % de forage chacun).
+- Rythme : `node forsim.js`.
+
+## Porygon-Z et le nom du joueur
+
+- **Le nom** : dans l'ouverture, Porygon-Z demande le nom dans sa bulle (temps `ask` des cinématiques,
+  `cineAsk`). Ouverture passée, ou partie plus ancienne : il le demande une fois (`askNameSheet`).
+  Les noms secrets (`checkNameSecret`) sont reconnus au passage.
+- **`{nom}`** dans n'importe quelle réplique (récit, bandeaux, bulles, tutoriels) devient le nom du joueur
+  (`pzFmt`, `pzName` ; « Archiviste » par défaut).
+- **Sa voix** (en tête de `02-story.js`) : curieux, précis jusqu'à l'absurde, il se corrige en pleine
+  phrase, s'emballe puis se reprend, se cache derrière ses « routines ». Il tient un fichier
+  « choses_formidables.txt » qui revient jusqu'à la fin. Pensées occasionnelles après une capture
+  (`PZ_MUSES`, une sur seize au plus toutes les deux minutes et demie).
+- La Descente abandonnée est sortie du jeu (`attic/`) : elle redéfinissait l'action `dcdone` et bloquait
+  le bouton « Archiver ». Un test interdit désormais toute action définie deux fois.
+
+## Audit de cohérence (octobre 2026)
+
+- **Bonus de première victoire** séparés par mode (`FIRST_WIN` : Expédition, Tour, Brèche, verrous, Poker) ;
+  la Tour double PokéCoins et Fragments et ajoute un parchemin. *Aujourd'hui* liste la Tour (et un verrou
+  prêt) et la Brèche du jour.
+- **Quêtes jamais impossibles** : quotidiennes et hebdomadaires filtrées par salle ouverte (`NEED`,
+  `WEEKLY_NEEDS`) ; quêtes de Tour (`dayTower`, `wkTower`). Contrats : jamais un type absent du secteur,
+  libellé lisible.
+- **Salle suivante** : seules les conditions non remplies s'affichent (`moduleMissing`).
+- **Tour** : tutoriels (`tower`, `towerprep`), équipe proposée d'office (`sqDefaultTeam`), succès (4), directive
+  « Battre le boss de la Forêt de Jade », scènes et directives vérifiées après chaque combat ; l'équipe de la Tour
+  n'écrase plus l'équipe de capture.
+- **Verrous** : chaque gardien libéré laisse une dernière phrase (`bye`), gardée sur l'écran des verrous ; une
+  défaite déclenche le conseil de Porygon-Z ; le légendaire rejoint l'archive à un niveau utilisable.
+- Ancienne ascension de la Tour (`S.towerRun`) purgée au chargement ; textes sans accents corrigés (succès,
+  secteurs, titres des gardiens).
+
+## L'Expédition façon Pokélike — secteurs, treillis, progression (`50`, `51`, `51m`)
+
+- **Trois cartes au même dessin** (`MAP_SHAPE` = 2, 3, 4, 3, 4, 3, 2 puis le Champion) : chaque nœud
+  mène aux deux nœuds en diagonale sous lui ; les liaisons forment des losanges et ne se croisent
+  jamais. Juste avant le Champion, un seul Centre Pokémon (soin complet) : le prendre coûte l'autre case.
+- **Champions** (`LEADERS` : Pierre, Ondine, Major Bob, Erika, Koga, Morgane, Auguste, Giovanni, Peter,
+  Agatha, Olga, Aldo) : silhouette et « ? » sur la carte, type révélé au combat, trois Pokémon de ce
+  type. Le badge donne +3 niveaux, 40 % de soin et une relique à choisir parmi trois ; la carte
+  suivante s'ouvre. La troisième carte se termine sur le Noyau.
+- **Progression** (`EXP_GAIN`) : départ de la forme de base (`lineRoot`) au niveau 5 (jusqu'à +3
+  selon l'archive) ; hautes herbes +1, dresseur et élite +2, champion +3, le reste +0 ; évolution
+  au niveau d'évolution ; échange = +4 niveaux sur le Pokémon cédé ; recrue au niveau de l'équipe.
+  Les adversaires suivent la progression attendue (`expExpected`), pas l'équipe réelle.
+- **Espèces à leur place** (`minLevelOf`, `levelWildId`) : un adversaire de niveau 10 est une forme
+  de base ; l'espèce suit le niveau du combat.
+- **Équilibrage** (`node expsim.js`) : route offensive bien menée ~40 % de runs au bout, au hasard ~8 %,
+  en évitant les combats ~2 % — la route est la décision principale.
+- **Carte en pixel art** (`51m`) : terrain peint une fois par secteur (prairie, forêt, grotte, plage,
+  glacier, volcan, puis la faille), bâtiment et porte de départ en haut, grille du Champion en bas,
+  sentiers en pointillés, sprites de carte des dresseurs (un par type, Rouge Feu) et icônes des
+  services (hautes herbes, Poké Ball, sac, Centre, Boutique, « ? »).
+- L'archive reçoit les niveaux permanents sur l'espèce choisie au départ (`m.base`), même évoluée.
+
+## L'Expédition vécue — scènes (`51`, `_trainers`)
+
+- **Carte par couloirs** (`genMap`) : quatre couloirs, quatre marcheurs qui restent dans leur
+  couloir ou glissent d'un cran ; un pas qui croiserait une liaison est refusé. Les nœuds sont
+  placés à leur couloir : une route qui ne bouge pas descend tout droit. Trois départs.
+- **Lisibilité** : les routes encore possibles sont éclairées, les autres s'estompent. Toucher un
+  nœud lointain l'examine (type de dresseur, ce qu'il promet) et trace le chemin qui y mène.
+- **Dresseurs** : chaque nœud Archiviste a son dresseur dès la génération (`n.tr`), et une classe
+  par type (`TRAINER_TYPE_CLASS`) : un dresseur Feu a toujours le visage d'un Pyromane. Les Élites
+  sont des Topdresseurs ; le Noyau ne dit rien. Portraits extraits par `build_trainers.py`
+  depuis la décompilation pret/pokefirered (© Nintendo / Creatures / GAME FREAK).
+- **Le voyage** : le meneur de l'équipe (sprite de marche PMD) marche jusqu'au nœud choisi.
+- **Les scènes** (`51`) remplacent les feuilles : rencontre (rayures, dresseur, « VS », ou herbes
+  qui frémissent et Pokémon qui surgit), noyau (silhouette), victoire (équipe, Bits qui défilent,
+  soin visible, relique qui se retourne), trois Poké Balls de recrutement, coffre qui tremble puis
+  s'ouvre, feu de camp, boutique de Kecleon, terminal d'échange de Porygon, événement raconté par
+  Porygon-Z.
+- **Rien ne se perd** : tout ce qu'une scène attend est dans `run.pend` (y compris les adversaires
+  d'une rencontre, tirés à l'entrée du nœud). Fermer l'application en plein recrutement, coffre ou
+  combat rouvre la même scène.
+- **L'ordre de l'équipe** : toucher deux membres les échange (Expédition et Tour).
+- **Tour** : le choix d'un objet ou d'un remplaçant reste à l'écran tant qu'il n'est pas fait
+  (une feuille fermée bloquait l'ascension) ; le bouton Objets lit l'équipe de la Tour.
+
+## La Descente — retirée du hub (`59d`, `59e`)
+
+> Conservée pour mémoire. Les sections ci-dessous décrivent un mode qui n'est plus accessible.
+
+### Livraison 1
+
+L'Expédition refondue en **donjon mystère au tour par tour**, dans la Brèche (onglet « Descente »).
+Manuel par défaut, **automatique** en option. **Sauvegardée à chaque pas** : on quitte, on reprend.
+
+- **Étages générés** (salles, couloirs, escalier), aux couleurs de l'habitat ; brouillard, mini-carte.
+- **Chaque pas est un tour** ; le meneur échange sa place avec un coéquipier, les partenaires suivent.
+- **Quatre capacités par Pokémon, chacune avec une forme** sur la grille : contact, arc, tir en ligne,
+  rebond, cône, autour de soi, explosion ciblée, rayon perçant, toute la salle. Une capacité
+  ultime (ou la signature des légendaires) avec recharge. Doigt appuyé : les cases touchées
+  s'allument ; on relâche pour lancer.
+- **Recrutement** : un Pokémon vaincu peut demander à rejoindre l'équipe (quatre au plus) ;
+  recrues et évolutions rejoignent le Pokédex en fin de run.
+- **Expérience et évolutions** en pleine Descente ; régénération lente des PV à chaque pas.
+- **Gardien au cinquième étage** : il se mesure à la force de l'équipe, reprend son souffle un tour
+  sur trois, annonce ses déflagrations un tour à l'avance (cases rouges), appelle des sentinelles
+  à 66 %, et à 33 % sa **défragmentation totale** ne laisse que des cases vertes, une à portée de
+  chaque Pokémon.
+
+Mesuré en mode automatique (`node dcsim.js 30`) : une équipe forte bat le gardien 14 fois sur 30,
+des starters 7 fois sur 30 ; aucune Descente bloquée.
+
+### Livraisons 2 et 3
+
+- **Portes** à chaque escalier (deux ou trois) : riche, élite (objet tenu garanti), source (soigne toute
+  l'équipe), échoppe Kecleon, piégée (butin doublé), ordinaire.
+- **Sac de huit places** : baies, Potion, Rappel (relève automatiquement un Pokémon K.O.), Orbe
+  Cartographe, Orbe Foudre, Capsule d'énergie ; **Pokédollars** à dépenser chez Kecleon (le reste est
+  converti en PokéCoins) ; **les quinze objets tenus** de l'Expédition, transposés au tour par tour.
+- **Un Pokémon K.O. est perdu pour la Descente**, sauf Rappel ; il rend son objet tenu au sac.
+- **Terrains** selon l'habitat : eau (traversée par les seuls types Eau et Vol), hautes herbes, lave.
+- **Réactions élémentaires** : la glace gèle l'eau (un passage), le feu embrase les herbes (l'incendie
+  se propage), la foudre frappe tout un plan d'eau, l'eau fige la lave.
+- **Gardien en actes** : déflagrations annoncées au motif de son type (rangées, croix, poursuite,
+  éclats, nova, anneau) ; à 66 %, **trois pylônes** le rendent intouchable et la corruption ronge le
+  bord de l'arène ; à 33 %, la corruption avance encore et la défragmentation totale se déclenche.
+
+Mesuré en mode automatique (`node dcsim.js 30`) : des starters battent le gardien 12 fois sur 30, une
+équipe forte 10 fois ; aucune Descente bloquée.
+
+### Livraison 4 : la Descente remplace l'Expédition et la Tour
+
+- **Son propre écran**, à la place de l'Expédition dans le hub (mêmes conditions d'ouverture) ;
+  les anciens écrans de l'Expédition et de la Tour y mènent.
+- **Descente sans fond** (ouverte après un premier gardien, ou si la Tour avait été gravie) : un
+  gardien tous les cinq étages, un escalier là où il tombe, et l'on continue. Chaque gardien vaut
+  deux **renforts** (+4 % par point, toute la lignée) ; renforts et record de la Tour sont repris, et
+  les renforts jouent dans toutes les Descentes. Mesuré en automatique : étage médian 10, au mieux 16.
+- **La Descente reprend tout ce que distribuait l'Expédition** : œuf (d'autant plus rare que les
+  risques pris — portes d'élite, gardiens), carte, Noyau, +0,5 % d'intégrité, objet tenu une fois sur
+  deux, 20 points de faction, quêtes et succès (le compteur `expWins` compte désormais les gardiens
+  vaincus : déblocage de la Brèche, guide, jalons inchangés). Les survivants gagnent des **niveaux
+  définitifs**. L'objet « Restes » ajoute une Potion au départ.
+- **Une Expédition ou une ascension en cours** est close proprement, une seule fois ; ses survivants
+  gardent un niveau.
+- **Finitions** : conseils de premiers pas (une seule fois), sons et vibrations, textes du jeu
+  harmonisés ; une Descente abandonnée sans rien accomplir ne rapporte rien (pas de niveaux gratuits).
+  Parcours complet vérifié dans le navigateur : 30 écrans, une Descente, une Brèche, sans erreur.
+
+## La Brèche — le survivors-like
+
+Le module d'action du jeu. Il s'ouvre par la faille que laisse le premier verrou légendaire levé
+dans la Tour ; les verrous eux-mêmes se combattent désormais dans la Tour, la Brèche se conclut sur
+son Alpha. Trois fichiers :
+`56-breche.js` (moteur : sprites corrompus, sols, armes, pools), `57-breche-run.js` (la partie :
+vagues, boss, rendu), `58-breche-ui.js` (interface, hall, Archive, intégration).
+
+**La boucle.** Le pouce déplace l'Archiviste, l'équipe le suit en file. Chaque Pokémon attaque seul
+avec **une attaque par type** — dix-sept archétypes lisibles au premier coup d'œil (cône de flammes,
+vague, chaîne d'éclairs, orbites, rochers lancés, séisme…). À chaque niveau : **un choix parmi trois**
+(nouveau Pokémon, amélioration, objet). Niveau 5 : le Pokémon évolue. Niveau 8, en tenant le
+**catalyseur** de son type, il atteint son évolution finale au coffre suivant — la condition se
+découvre en jouant. Élites toutes les 60 s (coffre), alpha à 4 min, encerclements toutes les 45 s,
+**gardien à 8 min**, puis la **faille profonde** en mode infini.
+
+**Autour.** Brèche du jour à graine partagée ; Archive à reconstruire avec les Données (gagnées même
+en cas de défaite) ; la Brèche nourrit la recherche et restaure des élites au Pokédex.
+Aucune énergie, aucune limite de runs, aucune série qui se brise.
+
+**Calibrage mesuré** (`node brsim.js 10` : runs complètes sans navigateur, deux profils) —
+premier habitat de Kanto : gardien atteint et vaincu environ 6 fois sur 10, combat de boss de 25 à
+30 s, évolution finale une run sur deux. Johto (×1,45) et Hoenn (×2) sont nettement plus durs.
+Rendu vérifié dans Chromium : 60 images par seconde avec la horde.
+
+### Combats de boss scénarisés (`59g-breche-bossfight.js`)
+
+Le combat se joue en actes, chacun obligeant à bouger autrement :
+1. **Entrée en scène** : la horde se disperse, bandes noires, la caméra glisse vers le gardien, carte
+   de nom (« ARTIKODIN — VERROU DU FROID »), sous-titres de Porygon-Z ; une **arène** de corruption se
+   referme (en sortir brûle).
+2. **100 → 66 %** : le jeu d'attaques du type du gardien.
+3. **66 %** : il se retranche derrière **trois pylônes** (intouchable tant qu'ils tiennent) ; l'arène
+   se resserre.
+4. **33 %** : **attaque ultime**, tout l'écran rougeoie sauf deux ou trois **abris** à rejoindre en
+   2,6 s (30 % des PV sinon, et la horde hors abri est balayée) ; puis il s'emballe.
+5. **Finale** : ralenti, défragmentation en pixels, conclusion de Porygon-Z.
+
+Testé acte par acte dans `test.js`. Mesuré sur 30 runs : le débutant (qui ne cherche pas les abris)
+bat le boss 16 fois ; le joueur qui esquive l'atteint 15 fois sur 20 et le bat 14 fois.
+
+### Sensations (`59f-breche-feel.js`)
+
+Repris de l'étude de *Pokémon Arena* (Big Kid Nation) :
+- **Poses** : chaque Pokémon de l'équipe prend sa pose d'attaque (corps à corps) ou de tir (distance)
+  tournée vers sa cible ; les ennemis touchés prennent leur pose de douleur. Planches PMD « Attack »,
+  « Shoot », « Hurt » (1 110 planches, chargées à la demande en ligne).
+- **Traces au sol** : brûlures, cratères, fissures, givre, flaques, poison, mousse, selon le type de
+  l'attaque ; elles s'estompent en quelques secondes (150 au plus).
+- **Réactions élémentaires** : la glace gèle l'eau (un pont praticable), le feu embrase les herbes
+  (qui brûlent la horde puis deviennent cendres), la foudre se propage dans l'eau, l'eau fige la lave.
+- **Un jeu d'attaques par boss, selon son type** : sol gelé, foudre qui poursuit, mur de flammes,
+  vague, enfouissement (le boss suit l'Archiviste sous terre puis jaillit), attraction psychique et
+  orbes, piqués successifs, pluie de météores, laser tournant, ronces. Tous annoncés.
+- **Dangers annoncés** : ligne de visée rouge des tireurs, onde au sol des élites, charge de l'alpha.
+- **Bandeau du système** : un flux de commentaires sous l'ATH (élites, alpha, gardien, évolutions,
+  missions, paliers de K.O., réactions du terrain).
+
+### Attaques et sprites de marche (`59a`, `59p`)
+
+- **Trois attaques par type** (`BR_ATK`), choisies selon le profil de l'espèce : spécialiste (à
+  distance), physique (contact, rebond), équilibré (zone). **62 attaques distinctes** sur 386 espèces,
+  26 formes, dont neuf nouvelles : ricochet, nova, pluie, spirale, aura, tornade, balayage, faille, orage.
+- **Signatures des 21 légendaires** (`BR_LEGEND`) : singularité de Mewtwo, Métronome de Mew, Aéroblast
+  de Lugia, Lame Pangéenne de Groudon, Vœu Destructeur de Jirachi, Onde Originelle de Kyogre…
+- **Équilibrage mesuré** : `node brdps.js` mesure chaque forme à conditions égales (horde et cible
+  unique) ; `tools/tune.js` et `tools/legend.js` recalent les dégâts. Formes ordinaires entre 0,94 et
+  1,05 fois la médiane ; signatures à 1,80.
+- **Sprites de marche de Pokémon Donjon Mystère** (sprites « de donjon », 8 directions) pour l'équipe
+  et la horde, recolorés en corruption pour les ennemis. `build_pmd.py` optimise les planches de
+  `sprites/pmd_raw` (386 espèces, 1,8 Mo) ; la version en ligne les charge à la demande, la version
+  autonome les embarque. Source : PMDCollab/SpriteCollab, CC BY-NC 4.0, crédité dans le journal.
+
+### Les cartes (`59m-breche-map.js`)
+
+Le monde est généré par morceaux de 480 px à partir de la graine de la run : **unique à chaque
+partie, identique pour tous dans la Brèche du jour** (testé). Chaque morceau peut porter :
+
+- du **relief** qui bloque le passage et crée des goulets : arbres (dont la ramure devient
+  translucide quand on passe dessous), rochers, stalagmites, colonnes gravées, basalte fissuré ;
+- des **terrains** : l'eau ralentit l'Archiviste (sauf avec un Pokémon Eau ou Vol) et un peu la
+  horde ; la lave brûle tout le monde, et on peut y attirer les ennemis ;
+- des **lieux** qu'on active en restant à côté (aucun bouton, le pouce reste sur le déplacement) :
+  caches de données, autels (boost de 30 s), Pokémon captifs (ils rejoignent l'équipe, puis le
+  Pokédex), et des **nids de corruption** qui déversent des ennemis tant qu'on ne les détruit pas.
+
+| Habitat | Élément signature |
+|---|---|
+| Routes | arbres à baies : une baie de soin tombe régulièrement |
+| Sylve | sous-bois dense, souche ancienne (+2 niveaux à un Pokémon) |
+| Nappes | lacs et **remous** qui aspirent et noient la horde |
+| Cavités | **obscurité** (on ne voit que ce que l'équipe éclaire), cristaux géants |
+| Ruines | **dalles-glyphes** qui foudroient tout autour quand on marche dessus |
+| Foyer | lave, et **geysers** qui entrent en éruption toutes les six secondes |
+
+**Trois missions par run** (deux générales, une propre à l'habitat), payées en Données et en
+PokéCoins, avec un bonus quand les trois sont faites. Des flèches au bord de l'écran indiquent
+les quatre lieux utiles les plus proches. **Maîtrise par espèce** : chaque rang (1, 3, 6, 10, 15 runs)
+ajoute 4 % de dégâts à l'espèce, affiché en étoiles.
+
+### Confort de jeu
+
+- **Pause automatique** : tant qu'un choix de niveau, un coffre ou une évolution est à l'écran, la
+  partie est figée. À la reprise, 0,8 s d'invulnérabilité.
+- **ATH mobile**, tout en haut : PV chiffrés, expérience, **frise de la partie** (élites, alpha,
+  gardien, et le prochain événement annoncé ; en faille profonde, le palier suivant), l'équipe sur six
+  emplacements avec jauge de niveau, les objets, les synergies et les boosts actifs. Toucher l'équipe
+  ouvre la pause détaillée.
+
+### Contenu étendu (`59-breche-plus.js`)
+
+- **Le second type colore l'attaque** : brûlure, poison, gel, paralysie, repoussée, vol de vie,
+  critiques, perce-armure… Des centaines de combinaisons sur 386 espèces.
+- **Synergies de type** : un type présent sur 2 membres (palier 1) ou 4 (palier 2) donne un bonus.
+- **L'évolution finale change la forme de l'attaque** et son nom (Flammèche → Déflagration, qui
+  embrase le sol ; Éclair → Fatal-Foudre, chaîne bien plus longue ; trois rayons pour Draco-Météore…).
+- **15 objets** (dont Orbe Vie, Casque Brut, Bouclier Data, Baie Sitrus) et des **cartes dorées** rares.
+- **Ramassables** : l'**Octet Turbo** triple la vitesse et fait percuter la horde ; l'aimant aspire
+  tous les octets ; la baie soigne.
+- **Menaces** dès la run normale : tireurs, kamikazes, blindés, scindeurs.
+- **Faille profonde** : un palier par minute (+30 % de PV ennemis chacun), un écho de légendaire
+  tous les trois paliers, et au palier 12 **MissingNo**, qui accélère sans cesse. Mesuré avec
+  l'Archive au maximum (`node brsim.js 6 deep`) : toutes les runs se terminent, profondeur médiane 12.
+
+## Sprites chromatiques
+
+Les chromatiques affichent les **vrais sprites chromatiques** (faces Émeraude, dos Rubis/Saphir,
+Porygon-Z de Noir/Blanc), avec la lueur dorée par-dessus. Avant, deux règles CSS se marchaient
+dessus : il ne restait que la lueur sur le sprite normal. `build_atlas_shiny.py` construit l'atlas
+chromatique à partir de `sprites/g3s` et `sprites/g3bs`, **cellule pour cellule dans la même
+disposition** que l'atlas normal : afficher un chromatique ne change que l'image de fond. En ligne,
+il est chargé à part et seulement quand un chromatique apparaît.
+
+## Cosmétiques — une signature chacun
+
+Le « Cadre doré » et le « Cadre trésorier » étaient deux fois la même classe CSS. Règle désormais,
+vérifiée par les tests : **aucun cadre ni aucun fond ne partage son rendu**, et chaque cosmétique a une
+matière, une forme et un mouvement propres.
+
+| Cadre | Signature | Obtenu par |
+|---|---|---|
+| Doré | or massif biseauté, reflet qui passe | — |
+| Trésorier | tranche de pièce crénelée, sceau ¤ | 50 000 PokéCoins |
+| Circuit | double trait, soudures aux angles | 100 espèces |
+| Prismatique | anneau arc-en-ciel tournant | 25 chromatiques |
+| Originel | rose de Mew et violet de Mewtwo en alternance | Mew et Mewtwo |
+| Éléments | bleu, rouge, vert tournants | Kyogre, Groudon, Rayquaza |
+| Trois ailes | glace, foudre, feu | le trio ailé |
+| Champion | or et magenta, couronné | terminer une partie de Poké-Poker |
+
+**Huit effets**, chacun une petite scène : Marée primordiale (Kyogre), Éruption (Groudon), Aurore
+céleste (Rayquaza), Onde psychique (Mewtwo), Plumes sacrées (Ho-Oh), Pluie d'étoiles (5 chromatiques),
+Couronne du Champion, Signal non indexé (l'arc de la faille). Sept fonds les accompagnent. Les succès
+des légendaires restent cachés, comme leurs noms dans la collection.
+
+Le profil est visible **en miniature dans l'en-tête de tous les écrans**, avec cadre, fond et effet.
+
+## Poké-Poker — écran pour le pouce
+
+Tout tenait dans le haut de l'écran et laissait le bas vide ; la main de huit cartes défilait de côté
+et se coupait ; « Abandonner » voisinait avec « Jouer ». L'écran est désormais une colonne qui occupe
+toute la hauteur : l'état de la manche en haut, **le tapis au centre** (le calcul jetons × multiplicateur
+en grand, qui prend tout l'espace libre), la main en **deux rangées de quatre**, puis les actions sous le
+pouce — « Jouer la main » plus large que « Défausser ». Combinaisons, Deck et Abandonner passent dans un
+menu. Le choix du verrou suit la même grammaire.
+
+Mesuré dans Chromium sur trois formats (`tools/measure.py`) : aucun chevauchement ; tout tient à l'écran
+en 390 × 844 et 412 × 915 ; sur écran court, un léger défilement, rien de masqué.
+
+**Deux scènes** au moteur de cinématiques : le **badge** (le joyau se reconstruit, l'annonce système,
+Porygon-Z) et la **main secrète**, jouée une seule fois pour toute la sauvegarde (glitch, les Pokémon de
+la main, le titre en grand). Le moteur gagne une **file d'attente** — une main secrète qui gagne la manche
+enchaîne sur le badge au lieu de le couper — et un acteur **emblème**.
+
+## Icônes d'objets
+
+`build_items.py` assemble `assets/items.png` (97 icônes, 32 Ko) : **88 sprites officiels** du dépôt
+PokeAPI/sprites (Balls, baies, pierres, objets tenus, trésors, cannes, répulsifs, objets
+d'Expédition et de la Brèche) et **9 icônes originales** en pixel art pour les objets propres au jeu
+(Data Ball, quatre Archives, Câble Link, Boussole fêlée, Module d'attraction, Bouclier Data).
+`itemIcon(clé)` les affiche partout ; un test vérifie qu'aucun objet d'aucun catalogue n'en est
+privé. Les cosmétiques s'affichent par un aperçu d'eux-mêmes (`cosIcon`). Les boosts gardent leurs
+sprites de Pokémon.
+
+**Publication** : les règles de `.gitignore` sont ancrées à la racine. Une règle `pmd/` sans barre
+initiale écartait `assets/pmd` et `web/assets/pmd` : les sprites de marche ne partaient jamais en
+ligne. Un test l'interdit désormais. Le service worker ne met plus en cache que les réponses valides.
+
+## Revenir, et partager
+
+- **Capture façon Pokémon GO** : un cercle coloré rétrécit autour du Pokémon (vert → rouge selon la
+  difficulté) ; un seul toucher lance la Ball. Bien ×1,08, Super ×1,2, **Excellent ×1,35** ; jamais
+  de malus. Quêtes « lancers Excellent » ; les anciens succès de visée comptent les Excellent.
+- **Saisons de la Brèche** (`39b-events.js`) : tous les quinze jours, six thèmes qui tournent (le
+  type du thème frappe 25 % plus fort, son habitat rapporte des points doublés). **Parcours gratuit**
+  de dix paliers ; le titre final se regagne à chaque retour du thème : rien n'est perdu pour de bon.
+- **Légendaire de la semaine** : il surgit en écho vers la sixième minute de chaque Brèche.
+- **Objectif collectif hebdomadaire** : les K.O. de tous les joueurs s'additionnent (Supabase, table
+  `community`, ajouts plafonnés par la fonction `add_community`) ; trois paliers récompensés.
+- **Partager sa run** : carte-image 1080 × 1350 (équipe en sprites de marche) et texte à la Wordle,
+  via le partage natif du téléphone.
+
+Tout est calculé à partir de la date : identique pour tous, sans serveur de jeu.
+
+## Installer l'application (PWA)
+
+Le parcours tient compte d'une différence décisive : **sur iPhone, l'app installée a son propre
+stockage** (elle démarre une partie neuve), **sur Android elle partage celui de Chrome** (la
+progression suit).
+
+1. **Premier écran** : un lien discret « Installer sur l'écran d'accueil » sous le bouton principal.
+2. **Juste après la cinématique d'ouverture**, une seule fois, un « conseil de maintenance » de
+   Porygon-Z : bouton **Installer** natif sur Android ; trois étapes illustrées sur iPhone (« c'est
+   le bon moment, vous n'avez encore rien à perdre ») ; invitation à ouvrir Safari ou Chrome depuis
+   un navigateur intégré (Instagram, TikTok…). Le tutoriel attend que la carte soit fermée.
+3. **Une seconde et dernière proposition**, au début d'une session suivante, au plus tôt le
+   lendemain. Sur iPhone avec une partie avancée : créer d'abord un compte (la connexion dans l'app
+   récupère tout), ou exporter la partie si le service en ligne n'est pas configuré.
+4. **Premier lancement de l'app installée** : « J'ai déjà une partie » mène à la connexion, ou à
+   l'import, sans rejouer l'introduction.
+5. Ensuite, seulement depuis le profil (« Installer l'application »).
+
+Icônes réelles (192, 512, maskable, apple-touch-icon) générées par `build_icons.py` et
+versionnées dans `assets/icons` : Chrome n'offrait pas l'installation avec l'ancienne icône
+(une bande de 400 × 40 px), et l'iPhone n'avait pas d'icône d'écran d'accueil.
+
+## Comptes et sauvegarde cloud
+
+Comptes Supabase par **pseudo, e-mail et mot de passe** (le code par e-mail reste en secours). Les
+liens reçus par e-mail (confirmation, nouveau mot de passe) reviennent dans le jeu. Synchronisation
+**intelligente**, au démarrage, toutes les 2 minutes si la partie a changé, en quittant l'application
+et après chaque Brèche : un appareil neuf récupère le cloud sans question ; si deux appareils ont
+progressé chacun de leur côté, le jeu demande lequel garder. L'état de synchronisation est rattaché
+au compte : changer de compte sur un même appareil n'écrase jamais le cloud de l'autre. Clés
+**publishable** (`sb_publishable_…`) et anciennes clés anon acceptées. Classement de la **Brèche du
+jour** : seul le meilleur score de chacun est conservé, par une fonction serveur. Installation pas à
+pas : `DEPLOIEMENT.md`. Treize scénarios de bout en bout dans `nettest.js`.
+
+## Architecture de l'interface
+
+Principe : **chaque chose est rangée là où on la cherche.**
+
+| Onglet | Contenu |
+|---|---|
+| Capture | capture, pêche, habitats |
+| Modules | *Aujourd'hui* (cadeau PokéBox, quêtes, contrats) + les **activités** : Forage, Expédition, Data Guardians, Poké-Poker — dans leur ordre de déblocage |
+| Collection | Pokédex · Recherche · Cartes · Couveuse |
+| Sac | Sac · Boutique |
+| Profil | un bandeau qui ouvre l'**Atelier**, et un menu : cartes, succès, statistiques, journal, en ligne, réglages |
+
+Le hub ne nomme ni ne décrit une salle verrouillée : il montre la **suivante** par sa seule condition
+d'ouverture, et compte les autres. L'**Atelier** regroupe nom, avatar, titre, cadre, fond et effet
+avec un aperçu en direct ; les pièces non obtenues sont comptées, pas nommées.
+
+**Outils de test** : protégés par un mot de passe, demandé à l'activation et à la première ouverture
+du panneau dans chaque session. Seule son empreinte figure dans le code. C'est une barrière contre
+l'activation par mégarde, pas une sécurité : le code s'exécute chez le joueur.
+
+## Le metteur en scène
+
+Les 27 scènes du récit et les 6 étapes de la faille passent **toutes** par le moteur de cinématiques,
+sans avoir été réécrites. `directStory()` les met en scène selon des règles fixes :
+
+- **l'univers** découle des voix : la faille si elle parle, le laboratoire si le professeur parle, le
+  système sinon ;
+- **les acteurs** entrent à leur première réplique, à des places fixées d'avance (professeur et faille
+  à gauche, Porygon-Z à droite quand ils partagent la scène) ;
+- **la faille prend corps** — MissingNo apparaît — à sa première réplique ;
+- **le système** parle en console neutre, et en rouge **seulement** pour une erreur ;
+- **les scènes majeures** ont bandes et carton-titre, les mineures restent sobres.
+
+Les scènes clés reçoivent une **piste de direction** (`DIRECTION`) : des temps insérés avant une
+réplique donnée, ou en fin de scène. Le climax s'y termine dans le décor chaud du monde d'avant :
+le monde réparé ressemble à l'ouverture, avant la panne.
+
+Une scène écrite à la main (`CINEMAS`) prime toujours sur la mise en scène automatique.
+
+**Professeur en pied** : déposer `assets/prof_full.png` (fond transparent). Sans ce fichier, il parle
+depuis le moniteur du laboratoire.
+
+## La pêche et les exclusivités
+
+La pêche n'est plus un module : c'est un **mode de l'écran de capture**. La Vieille Canne se trouve
+en capturant (1 chance sur 90 à partir du niveau 3, garantie à la 150e capture) ; la Super et la
+Méga Canne s'achètent en Fragments. On lance, on attend que le bouchon plonge, on ferre.
+
+Chaque activité a ses **exclusivités**, sur le modèle des vrais jeux :
+
+| Source | Espèces |
+|---|---|
+| Pêche | Barpau, Rémoraid, Qwilfish, Relicanth, Loupio, **Kyogre** (Hoenn ouvert, Super Canne minimum) |
+| Œufs | les dix bébés des générations II et III |
+| Forage | les fossiles, reconstitués à la couveuse |
+| Parc Safari (week-end) | Kangourex, Tauros |
+
+`isExclusive()` les retire de **tous** les viviers sauvages — capture, habitats, PokéBox, expédition,
+Tour, capture autonome. Le test le vérifie sur 340 espèces.
+
+**Toute relance de rencontre passe par `nextEncounter()`**, qui respecte le mode. Quatre appels
+différents relançaient une rencontre classique après une fuite en Pêche.
+
+## Mesurer sans se tromper
+
+Trois fois, une « régression » était en réalité un artefact de simulation : la météo, un événement
+« raretés », puis le jour faste, tirés au hasard et restés actifs pendant toute la mesure. Règle :
+**toute simulation fige `S.weather`, `S.event` et `S.luckyDay`**. Et un garde-fou ne s'appuie plus sur
+un tirage : `test.js` calcule la médiane de chaîne **exactement** à partir des formules (24 à la
+Poké Ball), ce qui ne peut pas varier d'une exécution à l'autre.
+
+## Le forage — l'idle refondu
+
+L'ancien module d'Énergie Onirique empilait quatre générateurs et un bouton de conversion : aucune
+décision, aucune découverte. Les jeux idle qui retiennent convergent tous sur les mêmes règles —
+une boucle simple qui se complexifie lentement, des paliers qui débloquent des **mécaniques** et
+pas seulement des chiffres, une automatisation qui soulage, et un prestige qui compose sur
+**plusieurs** axes plutôt qu'un multiplicateur unique.
+
+On fore donc dans les rêves des Pokémon archivés. **Neuf strates**, chacune ouvrant une mécanique :
+sondes automatiques, percussion, filons, réservoir profond, trouvailles, Échos, cadence, rendement
+souverain. **Six axes de recalibrage** (rendement, frappe, réservoir, pénétration, flair, résonance) :
+c'est le choix entre eux qui distingue deux joueurs.
+
+La **sphère Genesis** est une vraie sphère CSS — une coque ombrée pour le volume et huit méridiens
+en rotation 3D pour la profondeur. Sa vitesse suit la production, sa lueur l'Énergie, et elle
+encaisse chaque frappe.
+
+Rythme mesuré par `node forsim.js` (sessions de 8 min, 2 h d'absence entre chaque) :
+
+| Strate | Atteinte après |
+|---|---|
+| Couche molle | 3 min — dans la première session |
+| Sédiment → Nappe chaude | une strate par retour, environ toutes les 2 h |
+| Faille mineure (Échos) | ~11 h |
+| Substrat, Noyau onirique | après recalibrage |
+
+`node forsim2.js` vérifie que le recalibrage accélère réellement : la seconde descente atteint la
+Faille mineure en 6,4 h au lieu de 10,7 h (×1,67) et va une strate plus bas.
+
 ## Le monde — habitats, heure et météo
 
 Un secteur était une liste plate de 151 espèces où l'on piochait. Trois couches lui donnent une
@@ -175,7 +785,25 @@ Deux nœuds nouveaux : **Archiviste** (dresseur typé, annoncé avant l'entrée)
 Le Nuzlocke devient un **mode** au lieu d'une règle imposée, et paie 1,8× davantage. Le **Hall des
 Archivistes** garde les quarante derniers parcours.
 
+## La carte — liaisons monotones
+
+La première version reliait chaque nœud au plus proche en colonne, ce qui produisait des chemins
+entrecroisés : le joueur ne voyait plus où menait sa route. Sur 400 cartes, **1 317 croisements**.
+
+Les liaisons sont maintenant **monotones**. Chaque nœud d'une rangée reçoit un bloc contigu de
+cibles dans la rangée suivante, et les blocs se suivent de gauche à droite. Deux liaisons ne peuvent
+donc jamais se croiser. L'embranchement ne déborde d'un cran que si le bloc suivant commence après
+le nôtre — c'était précisément la faille de ma première tentative, qui laissait encore des
+croisements quand deux nœuds partageaient une cible.
+
+Mesuré sur 500 cartes : **0 croisement, 0 nœud inatteignable, 0 impasse, 31 % de liaisons offrant
+un choix**.
+
 ## Tour de Données
+
+Elle n'est **pas** un module à part : c'est la troisième voie du module Expédition, à côté de
+Classique et Nuzlocke. Multiplier les modules perd le joueur — ce sont des variantes d'une même
+chose, elles restent au même endroit.
 
 L'expédition a un plafond : passé le niveau 50 d'équipe, elle se boucle à tous les coups
 (`node expsim.js` le mesure). La Tour n'en a pas — c'est là que vit le défi de fin de partie.
@@ -261,6 +889,14 @@ Leçon tirée de Pokélike : un combat automatique qui enchaîne quatre attaques
 des objets et des talents n'est pas suivable. En **automatique**, chaque Pokémon n'a donc qu'une
 attaque, de son type dominant, améliorable en trois paliers par la Capsule Technique. Les quatre
 capacités restent pour les **Data Guardians**, qu'on joue à la main.
+
+## Contrat entre le jeu et la base
+
+`nettest.js` compare chaque champ envoyé par le jeu aux colonnes déclarées dans `sql/schema.sql`,
+et chaque colonne lue par le classement à celles exposées par la vue. Ce test est né d'un oubli réel :
+la colonne `tower` a manqué au schéma pendant plusieurs versions, ce qui faisait échouer la
+sauvegarde en ligne. Les colonnes ajoutées après coup le sont par `add column if not exists`, et
+placées **en fin de vue** — PostgreSQL refuse d'insérer une colonne au milieu d'une vue existante.
 
 ## Secrets
 

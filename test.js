@@ -14,10 +14,10 @@ global.AudioContext = undefined;
 global.setInterval = () => 0;   /* pas de boucles pendant les tests */
 
 const fs = require("fs");
-const ORDER = ['_dexblob.js','_atlas.js','_lore.js','_pzportrait.js','_chars.js','_cardart.js','00-slugs.js','01-data.js','02-story.js','10-core.js','15-fx.js','20-ui.js','30-capture.js','32-world.js','34-research.js','36-lore.js',
-  '35-modules.js','40-battle.js','50-expedition.js','52-expgear.js','54-tower.js','60-poker.js','70-collection.js','72-bag.js','73-cards.js','74-eggs.js','75-extras.js','76-items.js','77-secrets.js','78-milestones.js','80-guide.js','85-journal.js','90-admin.js','95-online.js','99-boot.js'];
+const ORDER = ['_dexblob.js','_atlas.js','_atlas_shiny.js','_pmd.js','_items.js','_lore.js','_pzportrait.js','_chars.js','_trainers.js','_cardart.js','00-slugs.js','01-data.js','02-story.js','10-core.js','15-fx.js','20-ui.js','30-capture.js','32-world.js','33-fishing.js','34-research.js','36-lore.js','37-cine.js','37b-moments.js','38-forage.js','39-daily.js','39b-events.js',
+  '35-modules.js','40-battle.js','41-arena.js','50-expedition.js','51-expscene.js','51m-expmap.js','52-expgear.js','54-tower.js','55-squad.js','55b-squad-ui.js','56-breche.js','57-breche-run.js','58-breche-ui.js','59-breche-plus.js','59m-breche-map.js','59a-breche-attacks.js','59p-breche-pmd.js','59f-breche-feel.js','59g-breche-bossfight.js','59s-breche-share.js','60-poker.js','70-collection.js','72-bag.js','73-cards.js','74-eggs.js','75-extras.js','76-items.js','77-secrets.js','78-milestones.js','79-ux.js','80-guide.js','81-cosmetics.js','85-journal.js','90-admin.js','95-online.js','96-pwa.js','99-boot.js'];
 const code = ORDER.map(f=>fs.readFileSync("src/"+f,"utf8")).join("\n");
-eval(code + "\n;" + 'global.__api={POKE,POKE_IDS,evalHand,genMap,EXP_ROWS,deepFill,newState,catchChance,typeMult,RARITY,ACHIEVEMENTS,JOKERS,STORY,anteTarget,makeFighter,damageCalc,xpForLevel,handBase,HANDS,newDeck,movesFor,dexTotal,famOf,stageOf,DIRECTIVES,INFOS,TUTOS,PZ_EVENTS,atlasIndex,ATLAS_N,ATLAS_BACK0,SLUGS,cardChips,grantCardV,grantSecretCard,cardVariants,cardHas,cardOwnedCount,cardTotal,CARD_MONS,CARD_SERIES_DEF,CARD_ORDER,rollCardSeries,randomCard,migrateCards,CARD_INDEX,cardChecksum,cardBytes,tcardHtml,cardBackHtml,GEN_TAG,boosterRank,seriesName,seriesFound,monFound,cardEnvOf,CARD_ENV,resolveName,KNOWN_NAMES,sixthItem,glitchSixthItem,GEN_MARKS,checkChainMark,specialDay,isNightWindow,PZ_POKE_LINES,SIXTH_SLOTS,KONAMI,karpDealDay,karpDealAvailable,BST_BANDS,bstBand,wildIdFor,NODE_W,nodeTypeFor,EXP_ITEMS,rollExpItem,itemMinFloor,EXP_MODES,traitLevels,traitBonus,TOWER_TRAITS,HABITATS,HABITAT_IDS,habitatWeight,isNight,WEATHER,WEATHER_IDS,weatherDef,speciesInHabitat,FRAGMENTS,RIFT_ARC,checkFragments,riftTick,riftStage,fragmentsFound,signatureMove,moveTierName,RESEARCH_TASKS,researchOf,researchLevel,researchMax,researchTick,taskGoal,RESEARCH_TIERS,TALENTS,talentOf,PERFECT_ODDS,rollPerfect,weekStamp,REPORT_ROWS,lineRoot,towerLevel,towerBand,BUFF_STATS,TRAINERS,expEnemyLevel,setBuddy,buddyTick,buddyTier,buddyBonus,buddy,rollWeekly,weeklyTick,weeklyRollover,openChest,WEEKLY_POOL,BUDDY_FINDS,BUDDY_MAX_TIER,BUDDY_TIER_AFF,CHESTS,addToDex,weekKey,aimBonus,BOOSTS,startBoost,boostActive,LUCKY_DAYS,rollLuckyDay,luckyF,TREASURES,rollTreasure,treasureValue,REGION_TIERS,checkRegionTiers,regionTiersDone,rollContract,contractTick,CONTRACTS,CYCLE_MODS,PERKS,cycleReward,perkLv,loreOf,LORE,PZ_EMOS,pzMood,HELD_ITEMS,grantHeld,heldActive,PLANETS,SPECTRALS,QUEST_POOLS,questMix,rollQuests,setS:function(v){S=v},getS:function(){return S},setENC:function(v){ENC=v}};');
+eval(code + "\n;" + 'global.__api={POKE,POKE_IDS,evalHand,genMap,EXP_ROWS,deepFill,newState,catchChance,typeMult,RARITY,ACHIEVEMENTS,JOKERS,STORY,anteTarget,makeFighter,damageCalc,xpForLevel,handBase,HANDS,newDeck,movesFor,dexTotal,famOf,stageOf,DIRECTIVES,INFOS,TUTOS,PZ_EVENTS,atlasIndex,ATLAS_N,ATLAS_BACK0,SLUGS,cardChips,grantCardV,grantSecretCard,cardVariants,cardHas,cardOwnedCount,cardTotal,CARD_MONS,CARD_SERIES_DEF,CARD_ORDER,rollCardSeries,randomCard,migrateCards,CARD_INDEX,cardChecksum,cardBytes,tcardHtml,cardBackHtml,GEN_TAG,boosterRank,seriesName,seriesFound,monFound,cardEnvOf,CARD_ENV,resolveName,KNOWN_NAMES,sixthItem,glitchSixthItem,GEN_MARKS,checkChainMark,specialDay,isNightWindow,PZ_POKE_LINES,SIXTH_SLOTS,KONAMI,karpDealDay,karpDealAvailable,BST_BANDS,bstBand,wildIdFor,NODE_W,nodeTypeFor,EXP_ITEMS,rollExpItem,itemMinFloor,EXP_MODES,expRunModes,genMap,traitLevels,traitBonus,TOWER_TRAITS,HABITATS,HABITAT_IDS,habitatWeight,isNight,WEATHER,WEATHER_IDS,weatherDef,speciesInHabitat,FRAGMENTS,RIFT_ARC,checkFragments,riftTick,riftStage,fragmentsFound,signatureMove,moveTierName,STRATA,forage,forageRate,forageAdvance,digPower,digAff,digRate,crewIds,wallEvery,wallCap,genWall,digHit,digClaim,DIG_LOOT,FOR_UPS,offlineHours,forageTick,EGG_TIERS,EXCLUSIVES,EXCL_SOURCE,isExclusive,RODS,fishPool,newFishEncounter,speciesForRarity,eggPool,repelRarity,lureMul,rstreak,rstreakCatch,rstreakBreak,RSTREAK_MILES,PERMANENTS,charmMul,runeMul,shinyOdds,friendCheck,friendEvo,canEvolve,codeHash,CODES,isSafariDay,SAFARI_POOL,botSpecies,botRate,botHours,FACTIONS,FACTION_RANKS,factionRank,factionMul,factionPts,todayRows,todayPending,REGIONS,unlockedRegions,nextEncounter,newEncounter,rollRarity,fleeChance,RARITY,CINEMAS,CINE_WHO,CINE_T,corruptText,CINE_POS,moduleUnlocked,checkAchievements,sqSkillsOf,sqLeaderOf,sqNewBattle,sqNext,sqTurnStart,sqAct,sqSkip,sqAI,sqFinish,sqUpgrade,sqState,sqStars,sqZoneOpen,SQ_ZONES,SQ_STAGES,sqWaves,sqSkillLv,MAP_ROWS,MAP_SHAPE,EXP_MAPS,expGainLevels,expExpected,EXP_GAIN,startExpedition,openSector,afterFightRewards,lineRoot,createBattle,bStep,bSpeed,arOn,arNeed,AR_KIND,AR_BIOME,towerState,SCREENS,brSummonBoss,brBossDown,BR_PATTERNS,BR_KIT_BY_TYPE,brBossKit,brTerrainReact,brTerrainUnder,brDecal,brHit,brAddZone,brMapNear,brMapPre,brUpdate,ACTIONS,ITEM_IDX,TREASURE_KEYS,BALLS,BERRIES,STONES,CHESTS,PERMANENTS,TREASURES,EXP_ITEMS,REPELS,ringGrade,RING_GRADES,evSeason,evSeasonKey,evWeeklyLegend,evWeekIndex,evState,evTier,evRunPoints,EV_TRACK,EV_SEASONS,brShareText,BR_KIND,BR_ATK,BR_LEGEND,brArchFor,brFire,brWeaponStats,brSpawnFoe,pwaAfterIntro,pwaInstallable,pwaEnv,brChunkAt,brPushOut,brMastery,BR_TERRAIN,brMissionsFor,brNewRun,brUpdate,brXpNeed,brChoices,brWeaponStats,brDaily,brGuardianWin,brGuardianFor,ROOM_MOMENTS,roomMomentsTick,sqLockOpen,sqLockWaves,sqLockGate,sqLockLevel,sqLockAt,sqLockFinish,brNextEvo,brState,BR_ARCH,BR_ITEMS,ACTIVITIES,COSMETICS,FX_LAYERS,badgeCine,secretCine,BADGES,HANDS,MODULE_REQ,SCREENS,adminHash,ADMIN_HASH,ATELIER_TABS,STORY,RIFT_ARC,directStory,cineFor,RESEARCH_TASKS,researchOf,researchLevel,researchMax,researchTick,taskGoal,RESEARCH_TIERS,TALENTS,talentOf,PERFECT_ODDS,rollPerfect,weekStamp,REPORT_ROWS,lineRoot,towerLevel,towerBand,BUFF_STATS,TRAINERS,expEnemyLevel,setBuddy,buddyTick,buddyTier,buddyBonus,buddy,rollWeekly,weeklyTick,weeklyRollover,openChest,WEEKLY_POOL,BUDDY_FINDS,BUDDY_MAX_TIER,BUDDY_TIER_AFF,CHESTS,addToDex,weekKey,aimBonus,BOOSTS,startBoost,boostActive,LUCKY_DAYS,rollLuckyDay,luckyF,TREASURES,rollTreasure,treasureValue,REGION_TIERS,checkRegionTiers,regionTiersDone,rollContract,contractTick,CONTRACTS,CYCLE_MODS,PERKS,cycleReward,perkLv,loreOf,LORE,PZ_EMOS,pzMood,HELD_ITEMS,grantHeld,heldActive,PLANETS,SPECTRALS,QUEST_POOLS,questMix,rollQuests,setS:function(v){S=v},getS:function(){return S},setENC:function(v){ENC=v},getENC:function(){return ENC},getCINE:function(){return CINE},getCineLast:function(){return CINE_LAST},playStory:playStory};');
 const A = global.__api;
 let pass=0, fail=0;
 const t = (n, cond, extra) => { cond?pass++:(fail++,console.log("  ECHEC:",n,extra||"")); };
@@ -82,7 +82,7 @@ t("index hors bornes rejete", A.atlasIndex(9999)===-1 && A.atlasIndex(0)===-1);
 t("386 identifiants de sprites", A.SLUGS.length===386);
 
 /* --- guidage --- */
-t("16 directives", A.DIRECTIVES.length===16, A.DIRECTIVES.length);
+t("17 directives", A.DIRECTIVES.length===17, A.DIRECTIVES.length);
 t("directives evaluables", A.DIRECTIVES.every(d=>typeof d.chk==="function" && typeof d.goal==="function"));
 t("chaque directive a une recompense et un indice",
   A.DIRECTIVES.every(d=>d.rw && Object.keys(d.rw).length && d.hint && d.hint.length>10));
@@ -117,8 +117,8 @@ t("legendaire plus dur", A.catchChance("poke") < cPoke);
 let mapOk = true, bossOk = true;
 for(let s=0;s<200;s++){
   const m = A.genMap(s*7919+13);
-  if(m.length!==A.EXP_ROWS){ mapOk=false; break; }
-  if(m[A.EXP_ROWS-1].length!==1 || m[A.EXP_ROWS-1][0].t!=="boss") bossOk=false;
+  if(m.length!==A.MAP_ROWS){ mapOk=false; break; }
+  if(m[A.MAP_ROWS-1].length!==1 || m[A.MAP_ROWS-1][0].t!=="boss") bossOk=false;
   for(let y=1;y<m.length;y++){
     for(let i=0;i<m[y].length;i++){
       if(!m[y-1].some(p=>p.next.includes(i))){ mapOk=false; }
@@ -141,7 +141,7 @@ t("antes croissantes", A.anteTarget(1,0) < A.anteTarget(1,2) && A.anteTarget(1,2
 
 /* --- contenu --- */
 t("27 scenes narratives", A.STORY.length===27, A.STORY.length);
-t("59 succes", A.ACHIEVEMENTS.length===59, A.ACHIEVEMENTS.length);
+t("84 succes", A.ACHIEVEMENTS.length===84, A.ACHIEVEMENTS.length);
 t("29 programmes", A.JOKERS.length===29, A.JOKERS.length);
 t("6 paliers de rarete", A.RARITY.length===6);
 
@@ -193,7 +193,7 @@ t("rollover hebdomadaire conserve la semaine en cours",
 t("rollover hebdomadaire renouvelle une semaine perimee",
   (()=>{ A.getS().weekly.week="2000-S1"; A.weeklyRollover();
          return A.getS().weekly.week===A.weekKey() && A.getS().weekly.quests.every(q=>q.prog===0); })());
-t("9 modeles hebdomadaires", A.WEEKLY_POOL.length===9, A.WEEKLY_POOL.length);
+t("10 modeles hebdomadaires", A.WEEKLY_POOL.length===10, A.WEEKLY_POOL.length);
 
 /* --- coffres --- */
 A.setS(A.newState());
@@ -621,8 +621,15 @@ t("un tirage ne propose jamais deux fois le même objet", (()=>{
     if(new Set(l).size !== l.length) return false; }
   return true;
 })());
-t("deux modes, le plus dur paie davantage",
-  Object.keys(A.EXP_MODES).length === 2 && A.EXP_MODES.nuzlocke.mult > A.EXP_MODES.classic.mult);
+t("trois voies dans un seul module, dont la Tour", (()=>{
+  const ks = Object.keys(A.EXP_MODES);
+  if(ks.length !== 3) return false;
+  const runs = ks.filter(k=>!A.EXP_MODES[k].go);
+  const dests = ks.filter(k=>A.EXP_MODES[k].go);
+  return runs.length === 2 && dests.length === 1
+      && A.EXP_MODES.nuzlocke.mult > A.EXP_MODES.classic.mult
+      && A.EXP_MODES.tower.go === "tower";
+})());
 
 /* --- Tour --- */
 t("un trait monte tous les deux Pokémon du type, plafonné à trois", (()=>{
@@ -676,18 +683,23 @@ t("aucun habitat n'est un doublon d'un autre", (()=>{
   return new Set(sigs).size === sigs.length;
 })());
 t("le vivier suit réellement l'habitat", (()=>{
+  /* comparaison RELATIVE entre deux habitats : un seuil absolu rendrait le
+     test dependant de l'heure, puisque la nuit penalise le type Feu. */
   const S0 = A.getS();
   S0.region = "kanto"; S0.weather = "clair"; S0.weatherUntil = Date.now() + 1e9;
   for(let i=1;i<=151;i++) A.addToDex(i,20,false);
-  S0.habitat = "eaux";
-  let eau = 0;
-  for(let i=0;i<400;i++){ const id = A.speciesInHabitat(0);
-    if(id && A.POKE[id].types.includes(11)) eau++; }
-  S0.habitat = "foyer";
-  let feu = 0;
-  for(let i=0;i<400;i++){ const id = A.speciesInHabitat(0);
-    if(id && A.POKE[id].types.includes(10)) feu++; }
-  return eau > 260 && feu > 120;
+  const part = (hab, type) => {
+    S0.habitat = hab;
+    let hit = 0, n = 0;
+    for(let i=0;i<600;i++){ const id = A.speciesInHabitat(0);
+      if(!id) continue; n++;
+      if(A.POKE[id].types.includes(type)) hit++; }
+    return n ? hit / n : 0;
+  };
+  const eauIci = part("eaux", 11),  eauAilleurs = part("foyer", 11);
+  const feuIci = part("foyer", 10), feuAilleurs = part("eaux", 10);
+  return eauIci > 0.6 && eauIci > eauAilleurs * 4
+      && feuIci > 0.2 && feuIci > feuAilleurs * 4;
 })());
 t("six météos, toutes décrites", A.WEATHER_IDS.length === 6 &&
   A.WEATHER_IDS.every(k=>A.WEATHER[k].n && A.WEATHER[k].d && A.WEATHER[k].c));
@@ -808,5 +820,1006 @@ t("le niveau ouvre les paliers tout seul", (()=>{
   return haut.pw > bas.pw;
 })());
 
+
+/* --- lisibilité de la carte --- */
+t("aucune liaison n'en croise une autre", (()=>{
+  A.setS(A.newState());
+  for(let seed = 1; seed <= 300; seed++){
+    const map = A.genMap(seed);
+    for(let y = 0; y < map.length - 1; y++){
+      const cur = map[y];
+      for(let i = 0; i < cur.length; i++)
+        for(let j = i + 1; j < cur.length; j++)
+          for(const a of cur[i].next)
+            for(const b of cur[j].next)
+              if(a > b) return false;     /* i est a gauche de j : ses cibles aussi */
+    }
+  }
+  return true;
+})());
+t("aucun nœud inatteignable, aucune impasse", (()=>{
+  A.setS(A.newState());
+  for(let seed = 1; seed <= 300; seed++){
+    const map = A.genMap(seed);
+    for(let y = 0; y < map.length - 1; y++){
+      const cur = map[y], nx = map[y + 1];
+      for(const n of cur) if(!n.next.length) return false;
+      for(let j = 0; j < nx.length; j++)
+        if(!cur.some(p => p.next.includes(j))) return false;
+    }
+  }
+  return true;
+})());
+t("la carte offre de vrais choix", (()=>{
+  A.setS(A.newState());
+  let branch = 0, total = 0;
+  for(let seed = 1; seed <= 200; seed++){
+    const map = A.genMap(seed);
+    for(let y = 0; y < map.length - 1; y++)
+      for(const n of map[y]){ total++; if(n.next.length > 1) branch++; }
+  }
+  const part = branch / total;
+  return part > 0.15 && part < 0.75;     /* ni couloir, ni brouillard : le treillis de Pokelike */
+})());
+t("le départ et l'arrivée sont uniques", (()=>{
+  A.setS(A.newState());
+  const map = A.genMap(7);
+  return map[map.length - 1].length === 1 && map[0].length === 2;
+})());
+t("carte : une route ne glisse jamais de plus d'un couloir, et chaque dresseur montre son type", (()=>{
+  A.setS(A.newState());
+  for(let seed = 1; seed <= 200; seed++){
+    const map = A.genMap(seed);
+    for(let y = 0; y < map.length - 2; y++)
+      for(const n of map[y]){
+        for(const j of n.next) if(Math.abs(map[y + 1][j].c - n.c) > 1) return false;
+        if(n.t === "trainer" && !A.TRAINERS[n.tr]) return false;
+      }
+  }
+  return true;
+})());
+
+
+/* --- le forage : l'équipe creuse, on fouille les parois --- */
+t("neuf strates, de plus en plus profondes et dures, chacune avec sa matière et ses bons types", (()=>{
+  if(A.STRATA.length !== 9) return false;
+  for(let i=1;i<9;i++) if(A.STRATA[i].need <= A.STRATA[i-1].need || A.STRATA[i].hard <= A.STRATA[i-1].hard) return false;
+  return A.STRATA.every(s=>s.good.length && s.pal.length === 3 && s.mat);
+})());
+t("sans équipe, personne ne creuse ; avec une équipe, la profondeur et l'Énergie montent", (()=>{
+  A.setS(A.newState()); const S0 = A.getS(); S0.level = 6;
+  for(const id of [74, 27, 50]) A.addToDex(id, 15, false);
+  const f = A.forage(); f.crew = [];
+  const a = A.forageAdvance(600);
+  f.crew = [74, 27, 50];
+  const b = A.forageAdvance(600);
+  return a.m === 0 && b.m > 10 && f.energy > 0 && A.forageRate() > 0;
+})());
+t("les bons types creusent deux fois plus vite dans leur strate", (()=>{
+  A.setS(A.newState()); A.addToDex(74, 20, false); A.addToDex(4, 20, false);
+  return A.digAff(74, 0) === 2 && A.digAff(4, 0) === 1 && A.digAff(4, 3) === 2 && A.digAff(12, 3) === 0.5
+    && A.digPower(74, 0) > A.digPower(4, 0) * 1.5;
+})());
+t("une longue absence traverse plusieurs strates, et la réserve de parois plafonne", (()=>{
+  A.setS(A.newState());
+  for(const id of [76, 95, 112]) A.addToDex(id, 80, false);
+  const f = A.forage(); f.crew = [76, 95, 112];
+  const r = A.forageAdvance(8 * 3600);
+  return r.strata.length >= 2 && f.walls === A.wallCap() && f.depth >= 2 && A.wallEvery() === 420;
+})());
+t("une paroi : objets sans chevauchement, fer à l'écart, et tout se dégage à force de coups", (()=>{
+  A.setS(A.newState());
+  for(let k = 0; k < 20; k++){
+    const w = A.genWall(k % 9);
+    const cells = w.items.flatMap(it=>it.cells);
+    if(new Set(cells).size !== cells.length || w.items.length < 2) return false;
+    if(w.iron.flat().some(c=>cells.includes(c))) return false;
+  }
+  const w = A.genWall(2); w.stab = w.max = 9999;
+  for(let pass = 0; pass < 8 && !w.over; pass++) for(let y = 0; y < w.H; y++) for(let x = 0; x < w.W; x++) A.digHit(w, "pick", x, y);
+  return w.over && !w.collapsed && w.items.every(it=>it.found);
+})());
+t("une paroi s'effondre quand sa stabilité tombe à zéro, et l'on garde ce qui est dégagé", (()=>{
+  A.setS(A.newState());
+  const w = A.genWall(0);
+  for(let i = 0; i < 200 && !w.over; i++) A.digHit(w, "hammer", 0, 0);
+  return w.over && w.collapsed && w.stab === 0;
+})());
+t("les objets d'une paroi arrivent bien : fragments, pierres, fossiles, Pokémon endormis", (()=>{
+  A.setS(A.newState()); const S0 = A.getS();
+  const w = A.genWall(3);
+  w.items = [{k:"red", found:true}, {k:"fire", found:true}, {k:"helix", found:true}, {k:"mon", mon:74, found:true}, {k:"pearl", found:false}];
+  const sh = S0.shards || 0;
+  const rows = A.digClaim(w);
+  return rows.length === 4 && (S0.shards || 0) > sh && S0.stones.fire === 1 && S0.eggs.bag.f_helix === 1 && !!S0.dex[74];
+})());
+t("un fossile déterré renferme toujours la même espèce", A.EGG_TIERS.f_helix.fossil === 138 && A.eggPool("f_amber").join() === "142");
+t("une partie d'avant la refonte garde sa profondeur", (()=>{
+  A.setS(A.newState()); const S0 = A.getS();
+  S0.forage = {energy:500, total:900, depth:4, drills:{main:3}, echoes:5, perks:{}};
+  const f = A.forage();
+  return f.m === A.STRATA[4].need && f.depth === 4 && f.energy === 500 && f.echoes === 5 && !f.drills;
+})());
+t("la réserve de parois repousse aussi le plafond hors ligne", (()=>{
+  A.setS(A.newState()); const base = A.offlineHours(); A.forage().up.cart = 2;
+  return A.offlineHours() === base + 4 && A.wallCap() === 5;
+})());
+
+
+/* --- exclusivités et pêche --- */
+const openAll = () => { A.setS(A.newState()); const S0 = A.getS();
+  S0.bosses = A.REGIONS.flatMap(r=>r.guardians.map(g=>r.key+":"+g.id));
+  S0.weather = "clair"; S0.weatherUntil = Date.now() + 1e9; return S0; };
+t("aucune exclusivité dans la capture classique", (()=>{
+  const S0 = openAll();
+  for(let i=1;i<=386;i++) if(!A.isExclusive(i)) A.addToDex(i,20,false);
+  for(const r of A.unlockedRegions()){ S0.region = r.key;
+    for(let k=0;k<150;k++) for(let rar=0;rar<=4;rar++){
+      const id = A.speciesForRarity(rar); if(id && A.isExclusive(id)) return false; } }
+  return true;
+})());
+t("chaque exclusivité a une source", (()=>{
+  for(const k in A.EXCLUSIVES) for(const id of A.EXCLUSIVES[k]) if(!A.EXCL_SOURCE[id]) return false;
+  return A.EXCL_SOURCE[382] === "fish" && A.EXCL_SOURCE[172] === "egg" && A.EXCL_SOURCE[138] === "forage";
+})());
+t("les cannes s'améliorent sur tous les axes", (()=>{
+  for(let i=1;i<A.RODS.length;i++){
+    const a = A.RODS[i-1], b = A.RODS[i];
+    if(!(b.hook > a.hook && b.shiny > a.shiny && b.cost > a.cost)) return false;
+  }
+  return true;
+})());
+t("Kyogre ne se pêche jamais à la Vieille Canne", (()=>{
+  const S0 = openAll(); S0.rod = 1;
+  for(let k=0;k<3000;k++){ delete A.getS().dex[382]; A.newFishEncounter();
+    if(A.getENC().id === 382) return false; }
+  return true;
+})());
+t("Kyogre se pêche à la Méga Canne, une fois Hoenn ouvert", (()=>{
+  const S0 = openAll(); S0.rod = 3;
+  for(let k=0;k<4000;k++){ delete S0.dex[382]; A.newFishEncounter(); if(A.getENC().id === 382) return true; }
+  return false;
+})());
+t("la pêche ne remonte que de l'Eau ou des exclusivités de pêche", (()=>{
+  const S0 = openAll(); S0.rod = 2;
+  for(let k=0;k<1500;k++){ A.newFishEncounter();
+    const e = A.getENC(), p = A.POKE[e.id];
+    if(!p.types.includes(11) && A.EXCL_SOURCE[e.id] !== "fish") return false; }
+  return true;
+})());
+t("les bébés sortent des œufs, les fossiles du vivier fossile", (()=>{
+  openAll();
+  const oeuf = A.eggPool("e_common"), fos = A.eggPool("f_fossil");
+  return oeuf.some(i=>A.EXCL_SOURCE[i] === "egg") && fos.length >= 3
+      && fos.every(i=>A.EXCL_SOURCE[i] === "forage")
+      && !oeuf.some(i=>A.EXCL_SOURCE[i] === "fish" || A.EXCL_SOURCE[i] === "forage");
+})());
+
+/* --- répulsifs, leurres, séries --- */
+t("le répulsif écarte les communs puis s'épuise", (()=>{
+  const S0 = openAll(); S0.repel = 2;
+  const a = A.repelRarity(0), b = A.repelRarity(0), c = A.repelRarity(0);
+  return a === 1 && b === 1 && c === 0 && S0.repel === 0;
+})());
+t("le leurre ne favorise que son type", (()=>{
+  const S0 = openAll(); S0.lure = {type:11, n:5};
+  return A.lureMul(A.POKE[7]) > 1 && A.lureMul(A.POKE[4]) === 1;
+})());
+t("une série par rareté monte, paie à son palier, et casse seule", (()=>{
+  const S0 = openAll();
+  const coins = S0.coins;
+  for(let i=0;i<10;i++) A.rstreakCatch(2);
+  A.rstreakCatch(0);
+  const ok1 = A.rstreak()[2] === 10 && S0.coins > coins;
+  A.rstreakBreak(2);
+  return ok1 && A.rstreak()[2] === 0 && A.rstreak()[0] === 1;
+})());
+
+/* --- permanents --- */
+t("le Charme Chroma augmente réellement la chance de chromatique", (()=>{
+  const S0 = openAll(); S0.streak = 0;
+  const a = A.shinyOdds(); S0.perm = {charm:5}; const b = A.shinyOdds();
+  return b > a * 1.6 && A.charmMul() > 1.7;
+})());
+t("les permanents sont plafonnés et leur coût croît", (()=>{
+  for(const k in A.PERMANENTS){ const p = A.PERMANENTS[k];
+    if(!(p.max > 0 && p.cost(1) > p.cost(0))) return false; }
+  const S0 = openAll(); S0.perm = {rune:10};
+  return Math.abs(A.runeMul() - 1.5) < 1e-9;
+})());
+
+/* --- amitié --- */
+t("Nosferalto n'évolue qu'en compagnon, avec un lien suffisant", (()=>{
+  const S0 = openAll();
+  A.addToDex(42, 50, false); S0.dex[42].c = 99; S0.coins = 1e9;
+  const e = A.POKE[42].evo[0];
+  const sans = A.canEvolve(42, e);
+  S0.buddy = {id:42, aff:0}; const faible = A.canEvolve(42, e);
+  S0.buddy = {id:42, aff:1e9}; const fort = A.canEvolve(42, e);
+  return !sans.ok && !faible.ok && fort.ok;
+})());
+t("Évoli choisit selon l'heure", (()=>{
+  return A.friendEvo(133, 196) === "day" && A.friendEvo(133, 197) === "night"
+      && !A.friendEvo(133, 134);          /* Aquali reste une évolution par pierre */
+})());
+
+/* --- codes --- */
+t("un code valide ne sert qu'une fois", (()=>{
+  const h = A.codeHash("genesis");
+  return !!A.CODES[h] && A.codeHash("GENESIS") === h && !A.CODES[A.codeHash("FAUX")];
+})());
+
+/* --- Safari, capture autonome, factions, aujourd'hui --- */
+t("Kangourex et Tauros sont exclusifs au Safari", A.EXCL_SOURCE[115] === "safari" &&
+  A.EXCL_SOURCE[128] === "safari" && A.SAFARI_POOL.includes(115) && typeof A.isSafariDay() === "boolean");
+t("la capture autonome ne tire ni légendaire ni exclusivité", (()=>{
+  openAll();
+  for(let k=0;k<2000;k++){ const id = A.botSpecies();
+    if(A.POKE[id].leg || A.isExclusive(id)) return false; }
+  return A.botRate() >= 4 && A.botHours() >= 2;
+})());
+t("les rangs de faction sont croissants", A.FACTION_RANKS.every((v,i)=>i===0 || v > A.FACTION_RANKS[i-1]));
+t("une faction ne renforce que sa spécialité", (()=>{
+  const S0 = openAll(); S0.faction = {k:"echo", pts:5000};
+  return A.factionRank() >= 4 && A.factionMul("shards") > 1
+      && A.factionMul("coins") === 1 && A.factionMul("integ") === 1;
+})());
+t("le tableau du jour se construit sur une partie neuve", (()=>{
+  A.setS(A.newState());
+  const r = A.todayRows();
+  return Array.isArray(r) && r.length >= 1 && r.every(x=>x.n && x.go) && typeof A.todayPending() === "number";
+})());
+
+
+/* --- garde-fous de la chaîne et de la pêche --- */
+t("en Pêche, la relance revient à la ligne", (()=>{
+  A.setS(A.newState()); const S0 = A.getS();
+  S0.rod = 1; S0.capMode = "fish";
+  A.nextEncounter();
+  const ok1 = A.getENC() === null;
+  S0.capMode = "classic";
+  A.nextEncounter();
+  return ok1 && A.getENC() !== null;
+})());
+t("la chaîne reste tenable à la Poké Ball (calcul exact)", (()=>{
+  /* probabilite de rupture par rencontre, calculee a partir des formules du jeu
+     et de la repartition des raretes : aucun tirage, donc aucun artefact possible */
+  A.setS(A.newState()); const S0 = A.getS();
+  S0.level = 12; S0.streak = 20; S0.event = null; S0.luckyDay = "d_none";
+  S0.weather = "clair"; S0.weatherUntil = Date.now() + 1e9;
+  const w = A.RARITY.map((r,i)=>i === 5 ? 0 : r.w), tot = w.reduce((a,b)=>a+b,0);
+  let pBreak = 0;
+  for(let rar = 0; rar <= 4; rar++){
+    /* un representant de la rarete, niveau moyen */
+    const id = A.POKE_IDS.find(i=>A.POKE[i].rar === rar && !A.POKE[i].leg);
+    A.setENC({id, rar, level:30, shiny:false, attempts:0});
+    let alive = 1, broke = 0;
+    for(let k = 0; k < 10; k++){
+      const c = A.catchChance("poke");
+      const f = A.fleeChance();
+      broke += alive * (1 - c) * f;
+      alive *= (1 - c) * (1 - f);
+      A.getENC().attempts++;
+    }
+    pBreak += (w[rar] / tot) * broke;
+  }
+  const mediane = Math.log(2) / pBreak;
+  return mediane > 10 && mediane < 60;
+})());
+
+
+/* --- standard des cinématiques : chaque scène est vérifiée ---
+   Le vocabulaire est fermé. Une scène qui sort du standard échoue ici,
+   avant d'échouer à l'écran. */
+const CINE_BEATS = ["bars","bg","card","actor","leave","mood","say","ask","fx","code","rain","sfx","wait","par"];
+const CINE_FX = ["shake","flash","glitch","rgb","noise","blackout"];
+const CINE_BGS = ["labo","void","terminal","faille"];
+function cineLint(sc){
+  const errs = [], alive = new Set();
+  const walk = (b) => {
+    if(!CINE_BEATS.includes(b.t)) errs.push("temps inconnu : " + b.t);
+    if(b.t === "par") return b.beats.forEach(walk);
+    if(b.t === "bg" && !CINE_BGS.includes(b.k)) errs.push("décor inconnu : " + b.k);
+    if(b.t === "say"){
+      if(!(b.who in A.CINE_WHO)) errs.push("locuteur inconnu : " + b.who);
+      if(!b.text) errs.push("réplique vide");
+      if(b.corrupt !== undefined && (b.corrupt < 0 || b.corrupt > 1)) errs.push("corruption hors [0,1]");
+    }
+    if(b.t === "fx"){
+      if(!CINE_FX.includes(b.k)) errs.push("effet inconnu : " + b.k);
+      if(b.lv !== undefined && ![1,2,3].includes(b.lv)) errs.push("intensité hors 1-3 : " + b.lv);
+    }
+    if(b.t === "actor"){
+      if(!["prof","pz","mon","missing","emblem"].includes(b.kind)) errs.push("type d'acteur inconnu : " + b.kind);
+      if(b.kind === "mon" && !A.POKE[b.mon]) errs.push("Pokémon inconnu : " + b.mon);
+      if(typeof b.pos === "string" && !(b.pos in A.CINE_POS)) errs.push("position inconnue : " + b.pos);
+      if(alive.has(b.id)) errs.push("acteur déjà en scène : " + b.id);
+      alive.add(b.id);
+    }
+    if(b.t === "leave"){ if(!alive.has(b.id)) errs.push("sortie d'un acteur absent : " + b.id); alive.delete(b.id); }
+    if(b.t === "mood" && !alive.has(b.id)) errs.push("humeur d'un acteur absent : " + b.id);
+    if(b.t === "fx" && b.k === "blackout") alive.clear();   /* l'extinction vide le plateau */
+  };
+  for(const sh of sc.shots){
+    if(sh.bg && !CINE_BGS.includes(sh.bg)) errs.push("décor de plan inconnu : " + sh.bg);
+    sh.beats.forEach(walk);
+  }
+  return errs;
+}
+for(const k in A.CINEMAS){
+  const e = cineLint(A.CINEMAS[k]);
+  t(`cinématique « ${k} » conforme au standard` + (e.length ? " — " + e.join(" ; ") : ""), e.length === 0);
+}
+/* chaque scene du recit, dirigee automatiquement, doit respecter le standard */
+{
+  A.setS(A.newState());
+  const bad = [];
+  for(const sc of A.STORY){ const e = cineLint(A.cineFor(sc.id)); if(e.length) bad.push(sc.id + " : " + e.join(", ")); }
+  A.RIFT_ARC.forEach((r,i)=>{ const e = cineLint(A.directStory({id:"rift_" + r.n, lines:r.lines}));
+    if(e.length) bad.push("rift_" + r.n + " : " + e.join(", ")); });
+  t(`les ${A.STORY.length + A.RIFT_ARC.length} scènes du récit sont conformes` + (bad.length ? " — " + bad.join(" | ") : ""), bad.length === 0);
+}
+t("chaque scène dirigée garde toutes ses répliques, dans l'ordre", (()=>{
+  const says = sc => { const out = [];
+    const walk = b => b.t === "par" ? b.beats.forEach(walk) : (b.t === "say" && out.push(b.text));
+    sc.shots.forEach(sh=>sh.beats.forEach(walk)); return out; };
+  return A.STORY.every(sc => A.CINEMAS[sc.id] ||
+    JSON.stringify(says(A.directStory(sc))) === JSON.stringify(sc.lines.map(l=>l.t)));
+})());
+t("aucun acteur ne reste en scène à la fin", A.STORY.every(sc=>{
+  if(A.CINEMAS[sc.id]) return true;
+  const on = new Set();
+  const walk = b => { if(b.t === "par") return b.beats.forEach(walk);
+    if(b.t === "actor") on.add(b.id); if(b.t === "leave") on.delete(b.id);
+    if(b.t === "fx" && b.k === "blackout") on.clear(); };
+  A.directStory(sc).shots.forEach(sh=>sh.beats.forEach(walk));
+  return on.size === 0;
+}));
+t("les scènes majeures ont bandes et carton, les mineures non", (()=>{
+  const has = (sc, t2) => sc.shots[0].beats.some(b=>b.t === t2);
+  const major = A.directStory(A.STORY.find(x=>x.id === "climax"));
+  const minor = A.directStory(A.STORY.find(x=>x.id === "pz_fail"));
+  return has(major, "bars") && has(major, "card") && !has(minor, "bars") && !has(minor, "card");
+})());
+t("le contrôleur attrape une scène hors standard", (()=>{
+  const faux = {shots:[{beats:[{t:"fx", k:"glitch", lv:5},{t:"leave", id:"personne"},{t:"danse"}]}]};
+  return cineLint(faux).length === 3;
+})());
+t("la corruption garde la longueur et les espaces", (()=>{
+  const src = "Bienvenue dans le monde des Pokémon";
+  const out = A.corruptText(src, 0.5);
+  return [...out].length === [...src].length &&
+    [...src].every((ch,i)=>ch !== " " || [...out][i] === " ");
+})());
+t("les durées du standard sont ordonnées",
+  A.CINE_T.fast < A.CINE_T.short && A.CINE_T.short < A.CINE_T.mid &&
+  A.CINE_T.mid < A.CINE_T.long && A.CINE_T.long < A.CINE_T.hold);
+
+
+t("toute scène dotée d'une cinématique la joue, quel que soit le chemin", (()=>{
+  /* le journal et l'outil game master appellent playStory : ils doivent
+     obtenir la cinematique, pas l'ancienne scene de dialogue */
+  A.setS(A.newState());
+  for(const id in A.CINEMAS){
+    A.playStory(id, ()=>{});
+    if(A.getCineLast() !== id) return false;
+  }
+  return true;
+})());
+
+
+/* --- architecture de l'interface --- */
+t("le hub présente les activités dans leur ordre de déblocage", (()=>{
+  const lv = A.ACTIVITIES.map(m=>A.MODULE_REQ[m.k].lv);
+  return lv.every((v,i)=>i === 0 || v >= lv[i-1]);
+})());
+t("le hub ne nomme ni ne décrit une salle verrouillée", (()=>{
+  A.setS(A.newState());
+  const h = A.SCREENS.modules.html();
+  const locked = A.ACTIVITIES.filter(m=>!A.moduleUnlocked(m.k));
+  return locked.length > 0 && locked.every(m=>!h.includes(m.n) && !h.includes(m.d));
+})());
+t("le mot de passe de test est exact et sensible à la casse", (()=>{
+  /* le mot de passe lui-meme n'est jamais ecrit dans le depot : on le lit,
+     s'il est fourni, dans la variable d'environnement PCG_ADMIN_PW */
+  const pw = process.env.PCG_ADMIN_PW;
+  const exact = pw ? (A.adminHash(pw) === A.ADMIN_HASH
+                      && A.adminHash(pw.toLowerCase()) !== A.ADMIN_HASH) : true;
+  return exact && /^[0-9a-f]{6,8}$/.test(A.ADMIN_HASH) && A.adminHash("") !== A.ADMIN_HASH;
+})());
+t("l'atelier rend chacun de ses onglets", (()=>{
+  A.setS(A.newState()); A.addToDex(25, 10, false);
+  return A.ATELIER_TABS.every(tb=>{ const h = A.SCREENS.atelier[tb.k](); return typeof h === "string" && h.length > 20; });
+})());
+t("Collection et Sac portent leurs onglets", (()=>{
+  A.setS(A.newState());
+  return A.SCREENS.dex.html().includes("segbar") && A.SCREENS.bag.html().includes("segbar")
+      && A.SCREENS.shop.html().includes("segbar");
+})());
+
+
+/* --- scènes du Poké-Poker --- */
+t("les huit scènes de badge sont conformes", A.BADGES.every((b,i)=>cineLint(A.badgeCine(i, i + 1)).length === 0));
+t("chaque main secrète a une scène conforme, quel que soit le nombre de cartes", (()=>{
+  const secrets = A.HANDS.filter(h=>h.secret);
+  if(!secrets.length) return false;
+  for(const h of secrets) for(let n = 1; n <= 5; n++){
+    const ids = [150,151,129,25,1].slice(0, n);
+    if(cineLint(A.secretCine(h.id, ids)).length) return false;
+  }
+  return true;
+})());
+t("la dernière scène de badge annonce le Conseil", (()=>{
+  const sc = A.badgeCine(7, 8);
+  return JSON.stringify(sc).includes("Conseil");
+})());
+
+
+/* --- cosmétiques : chacun se reconnaît au premier coup d'œil --- */
+t("aucun cadre ne partage son rendu avec un autre", (()=>{
+  const frames = Object.values(A.COSMETICS).filter(c=>c.t === "frame" && !c.def);
+  const cls = frames.map(c=>c.cls);
+  return cls.every(Boolean) && new Set(cls).size === cls.length;
+})());
+t("aucun fond ne partage son rendu avec un autre", (()=>{
+  const css = Object.values(A.COSMETICS).filter(c=>c.t === "bg").map(c=>c.css);
+  return new Set(css).size === css.length;
+})());
+t("chaque classe de cadre est réellement stylée", (()=>{
+  const css = require("fs").readFileSync(__dirname + "/src/style.css", "utf8");
+  return Object.values(A.COSMETICS).filter(c=>c.t === "frame" && c.cls)
+    .every(c=>css.includes(".avatar." + c.cls));
+})());
+t("chaque nouveau cosmétique est délivré par un succès", (()=>{
+  const given = new Set();
+  for(const a of A.ACHIEVEMENTS) if(a.rw && a.rw.cos) [].concat(a.rw.cos).forEach(c=>given.add(c));
+  const nouveaux = ["frame_circuit","frame_prism","frame_origin","frame_elements","frame_birds","frame_champion",
+    "bg_abyss","bg_magma","bg_sky","bg_psy","bg_felt","bg_shiny","bg_zero",
+    "fx_tide","fx_magma","fx_aurora","fx_psy","fx_sacred","fx_shiny","fx_champion","fx_zero"];
+  return nouveaux.every(c=>A.COSMETICS[c] && given.has(c));
+})());
+t("chaque effet se dessine, et à l'identique d'un rendu à l'autre", Object.keys(A.FX_LAYERS).every(k=>{
+  const a = A.FX_LAYERS[k](), b = A.FX_LAYERS[k]();
+  return a === b && a.includes("fxl") && A.COSMETICS[k];
+}));
+t("les succès des légendaires restent cachés", A.ACHIEVEMENTS
+  .filter(a=>["c_kyogre","c_groudon","c_rayquaza","c_mewtwo","c_hooh","c_origin","c_weather","c_rift"].includes(a.id))
+  .every(a=>a.hid));
+
+
+/* --- la Brèche --- */
+t("chaque type a son attaque, et chaque objet sa signature", (()=>{
+  for(let tp = 1; tp <= 18; tp++) if(!A.BR_ARCH[tp] || !A.BR_ARCH[tp].k) return false;
+  const g = Object.values(A.BR_ITEMS).map(i=>i.g);
+  return g.every(Boolean) && new Set(g).size === g.length;
+})());
+t("l'expérience demandée croît à chaque niveau", [...Array(40)].every((_,L)=>L < 1 || A.brXpNeed(L + 1) > A.brXpNeed(L)));
+t("niveau et évolution renforcent réellement une arme", (()=>{
+  A.setS(A.newState());
+  const R = A.brNewRun({region:"kanto", hab:"route", starter:4, seed:1});
+  const w1 = {id:4, lv:1, stage:0}, w5 = {id:4, lv:5, stage:1, show:5}, w8 = {id:4, lv:8, stage:2, show:6};
+  const a = A.brWeaponStats(w1, R), b = A.brWeaponStats(w5, R), c = A.brWeaponStats(w8, R);
+  return a.dmg < b.dmg && b.dmg < c.dmg && c.count > a.count && c.area > a.area;
+})());
+t("les choix de niveau sont distincts, et le premier offre un compagnon", (()=>{
+  A.setS(A.newState()); for(let i = 1; i <= 60; i++) A.addToDex(i, 20, false);
+  const R = A.brNewRun({region:"kanto", hab:"route", starter:4, seed:7});
+  R.lv = 2;
+  const ch = A.brChoices(R), keys = ch.map(o=>o.k + (o.id || "") + (o.i ?? "") + (o.key || ""));
+  return ch.length === 3 && new Set(keys).size === 3 && ch[0].k === "new";
+})());
+t("la Brèche du jour est la même pour tous, et change le lendemain", (()=>{
+  const a = A.brDaily(), b = A.brDaily();
+  return a.seed === b.seed && a.hab === b.hab && a.starter === b.starter;
+})());
+t("une minute de Brèche simulée reste saine (aucun NaN, aucune fuite)", (()=>{
+  A.setS(A.newState()); for(let i = 1; i <= 151; i++) A.addToDex(i, 20, false);
+  const R = A.brNewRun({region:"kanto", hab:"route", starter:4, seed:3});
+  R.W = 390; R.H = 700; R.dpr = 1;
+  for(let k = 0; k < 1800; k++){
+    R.joy = {dx:Math.cos(k / 40), dy:Math.sin(k / 40)}; R.keys = {};
+    A.brUpdate(R, 1/30);
+    if(R.choices){ R.choices = null; R.modal = false; }
+    if(R.modal) R.modal = false;
+    if(R.over) break;
+  }
+  let n = 0; R.P.foes.each(()=>n++);
+  return Number.isFinite(R.hp) && Number.isFinite(R.x) && R.kills > 20 && n < 400 && R.P.foes.list.length < 600;
+})());
+t("vaincre un gardien dans la Brèche lève bien le verrou", (()=>{
+  A.setS(A.newState());
+  const before = A.getS().bosses.length;
+  const out = A.brGuardianWin({id:144, region:"kanto", core:false});
+  return out.first && A.getS().bosses.length === before + 1 && A.getS().dex[144];
+})());
+t("Évoli évolue selon l'heure, les autres suivent leur lignée", A.brNextEvo(4) === 5 && A.brNextEvo(5) === 6 && [196,197].includes(A.brNextEvo(133)));
+t("la Brèche remplace les Data Guardians dans le hub", A.ACTIVITIES.some(a=>a.k === "breche") && !A.ACTIVITIES.some(a=>a.k === "boss"));
+
+
+/* --- la page en ligne doit se charger ---
+   Une constante declaree deux fois (l'atlas chromatique, un temps) casse tout
+   le jeu en ligne, alors que la version autonome, elle, fonctionne. */
+{
+  const fs = require("fs"), wp = __dirname + "/web/index.html";
+  if(fs.existsSync(wp)){
+    const html = fs.readFileSync(wp, "utf8");
+    const js = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(x=>x[1]).join("\n");
+    let ok = true; try { new Function(js); } catch(e){ ok = false; }
+    t("la page en ligne a une syntaxe valide", ok);
+    /* seulement les declarations globales, en debut de ligne : les constantes
+       locales des fonctions se repetent legitimement d'une fonction a l'autre */
+    const decl = [...js.matchAll(/^const\s+([A-Z_][A-Z0-9_]*)\s*=/gm)].map(m=>m[1]);
+    const dup = decl.filter((d, i)=>decl.indexOf(d) !== i);
+    t("aucune constante globale déclarée deux fois dans la page en ligne" + (dup.length ? " — " + [...new Set(dup)].join(", ") : ""), dup.length === 0);
+  }
+}
+t("l'atlas chromatique existe et suit la même disposition", (()=>{
+  const fs = require("fs");
+  const src = fs.readFileSync(__dirname + "/src/_atlas_shiny.js", "utf8");
+  return src.includes("ATLAS_SHINY_URL") && src.length > 100000;
+})());
+
+
+/* --- les cartes de la Brèche --- */
+t("une même graine donne exactement la même carte (Brèche du jour)", (()=>{
+  A.setS(A.newState());
+  const a = A.brNewRun({region:"kanto", hab:"foret", starter:4, seed:42}), b = A.brNewRun({region:"kanto", hab:"foret", starter:4, seed:42});
+  for(let cx = -2; cx <= 2; cx++) for(let cy = -2; cy <= 2; cy++)
+    if(JSON.stringify(A.brChunkAt(a, cx, cy)) !== JSON.stringify(A.brChunkAt(b, cx, cy))) return false;
+  const c = A.brNewRun({region:"kanto", hab:"foret", starter:4, seed:43});
+  return JSON.stringify(A.brChunkAt(a, 1, 0)) !== JSON.stringify(A.brChunkAt(c, 1, 0));
+})());
+t("chaque habitat a son relief, et l'apparition reste dégagée", Object.keys(A.BR_TERRAIN).every(h=>{
+  A.setS(A.newState());
+  const R = A.brNewRun({region:"kanto", hab:h, starter:4, seed:7});
+  let obs = 0;
+  for(let cx = -1; cx <= 1; cx++) for(let cy = -1; cy <= 1; cy++){
+    const ch = A.brChunkAt(R, cx, cy); obs += ch.obs.length;
+    for(const o of ch.obs) if(Math.hypot(o.x, o.y) < 150) return false;
+    for(const o of ch.obs) for(const q of ch.obs) if(o !== q && Math.hypot(o.x - q.x, o.y - q.y) < o.r + q.r) return false;
+  }
+  return obs > 0;
+}));
+t("le relief bloque : on ne traverse pas un rocher", (()=>{
+  const e = {x:5, y:0}; A.brPushOut(e, 12, [{x:0, y:0, r:20}]);
+  return Math.hypot(e.x, e.y) >= 31.9;
+})());
+t("trois missions par run, dont celle de l'habitat", Object.keys(A.BR_TERRAIN).every(h=>{
+  A.setS(A.newState());
+  const R = A.brNewRun({region:"kanto", hab:h, starter:4, seed:9});
+  return R.missions.length === 3 && new Set(R.missions.map(m=>m.k)).size === 3 && R.missions.every(m=>m.goal > 0 && m.n === 0);
+}));
+t("la maîtrise monte par rang avec les runs jouées", (()=>{
+  A.setS(A.newState()); const S0 = A.getS(); S0.breche = {mastery:{4:0}};
+  const r0 = A.brMastery(4); S0.breche.mastery[4] = 3; const r2 = A.brMastery(4); S0.breche.mastery[4] = 99; const r5 = A.brMastery(4);
+  return r0 === 0 && r2 === 2 && r5 === 5;
+})());
+t("une minute de Brèche dans chaque habitat reste saine", Object.keys(A.BR_TERRAIN).every(h=>{
+  A.setS(A.newState()); for(let i = 1; i <= 151; i++) A.addToDex(i, 20, false);
+  const R = A.brNewRun({region:"kanto", hab:h, starter:4, seed:11}); R.W = 390; R.H = 700; R.dpr = 1;
+  for(let k = 0; k < 1800; k++){
+    R.joy = {dx:Math.cos(k / 50), dy:Math.sin(k / 50)}; R.keys = {};
+    A.brUpdate(R, 1/30);
+    if(R.choices){ R.choices = null; } R.modal = false;
+    if(R.over) break;
+  }
+  return Number.isFinite(R.hp) && Number.isFinite(R.x) && R.kills > 10;
+}));
+
+
+/* --- installation de l'application --- */
+t("hors hébergement web, le parcours d'installation ne bloque jamais l'introduction", (()=>{
+  A.setS(A.newState());
+  let ran = false;
+  A.pwaAfterIntro(()=>{ ran = true; });
+  return !A.pwaInstallable() && ran && !A.getS().flags.pwaOffers;
+})());
+t("la détection d'appareil ne plante pas sans navigateur", (()=>{ const e = A.pwaEnv(); return typeof e.ios === "boolean" && typeof e.mobile === "boolean"; })());
+
+
+/* --- les attaques de la Brèche --- */
+t("chaque type a trois attaques, toutes d'une forme connue", Object.keys(A.BR_ATK).length === 18 &&
+  Object.values(A.BR_ATK).every(l=>l.length === 3 && l.every(([k, n, n2])=>A.BR_KIND[k] && n && n2 && n !== n2)));
+t("les 386 espèces se répartissent sur au moins 40 attaques différentes", (()=>{
+  const names = new Set();
+  for(let i = 1; i <= 386; i++) if(A.POKE[i]) names.add(A.brArchFor(i).n);
+  return names.size >= 40;
+})());
+t("les 21 légendaires ont chacun une attaque signature", (()=>{
+  const L = []; for(let i = 1; i <= 386; i++) if(A.POKE[i] && A.POKE[i].leg) L.push(i);
+  return L.length === 21 && L.every(i=>A.brArchFor(i).sig && A.BR_KIND[A.brArchFor(i).k]);
+})());
+t("chaque forme d'attaque s'exécute en jeu et inflige des dégâts", (()=>{
+  A.setS(A.newState()); for(let i = 1; i <= 151; i++) A.addToDex(i, 20, false);
+  const bad = [];
+  for(const k of Object.keys(A.BR_KIND)){
+    if(k === "orbit") continue;                              /* orbite : moteur continu, deja couvert */
+    const R = A.brNewRun({region:"kanto", hab:"route", starter:4, seed:5});
+    R.W = 390; R.H = 700; R.dpr = 1;
+    for(let j = 0; j < 12; j++){ const f = A.brSpawnFoe(R, 19, "n"); const a = j / 12 * 6.28; f.x = Math.cos(a) * 90; f.y = Math.sin(a) * 90; f.hp = f.max = 99999; }
+    const w = R.team[0], st = Object.assign(A.brWeaponStats(w, R), {k, p:{}});
+    R.curW = 0; A.brFire(R, w, st, {x:0, y:0});
+    for(let n = 0; n < 150; n++){ R.joy = {dx:0, dy:0}; R.keys = {}; A.brUpdate(R, 1/30); R.modal = false; R.choices = null; }
+    if(!(R.dmgBy[0] > 0) || !Number.isFinite(R.hp)) bad.push(k);
+  }
+  if(bad.length) console.log("    formes sans effet :", bad.join(", "));
+  return bad.length === 0;
+})());
+
+
+/* --- cercle de lancer --- */
+t("le cercle de lancer : trois paliers, jamais de malus", (()=>{
+  const e = A.ringGrade(0.3), s2 = A.ringGrade(0.5), b = A.ringGrade(0.8), none = A.ringGrade(0.95);
+  return e.n === "Excellent" && s2.n === "Super" && b.n === "Bien" && none === null
+    && A.RING_GRADES.every(g=>g.mul > 1) && e.mul > s2.mul && s2.mul > b.mul;
+})());
+/* --- événements --- */
+t("la saison est la même pour tous, et change toutes les deux semaines", (()=>{
+  const t0 = Date.UTC(2026, 8, 28, 12), w = 7 * 86400000;
+  const a = A.evSeason(t0), same = A.evSeason(t0 + 3600000);
+  const keys = new Set([0, 1, 2, 3, 4, 5].map(k=>A.evSeason(t0 + k * 2 * w).k));
+  return a.k === same.k && keys.size === 6 && A.EV_SEASONS.every(z=>A.COSMETICS["title_sz_" + z.k]);
+})());
+t("le légendaire de la semaine tourne chaque semaine", (()=>{
+  const t0 = Date.UTC(2026, 8, 28, 12), w = 7 * 86400000;
+  return A.evWeeklyLegend(t0) !== A.evWeeklyLegend(t0 + w) && A.POKE[A.evWeeklyLegend(t0)].leg;
+})());
+t("parcours de saison : on ne réclame pas deux fois, et le titre final existe", (()=>{
+  A.setS(A.newState()); A.getS().breche = {data:0, upg:{}};
+  const E = A.evState(); E.pts = 999;
+  A.ACTIONS.evclaim({i:0}); const d1 = A.getS().breche.data;
+  A.ACTIONS.evclaim({i:0}); const d2 = A.getS().breche.data;
+  A.ACTIONS.evclaim({i:9});
+  return d1 === 60 && d2 === 60 && A.getS().cos.owned.includes("title_sz_" + A.evSeason().k);
+})());
+t("l'habitat de la saison rapporte des points doublés", (()=>{
+  A.setS(A.newState());
+  const base = {kills:600, won:true, depth:0, missions:[], weeklyDown:false};
+  const inSz = A.evRunPoints(Object.assign({hab:A.evSeason().hab}, base));
+  const other = A.evRunPoints(Object.assign({hab:A.evSeason().hab === "route" ? "foret" : "route"}, base));
+  return inSz === other * 2 && other > 0;
+})());
+t("le texte de partage résume la run", (()=>{
+  const txt = A.brShareText({t:492, kills:3367, hab:"foyer", depth:4, won:true, daily:false, missions:[{done:true},{done:false},{done:true}], lv:20, team:[]});
+  return /Foyer thermique/.test(txt) && /3.367/.test(txt) && /profondeur 4/.test(txt) && /◉◉○/.test(txt.replace(/◉○◉/, "◉◉○"));
+})());
+
+
+/* --- icônes d'objets : aucun objet sans icône --- */
+t("chaque objet de chaque catalogue a son icône", (()=>{
+  const miss = [];
+  const need = (k)=>{ if(A.ITEM_IDX[k] === undefined) miss.push(k); };
+  Object.keys(A.BALLS).forEach(k=>need("ball:" + k));
+  Object.keys(A.BERRIES).forEach(k=>need("berry:" + k));
+  Object.keys(A.STONES).forEach(k=>need("stone:" + k));
+  Object.keys(A.CHESTS).forEach(k=>need("chest:" + k));
+  Object.keys(A.PERMANENTS).forEach(k=>need("perm:" + k));
+  Object.keys(A.REPELS).forEach(k=>need("repel:" + k));
+  Object.keys(A.HELD_ITEMS).forEach(k=>need("held:" + k));
+  Object.keys(A.EXP_ITEMS).forEach(k=>need("exp:" + k));
+  Object.values(A.TREASURES).forEach(t=>need("treasure:" + (A.TREASURE_KEYS[t.n] || "?")));
+  Object.keys(A.BR_ITEMS).forEach(k=>need("br:" + k));
+  for(let tp = 1; tp <= 18; tp++) need("br:cat" + tp);
+  ["potion","revive","radar","lure"].forEach(need);
+  if(miss.length) console.log("    sans icône :", miss.join(", "));
+  return miss.length === 0;
+})());
+
+
+/* --- ce que le site sert doit partir sur GitHub ---
+   Une regle d'exclusion sans barre initiale (« pmd/ ») ecarte tout dossier de ce
+   nom : les sprites de marche n'etaient jamais publies. */
+t("aucune règle d'exclusion n'écarte un fichier nécessaire au site", (()=>{
+  const fs = require("fs"), path = require("path");
+  const rules = fs.readFileSync(__dirname + "/.gitignore", "utf8").split(/\r?\n/).map(l=>l.trim()).filter(l=>l && !l.startsWith("#"));
+  const loose = rules.filter(r=>!r.startsWith("/") && r.endsWith("/")).map(r=>r.slice(0, -1));
+  const bad = [];
+  const walk = d => { for(const e of fs.readdirSync(d, {withFileTypes:true})){ if(!e.isDirectory()) continue;
+    if(loose.includes(e.name)) bad.push(path.relative(__dirname, path.join(d, e.name)));
+    walk(path.join(d, e.name)); } };
+  for(const d of ["src", "assets", "web", "sql"]) if(fs.existsSync(__dirname + "/" + d)) walk(__dirname + "/" + d);
+  if(bad.length) console.log("    dossiers écartés à tort :", bad.join(", "));
+  return bad.length === 0;
+})());
+
+
+/* --- sensations : boss, terrain, traces --- */
+function feelRun(hab){
+  A.setS(A.newState()); for(let i = 1; i <= 151; i++) A.addToDex(i, 20, false);
+  const R = A.brNewRun({region:"kanto", hab:hab || "route", starter:4, seed:3}); R.W = 390; R.H = 700; R.dpr = 1;
+  return R;
+}
+t("chaque motif d'attaque de boss s'exécute et produit son danger", (()=>{
+  const bad = [];
+  for(const k of Object.keys(A.BR_PATTERNS)){
+    const R = feelRun(); const b = A.brSpawnFoe(R, 144, "boss"); b.x = 200; b.y = 0; R.boss = b; R.bossOn = true;
+    b.max = b.hp = 1e9; b.dmg = 10; b.pattern = 0;
+    try {
+      A.BR_PATTERNS[k](R, b, false, "#fff");
+      let zones = 0; R.P.zones.each(()=>zones++);
+      for(let n = 0; n < 120; n++){ R.joy = {dx:0, dy:0}; R.keys = {}; R.spawnAcc = -1e9; A.brUpdate(R, 1/30); R.modal = false; R.choices = null; }
+      const made = zones > 0 || (R.hazards && R.hazards.length) || b.charge || b.under !== undefined || b.q !== undefined || b.pull !== undefined;
+      if(!made || !Number.isFinite(R.hp)) bad.push(k);
+    } catch(e){ bad.push(k + " (" + e.message + ")"); }
+  }
+  if(bad.length) console.log("    motifs en défaut :", bad.join(", "));
+  return bad.length === 0;
+})());
+t("chaque légendaire a un jeu d'attaques à lui, selon son type", (()=>{
+  const L = [144,145,146,150,151,243,244,245,249,250,251,377,378,379,380,381,382,383,384,385,386];
+  return L.every(id=>{ const kit = A.brBossKit({id}); return kit.length >= 3 && kit.every(k=>A.BR_PATTERNS[k]); })
+    && new Set(L.map(id=>A.brBossKit({id})[0])).size >= 7;
+})());
+t("un boss enterré est intouchable, puis il ressurgit", (()=>{
+  const R = feelRun(); const b = A.brSpawnFoe(R, 95, "boss"); b.x = 150; b.y = 0; R.boss = b; R.bossOn = true; b.max = b.hp = 1e6;
+  A.BR_PATTERNS.burrow(R, b, false);
+  const hp0 = b.hp; R.curW = 0; A.brHit(R, b, 500, "#fff", 0, 0, 0);
+  const safe = b.hp === hp0;
+  let surfaced = false;
+  for(let n = 0; n < 150; n++){ R.joy = {dx:0, dy:0}; R.keys = {}; R.spawnAcc = -1e9; A.brUpdate(R, 1/30); R.modal = false; R.choices = null;
+    if(!(b.under > 0)) surfaced = true; }
+  return safe && surfaced;
+})());
+t("le terrain réagit aux éléments", (()=>{
+  const R = feelRun("eaux");
+  /* une carte nue : seules les zones d'essai, pour isoler chaque reaction */
+  A.brMapNear(R);
+  const iso = () => { for(const ch of R.map.chunks.values()) ch.zones = ch.zones.filter(z=>z.essai); A.brMapNear(R); };
+  const water = {k:"water", x:400, y:400, r:100, seed:0.5, essai:true};
+  A.brAddZone(R, water); iso();
+  R.t = 10; A.brTerrainReact(R, 400, 400, 15, 10);            /* la glace gele l'eau */
+  for(const ch of R.map.chunks.values()) for(const z of ch.zones) if(z.k === "ice") z.essai = true;
+  R.x = 400; R.y = 400; R.reactT = 0;
+  const iced = A.brTerrainUnder(R).ice;
+  A.brMapPre(R, 1/30); const walk = R.terrainMul === 1;          /* et l'on y marche sans nager */
+  const grass = {k:"grass", x:-400, y:-400, r:80, seed:0.3, essai:true}; A.brAddZone(R, grass); iso();
+  R.t = 20; R.reactT = 0; A.brTerrainReact(R, -400, -400, 10, 10);
+  const burning = grass.burn > 0;
+  const lava = {k:"lava", x:800, y:0, r:80, seed:0.2, essai:true}; A.brAddZone(R, lava); iso();
+  R.t = 30; R.reactT = 0; A.brTerrainReact(R, 800, 0, 11, 10);
+  const cooled = lava.cooled > 0;
+  const water2 = {k:"water", x:-450, y:350, r:90, seed:0.1, essai:true}; A.brAddZone(R, water2); iso();
+  const f = A.brSpawnFoe(R, 19, "n"); f.x = -450; f.y = 350; f.hp = f.max = 1e6;
+  R.t = 40; R.reactT = 0; A.brTerrainReact(R, -450, 350, 13, 50);
+  const shocked = f.hp < 1e6;
+  if(!(iced && walk && burning && cooled && shocked)) console.log('    réactions :', JSON.stringify({iced, walk, burning, cooled, shocked}));
+  return iced && walk && burning && cooled && shocked;
+})());
+t("les traces au sol restent plafonnées", (()=>{
+  const R = feelRun(); for(let i = 0; i < 400; i++) A.brDecal(R, "scorch", i, i, 20);
+  return R.decals.length === 150;
+})());
+
+
+/* --- combat de boss scénarisé, acte par acte --- */
+t("un combat de boss se joue en actes : entrée, arène, pylônes, ultime, finale", (()=>{
+  const R = feelRun(); R.t = 480; R.hp = R.maxHp = 1e6;
+  A.brSummonBoss(R); const b = R.boss;
+  const step = (n, f) => { for(let k = 0; k < n; k++){ R.joy = {dx:0, dy:0}; R.keys = {}; R.spawnAcc = -1e9; if(f) f(); A.brUpdate(R, 1/30); R.modal = false; R.choices = null; } };
+  const out = {};
+  out.introFige = !!(R.cine && R.cine.freeze) && b.shield;
+  const bx0 = b.x; step(30); out.bossImmobile = b.x === bx0;
+  step(100); out.introFinie = !R.cine && !b.shield && !!R.arena;
+  /* l'arene retient : on tente de sortir */
+  step(120, ()=>{ R.joy = {dx:1, dy:0}; });
+  out.arene = Math.hypot(R.x - R.arena.x, R.y - R.arena.y) <= R.arena.r;
+  /* acte III : les pylones */
+  b.hp = b.max * 0.6; step(2);
+  out.pylones = R.scen && R.scen.phase === 2 && b.shield && R.scen.pylons.length === 3;
+  const hp1 = b.hp; R.curW = 0; A.brHit(R, b, 1000, "#fff", 0, 0, 0); out.protege = b.hp === hp1;
+  for(const p of R.scen.pylons){ p.hp = 0; } step(3);
+  out.relaisCoupes = R.scen.phase === 2.5 && !b.shield;
+  /* acte IV : l'ultime ; l'Archiviste se met a l'abri */
+  b.hp = b.max * 0.3; step(2);
+  out.ultime = !!R.ult && R.ult.safes.length >= 2;
+  const s0 = R.ult.safes[0]; const hpA = R.hp;
+  step(90, ()=>{ R.x = s0.x; R.y = s0.y; });
+  out.abriProtege = !R.ult && R.hp >= hpA - R.maxHp * 0.01;
+  /* un second ultime, cette fois hors de tout abri */
+  R.scen.phase = 2.5; b.hp = b.max * 0.3; step(2);
+  const far = R.ult.safes.reduce((m, s)=>Math.max(m, Math.hypot(s.x - R.x, s.y - R.y)), 0);
+  const hpB = R.hp, sx = R.x, sy = R.y;
+  step(90, ()=>{ const s = R.ult && R.ult.safes; const away = s ? s.reduce((p, q)=>({x:p.x + (R.x - q.x), y:p.y + (R.y - q.y)}), {x:0, y:0}) : {x:0, y:0};
+    const L = Math.hypot(away.x, away.y) || 1; R.joy = {dx:away.x / L, dy:away.y / L}; });
+  out.horsAbriTouche = R.hp < hpB;
+  /* la finale */
+  b.hp = 0; A.brBossDown(R, b);
+  out.finale = !R.arena && !R.scen && R.finaleT > 0;
+  const okAll = Object.values(out).every(Boolean);
+  if(!okAll) console.log("    actes :", JSON.stringify(out));
+  return okAll;
+})());
+
+
+/* --- la Descente --- */
+
+
+/* --- Descente, livraisons 2 et 3 --- */
+
+
+/* --- livraison 4 --- */
+t("aucune règle CSS ne détourne la classe des petits boutons (.xs)", !/(^|\n)\.xs[{.:]/.test(fs.readFileSync("src/style.css","utf8")));
+t("Tour : un objet ou un remplaçant en attente reste à l'écran", (()=>{
+  A.setS(A.newState()); for(let i = 1; i <= 151; i++) A.addToDex(i, 30, false);
+  const S0 = A.getS();
+  S0.towerRun = {stage:2, step:0, team:[{id:6, level:20, hp:50, maxHp:50, item:null}], pick:[{k:"item", id:"i_orbe"}]};
+  const quiet = f => { try { f(); } catch(e){} };      /* le rendu d'ecran n'existe pas ici */
+  quiet(()=>A.ACTIONS.towertake({i:"0"}));
+  const a = S0.towerRun.give === "i_orbe";
+  quiet(()=>A.ACTIONS.towertake({i:"0"}));       /* double toucher : sans effet */
+  quiet(()=>A.ACTIONS.towergive({i:"0"}));
+  return a && S0.towerRun.team[0].item === "i_orbe" && !S0.towerRun.give;
+})());
+t("carte : toujours le même treillis, un champion au bout des secteurs intermédiaires", (()=>{
+  A.setS(A.newState());
+  for(let seed = 1; seed <= 100; seed++){
+    const mid = A.genMap(seed, {mapIdx:0, maps:3}), fin = A.genMap(seed, {mapIdx:2, maps:3});
+    if(mid.map(r=>r.length).join() !== A.MAP_SHAPE.join()) return false;
+    if(mid[A.MAP_ROWS - 1][0].t !== "champ" || fin[A.MAP_ROWS - 1][0].t !== "boss") return false;
+    if(mid[A.MAP_ROWS - 2].filter(n=>n.t === "rest").length !== 1) return false;   /* un Centre, pas deux */
+  }
+  return true;
+})());
+t("progression : herbes +1, dresseur +2, rien d'autre ; l'évolution se fait au bon niveau", (()=>{
+  A.setS(A.newState());
+  const run = {team:[{id:4, level:14, hp:20, maxHp:20}, {id:25, level:14, hp:0, maxHp:20}], relics:[]};
+  const a = A.expGainLevels(run, A.EXP_GAIN.fight);
+  const b = A.expGainLevels(run, A.EXP_GAIN.trainer);
+  return A.EXP_GAIN.fight === 1 && A.EXP_GAIN.trainer === 2 && !A.EXP_GAIN.draft
+    && run.team[0].level === 17 && run.team[0].id === 5 && b.evos.length === 1
+    && run.team[1].level === 14;                    /* un Pokemon tombe ne progresse pas */
+})());
+t("progression : on part de la forme de base, au niveau 5, et l'archive reçoit les niveaux", (()=>{
+  A.setS(A.newState()); A.addToDex(6, 40, false); A.addToDex(25, 10, false); A.addToDex(1, 5, false);
+  const S0 = A.getS();
+  const fake = {getElementById:()=>null};
+  try { A.startExpedition([6, 25, 1]); } catch(e){}
+  const run = S0.expedition;
+  return run && run.team[0].id === 4 && run.team[0].base === 6 && run.team[0].level >= 5 && run.team[0].level <= 8
+    && run.maps === A.EXP_MAPS && run.map.length === A.MAP_ROWS && !!run.leader;
+})());
+t("progression : les adversaires suivent le parcours attendu, pas l'équipe réelle", (()=>{
+  const r1 = {maps:3, step:0, floor:0}, r2 = {maps:3, step:20, floor:10};
+  return A.expEnemyLevel(r1, 0) < A.expEnemyLevel(r2, 0) && A.expEnemyLevel(r1, 0) <= 6
+    && A.expExpected(8) > A.expExpected(7) + 3;      /* le badge fait un saut */
+})());
+/* --- la Tour : combats d'equipe --- */
+t("Tour : chaque espèce a trois compétences valides", (()=>{
+  for(const id of A.POKE_IDS){
+    const k = A.sqSkillsOf(id);
+    if(k.length !== 3 || k.some(s=>!s.n || !s.kind || !s.t)) return false;
+    if(k[0].cd !== 0 || !(k[1].cd > 0) || !(k[2].cd > 0)) return false;
+    if(k[0].n === k[1].n || k[0].n === k[2].n) return false;
+  }
+  return true;
+})());
+t("Tour : les puissants ont un passif de meneur, pas les formes de base", !A.sqLeaderOf(4) && !!A.sqLeaderOf(149) && !!A.sqLeaderOf(150) && A.sqLeaderOf(150).v > A.sqLeaderOf(149).v - 0.01);
+function tsqRun(B){ let g = 0; while(!B.over && g++ < 1500){ const u = A.sqNext(B); if(!u) break; A.sqTurnStart(B, u); if(u.hp <= 0) continue;
+  if(u.stunned){ A.sqSkip(B, u); continue; } const a = A.sqAI(B, u); A.sqAct(B, u, a.si, a.ti); } return B; }
+t("Tour : un combat se termine, et une équipe forte franchit le premier palier", (()=>{
+  A.setS(A.newState()); for(const id of [149, 6, 9, 3]) A.addToDex(id, 40, false);
+  let wins = 0;
+  for(let i = 0; i < 10; i++){ const B = tsqRun(A.sqNewBattle([149, 6, 9, 3], 0, 0)); if(!B.over) return false; if(B.result) wins++; }
+  return wins >= 9;
+})());
+t("Tour : trois vagues, un boss dans la dernière, le boss de la carte au dernier palier", (()=>{
+  const w = A.sqWaves(2, A.SQ_STAGES - 1);
+  return w.length === 3 && w[2].some(m=>m.boss && m.id === A.SQ_ZONES[2].boss) && !w[0].some(m=>m.boss);
+})());
+t("Tour : étoiles, paliers suivants et parchemins", (()=>{
+  A.setS(A.newState()); for(const id of [149, 6, 9, 3]) A.addToDex(id, 60, false);
+  const B = tsqRun(A.sqNewBattle([149, 6, 9, 3], 0, 0));
+  if(!B.result) return false;
+  const lv0 = A.getS().dex[149].lvl;
+  const R = A.sqFinish(B), q = A.sqState();
+  return A.sqStars(0, 0) >= 1 && R.first && q.scrolls >= 2 && !A.sqZoneOpen(1) && R.xps.length === 4
+    && A.getS().dex[149].sxp + A.getS().dex[149].lvl > lv0;
+})());
+t("Tour : monter une compétence coûte des parchemins et vaut pour la lignée", (()=>{
+  A.setS(A.newState()); A.addToDex(6, 30, false); const q = A.sqState(); q.scrolls = 3;
+  const ok = A.sqUpgrade(6, 1);
+  return ok && q.scrolls === 0 && A.sqSkillLv(4)[1] === 2 && !A.sqUpgrade(6, 1);
+})());
+/* --- les verrous légendaires : au sommet des ailes de la Tour --- */
+function tKanto(n){ const r = A.REGIONS[0]; let k = 0; for(let id = r.from; id <= r.to && k < n; id++){ if(A.POKE[id] && !A.POKE[id].leg){ A.addToDex(id, 30, false); k++; } } }
+t("verrous : fermés tant que le boss de l'aile n'est pas battu, même avec l'archive pleine", (()=>{
+  A.setS(A.newState()); tKanto(40);
+  const r = A.REGIONS[0], q = A.sqState();
+  const before = A.sqLockOpen(r, 0);
+  q.st["0:1:" + (A.SQ_STAGES - 1)] = 1;
+  return !before && A.sqLockOpen(r, 0) && !A.sqLockOpen(r, 1) && A.sqLockGate(r, 1).z === 3 && A.sqLockGate(A.REGIONS[1], 0).d === 1;
+})());
+t("verrous : chaque aile 2, 4, 6 en porte un par difficulté", A.sqLockAt(1, 0).g.id === 146 && A.sqLockAt(5, 2).g.id === 384 && !A.sqLockAt(0, 0) && !A.sqLockAt(2, 1));
+t("verrous : la Brèche ne les fait plus apparaître", (()=>{
+  A.setS(A.newState()); tKanto(40); return A.brGuardianFor("kanto") === null;
+})());
+t("verrous : le gardien ignore l'étourdissement et se reconfigure à mi-vie avec deux renforts", (()=>{
+  A.setS(A.newState()); for(const id of [6, 9, 3, 65]) A.addToDex(id, 40, false);
+  const r = A.REGIONS[0];
+  const B = A.sqNewBattle([6, 9, 3, 65], 1, A.SQ_STAGES - 1, {waves:A.sqLockWaves(r, 0), lock:{r:"kanto", i:0}});
+  if(B.waves.length !== 2 || !B.waves[1][0].guardian) return false;
+  /* on charge directement la vague du gardien */
+  const B2 = A.sqNewBattle([6, 9, 3, 65], 1, A.SQ_STAGES - 1, {waves:[B.waves[1]], lock:{r:"kanto", i:0}});
+  const g = B2.foes[0];
+  if(!g.guardian) return false;
+  /* une attaque qui etourdit a coup sur */
+  const u = B2.allies[0]; u.skills[1] = {n:"t", t:13, kind:"atk", mult:0.01, cd:0, fx:[{k:"stun", p:1, t:1}]};
+  const evs = A.sqAct(B2, u, 1, 0);
+  const immune = evs.some(e=>e.k === "fx" && e.b === "immune") && !g.fx.some(e=>e.k === "stun");
+  g.hp = Math.floor(g.maxHp * 0.45);
+  const evs2 = A.sqAct(B2, B2.allies[1], 0, 0);
+  const ph = evs2.find(e=>e.k === "phase");
+  return immune && ph && ph.adds.length === 2 && B2.foes.length === 3 && g.phased && g.fx.some(e=>e.k === "atkup");
+})());
+t("verrous : la victoire libère le légendaire, émet sa carte et donne des parchemins", (()=>{
+  A.setS(A.newState()); for(const id of [6, 9, 3, 65]) A.addToDex(id, 40, false);
+  const r = A.REGIONS[0], q = A.sqState(), sc0 = q.scrolls;
+  const B = A.sqNewBattle([6, 9, 3, 65], 1, A.SQ_STAGES - 1, {waves:A.sqLockWaves(r, 0), lock:{r:"kanto", i:0}});
+  B.over = true; B.result = true;
+  const R = A.sqFinish(B), S = A.getS();
+  const R2 = A.sqFinish(B);
+  return R.first && S.bosses.includes("kanto:146") && !!S.dex[146] && q.scrolls > sc0 + 3 && R.gw && R.gw.card && !R2.first && S.bosses.length === 1;
+})());
+t("verrous : la Brèche s'ouvre avec le premier verrou, plus avec l'Expédition seule", (()=>{
+  A.setS(A.newState()); const S = A.getS(); S.level = 14; tKanto(30); S.stats.expWins = 2;
+  const a = A.moduleUnlocked("breche");
+  S.bosses.push("kanto:146");
+  return !a && A.moduleUnlocked("breche");
+})());
+t("verrous : les Data Guardians se découvrent avec le boss de la première aile", (()=>{
+  A.setS(A.newState()); const S = A.getS(); S.level = 11; tKanto(10);
+  const a = A.moduleUnlocked("boss"); A.sqState().st["0:0:" + (A.SQ_STAGES - 1)] = 1;
+  return !a && A.moduleUnlocked("boss");
+})());
+t("le hub propose l'Expédition, plus la Descente", A.ACTIVITIES.some(a=>a.go === "expedition") && !A.ACTIVITIES.some(a=>a.go === "descente"));
+/* --- l'arène : elle raconte le combat, elle ne le change pas --- */
+t("arène : sans canvas, elle s'efface et le pas de temps reste celui du moteur", (()=>{
+  const al = [A.makeFighter(6, 40)], fo = [A.makeFighter(9, 40)];
+  A.createBattle(al, fo, {ai:true, speed:2});
+  return A.arOn() === false && A.bStep(640) === 320 && A.arNeed(640) === 640;
+})());
+t("arène : passer le combat annule toute attente", (()=>{
+  const B = A.createBattle([A.makeFighter(6, 40)], [A.makeFighter(9, 40)], {ai:true, speed:1});
+  B.skip = true;
+  return A.bStep(640) === 0;
+})());
+t("arène : maintenir le doigt triple la vitesse choisie", (()=>{
+  const B = A.createBattle([A.makeFighter(6, 40)], [A.makeFighter(9, 40)], {ai:true, speed:2});
+  B.turbo = true;
+  return A.bSpeed() === 6 && A.bStep(600) === 100;
+})());
+t("arène : une vitesse inférieure à ×1 héritée d'une ancienne sauvegarde est ramenée à ×1",
+  A.createBattle([A.makeFighter(6, 40)], [A.makeFighter(9, 40)], {ai:true, speed:0.5}).speed === 1);
+t("arène : chaque type a sa manière de frapper et son décor", (()=>{
+  for(let ty = 1; ty <= 18; ty++) if(!A.AR_KIND[ty] || !A.AR_BIOME[ty]) return false;
+  return true;
+})());
+t("arène : un gardien a droit à sa mise en scène, un combat ordinaire non", (()=>{
+  const b1 = A.createBattle([A.makeFighter(6, 40)], [A.makeFighter(9, 40)], {ai:true, stage:"boss"});
+  const b2 = A.createBattle([A.makeFighter(6, 40)], [A.makeFighter(9, 40)], {ai:true});
+  const b3 = A.createBattle([A.makeFighter(6, 40)], [A.makeFighter(150, 40)], {boss:{}});
+  return b1.stage === "boss" && b2.stage === null && b3.stage === "boss";
+})());
+
+
+
+
+
+t("aucune action n'est définie deux fois (une action écrasée bloquait « Archiver »)", (()=>{
+  const order = fs.readFileSync(__dirname + "/build.py", "utf8").match(/ORDER = \[([\s\S]*?)\]/)[1].split(",").map(x=>x.trim().replace(/'/g, "")).filter(Boolean);
+  const seen = {}; let dup = [];
+  for(const f of order) for(const m of fs.readFileSync(__dirname + "/src/" + f, "utf8").matchAll(/^ACTIONS\.(\w+)\s*=/gm)){
+    if(seen[m[1]] && seen[m[1]] !== f) dup.push(m[1]); seen[m[1]] = f; }
+  return dup.length === 0;
+})());
+t("chaque salle qui s'ouvre a son moment, et une ancienne partie ne les rejoue pas", (()=>{
+  if(!Object.keys(A.ROOM_MOMENTS).every(k=>A.MODULE_REQ[k])) return false;
+  A.setS(A.newState()); const S0 = A.getS(); S0.level = 9; S0.team = [1, 4, 7];
+  A.roomMomentsTick();
+  const init = S0.flags.roomsSeen.slice();
+  S0.level = 11; for(let i = 1; i <= 6; i++) A.addToDex(i, 10, false);
+  const fired = A.roomMomentsTick();
+  return init.includes("expedition") && fired === true && S0.flags.roomsSeen.includes("tower");
+})());
 console.log(`\n${pass} tests reussis, ${fail} echecs`);
 process.exit(fail?1:0);
