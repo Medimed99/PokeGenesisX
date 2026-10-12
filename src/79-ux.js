@@ -17,9 +17,9 @@
 /* ---------- le hub : les activités, dans l'ordre d'ouverture ---------- */
 const ACTIVITIES = [
   {k:"idle", n:"Le Forage", i:"bolt", go:"idle",
-   d:"Tes Pokémon creusent sans toi. Toi, tu fouilles les parois : fossiles, pierres, trésors, Pokémon endormis.",
-   st:()=>{ const f = forage(); return `${STRATA[f.depth].n} · ${fmt(Math.floor(f.m))} m` + (f.walls ? ` · ${f.walls} paroi${f.walls > 1 ? "s" : ""}` : ""); },
-   alert:()=>forage().walls > 0 || (typeof botReady === "function" && botReady())},
+   d:"Frapper la sphère, descendre de strate en strate, lancer la capture autonome.",
+   st:()=>`${fmt(Math.round(forageRate()*10)/10)} Énergie / s · strate ${forage().depth + 1}`,
+   alert:()=>forage().vein > Date.now() || (typeof botReady === "function" && botReady())},
   {k:"expedition", n:"L'Expédition", i:"map", go:"expedition",
    d:"Une carte à embranchements, des combats mis en scène, des recrues à choisir. Dix minutes, un noyau au bout.",
    st:()=>S.expedition ? `Expédition en cours · secteur ${(S.expedition.mapIdx || 0) + 1}` : `${S.stats.expWins} réussie(s)`,

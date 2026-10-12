@@ -105,13 +105,10 @@ const INFOS = {
     ajoutent à votre deck des espèces tirées de votre propre archive.</p>`},
 
   idle:{n:"Le forage", d:`
-    <p>Une <b>équipe de forage</b> de trois à six Pokémon de votre archive creuse sans vous, même hors ligne.
-    Leur puissance suit leur niveau ; chaque strate a sa matière, et les bons types y creusent
-    <b>deux fois plus vite</b> (Sol et Roche dans la roche, Feu dans la glace, Eau dans le magma…).</p>
-    <p>En creusant, l'équipe tombe sur des <b>parois</b>, qui vous attendent. Fouillez-les à la pioche
-    (précise) et au marteau (large, mais ébranle deux fois plus) avant l'effondrement : fossiles,
-    pierres d'évolution, éclats, trésors, objets, et parfois un Pokémon endormi dans la roche.</p>
-    <p>L'<b>Énergie Onirique</b> libérée paie les améliorations et la capture autonome.</p>`},
+    <p>Frappez la sphère pour extraire de l'Énergie. À la Couche molle, les sondes prennent le relais
+    et le forage continue même hors ligne, jusqu'au plafond de votre réservoir.</p>
+    <p>Chaque strate multiplie le rendement et ouvre une mécanique nouvelle. Le recalibrage rend des
+    Échos permanents. Voir la fiche « Le forage » pour le détail.</p>`},
 
   fishing:{n:"La pêche", d:`
     <p>La pêche est un mode de l'écran de capture : on bascule d'un geste entre Capture et Pêche.
@@ -333,10 +330,10 @@ const TUTOS = {
     {sel:"#screen", t:"Certains Pokémon ne remontent qu'au bout d'une ligne. Tu ne les croiseras nulle part ailleurs."}
   ]},
   idle:{steps:[
-    {sel:"#fo-shaft", t:"Le Forage. Tes Pokémon creusent dans les couches du rêve, et le rêve libère de l'Énergie Onirique en cédant. Ils continuent même quand tu fermes le jeu. Moi aussi, je regarde."},
-    {sel:".fo-good", t:"Chaque strate a sa matière. Les types affichés ici y creusent deux fois plus vite : Sol et Roche dans la terre, Feu dans la glace, Eau dans le magma. Change ton équipe en descendant."},
-    {sel:".fo-crew", t:"L'équipe de forage. Touche un emplacement pour choisir qui creuse. « Les meilleurs ici » fait le tri à ta place, je ne me vexerai pas."},
-    {sel:".fo-wallbtn", t:"En creusant, ils tombent sur des parois. Fouille-les à la pioche et au marteau avant qu'elles s'effondrent : fossiles, pierres, trésors… et parfois quelqu'un qui dormait dans la roche."}
+    {sel:"#screen", t:"Les Pokémon archivés continuent de rêver, même quand tu fermes le jeu. Ce bruit de fond s'extrait. Je l'appelle Énergie Onirique."},
+    {sel:"#gball",  t:"Frappe la sphère. Fort. Au début, c'est la seule façon de forer : aucune sonde ne tient à la Surface. Ne t'inquiète pas, ça ne lui fait pas mal. Je crois."},
+    {sel:"#screen", t:"Descends jusqu'à la Couche molle : les sondes s'y accrochent, et le forage tourne sans toi. Chaque strate plus bas ouvre quelque chose de nouveau."},
+    {sel:"#screen", t:"Tout en bas, on peut recalibrer. On perd la profondeur, on garde les Échos. Et les Échos ne s'effacent jamais."}
   ]},
   eggs:{steps:[
     {sel:"#screen", t:"Ce ne sont pas tout à fait des Œufs. Ce sont des Pokémon que le système a commencé à écrire, puis abandonnés en cours de route."},
@@ -483,9 +480,9 @@ const DIRECTIVES = [
    rw:{shards:20}, hint:"Écran de capture, mode Pêche.", go:"capture"},
   {id:"d8",  n:"Archiver 20 espèces",           chk:()=>dexTotal()>=20,      goal:()=>[dexTotal(),20],
    rw:{coins:900, cores:1}, hint:"Change de secteur dans le Pokédex pour repérer ce qui te manque."},
-  {id:"d9",  n:"Fouiller une paroi au Forage", chk:()=>(S.stats.walls || 0)>=1,
-   goal:()=>[Math.min(1, S.stats.walls || 0),1],
-   rw:{coins:600}, hint:"Ton équipe de forage creuse même quand tu ne joues pas. Ce qu'elle trouve t'attend dans les parois.", go:"idle"},
+  {id:"d9",  n:"Installer deux sondes de forage", chk:()=>drillCount()>=2,
+   goal:()=>[drillCount(),2],
+   rw:{coins:600}, hint:"Il produit pendant que tu ne joues pas.", go:"idle"},
   {id:"d10", n:"Archiver 25 espèces",           chk:()=>dexTotal()>=25,      goal:()=>[dexTotal(),25],
    rw:{shards:40}, hint:"Le premier verrou légendaire s'ouvre à 25 espèces de Kanto."},
   {id:"d11", n:"Faire évoluer un Pokémon",      chk:()=>S.stats.evolutions>=1, goal:()=>[S.stats.evolutions,1],

@@ -54,9 +54,12 @@ const Net = {
       "apikey": this.cfg.key,
       "Content-Type": "application/json"
     }, opts.headers || {});
+    /* Deux familles de cles Supabase : l'ancienne cle « anon » est un JWT et peut
+       servir de jeton ; la nouvelle cle « publishable » (sb_publishable_…) n'en
+       est pas un et ne doit jamais partir dans Authorization. */
     if(opts.auth !== false && this.signedIn())
       headers["Authorization"] = "Bearer " + this.session.access_token;
-    else if(opts.auth !== false)
+    else if(opts.auth !== false && /^eyJ/.test(this.cfg.key))
       headers["Authorization"] = "Bearer " + this.cfg.key;
 
     const ctrl = typeof AbortController !== "undefined" ? new AbortController() : null;
@@ -67,7 +70,8 @@ const Net = {
         method: opts.method || "GET",
         headers,
         body: opts.body ? JSON.stringify(opts.body) : undefined,
-        signal: ctrl ? ctrl.signal : undefined
+        signal: ctrl ? ctrl.signal : undefined,
+        keepalive: !!opts.keepalive
       });
     } catch(e){
       if(timer) clearTimeout(timer);
@@ -87,7 +91,8 @@ const Net = {
     try { data = text ? JSON.parse(text) : null; } catch(e){ data = text; }
     if(!res.ok){
       const msg = (data && (data.msg || data.message || data.error_description || data.error)) || ("Erreur " + res.status);
-      throw new Error(msg);
+      const code = (data && (data.error_code || data.code)) || "";
+      throw new Error(netFriendly(msg, code, res.status));
     }
     return data;
   },
@@ -116,6 +121,36 @@ const Net = {
     }
     throw new Error((last && last.message) || "Code refusé");
   },
+  /* ---------- comptes : e-mail et mot de passe ----------
+     Le retour des liens recus par e-mail (confirmation, nouveau mot de passe)
+     se fait sur la page du jeu elle-meme : voir netHandleAuthLink. */
+  async signUp(email, password, pseudo){
+    const r = await this.call("/auth/v1/signup?redirect_to=" + encodeURIComponent(netHome()), {
+      method:"POST", auth:false, body:{ email, password, data:{ pseudo } }
+    });
+    /* confirmation d'e-mail desactivee : on est connecte tout de suite */
+    if(r && r.access_token){ this.saveSession(r); return {session:true}; }
+    return {session:false};
+  },
+  async signIn(email, password){
+    const s = await this.call("/auth/v1/token?grant_type=password", {
+      method:"POST", auth:false, body:{ email, password }
+    });
+    if(!s || !s.access_token) throw new Error("Connexion refusée");
+    this.saveSession(s);
+    return s;
+  },
+  async recover(email){
+    await this.call("/auth/v1/recover?redirect_to=" + encodeURIComponent(netHome()), {
+      method:"POST", auth:false, body:{ email }
+    });
+  },
+  async setPassword(password){
+    await this.call("/auth/v1/user", { method:"PUT", body:{ password } });
+  },
+  async fetchUser(token){
+    return this.call("/auth/v1/user", { headers:{ "Authorization":"Bearer " + token }, auth:false });
+  },
   async refresh(){
     try {
       const s = await this.call("/auth/v1/token?grant_type=refresh_token", {
@@ -126,7 +161,29 @@ const Net = {
     } catch(e){}
     return false;
   },
-  signOut(){ this.saveSession(null); this.profile = null; },
+  signOut(){
+    const s = this.session;
+    if(s && s.access_token && this.configured())
+      this.call("/auth/v1/logout", { method:"POST" }).catch(()=>{});
+    this.saveSession(null); this.profile = null;
+  },
+  /* ---------- classement de la Breche du jour ---------- */
+  async submitDaily(score, depth, team){
+    await this.call("/rest/v1/rpc/submit_breche_daily", { method:"POST", body:{
+      p_day: isoDay(), p_name: (S.name || "Archiviste").slice(0, 16),
+      p_score: Math.round(score), p_depth: depth | 0, p_team: (team || []).slice(0, 6) } });
+  },
+  /* ---------- objectif collectif de la semaine ---------- */
+  async communityAdd(week, kills){
+    await this.call("/rest/v1/rpc/add_community", { method:"POST", body:{ p_week: week, p_kills: Math.round(kills) } });
+  },
+  async communityTotal(week){
+    const r = await this.call(`/rest/v1/community_totals?week=eq.${encodeURIComponent(week)}&select=total,players`);
+    return (r && r[0]) || {total:0, players:0};
+  },
+  async dailyBoard(){
+    return this.call(`/rest/v1/breche_daily?day=eq.${isoDay()}&select=user_id,name,score,depth,team&order=score.desc&limit=30`);
+  },
 
   /* ---------- sauvegarde distante ---------- */
   /* La revision est monotone : elle tranche les conflits sans dependre
@@ -139,7 +196,7 @@ const Net = {
   async push(force){
     const S2 = JSON.parse(JSON.stringify(S));
     delete S2.expedition; delete S2.poker;      /* les runs en cours ne se synchronisent pas */
-    const rev = (S.netRev || 0) + 1;
+    const rev = Math.max(S.netRev || 0, S.netBase || 0) + 1;
     const body = {
       user_id: this.userId(),
       rev,
@@ -154,21 +211,25 @@ const Net = {
       cards: Object.keys(S.cards || {}).length,
       guardians: S.bosses.length,
       tower: (S.tower && S.tower.best) || 0,
+      faction: (S.faction && S.faction.k) || null,
+      breche_depth: (S.breche && S.breche.bestDepth) || 0,
+      breche_clears: (S.breche && S.breche.clears) || 0,
       tested: !!S.flags.testUsed
     };
     await this.call("/rest/v1/saves?on_conflict=user_id", {
-      method:"POST",
-      headers:{ "Prefer": force ? "resolution=merge-duplicates" : "resolution=merge-duplicates" },
+      method:"POST", keepalive: !!force && force === "leaving",
+      headers:{ "Prefer": "resolution=merge-duplicates" },
       body:[body]
     });
     S.netRev = rev;
+    netMarkSynced(rev);
     saveSoon();
     return rev;
   },
 
   /* ---------- classements ---------- */
   async leaderboard(metric, limit){
-    const cols = "name,level,integrity,dex_count,shinies,best_streak,best_ante,guardians,cards,tower,tested,user_id";
+    const cols = "name,level,integrity,dex_count,shinies,best_streak,best_ante,guardians,cards,tower,faction,breche_depth,breche_clears,tested,user_id";
     const q = `/rest/v1/leaderboard?select=${cols}&order=${metric}.desc&limit=${limit||25}`;
     return await this.call(q);
   },
@@ -192,6 +253,112 @@ const Net = {
   }
 };
 
+/* ============================================================
+   COMPTES ET SYNCHRONISATION
+   ============================================================ */
+/* date ISO pour le serveur ; today() du jeu n'a pas de zeros (2026-9-27) */
+function isoDay(){ const d = new Date(); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); }
+function netHome(){ try { return location.origin + location.pathname; } catch(e){ return ""; } }
+/* les messages de Supabase sont techniques et en anglais : on les traduit */
+function netFriendly(msg, code, status){
+  const m = String(msg || "").toLowerCase(), c = String(code || "").toLowerCase();
+  if(c === "invalid_credentials" || m.includes("invalid login")) return "E-mail ou mot de passe incorrect.";
+  if(c === "email_not_confirmed" || m.includes("email not confirmed")) return "Adresse pas encore confirmée : ouvrez le lien reçu par e-mail.";
+  if(c === "user_already_exists" || m.includes("already registered")) return "Un compte existe déjà avec cette adresse : connectez-vous.";
+  if(c === "weak_password" || m.includes("password should be")) return "Mot de passe trop faible : 8 caractères minimum.";
+  if(c.includes("rate_limit") || m.includes("rate limit")) return "Trop de tentatives ou d'e-mails envoyés. Réessayez un peu plus tard.";
+  if(c === "signup_disabled" || m.includes("signups not allowed")) return "Les inscriptions sont désactivées sur ce serveur.";
+  if(c === "email_address_invalid" || m.includes("unable to validate email")) return "Adresse e-mail invalide.";
+  if(m.includes("otp") && m.includes("expired")) return "Code expiré : demandez-en un nouveau.";
+  if(status === 404 && m.includes("relation")) return "Base non initialisée : exécutez sql/schema.sql dans Supabase.";
+  if(status === 401 || status === 403) return "Accès refusé par le serveur (clé ou politiques RLS).";
+  return msg;
+}
+/* empreinte de progression : si elle change, la partie locale a avance */
+function netFingerprint(){
+  return [S.level, S.xp, (S.stats && S.stats.catches) || 0, dexTotal(), Math.round((S.integrity || 0) * 10),
+          S.coins, (S.breche && S.breche.runs) || 0, (S.stats && S.stats.expWins) || 0].join("|");
+}
+/* une partie a peine commencee n'a rien a defendre face au cloud */
+function netIsFresh(){ return (S.level || 1) <= 3 && ((S.stats && S.stats.catches) || 0) < 15; }
+function netDirty(){ return netFingerprint() !== S.netSyncFp; }
+function netMarkSynced(rev){ S.netBase = rev; S.netSyncFp = netFingerprint(); S.netSyncedAt = Date.now(); saveSoon(); }
+function netSyncLabel(){
+  if(!Net.configured()) return "Facultatif — sauvegarde, classements, échanges";
+  if(!Net.signedIn()) return "Non connecté — créez un compte pour sauvegarder dans le cloud";
+  if(!S.netSyncedAt) return "Connecté — première synchronisation en attente";
+  const m = Math.round((Date.now() - S.netSyncedAt) / 60000);
+  return "Connecté · synchronisé " + (m < 1 ? "à l'instant" : "il y a " + (m < 60 ? m + " min" : Math.round(m / 60) + " h"));
+}
+function netApplyRemote(remote){
+  S = deepFill(remote.payload, newState());
+  S.netRev = remote.rev;
+  netMarkSynced(remote.rev);
+  save(); applyCorruption();
+}
+/* La synchronisation intelligente, appelee au demarrage, a la connexion et
+   regulierement :
+   · rien dans le cloud                      -> on envoie ;
+   · le cloud a avance, pas cet appareil     -> on recupere, sans rien demander ;
+   · les deux ont avance de leur cote        -> on demande lequel garder ;
+   · seul cet appareil a avance              -> on envoie. */
+let NET_CONFLICT = false;
+async function netSyncSmart(reason){
+  if(!Net.configured() || !Net.signedIn() || Net.busy || NET_CONFLICT) return;
+  /* l'etat de synchronisation appartient a un compte : se connecter a un autre
+     compte sur le meme appareil repart de zero, sinon on ecraserait son cloud
+     avec la partie de l'ancien compte */
+  if(S.netUser !== Net.userId()){ S.netUser = Net.userId(); S.netBase = 0; S.netRev = 0; S.netSyncFp = null; }
+  Net.busy = true;
+  try {
+    const remote = await Net.pull();
+    if(!remote){ Net.busy = false; await Net.push(); return; }
+    const base = S.netBase || 0, dirty = netDirty();
+    if(remote.rev > base){
+      if(!dirty || netIsFresh()){
+        netApplyRemote(remote);
+        toast("Progression récupérée depuis le cloud", "", "check");
+        if(typeof go === "function") go(currentScreen || "capture");
+      } else { NET_CONFLICT = true; netAskPull(remote); }
+      return;
+    }
+    if(dirty){ Net.busy = false; await Net.push(reason === "leaving" ? "leaving" : false); }
+  } catch(e){ Net.lastError = e.message || String(e); }
+  finally { Net.busy = false; }
+}
+/* envoi groupe apres un evenement marquant (fin de Breche, verrou leve...) */
+let NET_SOON = null;
+function netSoon(){
+  if(!Net.signedIn()) return;
+  clearTimeout(NET_SOON);
+  NET_SOON = setTimeout(()=>netSyncSmart("event"), 8000);
+}
+/* Retour d'un lien recu par e-mail : Supabase renvoie vers la page du jeu avec
+   la session dans l'ancre (#access_token=…&type=signup|recovery). */
+async function netHandleAuthLink(){
+  if(typeof location === "undefined" || !location.hash || location.hash.length < 10) return;
+  const h = new URLSearchParams(location.hash.slice(1));
+  const err = h.get("error_description");
+  const tok = h.get("access_token"), type = h.get("type");
+  if(!tok && !err) return;
+  try { history.replaceState(null, "", location.pathname + location.search); } catch(e){}
+  if(err){ toast(err.replace(/\+/g, " "), "bad", "cross"); return; }
+  try {
+    const user = await Net.fetchUser(tok);
+    Net.saveSession({access_token:tok, refresh_token:h.get("refresh_token"), token_type:"bearer",
+      expires_in:+h.get("expires_in") || 3600, user});
+    if(type === "recovery"){ netAskNewPassword(); return; }
+    toast(type === "signup" ? "Adresse confirmée — vous êtes connecté" : "Connecté", "", "check");
+    netSyncSmart("login");
+  } catch(e){ toast("Lien expiré ou déjà utilisé : reconnectez-vous", "bad", "cross"); }
+}
+function netAskNewPassword(){
+  sheet(`${sheetHead("Nouveau mot de passe")}
+    <div class="tiny muted" style="margin-bottom:9px">Choisissez un nouveau mot de passe pour votre compte.</div>
+    <input id="net-newpw" type="password" autocomplete="new-password" placeholder="8 caractères minimum">
+    <button class="btn pri wide" style="margin-top:9px" data-act="netnewpw">Enregistrer</button>`, true);
+}
+
 /* ---------- resolution de conflit ---------- */
 function netCompare(remote){
   const localRev = S.netRev || 0;
@@ -210,7 +377,23 @@ function netSummary(payload){
    ÉCRAN
    ============================================================ */
 let NET_TAB = "compte";
+let NET_AUTH_MODE = "signup";
 let NET_BOARD = null, NET_BOARD_METRIC = "integrity";
+/* repartition des factions parmi les archivistes affiches : la question de la
+   faille recoit une reponse collective, visible de tous */
+function netFactionTally(){
+  if(!NET_BOARD || !NET_BOARD.length || typeof FACTIONS === "undefined") return "";
+  const n = {}; let tot = 0;
+  for(const r of NET_BOARD) if(r.faction && FACTIONS[r.faction]){ n[r.faction] = (n[r.faction]||0) + 1; tot++; }
+  if(!tot) return "";
+  return `<div class="panel tight" style="margin-top:9px">
+    <div class="h sm">CE QUE RÉPONDENT LES ARCHIVISTES</div>
+    ${Object.entries(FACTIONS).map(([k,f])=>`<div class="row between tiny" style="padding:2px 0">
+      <span style="color:${f.c}">${esc(f.n)}</span>
+      <b class="mono-num">${Math.round((n[k]||0)/tot*100)}%</b></div>
+      <div class="bar thin"><i style="width:${(n[k]||0)/tot*100}%;background:${f.c}"></i></div>`).join("")}
+  </div>`;
+}
 function netSetBoard(rows){ NET_BOARD = rows; }
 
 function netStatusLine(){
@@ -244,44 +427,60 @@ SCREENS.online = {
         <div class="tiny muted" style="margin-bottom:8px">Renseignez l'URL de votre projet Supabase et sa clé
           publique « anon ». Le schéma SQL à appliquer est fourni dans <b>sql/schema.sql</b> avec les sources.</div>
         <input id="net-url" type="text" placeholder="https://xxxx.supabase.co" value="${esc(Net.cfg.url||"")}">
-        <input id="net-key" type="text" placeholder="clé anon" style="margin-top:7px" value="${esc(Net.cfg.key||"")}">
+        <input id="net-key" type="text" placeholder="clé publique (sb_publishable_… ou anon)" style="margin-top:7px" value="${esc(Net.cfg.key||"")}">
         <button class="btn pri wide" style="margin-top:9px" data-act="netsavecfg">Enregistrer</button>
         <div class="tiny dim" style="margin-top:7px">La clé anon est publique par conception : l'accès aux
           données est contrôlé par les politiques RLS, pas par le secret de la clé.</div>
       </div>`;
 
-    if(!Net.signedIn()) return `
-      <div class="panel bracket">
-        <div class="h sm">CONNEXION</div>
-        <div class="tiny muted" style="margin-bottom:8px">Un code à six chiffres vous est envoyé par courriel.
-          Aucun mot de passe n'est stocké.</div>
-        <input id="net-mail" type="text" inputmode="email" placeholder="adresse@exemple.fr"
-          value="${esc(S.netMail||"")}">
-        <button class="btn wide" style="margin-top:8px" data-act="netcode" ${Net.busy?"disabled":""}>
-          ${Net.busy?"Envoi…":"Recevoir un code"}</button>
-        <hr class="sep">
-        <input id="net-otp" type="text" inputmode="numeric" placeholder="code à 6 chiffres">
-        <button class="btn pri wide" style="margin-top:8px" data-act="netverify" ${Net.busy?"disabled":""}>
-          Se connecter</button>
-      </div>
+    if(!Net.signedIn()){
+      const M = NET_AUTH_MODE;
+      const tabs = [["signup","Créer un compte"],["signin","Se connecter"],["code","Code par e-mail"]];
+      const mail = esc(S.netMail || "");
+      let form;
+      if(M === "signup") form = `
+        <div class="tiny muted" style="margin-bottom:8px">Votre progression sera sauvegardée dans le cloud et
+          récupérée automatiquement sur un autre appareil.</div>
+        <input id="net-pseudo" type="text" maxlength="16" placeholder="Pseudo (affiché dans les classements)" value="${esc(S.name || "")}">
+        <input id="net-mail" type="email" inputmode="email" autocomplete="email" placeholder="adresse@exemple.fr" value="${mail}" style="margin-top:7px">
+        <input id="net-pw" type="password" autocomplete="new-password" placeholder="Mot de passe (8 caractères minimum)" style="margin-top:7px">
+        <button class="btn pri wide" style="margin-top:9px" data-act="netsignup" ${Net.busy?"disabled":""}>${Net.busy?"Création…":"Créer mon compte"}</button>`;
+      else if(M === "signin") form = `
+        <input id="net-mail" type="email" inputmode="email" autocomplete="email" placeholder="adresse@exemple.fr" value="${mail}">
+        <input id="net-pw" type="password" autocomplete="current-password" placeholder="Mot de passe" style="margin-top:7px">
+        <button class="btn pri wide" style="margin-top:9px" data-act="netsignin" ${Net.busy?"disabled":""}>${Net.busy?"Connexion…":"Se connecter"}</button>
+        <button class="btn ghost wide sm" style="margin-top:7px" data-act="netforgot">Mot de passe oublié</button>`;
+      else form = `
+        <div class="tiny muted" style="margin-bottom:8px">Sans mot de passe : un code à six chiffres vous est envoyé.</div>
+        <input id="net-mail" type="email" inputmode="email" placeholder="adresse@exemple.fr" value="${mail}">
+        <button class="btn wide" style="margin-top:8px" data-act="netcode" ${Net.busy?"disabled":""}>${Net.busy?"Envoi…":"Recevoir un code"}</button>
+        <input id="net-otp" type="text" inputmode="numeric" placeholder="code à 6 chiffres" style="margin-top:9px">
+        <button class="btn pri wide" style="margin-top:8px" data-act="netverify" ${Net.busy?"disabled":""}>Se connecter</button>`;
+      return `
+      <div class="segbar">${tabs.map(([k,n])=>`<button class="${M===k?"on":""}" data-act="netauthmode" data-m="${k}"><span>${n}</span></button>`).join("")}</div>
+      <div class="panel bracket">${form}</div>
       <div class="panel">
         <div class="h sm">CHANGER DE SERVICE</div>
         <button class="btn ghost wide sm" data-act="netclearcfg">Modifier l'URL et la clé</button>
       </div>`;
+    }
 
+    const u = Net.session.user || {}, pseudo = (u.user_metadata && u.user_metadata.pseudo) || S.name;
     return `
       <div class="panel bracket">
         <div class="h sm">COMPTE</div>
-        <div class="row between tiny"><span class="muted">Adresse</span>
-          <b>${esc((Net.session.user&&Net.session.user.email)||"—")}</b></div>
-        <div class="row between tiny"><span class="muted">Révision locale</span>
-          <b class="mono-num">${S.netRev||0}</b></div>
-        <div class="row between tiny"><span class="muted">Identifiant public</span>
-          <b class="tiny dim">${esc((Net.userId()||"").slice(0,8))}</b></div>
+        <div class="row between tiny"><span class="muted">Pseudo</span><b>${esc(pseudo || "—")}</b></div>
+        <div class="row between tiny"><span class="muted">Adresse</span><b>${esc(u.email || "—")}</b></div>
+        <div class="row between tiny"><span class="muted">Synchronisation</span><b>${esc(netSyncLabel().replace(/^Connecté · /, ""))}</b></div>
+        <div class="row between tiny"><span class="muted">Révision</span><b class="mono-num">${S.netRev||0}</b></div>
       </div>
-      <button class="btn dan wide" data-act="netsignout">Se déconnecter</button>
-      <div class="tiny dim" style="margin-top:7px">La déconnexion ne supprime rien : la partie locale
-        et la sauvegarde distante restent intactes.</div>`;
+      <div class="btn-grid c2">
+        <button class="btn pri" data-act="netsyncnow" ${Net.busy?"disabled":""}>Synchroniser</button>
+        <button class="btn" data-act="netpwchange">Mot de passe</button>
+      </div>
+      <button class="btn dan wide" style="margin-top:8px" data-act="netsignout">Se déconnecter</button>
+      <div class="tiny dim" style="margin-top:7px">La progression est envoyée toutes les 2 minutes quand elle change,
+        quand vous quittez l'application et après chaque Brèche. La déconnexion ne supprime rien.</div>`;
   },
 
   sync(){
@@ -308,7 +507,7 @@ SCREENS.online = {
   board(){
     const metrics = [["integrity","Intégrité"],["dex_count","Pokédex"],["level","Niveau"],
                      ["shinies","Chromatiques"],["best_streak","Série"],["best_ante","Poké-Poker"],["tower","Tour"],
-                     ["guardians","Verrous"]];
+                     ["guardians","Verrous"],["breche_depth","Faille profonde"],["breche_clears","Brèches"]];
     return `
       <div class="chipbar">
         ${metrics.map(([k,n])=>`<button class="chip ${NET_BOARD_METRIC===k?"on":""}"
@@ -324,7 +523,7 @@ SCREENS.online = {
                 const me = r.user_id === Net.userId();
                 const val = {integrity:r.integrity+"%", dex_count:r.dex_count+"/386", level:"niv."+r.level,
                   shinies:r.shinies, best_streak:r.best_streak, best_ante:"ante "+r.best_ante,
-                  tower:"étage "+(r.tower||0), guardians:r.guardians+"/9"}[NET_BOARD_METRIC];
+                  tower:"palier "+(r.tower||0), guardians:r.guardians+"/9"}[NET_BOARD_METRIC];
                 return `<div class="item ${me?"on":""}">
                   <div class="lb-rank ${i<3?"top":""}">${i+1}</div>
                   <div class="grow"><div class="t">${esc(r.name||"Archiviste")}
@@ -332,7 +531,7 @@ SCREENS.online = {
                     ${r.tested?'<span class="tiny dim">test</span>':""}</div>
                     <div class="d">niv.${r.level} · ${r.dex_count} espèces · ${r.guardians}/9 verrous</div></div>
                   <b class="cy mono-num">${val}</b>
-                </div>`;}).join("")}</div>`}
+                </div>`;}).join("")}</div>${netFactionTally()}`}
       <div class="tiny dim" style="margin-top:8px">Les parties ayant utilisé le panneau de test sont
         signalées, pas exclues.</div>`;
   },
@@ -409,13 +608,52 @@ ACTIONS.netverify = () => {
   if(!otp){ toast("Saisissez le code", "bad", "cross"); return; }
   netRun(async ()=>{
     await Net.verifyCode(mail, otp);
-    const remote = await Net.pull();
-    const verdict = netCompare(remote);
-    if(verdict === "pull" && remote) netAskPull(remote);
-    else await Net.push();
+    await netSyncSmart("login");
   }, "Connecté");
 };
-ACTIONS.netsignout = () => { Net.signOut(); toast("Déconnecté", "", "check"); refresh(); };
+ACTIONS.netsignout = () => { Net.signOut(); NET_CONFLICT = false; toast("Déconnecté", "", "check"); refresh(); };
+ACTIONS.netauthmode = d => { NET_AUTH_MODE = d.m; refresh(); };
+function netForm(){
+  const v = id => (document.getElementById(id)?.value || "").trim();
+  return {mail: v("net-mail"), pw: document.getElementById("net-pw")?.value || "", pseudo: v("net-pseudo")};
+}
+ACTIONS.netsignup = () => {
+  const f = netForm();
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(f.mail)){ toast("Adresse invalide", "bad", "cross"); return; }
+  if(f.pw.length < 8){ toast("Mot de passe : 8 caractères minimum", "bad", "cross"); return; }
+  if(f.pseudo){ S.name = f.pseudo.slice(0, 16); }
+  S.netMail = f.mail; saveSoon();
+  netRun(async ()=>{
+    const r = await Net.signUp(f.mail, f.pw, S.name);
+    if(r.session){ toast("Compte créé — vous êtes connecté", "", "check"); await netSyncSmart("login"); pwaAfterAuth(); }
+    else {
+      NET_AUTH_MODE = "signin";
+      sheet(`${sheetHead("Confirmez votre adresse")}
+        <div class="tiny muted">Un e-mail de confirmation vient d'être envoyé à <b>${esc(f.mail)}</b>.
+          Ouvrez le lien qu'il contient : vous reviendrez dans le jeu, connecté.</div>
+        <button class="btn pri wide" style="margin-top:10px" data-act="closesheet">Compris</button>`, true);
+    }
+  });
+};
+ACTIONS.netsignin = () => {
+  const f = netForm();
+  if(!f.mail || !f.pw){ toast("E-mail et mot de passe requis", "bad", "cross"); return; }
+  S.netMail = f.mail; saveSoon();
+  netRun(async ()=>{ await Net.signIn(f.mail, f.pw); await netSyncSmart("login"); pwaAfterAuth(); }, "Connecté");
+};
+ACTIONS.netforgot = () => {
+  const f = netForm();
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(f.mail)){ toast("Saisissez d'abord votre adresse", "bad", "cross"); return; }
+  netRun(()=>Net.recover(f.mail), "E-mail envoyé — suivez le lien pour choisir un nouveau mot de passe");
+};
+ACTIONS.netpwchange = () => netAskNewPassword();
+ACTIONS.netnewpw = () => {
+  const pw = document.getElementById("net-newpw")?.value || "";
+  if(pw.length < 8){ toast("8 caractères minimum", "bad", "cross"); return; }
+  closeSheet();
+  netRun(async ()=>{ await Net.setPassword(pw); await netSyncSmart("login"); }, "Mot de passe enregistré");
+};
+ACTIONS.netsyncnow = () => netRun(()=>netSyncSmart("manual"), "Synchronisé");
 ACTIONS.netpush = () => netRun(async ()=>{
   const remote = await Net.pull();
   if(netCompare(remote) === "pull"){ netAskPull(remote); return; }
@@ -431,7 +669,7 @@ function netAskPull(remote, manual){
   sheet(`${sheetHead("Sauvegarde distante plus récente")}
     <div class="tiny muted" style="margin-bottom:9px">
       ${manual ? "Vous avez demandé à récupérer la sauvegarde distante."
-               : "La sauvegarde distante porte une révision supérieure à la vôtre."}
+               : "Cet appareil et le cloud ont tous deux progressé depuis la dernière synchronisation."}
       Choisissez celle à conserver — l'autre sera écrasée.</div>
     <div class="panel tight">
       <div class="h sm">LOCALE — révision ${S.netRev||0}</div>
@@ -448,18 +686,16 @@ function netAskPull(remote, manual){
   Net._pending = remote;
 }
 ACTIONS.netkeeplocal = () => {
-  closeSheet();
+  closeSheet(); NET_CONFLICT = false;
   const r = Net._pending;
   S.netRev = (r ? r.rev : (S.netRev||0)) + 1;
   netRun(()=>Net.push(true), "Sauvegarde locale envoyée");
 };
 ACTIONS.netkeepremote = () => {
-  closeSheet();
+  closeSheet(); NET_CONFLICT = false;
   const r = Net._pending;
   if(!r || !r.payload) return;
-  S = deepFill(r.payload, newState());
-  S.netRev = r.rev;
-  save(); applyCorruption();
+  netApplyRemote(r);
   toast("Sauvegarde distante restaurée", "", "check");
   go("capture");
 };
@@ -513,10 +749,19 @@ ACTIONS.netoffers = () => netRun(async ()=>{
 let netAutoTimer = null;
 function netAutoSync(){
   if(!Net.signedIn() || Net.busy) return;
-  Net.push().catch(()=>{});
+  netSyncSmart("auto");
 }
 function netStart(){
   Net.load();
   clearInterval(netAutoTimer);
-  netAutoTimer = setInterval(netAutoSync, 5*60*1000);
+  netAutoTimer = setInterval(netAutoSync, 2*60*1000);
+  if(typeof document !== "undefined" && !netStart.bound){
+    netStart.bound = true;
+    /* en quittant l'application (onglet masque, telephone verrouille) : on envoie */
+    document.addEventListener("visibilitychange", ()=>{
+      if(document.hidden && Net.signedIn() && netDirty() && !NET_CONFLICT) netSyncSmart("leaving");
+    });
+  }
+  netHandleAuthLink();
+  if(Net.signedIn()) setTimeout(()=>netSyncSmart("start"), 1500);
 }

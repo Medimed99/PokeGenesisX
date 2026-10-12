@@ -201,7 +201,7 @@ const HELD_ITEMS = {
   h_coin:  {n:"Bourse percée",     rar:0, k:"coin",  spr:52,  d:"+20% de PokéCoins sur chaque capture."},
   h_xp:    {n:"Amplificateur",     rar:1, k:"xp",    spr:113, d:"+25% d'expérience."},
   h_berry: {n:"Baie Miracle",      rar:1, k:"catch", spr:43,  d:"+12% de taux de capture."},
-  h_rest:  {n:"Restes",            rar:1, k:"exp",   spr:143, d:"+1 restauration au départ de chaque expédition."},
+  h_rest:  {n:"Restes",            rar:1, k:"exp",   spr:143, d:"+1 Potion dans le sac au départ de chaque Expédition."},
   h_aff:   {n:"Collier de lien",   rar:2, k:"aff",   spr:133, d:"Double l'affinité gagnée par le compagnon."},
   h_rune:  {n:"Pièce Rune",        rar:2, k:"poker", spr:150, d:"Double les Fragments gagnés au Poké-Poker."},
   h_guard: {n:"Bandeau tactique",  rar:2, k:"boss",  spr:68,  d:"+12% de statistiques contre les Data Guardians."},
@@ -237,7 +237,7 @@ ACTIONS.heldpick = () => {
     ${owned.length ? `<div class="list">
       ${owned.map(id=>{ const it = HELD_ITEMS[id];
         return `<div class="item ${S.held.eq===id?"on":""}" data-act="heldset" data-id="${id}">
-          <span class="sprbox" style="width:36px;height:36px">${sprite(it.spr,false,"")}</span>
+          <div class="bag-ic">${itemIcon("held:" + id, 32) || `<span class="sprbox" style="width:36px;height:36px">${sprite(it.spr,false,"")}</span>`}</div>
           <div class="grow"><div class="t">${esc(it.n)}
             <span class="tt rar r${it.rar}" style="--rc:${RARITY[it.rar].c}">${RARITY[it.rar].n}</span></div>
             <div class="d">${esc(it.d)}</div></div>
@@ -263,12 +263,13 @@ const WEEKLY_POOL = [
   {id:"w_catch", n:"Restaurer {n} entités",              goal:[220,340,520], stat:"wkCatch"},
   {id:"w_new",   n:"Archiver {n} espèces inédites",      goal:[14,22,30],    stat:"wkNew"},
   {id:"w_rare",  n:"Capturer {n} Pokémon rares ou plus", goal:[30,50,80],    stat:"wkRare"},
-  {id:"w_exp",   n:"Terminer {n} expéditions",           goal:[3,5,8],       stat:"wkExp"},
+  {id:"w_exp",   n:"Réussir {n} Expéditions",           goal:[3,5,8],       stat:"wkExp"},
   {id:"w_poker", n:"Encaisser {n} manches de Poké-Poker",goal:[20,32,48],    stat:"wkPoker"},
-  {id:"w_boss",  n:"Affronter {n} Data Guardians",       goal:[2,3,5],       stat:"wkBoss"},
+  {id:"w_boss",  n:"Affronter {n} verrous légendaires",  goal:[2,3,5],       stat:"wkBoss"},
+  {id:"w_tower", n:"Remporter {n} combats dans la Tour", goal:[15,25,40],    stat:"wkTower"},
   {id:"w_evo",   n:"Faire évoluer {n} Pokémon",          goal:[5,8,12],      stat:"wkEvo"},
-  {id:"w_fish",  n:"Réussir {n} sondages",               goal:[25,40,60],    stat:"wkFish"},
-  {id:"w_energy",n:"Produire {n} d'Énergie Onirique",    goal:[25000,60000,120000], stat:"wkEnergy"}
+  {id:"w_fish",  n:"Remonter {n} prises à la pêche",               goal:[25,40,60],    stat:"wkFish"},
+  {id:"w_energy",n:"Forer {n} d'Énergie",    goal:[25000,60000,120000], stat:"wkEnergy"}
 ];
 const WEEKLY_REWARDS = [
   {cores:3, chest:"small"},
@@ -282,16 +283,22 @@ function weekKey(){
   const y0 = new Date(t.getFullYear(), 0, 1);
   return t.getFullYear() + "-S" + Math.ceil(((t - y0) / 86400000 + 1) / 7);
 }
+const WEEKLY_NEEDS = {wkFish:()=>!!S.rod, wkEnergy:()=>moduleUnlocked("idle"),
+  wkPoker:()=>moduleUnlocked("poker"), wkBoss:()=>moduleUnlocked("boss") && (S.bosses.length > 0 || (typeof sqLockReady === "function" && sqLockReady())),
+  wkExp:()=>moduleUnlocked("expedition"), wkTower:()=>moduleUnlocked("tower")};
+function weeklyDoable(q){ const need = WEEKLY_NEEDS[q.stat]; return !need || need(); }
 function rollWeekly(){
   const tier = clamp(Math.floor(S.level/14), 0, 2);
   S.weekly = {
     week: weekKey(),
     tier,
-    quests: shuffle(WEEKLY_POOL).slice(0,3).map(q=>({
+    /* seulement des objectifs faisables cette semaine : une salle pas encore
+       ouverte ne peut pas fournir l'objectif de la semaine */
+    quests: shuffle(WEEKLY_POOL.filter(weeklyDoable)).slice(0,3).map(q=>({
       id:q.id, n:q.n.replace("{n}", fmt(q.goal[tier])), goal:q.goal[tier],
       stat:q.stat, prog:0, claimed:false
     })),
-    wk: {wkCatch:0, wkNew:0, wkRare:0, wkExp:0, wkPoker:0, wkBoss:0, wkEvo:0, wkFish:0, wkEnergy:0}
+    wk: {wkCatch:0, wkNew:0, wkRare:0, wkExp:0, wkPoker:0, wkBoss:0, wkTower:0, wkEvo:0, wkFish:0, wkEnergy:0}
   };
 }
 function weeklyRollover(){
@@ -300,7 +307,7 @@ function weeklyRollover(){
 /* les compteurs hebdomadaires suivent les memes evenements que les quotidiens */
 const DAILY_TO_WEEKLY = {
   dayCatch:"wkCatch", dayNew:"wkNew", dayRare:"wkRare", dayExp:"wkExp",
-  dayPokerBlinds:"wkPoker", dayBoss:"wkBoss", dayEvo:"wkEvo", dayFish:"wkFish", dayEnergy:"wkEnergy"
+  dayPokerBlinds:"wkPoker", dayBoss:"wkBoss", dayTower:"wkTower", dayEvo:"wkEvo", dayFish:"wkFish", dayEnergy:"wkEnergy"
 };
 function weeklyTick(stat, n){
   if(!S.weekly) return;
@@ -386,11 +393,11 @@ function rewardItems(rw){
   const out = [];
   for(const k in rw){
     if(k === "balls") for(const b in rw.balls)
-      out.push({icon:BALLS[b].icon, label:`${rw.balls[b]} ${BALLS[b].name}`, color:"var(--cyan)"});
+      out.push({icon:BALLS[b].icon, item:"ball:" + b, label:`${rw.balls[b]} ${BALLS[b].name}`, color:"var(--cyan)"});
     else if(k === "berries") for(const b in rw.berries)
-      out.push({icon:"seed", label:`${rw.berries[b]} ${BERRIES[b].name}`, color:"var(--green)"});
-    else if(k === "cos" && COSMETICS[rw.cos])
-      out.push({icon:"star", label:COSMETICS[rw.cos].n, sub:"cosmétique", color:"var(--amber)", big:true});
+      out.push({icon:"seed", item:"berry:" + b, label:`${rw.berries[b]} ${BERRIES[b].name}`, color:"var(--green)"});
+    else if(k === "cos") for(const c of [].concat(rw.cos)) if(COSMETICS[c])
+      out.push({icon:"star", html:cosIcon(c, 34), label:COSMETICS[c].n, sub:"cosmétique", color:"var(--amber)", big:true});
     else if(["coins","shards","cores"].includes(k))
       out.push({icon:k === "cores" ? "core" : k === "shards" ? "shard" : "coin",
                 label:`${fmt(rw[k])} ${CUR_NAME[k]}`,
@@ -405,7 +412,7 @@ function revealSheet(title, items, opts){
     <div class="h" style="justify-content:center">${esc(title)}</div>
     ${opts.sub?`<div class="tiny muted" style="margin:-4px 0 8px">${opts.sub}</div>`:""}
     <div class="rv-stage" id="rv-stage">
-      <div class="rv-chest" id="rv-chest">${ic(opts.icon || "chest")}</div>
+      <div class="rv-chest" id="rv-chest">${opts.item && itemIcon(opts.item, 64) ? itemIcon(opts.item, 64) : ic(opts.icon || "chest")}</div>
       <div class="rv-glow" id="rv-glow"></div>
     </div>
     <div class="rv-list" id="rv-list"></div>
@@ -440,7 +447,9 @@ function runReveal(items){
       el.className = "rv-item";
       el.style.setProperty("--ic", it.color || "var(--cyan)");
       el.innerHTML = `
-        <span class="rv-ic">${it.id !== undefined
+        <span class="rv-ic">${it.html ? it.html
+          : it.item && itemIcon(it.item, 30) ? itemIcon(it.item, 30)
+          : it.id !== undefined
           ? `<span class="sprbox" style="width:34px;height:34px">${sprite(it.id, it.shiny, "")}</span>`
           : ic(it.icon || "star")}</span>
         <span class="rv-lb">${esc(it.label)}</span>

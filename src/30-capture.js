@@ -34,7 +34,7 @@ function featuredId(){
   for(const r of unlockedRegions())
     for(let i=r.from;i<=r.to;i++){
       const p = POKE[i];
-      if(p && p.leg === 0 && p.rar <= 3) pools[p.rar].push(i);
+      if(p && p.leg === 0 && p.rar <= 3 && !isExclusive(i)) pools[p.rar].push(i);
     }
   const tot = FEATURED_TIER_W.reduce((a,b,i)=>a + (pools[i].length ? b : 0), 0);
   let x = h % Math.max(1, tot), tier = 0;
@@ -77,13 +77,13 @@ function speciesForRarity(rar){
   const out = [];
   for(let i=r.from; i<=r.to; i++){
     const p = POKE[i]; if(!p) continue;
-    if(p.rar !== rar) continue;
+    if(p.rar !== rar || isExclusive(i)) continue;
     if(isGuardianSpecies(i) && !isReleasedGuardian(i)) continue;   /* verrou encore actif */
     if(p.leg === 1 && !isReleasedGuardian(i)) { if(rar === 5 && dexRegionPct(S.region) < 60) continue; }
     out.push(i);
   }
   if(!out.length){
-    for(let i=r.from;i<=r.to;i++) if(POKE[i] && POKE[i].leg===0) out.push(i);
+    for(let i=r.from;i<=r.to;i++) if(POKE[i] && POKE[i].leg===0 && !isExclusive(i)) out.push(i);
   }
   return pick(out);
 }
@@ -101,6 +101,7 @@ function shinyOdds(){
   if(boostActive("shiny")) base *= 2;
   if(luckyF("shiny")) base *= luckyF("shiny");
   base *= perkMul("p_shiny", 0.20);
+  base *= charmMul();
   return Math.min(base, 0.025);
 }
 function shinyOddsText(){ return "1 sur " + fmt(Math.round(1/shinyOdds())); }
@@ -131,11 +132,21 @@ function shinyEntrance(){
   ]));
 }
 
+/* Apres une capture ou une fuite : en Peche, on revient a la ligne au lieu
+   de tirer une rencontre classique. Tout passe par ici, pour qu'aucun chemin
+   n'oublie le mode — c'etait le cas de quatre appels differents. */
+function nextEncounter(){
+  if(S.capMode === "fish"){ ENC = null; return null; }
+  return newEncounter();
+}
+
 function newEncounter(force){
   const featured = featuredId();
   let rar, id;
   if(!force && rng() < 0.08){ id = featured; rar = POKE[id].rar; }
-  else { rar = force?.rar ?? rollRarity(); id = force?.id ?? speciesForRarity(rar); rar = POKE[id].rar; }
+  else if(S.habitat === "safari" && isSafariDay()){ id = safariSpecies(); rar = POKE[id].rar; }
+  else { rar = force?.rar ?? repelRarity(rollRarity()); id = force?.id ?? speciesForRarity(rar); rar = POKE[id].rar; }
+  lureTick();
 
   /* apparition rare de la faille */
   const missChance = S.stats.catches > 60 && !S.flags.sawMissing ? 0.018 : 0.0016;
@@ -149,7 +160,7 @@ function newEncounter(force){
   if(!force && boostActive("new") && rng() < 0.2){
     const miss = [];
     const rg = regionDef(S.region);
-    for(let i=rg.from;i<=rg.to;i++) if(POKE[i] && !S.dex[i] && POKE[i].leg===0) miss.push(i);
+    for(let i=rg.from;i<=rg.to;i++) if(POKE[i] && !S.dex[i] && POKE[i].leg===0 && !isExclusive(i)) miss.push(i);
     if(miss.length){ id = pick(miss); rar = POKE[id].rar; }
   }
   const shiny = rng() < shinyOdds();
@@ -243,6 +254,50 @@ function lockAim(){
   throwBall(selBall(), bonus);
 }
 
+/* --- le cercle de lancer (facon Pokemon GO) ---
+   Un cercle colore retrecit en boucle autour du Pokemon ; sa couleur dit la
+   difficulte. On lance d'un seul toucher : plus le cercle est petit a cet
+   instant, plus le bonus est grand. Principe inchange : jamais de malus. */
+const RING_GRADES = [
+  {max:0.36, n:"Excellent", mul:1.35, c:"#ffd24a"},
+  {max:0.62, n:"Super",     mul:1.20, c:"#35f0d6"},
+  {max:0.88, n:"Bien",      mul:1.08, c:"#5ce07a"}
+];
+/* present a chaque lancer : meme quand la prise est quasi acquise, un
+   « Excellent » compte pour la quete du jour et les succes. Seules la Master
+   Ball (capture assuree) et MissingNo s'en passent. */
+function ringActive(){
+  if(!skillEnabled() || !ENC || ENC.missing || busy) return false;
+  return selBall() !== "master";
+}
+function ringPeriod(){ return Math.max(0.9, 1.6 - (ENC ? ENC.rar : 0) * 0.14); }
+function ringScale(){
+  if(!ENC) return 1;
+  if(!ENC.ringT0) ENC.ringT0 = (typeof performance !== "undefined" ? performance.now() : Date.now());
+  const P = ringPeriod() * 1000, now = (typeof performance !== "undefined" ? performance.now() : Date.now());
+  return 1 - (((now - ENC.ringT0) % P) / P) * 0.8;
+}
+function ringColor(c){ return c >= 0.6 ? "#5ce07a" : c >= 0.3 ? "#ffe45e" : c >= 0.15 ? "#ffb35c" : "#ff5c5c"; }
+function ringGrade(scale){ for(const g of RING_GRADES) if(scale <= g.max) return g; return null; }
+function ringHtml(){
+  if(!ringActive()) return "";
+  const P = ringPeriod(), sc = ringScale(), phase = (1 - sc) / 0.8 * P;
+  return `<div class="throw-ring" style="--rc:${ringColor(catchChance(selBall()))};--rp:${P.toFixed(2)}s">
+    <b class="tr-target"></b><i style="animation-delay:-${phase.toFixed(3)}s"></i></div>`;
+}
+function ringPop(g){
+  const st = document.getElementById("enc-stage");
+  if(!st) return;
+  const el = document.createElement("div");
+  el.className = "throw-grade g-" + g.n.toLowerCase();
+  el.style.color = g.c;
+  el.textContent = g.n + " !";
+  st.appendChild(el);
+  setTimeout(()=>el.remove(), 1100);
+  if(g.n === "Excellent"){ try { Sfx.shiny(); buzz([15, 30, 15]); } catch(e){} if(typeof burstEl === "function") burstEl(st, {n:18, spread:90, colors:["#ffd24a","#ffffff"], dur:700}); }
+  else { try { Sfx.wobble(); buzz(12); } catch(e){} }
+}
+
 /* --- lancer --- */
 function throwBall(ballKey, skill){
   if(busy || !ENC) return;
@@ -333,8 +388,13 @@ function onCatch(ballKey){
     setTimeout(()=>toast(`${POKE[ENC.id].name} est un exemplaire intègre ◈`, "warn", "star"), 500);
   }
   researchTick(ENC.id, "catch", 1);
+  rodDiscoveryTick();
+  rstreakCatch(ENC.rar);
+  factionPts(1);
+  rivalTick();
   if(ENC.shiny) researchTick(ENC.id, "shiny", 1);
   pikaLine(ENC.id);
+  if(typeof pzMuse === "function") pzMuse(ENC.id, isNew);
   contractTick(ENC.id, isNew);
 
   /* recompenses */
@@ -343,7 +403,7 @@ function onCatch(ballKey){
                             * (1 + S.level*0.014) * buddyBonus().coin
                             * (heldActive("coin") ? 1.2 : 1)
                             * (boostActive("coin") ? 1.8 : 1) * (luckyF("coin") || 1)
-                            * perkMul("p_coin", 0.15) * (cycleMod("m_econ") ? 0.5 : 1)
+                            * perkMul("p_coin", 0.15) * (cycleMod("m_econ") ? 0.5 : 1) * runeMul() * factionMul("coins")
                             * (weatherDef().gain || 1));
   if(S.buffs.sitrus) coins *= 2;
   if(eventActive("ev_coin")) coins *= 2;
@@ -427,7 +487,7 @@ function onFail(ballKey){
     const sp = document.getElementById("enc-sprite");
     if(sp) sp.classList.add("flee");
     ENC = null;
-    setTimeout(()=>{ newEncounter(); refresh(); }, 420);
+    setTimeout(()=>{ nextEncounter(); refresh(); }, 420);
   } else refresh();
   checkAchievements();
   guideTick();
@@ -437,6 +497,7 @@ function onFail(ballKey){
 /* rupture de chaine : c'est le seul evenement punitif du module, il doit se voir */
 function breakStreak(){
   const lost = S.streak;
+  rstreakBreak(ENC.rar);
   S.streak = 0;
   S.chainShiny = 0;
   S.lastBreak = {n: lost, t: Date.now()};
@@ -467,7 +528,7 @@ function resolveMissing(ballKey){
       return;
     }
     save();
-    if(!checkStoryTriggers()){ newEncounter(); refresh(); }
+    if(!checkStoryTriggers()){ nextEncounter(); refresh(); }
   }, 900);
 }
 
@@ -593,7 +654,7 @@ ACTIONS.dcdone = () => {
   const box = document.getElementById("discover");
   if(box){ box.className = ""; box.innerHTML = ""; box.onclick = null; }
   if(DISCOVER){ DISCOVER.timers.forEach(t=>{ clearTimeout(t); clearInterval(t); }); DISCOVER = null; }
-  if(!checkStoryTriggers()){ newEncounter(); refresh(); }
+  if(!checkStoryTriggers()){ nextEncounter(); refresh(); }
 };
 
 function showCatchResult(c, rw){
@@ -620,7 +681,7 @@ function showCatchResult(c, rw){
       <button class="btn pri wide" data-act="nextenc">Rencontre suivante</button>
     </div>`, true);
 }
-ACTIONS.nextenc = () => { closeSheet(); if(!checkStoryTriggers()){ newEncounter(); refresh(); } };
+ACTIONS.nextenc = () => { closeSheet(); if(!checkStoryTriggers()){ nextEncounter(); refresh(); } };
 
 /* --- ecran --- */
 
@@ -643,13 +704,16 @@ const REGION_THEME = {
          hz:"rgba(79,178,255,.18)", dot:"#4fb2ff"}
 };
 function selBall(){
+  /* au Parc Safari, seule la Safari Ball sert ; ailleurs, elle ne sert pas */
+  if(S.habitat === "safari" && isSafariDay() && S.capMode !== "fish") return "safari";
   const k = S.selBall || "poke";
-  return BALLS[k] ? k : "poke";
+  return (BALLS[k] && k !== "safari") ? k : "poke";
 }
 
 SCREENS.capture = {
   html(){
-    if(!ENC && !busy) newEncounter();
+    safariRollover();
+    if(!ENC && !busy && S.capMode !== "fish") newEncounter();
     const regions = unlockedRegions();
     const locked = REGIONS.filter(r=>!regionUnlocked(r.key));
     const ev = currentEvent();
@@ -664,17 +728,20 @@ SCREENS.capture = {
         ${esc(r.name)} <b class="mono-num">${dexCount(r.key)}/${r.to-r.from+1}</b></button>`).join("")}
       ${locked.map(r=>{
         const g = regionGate(r.key);
+        /* on n'affiche jamais le nom du verrou : c'est toute la surprise */
         return `<button class="chip locked" data-act="regioninfo" data-r="${r.key}">
           ${ic("lock")} ${esc(r.name)}
-          <em>${esc(g.core.name)}</em></button>`;}).join("")}
+          <em>${g.done ? "ouvert" : "verrouillé"}</em></button>`;}).join("")}
     </div>
 
-    ${habitatBar()}
+    ${capModeBar()}
+    ${S.capMode === "fish" ? "" : habitatBar()}
     ${weatherBanner()}
+    ${S.capMode === "fish" ? "" : lureStrip()}
     ${luckyBanner()}
     ${boostStrip()}
 
-    ${this.stage()}
+    ${(S.capMode === "fish" && !ENC) ? fishStage() : this.stage()}
 
     <div class="streakbox" style="margin-bottom:9px">
       <span class="tiny dim">CHAÎNE</span>${infoBtn("streak")}${infoBtn("rarete")}
@@ -686,14 +753,15 @@ SCREENS.capture = {
       }).join("")}</span>
       <span class="tiny dim center" style="line-height:1.3">chroma<br><b class="gold-t">${shinyOddsText()}</b></span>
     </div>
+    ${S.capMode === "fish" ? "" : rstreakRow()}
 
     <div class="ballrow">
-      ${Object.entries(BALLS).map(([k,b])=>{
+      ${Object.entries(BALLS).filter(([k])=>(k === "safari") === (selBall() === "safari")).map(([k,b])=>{
         const n = S.balls[k] || 0;
         const c = ENC && !ENC.missing ? Math.round(catchChance(k)*100) : 0;
         return `<button class="ballpick ${sb===k?"on":""}" data-act="pickball" data-b="${k}" ${n<=0?"disabled":""}>
           ${sb===k&&ENC&&!ENC.missing?`<span class="odds">${c}%</span>`:""}
-          ${ic(b.icon)}<b>${esc(b.name.split(" ")[0])}</b><span class="ct">${n}</span>
+          ${itemOr("ball:" + k, b.icon, 26)}<b>${esc(b.name.split(" ")[0])}</b><span class="ct">${n}</span>
         </button>`;}).join("")}
     </div>
 
@@ -707,7 +775,6 @@ SCREENS.capture = {
       ${AIM ? "VERROUILLER"
         : ENC ? (stock<=0 ? "STOCK ÉPUISÉ"
           : ENC.missing ? "ANALYSER LA FAILLE"
-          : aimNeeded() ? `VISER — ${Math.round(chance*100)}%`
           : `LANCER — ${Math.round(chance*100)}%`) : "ANALYSE EN COURS"}
     </button>
 
@@ -719,7 +786,7 @@ SCREENS.capture = {
         const on = S.buffs[k]||(k==="micle"&&S.shinyCharge>0);
         return `<span class="berrychip ${on?"on":""} ${(S.berries[k]||0)<=0?"off":""}">
           <button class="bc-use" data-act="berry" data-k="${k}" ${(S.berries[k]||0)<=0?"disabled":""}>
-            ${ic("seed")}<span>${esc(b.name.replace("Baie ",""))}</span>
+            ${itemOr("berry:" + k, "seed", 22)}<span>${esc(b.name.replace("Baie ",""))}</span>
             <em>${esc(BERRY_TAG[k])}</em><b>${S.berries[k]||0}</b></button>
           <button class="bc-i" data-act="berryinfo" data-k="${k}" aria-label="Détail">i</button>
         </span>`;}).join("")}
@@ -789,7 +856,7 @@ SCREENS.capture = {
         ${ENC.featured?'<span class="tt" style="color:var(--cyan);border-color:var(--cyan)">VEDETTE</span>':""}
         ${isNew?'<span class="tt" style="color:var(--green);border-color:var(--green)">INÉDIT</span>':""}
       </div>
-      <div id="enc-sprite">${sprite(ENC.id, ENC.shiny, "", {anim:true, eager:true})}</div>
+      <div id="enc-sprite">${sprite(ENC.id, ENC.shiny, "", {anim:true, eager:true})}${ringHtml()}</div>
       <div class="enc-foot">
         <span class="tiny dim">${ENC.attempts?`essais ${ENC.attempts}`:"intacte"}</span>
         <span class="tiny"><b>Niv.${ENC.level}</b></span>
@@ -813,9 +880,22 @@ SCREENS.capture = {
 };
 ACTIONS.pickball = d => { S.selBall = d.b; saveSoon(); refresh(); };
 ACTIONS.throwsel = () => {
-  if(AIM){ lockAim(); return; }
-  if(aimNeeded()){ startAim(); return; }
-  throwBall(selBall(), 1);
+  if(AIM) stopAim();
+  let bonus = 1;
+  if(ringActive()){
+    const g = ringGrade(ringScale());
+    if(g){
+      bonus = g.mul;
+      S.stats.skill = (S.stats.skill || 0) + 1;
+      if(g.n === "Excellent"){
+        S.stats.excellent = (S.stats.excellent || 0) + 1;
+        S.daily.dayExcellent = (S.daily.dayExcellent || 0) + 1;
+        questTick("dayExcellent", 1);
+      }
+      ringPop(g);
+    }
+  }
+  throwBall(selBall(), bonus);
 };
 ACTIONS.aimlock = () => lockAim();
 ACTIONS.regioninfo = d => {
@@ -849,7 +929,7 @@ ACTIONS.regioninfo = d => {
       <div class="tiny dim mono-num" style="margin-top:3px">
         ${g.have} / ${g.need} espèces de ${esc(g.prev.name)} pour le dernier verrou</div>
     </div>
-    <button class="btn pri wide" data-act="goto" data-to="boss">Voir les Data Guardians</button>`, true);
+    <button class="btn pri wide" data-act="goto" data-to="boss">Voir les verrous dans la Tour</button>`, true);
 };
 ACTIONS.setregion = d => { S.region = d.r; ENC = null; saveSoon(); refresh(); };
 ACTIONS.throw = d => throwBall(d.b);
@@ -869,7 +949,7 @@ ACTIONS.berryinfo = d => {
   const b = BERRIES[d.k];
   sheet(`${sheetHead(b.n)}
     <div class="row" style="gap:11px">
-      <div class="bag-ic">${ic("seed")}</div>
+      <div class="bag-ic">${itemOr("berry:" + d.k, "seed", 32)}</div>
       <div class="grow"><div class="tiny">${esc(b.d)}</div>
         <div class="tiny dim" style="margin-top:5px">En réserve : ${S.berries[d.k]||0}</div></div>
     </div>

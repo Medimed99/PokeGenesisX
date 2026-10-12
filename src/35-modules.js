@@ -287,15 +287,15 @@ function offlineReport(){
   if(away < 300000) return null;
   const cap = offlineHours() * 3600 * 1000;
   const t = Math.min(away, cap) / 1000;
-  return {away, capped: away > cap, t,
+  return {away, capped: away > cap,
+          energy: Math.floor(forageRate() * t),
           coins:  Math.floor(dexTotal() * 0.9 * (t / 3600))};
 }
 function showOfflineReport(){
   const r = offlineReport();
   if(!r) return false;
-  /* l'equipe de forage a creuse pendant l'absence : metres, Energie, parois */
-  const dig = forageOffline(r.t);
-  r.energy = Math.floor(dig.e);
+  const f = forage();
+  f.energy += r.energy; f.total += r.energy;
   gain("coins", r.coins);
   save();
   sheet(`<div class="center">
@@ -303,17 +303,17 @@ function showOfflineReport(){
       <div class="tiny muted" style="margin-bottom:10px">${fmtTime(r.away)} hors ligne${
         r.capped ? ` — le réservoir a saturé après ${offlineHours()} h` : ""}</div>
       <div class="baglist" style="text-align:left">
-        ${dig.m >= 1 ? `<div class="bagrow"><div class="bag-ic">${ic("bolt")}</div>
-          <div class="grow"><div class="bag-n">Forage : +${fmt(Math.floor(dig.m))} m</div>
-            <div class="bag-d">${fmt(r.energy)} Énergie${dig.w ? ` · ${dig.w} paroi${dig.w > 1 ? "s" : ""} à fouiller` : ""}${dig.strata.length ? ` · ${esc(STRATA[dig.strata[dig.strata.length - 1]].n)} atteinte` : ""}</div></div>
-          <b class="rp-d">${forage().walls ? forage().walls + " ⛏" : ""}</b></div>` : ""}
+        <div class="bagrow"><div class="bag-ic">${ic("bolt")}</div>
+          <div class="grow"><div class="bag-n">Énergie forée</div>
+            <div class="bag-d">les sondes ont continué sans vous</div></div>
+          <b class="rp-d">+${fmt(r.energy)}</b></div>
         <div class="bagrow"><div class="bag-ic">${ic("coin")}</div>
           <div class="grow"><div class="bag-n">PokéCoins des archives</div>
             <div class="bag-d">${dexTotal()} espèces archivées rapportent en continu</div></div>
           <b class="rp-d">+${fmt(r.coins)}</b></div>
       </div>
       ${r.capped ? `<div class="tiny" style="margin-top:9px;color:var(--amber)">
-        L'équipe de forage s'est arrêtée à ${offlineHours()} h. La « Réserve de parois » repousse cette limite.</div>` : ""}
+        Le réservoir est plein. L'axe « Réservoir » des Échos le repousse.</div>` : ""}
       <button class="btn pri wide" style="margin-top:12px" data-act="closeandrefresh">Récupérer</button>
     </div>`, true);
   return true;

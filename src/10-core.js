@@ -64,7 +64,7 @@ function newState(){
     stats: {catches:0, shinies:0, bestStreak:0, expWins:0, expRuns:0, pokerWins:0, pokerBest:0,
             energyTotal:0, evolutions:0, fish:0, throws:0, spend:0, bossWins:0, boxOpens:0},
     daily: {day:"", firstWin:{}, dayCatch:0, dayNew:0, dayStreak:0, dayFish:0, daySpend:0, dayExp:0,
-            dayPokerBlinds:0, dayRare:0, dayEvo:0, dayEnergy:0, dayThrow:0, dayBoss:0},
+            dayPokerBlinds:0, dayRare:0, dayEvo:0, dayEnergy:0, dayThrow:0, dayBoss:0, dayTower:0, dayExcellent:0},
     quests: [], questDay: "", lastQuestIds: [],
     weekly: null,
     buddy: null,
@@ -77,6 +77,10 @@ function newState(){
     nightSeen: "",
     research: {}, researchTiers: [], report: null,
     fragments: [], rift: {stage:0, seen:0},
+    capMode: "classic", rod: 0, repel: 0, lure: null, rstreak: [0,0,0,0,0,0], rstreakBest: [0,0,0,0,0,0],
+    perm: {}, codes: [], safariWeek: "", faction: null,
+    forage: {energy:0, total:0, depth:0, drills:{}, echoes:0, perks:{},
+             combo:0, comboAt:0, vein:0, best:0, resets:0, found:0},
     habitat: "route", weather: "clair", weatherUntil: 0,
     expMode: "classic", hall: [], tower: {buffs:{}, best:0, runs:0, points:0}, towerRun: null,
     zero: 0, perks: {}, cycle: {n:0, mods:[]}, nextMods: [], lifetime: {catches:0, shinies:0, cycles:0},
@@ -118,6 +122,8 @@ function load(){
     const merged = deepFill(d, base);
     merged.v = SAVE_VER;
     merged.cards = migrateCards(merged.cards);
+    /* l'ancienne ascension de la Tour n'existe plus : un parcours en cours n'a nulle part ou reprendre */
+    merged.towerRun = null;
     return merged;
   } catch(e){ console.warn("sauvegarde illisible", e); return null; }
 }
@@ -139,6 +145,7 @@ function yesterdayStr(){ const d = new Date(Date.now()-864e5); return d.getFullY
 const CUR_NAME = {coins:"PokéCoins", shards:"Fragments", cores:"Noyaux", energy:"Énergie"};
 function gain(cur, n){
   if(n <= 0) return;
+  if(cur === "shards" && typeof factionMul === "function") n = Math.round(n * factionMul("shards"));
   S[cur] = (S[cur]||0) + n;
   if(cur === "energy") S.stats.energyTotal += n;
   Bus.emit("currency", {cur, n});
@@ -178,6 +185,7 @@ function addXp(n){
 /* --- integrite du monde --- */
 function addIntegrity(n){
   if(cycleMod("m_slow")) n *= 0.6;
+  if(typeof factionMul === "function") n *= factionMul("integ");
   if(n<=0) return;
   const before = S.integrity;
   Bus.emit("integGain", n);
@@ -238,9 +246,13 @@ function rollQuests(){
   const banned = new Set(S.lastQuestIds || []);
   const chosen = [], used = new Set();
   for(const tier of mix){
-    const pool = QUEST_POOLS[tier].filter(q=>!used.has(q.id) && !banned.has(q.id));
+    /* jamais une quete impossible : la peche exige une canne, le forage son module */
+    const NEED = {dayEnergy:"idle", dayExp:"expedition", dayTower:"tower", dayPokerBlinds:"poker", dayBoss:"boss"};
+    const doable = q => !(q.stat === "dayFish" && !S.rod) && !(NEED[q.stat] && !moduleUnlocked(NEED[q.stat]))
+      && !(q.stat === "dayBoss" && !(typeof sqLockReady === "function" && (sqLockReady() || S.bosses.length)));
+    const pool = QUEST_POOLS[tier].filter(q=>doable(q) && !used.has(q.id) && !banned.has(q.id));
     /* si l'anti-repetition vide le réserve, on relache la contrainte plutot que d'echouer */
-    const src = pool.length ? pool : QUEST_POOLS[tier].filter(q=>!used.has(q.id));
+    const src = pool.length ? pool : QUEST_POOLS[tier].filter(q=>doable(q) && !used.has(q.id));
     if(!src.length) continue;
     const q = pick(src);
     used.add(q.id);
@@ -286,7 +298,7 @@ function dailyRollover(){
   const t = today();
   if(S.daily.day !== t){
     S.daily = {day:t, dayCatch:0, dayNew:0, dayStreak:0, dayFish:0, daySpend:0, dayExp:0,
-               dayPokerBlinds:0, dayRare:0, dayEvo:0, dayEnergy:0, dayThrow:0, dayBoss:0, firstWin:{}};
+               dayPokerBlinds:0, dayRare:0, dayEvo:0, dayEnergy:0, dayThrow:0, dayBoss:0, dayTower:0, dayExcellent:0, firstWin:{}};
   }
   if(S.questDay !== t) rollQuests();
   /* serie de connexion */
@@ -329,7 +341,7 @@ function grantReward(rw){
     if(k === "balls"){ for(const b in rw.balls) S.balls[b] = (S.balls[b]||0) + rw.balls[b]; }
     else if(k === "berries"){ for(const b in rw.berries) S.berries[b] = (S.berries[b]||0) + rw.berries[b]; }
     else if(k === "stones"){ for(const b in rw.stones) S.stones[b] = (S.stones[b]||0) + rw.stones[b]; }
-    else if(k === "cos"){ unlockCosmetic(rw.cos); }
+    else if(k === "cos"){ [].concat(rw.cos).forEach(unlockCosmetic); }
     else if(k === "dex"){ addToDex(rw.dex, 5, false); }
     else gain(k, rw[k]);
   }
@@ -340,7 +352,8 @@ function rewardText(rw){
     if(k === "balls") for(const b in rw.balls) out.push(`${rw.balls[b]} ${BALLS[b].name}`);
     else if(k === "berries") for(const b in rw.berries) out.push(`${rw.berries[b]} ${BERRIES[b].name}`);
     else if(k === "stones") for(const b in rw.stones) out.push(`${rw.stones[b]} ${STONES[b].name}`);
-    else if(k === "cos") out.push("Cosmétique : " + (COSMETICS[rw.cos]?.n||""));
+    else if(k === "cos") out.push("Cosmétique" + ([].concat(rw.cos).length > 1 ? "s" : "") + " : "
+      + [].concat(rw.cos).map(c=>COSMETICS[c]?.n || "").join(", "));
     else if(k === "dex") out.push(POKE[rw.dex].name);
     else out.push(`${fmt(rw[k])} ${CUR_NAME[k]||k}`);
   }
@@ -409,24 +422,44 @@ function fmtTime(ms){
 
 /* --- deverrouillage des modules --- */
 /* Ordre de deblocage : chaque module prepare le suivant.
-   L'expedition monte le niveau de l'equipe, ce qui est la seule preparation
-   possible aux verrous — elle doit donc venir avant eux, pas apres.
+   Capture -> Expedition (les niveaux) -> Tour (l'equipe de quatre, les
+   competences) -> verrous legendaires au sommet des ailes de la Tour ->
+   le premier verrou leve laisse une faille : la Breche -> le Poke-Poker.
    La couveuse ne s'ouvre pas a un niveau : elle s'ouvre le jour ou le joueur
    ramene un oeuf d'expedition, ce qui en fait une decouverte et non un palier. */
 const MODULE_REQ = {
   capture:   {lv:1,  d:""},
   pokebox:   {lv:2,  d:"Niveau d'Archiviste 2"},
-  fishing:   {lv:3,  d:"Niveau d'Archiviste 3"},
   idle:      {lv:5,  d:"Niveau d'Archiviste 5"},
   expedition:{lv:8,  d:"Niveau 8 et 3 Pokémon dans l'équipe", extra:()=>S.team.length>=3},
-  boss:      {lv:12, d:"Niveau 12, 25 espèces archivées et une expédition menée à son terme",
-              extra:()=>dexTotal()>=25 && S.stats.expWins>=1},
-  eggs:      {lv:1,  d:"Ramener quelque chose d'inattendu d'une expédition",
+  tower:     {lv:10, d:"Niveau 10 et 4 espèces archivées", extra:()=>dexTotal()>=4},
+  /* les Data Guardians se tiennent au sommet des ailes de la Tour : on les
+     decouvre en battant le boss de la premiere aile */
+  boss:      {lv:10, d:"Battre le boss de la Forêt de Jade, dans la Tour",
+              extra:()=>dexTotal()>=4 && (S.bosses.length>0 || (typeof sqStars === "function" && sqStars(0, SQ_STAGES - 1, 0) > 0))},
+  /* la Breche s'ouvre par la faille que laisse le premier verrou leve
+     (les parties qui y avaient deja joue la gardent) */
+  breche:    {lv:12, d:"Niveau 12 et un premier verrou légendaire levé dans la Tour",
+              extra:()=>S.bosses.length>=1 || !!(S.breche && S.breche.runs)},
+  eggs:      {lv:1,  d:"Ramener quelque chose d'inattendu d'une Expédition",
               extra:()=>!!S.flags.eggFound, hidden:1},
-  poker:     {lv:15, d:"Niveau 15 et un verrou levé", extra:()=>S.bosses.length>=1},
-  tower:     {lv:18, d:"Niveau 18 et une expédition menée à son terme",
-              extra:()=>S.stats.expWins>=1}
+  poker:     {lv:15, d:"Niveau 15 et un verrou levé", extra:()=>S.bosses.length>=1}
 };
+/* ce qu'il reste a faire pour ouvrir une salle : seulement les conditions non remplies */
+const MODULE_NEED = {
+  expedition:[["3 Pokémon dans l'équipe", ()=>S.team.length>=3]],
+  tower:     [["4 espèces archivées", ()=>dexTotal()>=4]],
+  breche:    [["un premier verrou légendaire levé dans la Tour", ()=>S.bosses.length>=1 || !!(S.breche && S.breche.runs)]],
+  poker:     [["un verrou légendaire levé", ()=>S.bosses.length>=1]]
+};
+function moduleMissing(k){
+  const r = MODULE_REQ[k]; if(!r) return [];
+  const out = [];
+  if(S.level < r.lv) out.push(`Niveau d'Archiviste ${r.lv} (actuel : ${S.level})`);
+  for(const [t, ok] of (MODULE_NEED[k] || [])) if(!ok()) out.push(t);
+  if(!out.length && !moduleUnlocked(k)) out.push(r.d);
+  return out;
+}
 function moduleUnlocked(k){
   const r = MODULE_REQ[k]; if(!r) return true;
   if(S.level < r.lv) return false;

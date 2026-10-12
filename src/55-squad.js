@@ -432,8 +432,6 @@ function sqRewards(z, s, first, d){
     xp:Math.round((90 + z * 50 + s * 12) * k)
   };
 }
-let SQ_WING_PENDING = null;
-function sqWingFlush(){ const w = SQ_WING_PENDING; SQ_WING_PENDING = null; if(w && typeof momentWing === "function") momentWing(w.z, w.d); }
 function sqFinish(B){
   if(B.lock) return sqLockFinish(B);
   const q = sqState(), stars = sqStarsFor(B);
@@ -449,8 +447,6 @@ function sqFinish(B){
   const xps = B.allies.map(u => sqGiveXp(u.id, Math.round(base * (u.hp > 0 ? 1 : 0.5)))).filter(Boolean);
   if(B.result){
     q.st[`${B.d || 0}:${B.z}:${B.s}`] = Math.max(prev, stars);
-    /* une aile franchie pour la premiere fois : un moment, a la sortie des resultats */
-    if(!prev && B.s === SQ_STAGES - 1) SQ_WING_PENDING = {z:B.z, d:B.d || 0};
     q.clears = (q.clears || 0) + 1;
     S.daily.dayTower = (S.daily.dayTower || 0) + 1;
     if(typeof questTick === "function") questTick("dayTower", 1);

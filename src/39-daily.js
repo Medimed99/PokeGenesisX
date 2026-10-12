@@ -44,8 +44,9 @@ function todayRows(){
   }
   if(moduleUnlocked("idle")){
     const f = forage();
-    add(!f.walls, "bolt", "Forage", f.walls ? `${f.walls} paroi${f.walls > 1 ? "s" : ""} à fouiller` + (f.walls >= wallCap() ? " — réserve pleine" : "")
-        : `${STRATA[f.depth].n} · ${fmt(Math.floor(f.m))} m · ${fmt(Math.floor(f.energy))} Énergie`, "idle", f.walls > 0);
+    const vein = f.vein > Date.now();
+    add(!vein, "bolt", "Forage", vein ? "Un filon est ouvert : frappez maintenant."
+        : `${fmt(Math.floor(f.energy))} Énergie en réserve`, "idle", vein);
     if(typeof botReady === "function" && botReady())
       add(false, "capture", "Capture autonome", "Session terminée : des Pokémon attendent.", "idle", true);
   }

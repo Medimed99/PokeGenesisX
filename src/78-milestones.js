@@ -60,14 +60,17 @@ function showRegionTier(r, t, cos){
 const CONTRACT_MS = 6 * 3600 * 1000;
 const CONTRACTS = [
   {id:"c_type", n:"Archiver {n} Pokémon de type {x} à {r}", goal:[4,7,11],
-   pick:r=>randInt(1,18),
+   /* jamais un type absent du secteur (aucun Ténèbres a Kanto) : au moins 10 especes du type */
+   pick:r=>{ const R = regionDef(r), ok = [];
+     for(let t = 1; t <= 18; t++){ let n = 0; for(let id = R.from; id <= R.to; id++) if(POKE[id] && !POKE[id].leg && POKE[id].types.includes(t)) n++; if(n >= 10) ok.push(t); }
+     return ok.length ? pick(ok) : 1; },
    test:(id,d)=>POKE[id].types.includes(d.x) && regionOf(id) === d.r,
    label:d=>TYPE_NAMES[d.x]},
   {id:"c_rar",  n:"Capturer {n} Pokémon rares ou plus à {r}", goal:[3,5,8],
    pick:()=>2, test:(id,d)=>POKE[id].rar >= 2 && regionOf(id) === d.r, label:()=>"rare+"},
-  {id:"c_bst",  n:"Capturer {n} Pokémon d'au moins {x} en statistiques à {r}", goal:[4,6,9],
-   pick:()=>pick([380,430,480]),
-   test:(id,d)=>POKE[id].bst >= d.x && regionOf(id) === d.r, label:d=>d.x+" total"},
+  {id:"c_bst",  n:"Capturer {n} Pokémon robustes ({x} de statistiques ou plus) à {r}", goal:[4,6,9],
+   pick:()=>S.level < 13 ? 380 : pick([380,430,480]),
+   test:(id,d)=>POKE[id].bst >= d.x && regionOf(id) === d.r, label:d=>String(d.x)},
   {id:"c_evo",  n:"Archiver {n} espèces évoluées à {r}", goal:[5,8,12],
    pick:()=>0, test:(id,d)=>stageOf(id) > 0 && regionOf(id) === d.r, label:()=>"évoluées"},
   {id:"c_new",  n:"Archiver {n} espèces inédites à {r}", goal:[3,5,7],
@@ -180,10 +183,12 @@ function objectivesCard(){
 
 /* ---------- bonus de première victoire quotidienne ---------- */
 const FIRST_WIN = {
-  expedition:{n:"Expédition", mult:2},
-  poker:     {n:"Poké-Poker", mult:2},
-  boss:      {n:"Data Guardian", mult:2},
-  fishing:   {n:"Sonde", mult:2}
+  expedition:{n:"L'Expédition", mult:2},
+  tower:     {n:"La Tour", mult:2},
+  breche:    {n:"La Brèche", mult:2},
+  poker:     {n:"Le Poké-Poker", mult:2},
+  boss:      {n:"Les verrous", mult:2},
+  capture:   {n:"La pêche", mult:2}
 };
 function firstWinAvailable(k){
   S.daily.firstWin = S.daily.firstWin || {};
@@ -194,7 +199,7 @@ function consumeFirstWin(k){
   if(!firstWinAvailable(k)) return 1;
   S.daily.firstWin[k] = true;
   const m = FIRST_WIN[k].mult;
-  toast(`Première ${FIRST_WIN[k].n} du jour — récompenses ×${m}`, "warn", "star");
+  toast(`${FIRST_WIN[k].n} : première victoire du jour — récompenses ×${m}`, "warn", "star");
   Sfx.win();
   saveSoon();
   return m;
@@ -248,10 +253,10 @@ const REPORT_ROWS = [
   {k:"dex",        n:"Espèces archivées",   i:"dex"},
   {k:"shinies",    n:"Chromatiques",        i:"star"},
   {k:"research",   n:"Tâches de recherche", i:"eye"},
-  {k:"expWins",    n:"Expéditions bouclées",i:"boss"},
+  {k:"expWins",    n:"Expéditions réussies",i:"boss"},
   {k:"hatched",    n:"Éclosions",           i:"box"},
   {k:"cards",      n:"Illustrations",       i:"cards"},
-  {k:"tower",      n:"Meilleur étage",      i:"boss", abs:1}
+  {k:"tower",      n:"Meilleur palier de la Tour", i:"boss", abs:1}
 ];
 function showReport(){
   if(!reportReady()) return false;

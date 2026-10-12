@@ -35,6 +35,23 @@ function bootScreen(done){
       btn.textContent = "Entrer dans l'archive";
       btn.onclick = () => { el.style.display = "none"; el.innerHTML = ""; done(); };
       el.appendChild(btn);
+      /* tout premier ecran : proposer l'installation ne coute rien ici */
+      if(pwaInstallable()){
+        const a = document.createElement("button");
+        a.className = "boot-link";
+        a.innerHTML = "Installer sur l'écran d'accueil <span>· recommandé</span>";
+        a.onclick = () => pwaOffer("manual");
+        el.appendChild(a);
+      }
+      /* premier lancement de l'app installee : on peut reprendre une partie existante */
+      if(pwaStandalone()){
+        const r = document.createElement("button");
+        r.className = "btn wide";
+        r.style.marginTop = "8px";
+        r.textContent = "J'ai déjà une partie";
+        r.onclick = () => { PWA.restoreMode = true; el.style.display = "none"; el.innerHTML = ""; done(); };
+        el.appendChild(r);
+      }
       return;
     }
     const l = BOOT_LINES[i++];
@@ -93,7 +110,7 @@ let mainTimer = null;
 function startLoops(){
   clearInterval(mainTimer);
   mainTimer = setInterval(()=>{
-    idleTick();
+    forageTick(1);
     renderTopbar();
     if(S.event && S.event.until <= Date.now()){ S.event = null; rollEvent(); }
     if(currentScreen === "idle"){ /* le compteur se met a jour dans son propre intervalle */ }
@@ -113,6 +130,7 @@ function boot(){
   netStart();
   probeAnimated();
   installPwaBits();
+  pwaInit();
   const loaded = load();
   const fresh = !loaded;
   S = loaded || newState();
@@ -120,25 +138,48 @@ function boot(){
   applyCorruption();
   dailyRollover();
   checkNightFlag();
-  S.idle.last = Date.now();
 
   const enter = () => {
     startLoops();
+    if(fresh && PWA.restoreMode){
+      /* reprise d'une partie existante : pas d'introduction, directement la connexion
+         (la synchronisation recupere le cloud sans question, la partie etant neuve)
+         ou l'import d'une sauvegarde exportee */
+      if(!S.story.includes("intro")) S.story.push("intro");
+      save();
+      if(Net.configured()){ NET_AUTH_MODE = "signin"; NET_TAB = "compte"; go("online"); }
+      else { go("settings"); ACTIONS.importsave(); }
+      return;
+    }
     if(fresh){
       /* rien du jeu ne doit apparaitre derriere la scene d'ouverture */
-      playStory("intro", ()=>{ go("capture"); tutoMaybe("intro"); });
+      /* la cinematique remplace la scene d'ouverture ; elle en reprend toutes les idees */
+      playCine(CINE_INTRO, ()=>{
+        if(!S.story.includes("intro")) S.story.push("intro");
+        save(); go("capture");
+        /* juste apres l'ouverture : le nom (si la scene a ete passee avant la question),
+           le conseil d'installation, puis le tutoriel */
+        const next = () => pwaAfterIntro(()=>tutoMaybe("intro"));
+        if(!S.flags.named) askNameSheet(false, next);
+        else if(checkNameSecret()) tutoMaybe("intro");
+        else next();
+      });
       checkAchievements();
       save();
       return;
     }
     go("capture");
-    {
+    /* une partie d'avant le nom : Porygon-Z le demande, une seule fois */
+    if(!S.flags.named && S.name && S.name !== "ARCHIVISTE") S.flags.named = true;
+    if(!S.flags.named && !S.flags.nameAsked && S.story.includes("intro")) setTimeout(()=>askNameSheet(true), 1200);
+    else {
       if(!showOfflineReport()){ if(!showReport()){ if(!showLuckyDay()){
         if(!checkStoryTriggers()) refresh(); } } }
     }
     checkAchievements();
     guideTick();
     maybeNotify();
+    pwaSessionStart();
     save();
   };
 
@@ -153,7 +194,6 @@ document.addEventListener("visibilitychange", ()=>{
     if(!S) return;
     const rep = offlineReport();
     dailyRollover();
-    S.idle.last = Date.now();
     if(rep && rep.away > 300000) showOfflineReport();
     else refresh();
     maybeNotify();

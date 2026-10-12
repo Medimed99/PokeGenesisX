@@ -69,25 +69,34 @@ function spriteUrl(id, shiny){
 /* ---------- Regions ---------- */
 const REGIONS = [
   {key:"kanto", name:"Kanto",  act:1, from:1,   to:151, need:0,
-   desc:"Secteur racine. Le premier fragment du monde a avoir ete ecrit.",
+   desc:"Secteur racine. Le premier fragment du monde à avoir été écrit.",
    guardians:[
-     {id:146, name:"Sulfura",   need:25, title:"Gardien de la Combustion"},
-     {id:144, name:"Artikodin", need:60, title:"Gardien du Gel de Donnees"},
-     {id:150, name:"Mewtwo",    need:95, title:"Noyau de Kanto", core:true}
+     {id:146, name:"Sulfura",   need:25, title:"Gardien de la Combustion",
+      bye:"Tu as éteint ce que je brûlais pour tenir la porte. Je ne me souvenais plus d'avoir eu chaud autrement."},
+     {id:144, name:"Artikodin", need:60, title:"Gardien du Gel de Données",
+      bye:"J'avais gelé ce secteur pour qu'il ne pourrisse pas. Il peut respirer, maintenant. Moi aussi."},
+     {id:150, name:"Mewtwo",    need:95, title:"Noyau de Kanto", core:true,
+      bye:"On m'a créé pour obéir, puis on m'a demandé de garder. Personne ne m'avait encore demandé de partir."}
    ]},
   {key:"johto", name:"Johto",  act:2, from:152, to:251, need:95,
-   desc:"Couche heritee. Ecrite par-dessus Kanto, jamais nettoyee.",
+   desc:"Couche héritée. Écrite par-dessus Kanto, jamais nettoyée.",
    guardians:[
-     {id:243, name:"Raikou", need:20, title:"Gardien de la Decharge"},
-     {id:250, name:"Ho-Oh",  need:55, title:"Gardien de la Reecriture"},
-     {id:249, name:"Lugia",  need:85, title:"Noyau de Johto", core:true}
+     {id:243, name:"Raikou", need:20, title:"Gardien de la Décharge",
+      bye:"J'ai couru en rond dans ce câble pendant des cycles. Laisse-moi courir droit, une fois."},
+     {id:250, name:"Ho-Oh",  need:55, title:"Gardien de la Réécriture",
+      bye:"Chaque fois que le secteur mourait, je le réécrivais. Je ne savais plus quelle version était la vraie. Choisis-en une, toi."},
+     {id:249, name:"Lugia",  need:85, title:"Noyau de Johto", core:true,
+      bye:"Je dormais sous les données pour que la tempête ne les emporte pas. Si tu es là, c'est qu'elle est passée."}
    ]},
   {key:"hoenn", name:"Hoenn",  act:3, from:252, to:386, need:85,
-   desc:"Extension instable. Le systeme y a improvise sa propre geographie.",
+   desc:"Extension instable. Le système y a improvisé sa propre géographie.",
    guardians:[
-     {id:383, name:"Groudon",  need:25, title:"Gardien du Socle"},
-     {id:382, name:"Kyogre",   need:60, title:"Gardienne du Flux"},
-     {id:384, name:"Rayquaza", need:100,title:"Noyau de Hoenn", core:true}
+     {id:383, name:"Groudon",  need:25, title:"Gardien du Socle",
+      bye:"J'ai porté le sol de ce secteur sur mon dos. Il tient tout seul. Je ne savais pas qu'il pouvait."},
+     {id:382, name:"Kyogre",   need:60, title:"Gardienne du Flux",
+      bye:"J'ai retenu les marées pour qu'elles n'effacent rien. Elles peuvent revenir. Ce qu'on aime revient avec elles."},
+     {id:384, name:"Rayquaza", need:100,title:"Noyau de Hoenn", core:true,
+      bye:"Je surveillais le ciel en attendant que quelqu'un arrive. Je n'attendais personne en particulier. C'était toi."}
    ]}
 ];
 function regionOf(id){ return id<=151?"kanto":id<=251?"johto":"hoenn"; }
@@ -100,11 +109,13 @@ const BALLS = {
   super: {name:"Super Ball", mult:1.55, price:42,   cur:"coins", icon:"ball2",
           d:"Prise plus sûre. Sécurise les raretés moyennes et protège la chaîne."},
   hyper: {name:"Hyper Ball", mult:2.20, price:95,   cur:"coins", icon:"ball3",
-          d:"Compression agressive. À réserver aux entités rares et corrompues."},
+          d:"Prise agressive. À réserver aux Pokémon rares et altérés."},
   data:  {name:"Data Ball",  mult:1.90, price:9,    cur:"shards",icon:"ball4",
           d:"+60% d'intégrité rendue. Prise solide, payée en Fragments.",
           integBonus:1.6},
-  master:{name:"Master Ball",mult:255,  price:14,   cur:"cores", icon:"ball5", d:"Capture garantie. Ecrit directement dans l'archive."}
+  master:{name:"Master Ball",mult:255,  price:14,   cur:"cores", icon:"ball5", d:"Capture garantie. Écrit directement dans l'archive."},
+  safari:{name:"Safari Ball", mult:1.7, price:0, cur:"coins", icon:"ball2", hidden:1,
+          d:"Distribuée au Parc Safari, le week-end. Ne sert que là-bas."}
 };
 const BERRIES = {
   framby:{name:"Baie Framby", price:40,  cur:"coins", d:"+45% de taux de capture sur la prochaine tentative.", eff:"catch"},
@@ -233,43 +244,47 @@ function movesFor(p, level){
 
 /* ---------- Succes ---------- */
 const ACHIEVEMENTS = [
-  {id:"first",   n:"Premier octet",          d:"Restaurer une premiere entite.",                 hid:0, chk:s=>s.stats.catches>=1,        rw:{coins:150}},
+  {id:"first",   n:"Premier octet",          d:"Restaurer une première entité.",                 hid:0, chk:s=>s.stats.catches>=1,        rw:{coins:150}},
   {id:"c50",     n:"Archiviste stagiaire",   d:"50 captures.",                                   hid:0, chk:s=>s.stats.catches>=50,       rw:{coins:600}},
   {id:"c500",    n:"Archiviste titulaire",   d:"500 captures.",                                  hid:0, chk:s=>s.stats.catches>=500,      rw:{cores:2,cos:"title_titulaire"}},
   {id:"c2500",   n:"Conservateur du réel",   d:"2500 captures.",                                 hid:0, chk:s=>s.stats.catches>=2500,     rw:{cores:6,cos:"frame_gold"}},
   {id:"shiny1",  n:"Anomalie chromatique",   d:"Capturer un chromatique.",                       hid:0, chk:s=>s.stats.shinies>=1,        rw:{coins:900,cos:"title_chroma"}},
   {id:"shiny10", n:"Collectionneur d'erreurs",d:"10 chromatiques.",                              hid:0, chk:s=>s.stats.shinies>=10,       rw:{cores:4,cos:"fx_prism"}},
-  {id:"streak25",n:"Chaîne stable",          d:"Atteindre une serie de 25.",                     hid:0, chk:s=>s.stats.bestStreak>=25,    rw:{coins:800}},
-  {id:"streak100",n:"Flux ininterrompu",     d:"Atteindre une serie de 100.",                    hid:0, chk:s=>s.stats.bestStreak>=100,   rw:{cores:5,cos:"fx_stream"}},
-  {id:"dexK",    n:"Kanto restauré",         d:"Completer le Pokédex de Kanto.",                 hid:0, chk:s=>dexCount("kanto")>=151,    rw:{cores:8,cos:"bg_kanto"}},
-  {id:"dexJ",    n:"Johto restauré",         d:"Completer le Pokédex de Johto.",                 hid:0, chk:s=>dexCount("johto")>=100,    rw:{cores:8,cos:"bg_johto"}},
-  {id:"dexH",    n:"Hoenn restauré",         d:"Completer le Pokédex de Hoenn.",                 hid:0, chk:s=>dexCount("hoenn")>=135,    rw:{cores:8,cos:"bg_hoenn"}},
-  {id:"dex100",  n:"Cent entrées",           d:"100 especes distinctes archivees.",              hid:0, chk:s=>dexTotal()>=100,           rw:{coins:1500}},
-  {id:"dex386",  n:"Index complet",          d:"Les 386 especes archivees.",                     hid:0, chk:s=>dexTotal()>=386,           rw:{cores:25,cos:"title_index"}},
+  {id:"streak25",n:"Chaîne stable",          d:"Atteindre une série de 25.",                     hid:0, chk:s=>s.stats.bestStreak>=25,    rw:{coins:800}},
+  {id:"streak100",n:"Flux ininterrompu",     d:"Atteindre une série de 100.",                    hid:0, chk:s=>s.stats.bestStreak>=100,   rw:{cores:5,cos:"fx_stream"}},
+  {id:"dexK",    n:"Kanto restauré",         d:"Compléter le Pokédex de Kanto.",                 hid:0, chk:s=>dexCount("kanto")>=151,    rw:{cores:8,cos:"bg_kanto"}},
+  {id:"dexJ",    n:"Johto restauré",         d:"Compléter le Pokédex de Johto.",                 hid:0, chk:s=>dexCount("johto")>=100,    rw:{cores:8,cos:"bg_johto"}},
+  {id:"dexH",    n:"Hoenn restauré",         d:"Compléter le Pokédex de Hoenn.",                 hid:0, chk:s=>dexCount("hoenn")>=135,    rw:{cores:8,cos:"bg_hoenn"}},
+  {id:"dex100",  n:"Cent entrées",           d:"100 espèces distinctes archivées.",              hid:0, chk:s=>dexTotal()>=100,           rw:{coins:1500}},
+  {id:"dex386",  n:"Index complet",          d:"Les 386 espèces archivées.",                     hid:0, chk:s=>dexTotal()>=386,           rw:{cores:25,cos:"title_index"}},
   {id:"boss1",   n:"Premier verrou",         d:"Vaincre un Data Guardian.",                      hid:0, chk:s=>s.bosses.length>=1,        rw:{coins:1200}},
   {id:"bossAll", n:"Toutes les serrures",    d:"Vaincre les neuf Data Guardians.",               hid:0, chk:s=>s.bosses.length>=9,        rw:{cores:15,cos:"frame_void"}},
-  {id:"exp1",    n:"Première sonde",         d:"Terminer une expedition.",                       hid:0, chk:s=>s.stats.expWins>=1,        rw:{shards:60}},
-  {id:"exp10",   n:"Cartographe",            d:"Terminer 10 expeditions.",                       hid:0, chk:s=>s.stats.expWins>=10,       rw:{cores:4,cos:"title_sonde"}},
+  {id:"tw1",     n:"Première aile",          d:"Battre le boss de la Forêt de Jade, dans la Tour.", hid:0, chk:s=>typeof sqStars === "function" && sqStars(0, SQ_STAGES - 1, 0) > 0, rw:{coins:1000}},
+  {id:"twN",     n:"Six ailes",              d:"Battre le boss des six ailes de la Tour en Normal.", hid:0, chk:s=>typeof sqStars === "function" && SQ_ZONES.every((_, z)=>sqStars(z, SQ_STAGES - 1, 0) > 0), rw:{cores:4}},
+  {id:"tw3",     n:"Sans une égratignure",   d:"Gagner un boss d'aile avec trois étoiles.", hid:0, chk:s=>typeof sqStars === "function" && SQ_ZONES.some((_, z)=>[0, 1, 2].some(d=>sqStars(z, SQ_STAGES - 1, d) >= 3)), rw:{shards:60}},
+  {id:"twH",     n:"L'Enfer gravi",          d:"Battre le boss de la Route Victoire en Enfer.", hid:0, chk:s=>typeof sqStars === "function" && sqStars(SQ_ZONES.length - 1, SQ_STAGES - 1, 2) > 0, rw:{cores:10}},
+  {id:"exp1",    n:"Première sonde",         d:"Vaincre le noyau d'une Expédition.",                       hid:0, chk:s=>s.stats.expWins>=1,        rw:{shards:60}},
+  {id:"exp10",   n:"Cartographe",            d:"Vaincre 10 noyaux en Expédition.",                       hid:0, chk:s=>s.stats.expWins>=10,       rw:{cores:4,cos:"title_sonde"}},
   {id:"pk1",     n:"Première main",          d:"Gagner une partie de Poké-Poker.",               hid:0, chk:s=>s.stats.pokerWins>=1,      rw:{shards:80}},
   {id:"pk8",     n:"Lecteur de motifs",      d:"Gagner 8 parties de Poké-Poker.",                hid:0, chk:s=>s.stats.pokerWins>=8,      rw:{cores:5,cos:"fx_cards"}},
-  {id:"idle",    n:"Rêve persistant",        d:"Produire 50 000 d'Energie Onirique.",            hid:0, chk:s=>s.stats.energyTotal>=50000,rw:{cores:3}},
+  {id:"idle",    n:"Rêve persistant",        d:"Produire 50 000 d'Énergie Onirique.",            hid:0, chk:s=>s.stats.energyTotal>=50000,rw:{cores:3}},
   {id:"rich",    n:"Trésorier",              d:"Detenir 50 000 PokéCoins.",                      hid:0, chk:s=>s.coins>=50000,            rw:{cos:"frame_coin"}},
-  {id:"evo10",   n:"Chaîne d'évolution",     d:"Faire evoluer 10 Pokémon.",                      hid:0, chk:s=>s.stats.evolutions>=10,    rw:{coins:1200}},
-  {id:"fish50",  n:"Sondeur profond",        d:"50 prises a la peche.",                          hid:0, chk:s=>s.stats.fish>=50,          rw:{shards:70}},
-  {id:"login7",  n:"Habitude",               d:"7 jours de connexion d'affilee.",                hid:0, chk:s=>s.login.best>=7,           rw:{cores:2}},
-  {id:"login30", n:"Rituel",                 d:"30 jours de connexion d'affilee.",               hid:0, chk:s=>s.login.best>=30,          rw:{cores:10,cos:"title_rituel"}},
-  {id:"integ50", n:"Moitié réparée",         d:"Integrite du monde a 50%.",                      hid:0, chk:s=>s.integrity>=50,           rw:{coins:2500}},
-  {id:"integ100",n:"Monde cohérent",         d:"Integrite du monde a 100%.",                     hid:0, chk:s=>s.integrity>=100,          rw:{cores:20,cos:"bg_pure"}},
-  {id:"skill10",  n:"Main sûre",              d:"10 verrouillages parfaits.",   hid:0, chk:s=>(s.stats.perfect||0)>=10,  rw:{coins:900}},
-  {id:"skill50",  n:"Maître du timing",       d:"50 verrouillages parfaits.",   hid:0, chk:s=>(s.stats.perfect||0)>=50,  rw:{cores:2, cos:"fx_prism"}},
-  {id:"skill200", n:"Réflexe machine",        d:"200 verrouillages parfaits.",  hid:0, chk:s=>(s.stats.perfect||0)>=200, rw:{cores:6}},
+  {id:"evo10",   n:"Chaîne d'évolution",     d:"Faire évoluer 10 Pokémon.",                      hid:0, chk:s=>s.stats.evolutions>=10,    rw:{coins:1200}},
+  {id:"fish50",  n:"Sondeur profond",        d:"50 prises à la pêche.",                          hid:0, chk:s=>s.stats.fish>=50,          rw:{shards:70}},
+  {id:"login7",  n:"Habitude",               d:"7 jours de connexion d'affilée.",                hid:0, chk:s=>s.login.best>=7,           rw:{cores:2}},
+  {id:"login30", n:"Rituel",                 d:"30 jours de connexion d'affilée.",               hid:0, chk:s=>s.login.best>=30,          rw:{cores:10,cos:"title_rituel"}},
+  {id:"integ50", n:"Moitié réparée",         d:"Intégrité du monde à 50 %.",                      hid:0, chk:s=>s.integrity>=50,           rw:{coins:2500}},
+  {id:"integ100",n:"Monde cohérent",         d:"Intégrité du monde à 100 %.",                     hid:0, chk:s=>s.integrity>=100,          rw:{cores:20,cos:"bg_pure"}},
+  {id:"skill10",  n:"Main sûre",              d:"10 lancers Excellent.", hid:0, chk:s=>((s.stats.excellent||0)+(s.stats.perfect||0))>=10,  rw:{coins:900}},
+  {id:"skill50",  n:"Maître du timing",       d:"50 lancers Excellent.", hid:0, chk:s=>((s.stats.excellent||0)+(s.stats.perfect||0))>=50,  rw:{cores:2, cos:"fx_prism"}},
+  {id:"skill200", n:"Réflexe machine",        d:"200 lancers Excellent.", hid:0, chk:s=>((s.stats.excellent||0)+(s.stats.perfect||0))>=200, rw:{cores:6}},
   {id:"region25", n:"Premier quart",          d:"Atteindre 25% dans un secteur.",hid:0,
    chk:s=>REGIONS.some(r=>(s.regionTiers&&(s.regionTiers[r.key]||[]).includes(25))), rw:{coins:1200}},
   {id:"contract10",n:"Sous contrat",          d:"Remplir 10 contrats de secteur.",hid:0,
    chk:s=>(s.stats.contracts||0)>=10, rw:{shards:70}},
   /* caches */
   {id:"h_mn",    n:"Tu n'étais pas censé voir ça", d:"Rencontrer la faille.",                    hid:1, chk:s=>s.flags.sawMissing,        rw:{cos:"title_faille"}},
-  {id:"h_fail",  n:"Persévérance",           d:"Echouer 10 captures d'affilee.",                 hid:1, chk:s=>s.flags.fail10,            rw:{coins:400}},
+  {id:"h_fail",  n:"Persévérance",           d:"Échouer 10 captures d'affilée.",                 hid:1, chk:s=>s.flags.fail10,            rw:{coins:400}},
   {id:"h_master",n:"Abus de privilège",      d:"Utiliser une Master Ball sur un Pokémon commun.",hid:1, chk:s=>s.flags.masterWaste,       rw:{cos:"title_gaspilleur"}},
   {id:"h_night", n:"Insomnie",               d:"Jouer entre 3h et 5h du matin.",                 hid:1, chk:s=>s.flags.night,             rw:{cos:"bg_night"}},
   {id:"h_pz",    n:"Ami du programme",       d:"Voir toutes les scenes de Porygon-Z.",           hid:1, chk:s=>s.story.length>=14,        rw:{cos:"frame_pz"}},
@@ -313,7 +328,7 @@ const ACHIEVEMENTS = [
    chk:s=>s.flags.shiny3, rw:{cores:4, cos:"fx_prism"}},
   {id:"h_nodisc", n:"Perfectionniste",        d:"Terminer une partie de Poké-Poker sans défausser.", hid:1,
    chk:s=>s.flags.pokerNoDiscard, rw:{cores:4}},
-  {id:"h_noheal", n:"Sans filet",             d:"Terminer une expédition sans utiliser de restauration.", hid:1,
+  {id:"h_noheal", n:"Sans filet",             d:"Vaincre le noyau d'une Expédition sans aucun objet de soin.", hid:1,
    chk:s=>s.flags.expNoHeal, rw:{cores:3, shards:60}},
   {id:"h_sac",   n:"Ce qu'il en coûte",      d:"Atteindre le climax du recit.",                  hid:1, chk:s=>s.flags.climax,            rw:{cores:30,cos:"title_archiviste"}}
 ];
@@ -332,7 +347,7 @@ const COSMETICS = {
   frame_base:  {t:"frame", n:"Cadre standard", cls:"", def:1},
   frame_gold:  {t:"frame", n:"Cadre doré",     cls:"f-gold"},
   frame_void:  {t:"frame", n:"Cadre du Vide",  cls:"f-void"},
-  frame_coin:  {t:"frame", n:"Cadre trésorier",cls:"f-gold"},
+  frame_coin:  {t:"frame", n:"Cadre trésorier",cls:"f-coin"},
   frame_pz:    {t:"frame", n:"Cadre Porygon-Z",cls:"f-corrupt"},
   bg_base:  {t:"bg", n:"Terminal",   css:"linear-gradient(180deg,#0a1120,#070c16)", def:1},
   bg_kanto: {t:"bg", n:"Racine",     css:"linear-gradient(180deg,#12301f,#07160e)"},
@@ -353,10 +368,11 @@ const QUEST_POOLS = {
   easy: [
     {id:"q_catch_s",  n:"Restaurer {n} entités",            g:10,   stat:"dayCatch",  rw:{coins:260}},
     {id:"q_throw_s",  n:"Lancer {n} Balls",            g:16,   stat:"dayThrow",  rw:{coins:220}},
+    {id:"q_exc_s",    n:"Réussir {n} lancers Excellent",   g:3,    stat:"dayExcellent", rw:{coins:320}},
     {id:"q_new_s",    n:"Archiver {n} espèces inédites",    g:2,    stat:"dayNew",    rw:{shards:12}},
     {id:"q_streak_s", n:"Atteindre une chaîne de {n}",      g:12,   stat:"dayStreak", rw:{coins:300}},
-    {id:"q_fish_s",   n:"Réussir {n} sondages",             g:4,    stat:"dayFish",   rw:{shards:10}},
-    {id:"q_energy_s", n:"Collecter {n} d'Énergie",          g:500,  stat:"dayEnergy", rw:{coins:240}}
+    {id:"q_fish_s",   n:"Remonter {n} prises à la pêche",             g:4,    stat:"dayFish",   rw:{shards:10}},
+    {id:"q_energy_s", n:"Forer {n} d'Énergie",          g:500,  stat:"dayEnergy", rw:{coins:240}}
   ],
   medium: [
     {id:"q_catch_m",  n:"Restaurer {n} entités",            g:28,   stat:"dayCatch",  rw:{coins:620}},
@@ -366,22 +382,25 @@ const QUEST_POOLS = {
     {id:"q_spend_m",  n:"Dépenser {n} PokéCoins",           g:2500, stat:"daySpend",  rw:{coins:900}},
     {id:"q_poker_m",  n:"Encaisser {n} manches de Poké-Poker",g:5,  stat:"dayPokerBlinds", rw:{shards:28}},
     {id:"q_evo_m",    n:"Faire évoluer {n} Pokémon",        g:2,    stat:"dayEvo",    rw:{coins:800}},
-    {id:"q_fish_m",   n:"Réussir {n} sondages",             g:10,   stat:"dayFish",   rw:{shards:22}}
+    {id:"q_exc_m",    n:"Réussir {n} lancers Excellent",   g:10,   stat:"dayExcellent", rw:{shards:24}},
+    {id:"q_fish_m",   n:"Remonter {n} prises à la pêche",             g:10,   stat:"dayFish",   rw:{shards:22}},
+    {id:"q_tower_m",  n:"Remporter {n} combats dans la Tour",          g:3,    stat:"dayTower",  rw:{coins:900, shards:12}}
   ],
   hard: [
     {id:"q_catch_h",  n:"Restaurer {n} entités",            g:55,   stat:"dayCatch",  rw:{coins:1400}},
     {id:"q_rare_h",   n:"Capturer {n} Pokémon rares ou plus",g:12,  stat:"dayRare",   rw:{coins:1600, shards:20}},
     {id:"q_streak_h", n:"Atteindre une chaîne de {n}",      g:60,   stat:"dayStreak", rw:{cores:1}},
-    {id:"q_exp_h",    n:"Terminer {n} expédition(s)",       g:2,    stat:"dayExp",    rw:{shards:60}},
+    {id:"q_exp_h",    n:"Réussir {n} Expédition(s)",       g:2,    stat:"dayExp",    rw:{shards:60}},
     {id:"q_poker_h",  n:"Encaisser {n} manches de Poké-Poker",g:12, stat:"dayPokerBlinds", rw:{shards:55}},
     {id:"q_new_h",    n:"Archiver {n} espèces inédites",    g:9,    stat:"dayNew",    rw:{shards:50}},
-    {id:"q_energy_h", n:"Collecter {n} d'Énergie",          g:9000, stat:"dayEnergy", rw:{coins:1500}}
+    {id:"q_energy_h", n:"Forer {n} d'Énergie",          g:9000, stat:"dayEnergy", rw:{coins:1500}},
+    {id:"q_tower_h",  n:"Remporter {n} combats dans la Tour", g:8,  stat:"dayTower",  rw:{shards:50}}
   ],
   expert: [
     {id:"q_catch_x",  n:"Restaurer {n} entités",            g:100,  stat:"dayCatch",  rw:{coins:3000, cores:1}},
     {id:"q_streak_x", n:"Atteindre une chaîne de {n}",      g:120,  stat:"dayStreak", rw:{cores:2}},
-    {id:"q_boss_x",   n:"Affronter {n} Data Guardian(s)",   g:2,    stat:"dayBoss",   rw:{cores:2}},
-    {id:"q_exp_x",    n:"Terminer {n} expéditions",         g:3,    stat:"dayExp",    rw:{shards:120, cores:1}},
+    {id:"q_boss_x",   n:"Affronter {n} verrou(s) légendaire(s)", g:2, stat:"dayBoss",   rw:{cores:2}},
+    {id:"q_exp_x",    n:"Réussir {n} Expéditions",         g:3,    stat:"dayExp",    rw:{shards:120, cores:1}},
     {id:"q_rare_x",   n:"Capturer {n} Pokémon rares ou plus",g:25,  stat:"dayRare",   rw:{cores:1, shards:70}},
     {id:"q_evo_x",    n:"Faire évoluer {n} Pokémon",        g:5,    stat:"dayEvo",    rw:{shards:80}}
   ]
