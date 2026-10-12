@@ -228,6 +228,44 @@ recrues à choisir — en version immersive. Première pierre : l'arène.
 - Simulation : `node squadsim.js <avance de niveau>` ; verrous : `node squadsim.js 0 locks <niv. de
   compétence> [smart]` (équipes au hasard : 5 à 50 % ; équipes choisies au type : 40 à 100 %).
 
+## Les pages des onze (`36-lore.js`)
+
+Les pages de journal des archivistes précédents ne surgissent plus d'elles-mêmes : elles se **trouvent là où
+leur auteur a travaillé** (`FRAG_META` : au fond d'une Ball à la capture, dans une paroi du Forage, au bout
+d'une Expédition, au sommet d'une aile de la Tour, au bord de la faille dans la Brèche). Si la salle n'est pas
+ouverte, ou après 80 captures d'attente, la page tombe dans les captures. Toujours dans l'ordre (`fragNext`).
+On la trouve (un moment : la page tombe en tournoyant), **on choisit de la lire** en touchant ; elle arrive
+brouillée et se déchiffre sous les yeux, puis Porygon-Z dit ce qu'elle lui fait. Le journal devient le
+**dossier des onze** : onze feuillets épinglés, ceux à lire marqués, et pour la page suivante, l'endroit où
+chercher et sa condition. *Aujourd'hui* signale les pages non lues.
+
+## Les moments (`37b-moments.js`)
+
+Deux à six secondes plein écran pour les caps du jeu, entre la cinématique et le toast, toujours passables
+d'un toucher, mis en file s'ils tombent pendant une scène : **nouvelle salle** (battants qui s'ouvrent, avec un
+mot de Porygon-Z — avant, un module s'ouvrait en silence), **nouvelle strate** du Forage (les couches défilent),
+**aile de la Tour franchie** (étendard), **verrou levé** (la silhouette se colore et monte, avec l'adieu du
+gardien), **Pokémon endormi** dans une paroi (il s'ébroue). Une ancienne partie ne rejoue pas les salles déjà
+ouvertes (`S.flags.roomsSeen`).
+
+## Le Forage refait (`38-forage.js`)
+
+Inspiré de PokeClicker (tes Pokémon travaillent), du Souterrain de Diamant/Perle (la fouille de paroi) et de
+Mr. Mine (la profondeur comme récit, des trouvailles qui t'attendent).
+- **Équipe de forage** de 3 à 6 Pokémon de l'archive (`crewIds`, `digPower` = niveau × (0,6 + BST/700) × affinité).
+  Neuf strates (`STRATA`) avec une matière, une dureté et des **bons types** (×2) ou mauvais (×½). Au-delà du
+  Noyau, la dureté croît sans fin. Avance strate par strate, en direct comme hors ligne (`forageAdvance`).
+- **Fouilles** (le mot vu par le joueur ; `wall` dans le code) : une toutes les 7 minutes de forage (`WALL_SECS`), réserve de 3 à 8. Fouille sur une grille 12×9
+  (`genWall`, `digHit`) : pioche (précise, 1 de stabilité) ou marteau (large, 2), fer indestructible, effondrement.
+  Butin (`DIG_LOOT`) : éclats → Fragments, trésors, pierres d'évolution (une strate favorise chacune), fossiles
+  précis (`f_helix`, `f_dome`, `f_amber`, `f_root`, `f_claw` → couveuse), Pierre Ovale → ébauche, Pierre Dure
+  et Os Rare → Noyaux, objets tenus, et des **Pokémon endormis** des types de la strate qui rejoignent le Pokédex.
+- **Énergie Onirique** (par mètre, croissante avec la strate) : améliorations `FOR_UPS` (galeries, rails, étais,
+  pioche, radar, réserve/hors ligne, lampe) et capture autonome, inchangée.
+- Écran simplifié : trois étapes en tête tant qu'on n'a pas fait trois fouilles, « rapide / lent » au lieu de chiffres de puissance, une phrase claire sur les bons types, améliorations en « maintenant → ensuite », couches et captures automatiques repliées. Mots du joueur : couche, fouille, solidité, Énergie.
+- Ancienne partie : la strate devient une profondeur en mètres, les Échos restent (+3 % de forage chacun).
+- Rythme : `node forsim.js`.
+
 ## Porygon-Z et le nom du joueur
 
 - **Le nom** : dans l'ouverture, Porygon-Z demande le nom dans sa bulle (temps `ask` des cinématiques,

@@ -26,23 +26,23 @@
    tons de sa matiere, du plus tendre au plus dur. */
 const STRATA = [
   {n:"Surface",        need:0,     hard:200,  mat:"Terre meuble", good:[5, 6],         bad:[],        c:"#a8865a",
-   pal:["#8a6a44", "#73573a", "#5c452e"], d:"Le bruit de fond des Pokémon archivés. Une terre tendre, qui cède sous la patte.", mul:1},
+   pal:["#8a6a44", "#73573a", "#5c452e"], d:"De la terre meuble, facile à creuser.", mul:1},
   {n:"Couche molle",   need:40,    hard:260,  mat:"Argile",       good:[5, 11, 12],     bad:[10],      c:"#c98a5a",
-   pal:["#b0764c", "#94603c", "#784c2f"], d:"Les rêves récents. Collants, lourds, pleins de choses oubliées.", mul:1.8},
+   pal:["#b0764c", "#94603c", "#784c2f"], d:"De l'argile collante, pleine de choses oubliées.", mul:1.8},
   {n:"Sédiment",       need:150,   hard:340,  mat:"Roche",        good:[6, 2, 9],       bad:[3, 7],    c:"#9a9aa6",
-   pal:["#8c8c98", "#72727e", "#5a5a66"], d:"Des couches tassées par des années d'inactivité. Il faut des poings, ou de l'acier.", mul:3.2},
+   pal:["#8c8c98", "#72727e", "#5a5a66"], d:"De la roche tassée. Il faut des poings, ou du métal.", mul:3.2},
   {n:"Veine froide",   need:450,   hard:460,  mat:"Glace",        good:[10, 2, 9],      bad:[12, 3],   c:"#9fe7f0",
-   pal:["#a6d8e6", "#7fb8cc", "#5c95ad"], d:"Le premier filon véritable, gelé depuis la panne. Le feu y fait merveille.", mul:6},
+   pal:["#a6d8e6", "#7fb8cc", "#5c95ad"], d:"De la glace, gelée depuis la panne. Le feu la fait fondre.", mul:6},
   {n:"Socle",          need:1100,  hard:620,  mat:"Pierre dure",  good:[2, 9, 6, 5],    bad:[1, 18],   c:"#c9a86a",
-   pal:["#a89270", "#8a7556", "#6c5a40"], d:"De la donnée compactée à un point qu'aucun outil récent ne lit.", mul:11},
+   pal:["#a89270", "#8a7556", "#6c5a40"], d:"De la pierre très dure. Les combattants s'y sentent bien.", mul:11},
   {n:"Nappe chaude",   need:2500,  hard:830,  mat:"Magma",        good:[11, 6, 5],      bad:[12, 7, 15], c:"#ff8a3d",
-   pal:["#b8502a", "#8f3a1e", "#682a16"], d:"Ça résiste, ça chauffe, ça rapporte. L'eau refroidit la paroi juste assez.", mul:20},
+   pal:["#b8502a", "#8f3a1e", "#682a16"], d:"Du magma. L'eau le refroidit juste assez pour passer.", mul:20},
   {n:"Faille mineure", need:5000,  hard:1100, mat:"Cristal",      good:[13, 14, 9],     bad:[17],      c:"#b06bff",
-   pal:["#8e64c8", "#7048a8", "#523486"], d:"Une fracture ancienne, tapissée de cristaux. Ils conduisent l'électricité, et la pensée.", mul:38},
+   pal:["#8e64c8", "#7048a8", "#523486"], d:"Des cristaux qui conduisent l'électricité, et les pensées.", mul:38},
   {n:"Substrat",       need:9000,  hard:1450, mat:"Ossuaire",     good:[8, 17, 2],      bad:[1, 14],   c:"#ff3d7f",
-   pal:["#6a4a5a", "#523848", "#3c2836"], d:"Sous les rêves, il y a ce qui rêvait avant. Ici, seuls les spectres sont à l'aise.", mul:70},
+   pal:["#6a4a5a", "#523848", "#3c2836"], d:"De vieux os. Ici, seuls les spectres sont à l'aise.", mul:70},
   {n:"Noyau onirique", need:16000, hard:1900, mat:"Rêve pur",     good:[14, 16, 18, 8], bad:[],        c:"#ffd24a",
-   pal:["#3a3470", "#2c2858", "#1e1c40"], d:"La source. Elle ne finit pas : plus on descend, plus elle se défend.", mul:130}
+   pal:["#3a3470", "#2c2858", "#1e1c40"], d:"La source du rêve. Plus on descend, plus elle résiste.", mul:130}
 ];
 const FOR_SLOTS_MAX = 6;
 const FOR_START_SLOTS = 3;
@@ -117,21 +117,22 @@ function wallCap(){ return 3 + forUpLv("cart"); }
 function drillCount(){ return crewIds().length; }
 
 /* ---------- les ameliorations, payees en Energie ---------- */
+/* les ameliorations : un nom simple, un effet, ce qu'il vaut maintenant et ensuite */
 const FOR_UPS = {
-  slot:  {n:"Galerie supplémentaire", max:FOR_SLOTS_MAX - FOR_START_SLOTS, cost:l=>[1500, 25000, 400000][l],
-          d:l=>`${FOR_START_SLOTS + l} Pokémon dans l'équipe de forage`},
-  drill: {n:"Rails de wagonnets",      max:8, cost:l=>Math.round(800 * Math.pow(3.2, l)),
-          d:l=>`Forage +${15 * l} %`},
-  prop:  {n:"Étais",                   max:5, cost:l=>Math.round(600 * Math.pow(3, l)),
-          d:l=>`Une paroi tient ${40 + 8 * l} coups`},
-  pick:  {n:"Pioche affûtée",          max:3, cost:l=>Math.round(2500 * Math.pow(6, l)),
-          d:l=>l ? `la pioche frappe aussi ${["", "plus fort", "les diagonales", "comme un marteau léger"][l]}` : "pioche de base"},
-  radar: {n:"Radar de fouille",        max:3, cost:l=>Math.round(5000 * Math.pow(5, l)),
-          d:l=>["aucun indice", "un éclat signale chaque objet", "le contour des gros objets", "les objets rares scintillent"][l]},
-  cart:  {n:"Réserve de parois",       max:5, cost:l=>Math.round(3000 * Math.pow(3.5, l)),
-          d:l=>`${3 + l} parois en attente · hors ligne ${8 + 2 * l} h`},
-  lamp:  {n:"Lampe frontale",          max:4, cost:l=>Math.round(9000 * Math.pow(4, l)),
-          d:l=>`objets rares ×${(1 + 0.3 * l).toFixed(1)} dans les parois`}
+  slot:  {n:"Une place de plus dans l'équipe", max:FOR_SLOTS_MAX - FOR_START_SLOTS, cost:l=>[1500, 25000, 400000][l],
+          d:l=>`${FOR_START_SLOTS + l} Pokémon`},
+  drill: {n:"Creuser plus vite",       max:8, cost:l=>Math.round(800 * Math.pow(3.2, l)),
+          d:l=>`+${15 * l} %`},
+  cart:  {n:"Plus de fouilles en attente", max:5, cost:l=>Math.round(3000 * Math.pow(3.5, l)),
+          d:l=>`${3 + l} fouilles, ${8 + 2 * l} h hors ligne`},
+  prop:  {n:"Fouilles plus solides",   max:5, cost:l=>Math.round(600 * Math.pow(3, l)),
+          d:l=>`${40 + 8 * l} coups avant l'effondrement`},
+  pick:  {n:"Meilleure pioche",        max:3, cost:l=>Math.round(2500 * Math.pow(6, l)),
+          d:l=>["pioche normale", "frappe plus fort", "frappe aussi en diagonale", "frappe presque comme un marteau"][l]},
+  radar: {n:"Détecteur d'objets",      max:3, cost:l=>Math.round(5000 * Math.pow(5, l)),
+          d:l=>["aucun indice", "un point brille sur chaque objet", "on devine la forme des gros objets", "les objets rares scintillent"][l]},
+  lamp:  {n:"Plus d'objets rares",     max:4, cost:l=>Math.round(9000 * Math.pow(4, l)),
+          d:l=>`×${(1 + 0.3 * l).toFixed(1).replace(".", ",")}`}
 };
 function forUpLv(k){ return (forage().up || {})[k] || 0; }
 function offlineHours(){ return 8 + 2 * forUpLv("cart"); }
@@ -184,7 +185,7 @@ function forageTick(dt){
   if(r.w) {
     const f = forage();
     if(currentScreen !== "idle" && f.walls >= wallCap() && FOR_LAST_WALLS < wallCap())
-      toast("Forage : la réserve de parois est pleine", "warn", "stone");
+      toast("Forage : des fouilles t'attendent", "warn", "stone");
     FOR_LAST_WALLS = f.walls;
   }
   for(const si of r.strata) forStratumReached(si);
@@ -232,7 +233,9 @@ const DIG_LOOT = [
   {k:"bone",   ic:"dig:bone",  w:3, h:2, n:"Os Rare",         wt:si=>si >= 4 ? 1 + si * 0.2 : 0, rare:1, give:si=>({cores:2 + Math.floor(si / 4)})},
   {k:"ever",   ic:"dig:ever",  w:2, h:2, n:"Pierre Stase",    wt:si=>3, give:si=>({coins:900 + si * 500})},
   {k:"held",   ic:"held:h_relic", w:2, h:2, n:"Objet ancien", wt:si=>si >= 2 ? 0.8 : 0, rare:1, give:()=>({held:1})},
-  {k:"mon",    ic:null,        w:3, h:3, n:"Pokémon endormi", wt:si=>3.5, rare:1, give:(si, it)=>({mon:it.mon})}
+  {k:"mon",    ic:null,        w:3, h:3, n:"Pokémon endormi", wt:si=>3.5, rare:1, give:(si, it)=>({mon:it.mon})},
+  /* jamais tiree au hasard : placee quand une page des onze attend dans le Forage */
+  {k:"page",   ic:null,        w:3, h:2, n:"Page de journal", wt:si=>0, rare:1, give:(si, it)=>({page:it.page})}
 ];
 function forHoenn(){ return typeof regionUnlocked === "function" && regionUnlocked("hoenn"); }
 /* qui dort dans la roche : les types de la strate, des secteurs ouverts, jamais un legendaire */
@@ -273,6 +276,15 @@ function genWall(si, rnd){
   const tot = table.reduce((a, x)=>a + x[1], 0);
   const n = 2 + Math.floor(rnd() * 3) + (si >= 5 && rnd() < 0.4 ? 1 : 0);
   let tries = 0;
+  /* une page des onze attend dans le Forage : elle est dans cette paroi, une fois sur deux */
+  const pg = typeof fragPending === "function" ? fragPending("forage") : null;
+  if(pg && rnd() < 0.5) for(let t = 0; t < 60; t++){
+    const x0 = Math.floor(rnd() * (W - 2)), y0 = Math.floor(rnd() * (H - 1));
+    const it = {k:"page", x:x0, y:y0, w:3, h:2, found:false, page:pg.id};
+    it.cells = digMask(it).map(([x, y])=>(y0 + y) * W + x0 + x);
+    it.cells.forEach(c=>{ occ[c] = items.length; });
+    items.push(it); break;
+  }
   while(items.length < n && tries++ < 200){
     let r = rnd() * tot, def = table[0][0];
     for(const [l, w] of table){ r -= w; if(r <= 0){ def = l; break; } }
@@ -338,6 +350,11 @@ function digClaim(wall){
     if(g.treasure){ S.treasures = S.treasures || {}; S.treasures[g.treasure] = (S.treasures[g.treasure] || 0) + 1; S.stats.treasures = (S.stats.treasures || 0) + 1; }
     if(g.egg && typeof grantEgg === "function") grantEgg(g.egg);
     if(g.held && typeof randomHeld === "function"){ const h = randomHeld(); if(h && grantHeld(h)) row.label = HELD_ITEMS[h].n; else gain("shards", 40); }
+    if(g.page){
+      const fr = FRAGMENTS.find(x=>x.id === g.page);
+      if(fr && !(S.fragments || []).includes(fr.id)) fragFound(fr, `Dans une fouille, couche « ${STRATA[wall.si].n} », à ${fmt(Math.floor(forage().m))} m`);
+      row.label = fr ? `Page de journal — ${fr.who}` : "Page de journal";
+    }
     if(g.mon){
       const lv = Math.max(5, Math.round(10 + wall.si * 7 + rng() * 6));
       row.isNew = addToDex(g.mon, lv, rng() < 1 / 400);
@@ -373,79 +390,89 @@ SCREENS.idle = {
     if(!forage().crew.length && Object.keys(S.dex).length) forAutoCrew(true);
     const f = forage(), si = f.depth, st = STRATA[si], nx = STRATA[si + 1];
     const crew = crewIds(), rate = digRate();
-    const every = WALL_SECS, cap = wallCap();
+    const cap = wallCap();
     FOR_SHOWN_WALLS = f.walls;
+    const goodTxt = st.good.map(t=>`<span class="tt t${t}">${TYPE_NAMES[t]}</span>`).join(" ");
+    const showHow = (f.wallsDone || 0) < 3;
     return `
       <div class="h">${ic("bolt")} LE FORAGE ${infoBtn("idle")}</div>
-      <div class="sub">Tes Pokémon creusent dans les couches du rêve. Ce qu'ils remontent t'attend dans les parois.</div>
+      ${showHow ? `<div class="fo-how">
+        <div><b>1</b><span>Ton équipe creuse toute seule, même jeu fermé.</span></div>
+        <div><b>2</b><span>En creusant, elle trouve des <em>fouilles</em>.</span></div>
+        <div><b>3</b><span>Tu les dégages pour gagner des objets.</span></div>
+      </div>` : ""}
+
       <div class="fo-shaft" id="fo-shaft" style="--sc:${st.c}">
         <canvas id="fo-cv"></canvas>
         <div class="fo-hud">
-          <div><b>${esc(st.n)}</b><small>${esc(st.mat)} · ${fmt(Math.floor(f.m))} m</small></div>
+          <div><b>${esc(st.n)}</b><small>${fmt(Math.floor(f.m))} m de profondeur</small></div>
           <div class="fo-rate"><b id="fo-rate">${forFmtRate(rate)}</b><small>m / s</small></div>
         </div>
-        <div class="fo-good">${st.good.map(t=>`<span class="tt t${t}">${TYPE_NAMES[t]}</span>`).join("")}
-          ${st.bad.length ? `<span class="fo-bad">évitez : ${st.bad.map(t=>TYPE_NAMES[t]).join(", ")}</span>` : ""}</div>
         ${nx ? `<div class="fo-next"><i style="width:${Math.min(100, (f.m - st.need) / (nx.need - st.need) * 100).toFixed(1)}%"></i>
-          <span>${esc(nx.n)} à ${fmt(nx.need)} m</span></div>` : `<div class="fo-next deep"><span>Au-delà du Noyau : la roche se durcit sans fin</span></div>`}
+          <span>Prochaine couche : ${esc(nx.n)}, à ${fmt(nx.need)} m</span></div>` : `<div class="fo-next deep"><span>Plus rien en dessous : la roche durcit sans fin</span></div>`}
       </div>
 
       <button class="fo-wallbtn ${f.walls ? "ready" : ""}" data-act="fowall" ${f.walls ? "" : "disabled"}>
         <span class="fo-wallic">${itemIcon("dig:hard", 34) || ic("stone")}</span>
-        <span class="grow"><b>${f.walls ? `${f.walls} paroi${f.walls > 1 ? "s" : ""} à fouiller` : "Aucune paroi pour l'instant"}</b>
-          <small>${f.walls >= cap ? "Réserve pleine : fouille-les, sinon l'équipe passe à côté des suivantes."
-            : crew.length ? `Prochaine dans ${Math.max(1, Math.ceil((every - f.wallAt) / 60))} min · réserve ${f.walls}/${cap}` : "Il faut une équipe pour tomber sur des parois."}</small>
-          <span class="fo-wbar"><i id="fo-wbar" style="width:${Math.min(100, f.wallAt / every * 100).toFixed(0)}%"></i></span></span>
+        <span class="grow"><b>${f.walls ? `${f.walls} fouille${f.walls > 1 ? "s" : ""} à faire` : "Aucune fouille pour l'instant"}</b>
+          <small>${!crew.length ? "Il faut au moins un Pokémon dans l'équipe."
+            : f.walls >= cap ? "C'est plein : fais-en une, sinon ton équipe n'en trouvera plus."
+            : `La prochaine dans ${Math.max(1, Math.ceil((WALL_SECS - f.wallAt) / 60))} min · ${f.walls}/${cap} en attente`}</small>
+          <span class="fo-wbar"><i id="fo-wbar" style="width:${Math.min(100, f.wallAt / WALL_SECS * 100).toFixed(0)}%"></i></span></span>
         ${f.walls ? `<span class="fo-go">FOUILLER</span>` : ""}
       </button>
 
-      <div class="row between" style="margin:12px 0 6px"><div class="h sm" style="margin:0">ÉQUIPE DE FORAGE</div>
-        <button class="btn xs" data-act="foauto">${ic("refresh")} Les meilleurs ici</button></div>
+      <div class="row between" style="margin:14px 0 4px"><div class="h sm" style="margin:0">TON ÉQUIPE</div>
+        <button class="btn xs" data-act="foauto">${ic("refresh")} Choisir les meilleurs</button></div>
+      <div class="fo-tip">Dans cette couche (${esc(st.mat.toLowerCase())}), ${goodTxt} creusent <b>deux fois plus vite</b>.</div>
       <div class="fo-crew">${Array.from({length:FOR_SLOTS_MAX}, (_, i)=>{
         const id = crew[i];
-        if(i >= f.slots) return `<div class="fo-slot locked">${ic("lock")}<small>galerie</small></div>`;
-        if(!id) return `<button class="fo-slot empty" data-act="fopick" data-i="${i}"><span>+</span><small>libre</small></button>`;
+        if(i >= f.slots) return `<div class="fo-slot locked">${ic("lock")}</div>`;
+        if(!id) return `<button class="fo-slot empty" data-act="fopick" data-i="${i}"><span>+</span></button>`;
         const a = digAff(id, si);
-        return `<button class="fo-slot" data-act="fopick" data-i="${i}">
+        return `<button class="fo-slot ${a > 1 ? "good" : a < 1 ? "bad" : ""}" data-act="fopick" data-i="${i}">
           ${sprite(id, S.dex[id].shiny, "")}
-          ${a !== 1 ? `<i class="fo-aff ${a > 1 ? "up" : "dn"}">${a > 1 ? "×2" : "×½"}</i>` : ""}
-          <small>N.${S.dex[id].lvl} · ${fmt(Math.round(digPower(id, si)))}</small></button>`; }).join("")}</div>
-      <div class="tiny dim" style="margin-top:4px">Puissance ${fmt(Math.round(crewPower()))} · dureté ${fmt(Math.round(stratumHard(f.m)))} · les types en vert creusent deux fois plus vite ici.
-        ${f.echoes ? ` Échos : +${f.echoes * 3} %.` : ""}</div>
+          <small>N.${S.dex[id].lvl}</small>
+          ${a !== 1 ? `<i class="fo-aff ${a > 1 ? "up" : "dn"}">${a > 1 ? "rapide" : "lent"}</i>` : ""}</button>`; }).join("")}</div>
+      <div class="tiny dim" style="margin-top:4px">Touche un Pokémon pour le remplacer. Plus son niveau est haut, plus il creuse vite.</div>
 
-      <div class="row between" style="margin:14px 0 6px"><div class="h sm" style="margin:0">AMÉLIORATIONS</div>
+      <div class="row between" style="margin:16px 0 6px"><div class="h sm" style="margin:0">AMÉLIORER</div>
         <span class="pill">${ic("bolt")} <b id="fo-energy">${fmt(Math.floor(f.energy))}</b> Énergie</span></div>
+      <div class="tiny dim" style="margin:-2px 0 6px">L'Énergie se gagne toute seule en creusant : plus c'est profond, plus elle monte vite.</div>
       <div class="list">${Object.entries(FOR_UPS).map(([k, u])=>{
         const lv = forUpLv(k), maxed = lv >= u.max, c = maxed ? 0 : u.cost(lv);
-        return `<div class="item ${maxed ? "on" : ""}">
-          <div class="perk-lv">${lv}/${u.max}</div>
+        return `<div class="item fo-up ${maxed ? "on" : ""}">
           <div class="grow"><div class="t">${esc(u.n)}</div>
-            <div class="d">${esc(u.d(lv))}${maxed ? "" : ` → ${esc(u.d(lv + 1))}`}</div></div>
-          ${maxed ? `<span class="tiny cy">max</span>` : `<button class="btn sm ${f.energy >= c ? "gold" : ""}" data-act="foup" data-k="${k}" ${f.energy >= c ? "" : "disabled"}>${fmt(c)}</button>`}
+            <div class="d">${maxed ? `${esc(u.d(lv))} · au maximum` : `${esc(u.d(lv))} <span class="fo-arr">→</span> <b>${esc(u.d(lv + 1))}</b>`}</div></div>
+          ${maxed ? `<span class="tiny cy">max</span>` : `<button class="btn sm ${f.energy >= c ? "gold" : ""}" data-act="foup" data-k="${k}" ${f.energy >= c ? "" : "disabled"}>${ic("bolt")} ${fmt(c)}</button>`}
         </div>`; }).join("")}</div>
 
-      <div class="h sm" style="margin-top:14px">LES STRATES</div>
-      <div class="fo-strata">${STRATA.map((s, i)=>{
-        const here = i === si, done = f.maxM >= s.need;
-        return `<div class="fo-st ${here ? "here" : ""} ${done ? "" : "unk"}" style="--sc:${s.c}">
-          <i></i><div class="grow"><b>${done ? esc(s.n) : "???"}</b><small>${fmt(s.need)} m${done ? " · " + esc(s.mat) : ""}</small></div>
-          ${done ? `<span class="fo-stt">${s.good.map(t=>`<span class="tdot" style="background:${typeof arCol === "function" ? arCol(t) : "#888"}" title="${TYPE_NAMES[t]}"></span>`).join("")}</span>` : ""}
-        </div>`; }).join("")}</div>
+      <details class="fo-more">
+        <summary>Les couches · ${STRATA.filter(x=>f.maxM >= x.need).length} sur ${STRATA.length} découvertes</summary>
+        <div class="fo-strata">${STRATA.map((x, i)=>{
+          const here = i === si, done = f.maxM >= x.need;
+          return `<div class="fo-st ${here ? "here" : ""} ${done ? "" : "unk"}" style="--sc:${x.c}">
+            <i></i><div class="grow"><b>${done ? esc(x.n) : "Pas encore atteinte"}</b><small>${fmt(x.need)} m${done ? " · " + esc(x.mat) : ""}</small></div>
+            ${done ? `<span class="fo-stt">${x.good.map(t=>`<span class="tt t${t}">${TYPE_NAMES[t]}</span>`).join("")}</span>` : ""}
+          </div>`; }).join("")}</div>
+      </details>
 
-      ${botPanel()}
-
-      <div class="h sm" style="margin-top:12px">CONVERTIR L'ÉNERGIE</div>
-      <div class="btn-grid c3">
-        <button class="btn sm" data-act="forconv" data-k="coins" ${f.energy >= 300 ? "" : "disabled"}>300 → ${fmt(Math.round(100 * (1 + si * 0.6)))} coins</button>
-        <button class="btn sm" data-act="forconv" data-k="shards" ${f.energy >= 9000 ? "" : "disabled"}>9 k → ${10 + si * 4} frag.</button>
-        <button class="btn sm" data-act="forconv" data-k="cores" ${f.energy >= 260000 ? "" : "disabled"}>260 k → ${1 + Math.floor(si / 4)} noyau</button>
-      </div>
+      <details class="fo-more">
+        <summary>Dépenser l'Énergie autrement</summary>
+        ${botPanel()}
+        <div class="h sm" style="margin-top:12px">ÉCHANGER CONTRE…</div>
+        <div class="btn-grid c3">
+          <button class="btn sm" data-act="forconv" data-k="coins" ${f.energy >= 300 ? "" : "disabled"}>${fmt(Math.round(100 * (1 + si * 0.6)))} PokéCoins<br><small>300 Énergie</small></button>
+          <button class="btn sm" data-act="forconv" data-k="shards" ${f.energy >= 9000 ? "" : "disabled"}>${10 + si * 4} Fragments<br><small>9 000 Énergie</small></button>
+          <button class="btn sm" data-act="forconv" data-k="cores" ${f.energy >= 260000 ? "" : "disabled"}>${1 + Math.floor(si / 4)} Noyau<br><small>260 000 Énergie</small></button>
+        </div>
+      </details>
 
       <div class="tiles" style="margin-top:11px">
-        <div class="tile accent"><div class="k">Record</div><div class="v">${fmt(Math.floor(f.maxM))} m</div></div>
-        <div class="tile gold"><div class="k">Parois fouillées</div><div class="v">${f.wallsDone}</div></div>
-        <div class="tile"><div class="k">Trouvailles</div><div class="v">${f.found}</div></div>
-        <div class="tile"><div class="k">Hors ligne</div><div class="v">${offlineHours()} h</div></div>
+        <div class="tile accent"><div class="k">Plus profond</div><div class="v">${fmt(Math.floor(f.maxM))} m</div></div>
+        <div class="tile gold"><div class="k">Fouilles faites</div><div class="v">${f.wallsDone}</div></div>
+        <div class="tile"><div class="k">Objets trouvés</div><div class="v">${f.found}</div></div>
+        <div class="tile"><div class="k">Creuse hors ligne</div><div class="v">${offlineHours()} h</div></div>
       </div>
       <button class="btn ghost wide" style="margin-top:10px" data-act="goto" data-to="modules">Retour aux modules</button>`;
   }
@@ -458,7 +485,7 @@ function forAutoCrew(quiet){
   const ids = Object.keys(S.dex).map(Number).filter(id=>POKE[id]).sort((a, b)=>digPower(b, si) - digPower(a, si));
   f.crew = ids.slice(0, f.slots);
   save();
-  if(!quiet) toast("Équipe de forage composée pour " + STRATA[si].mat.toLowerCase(), "", "check");
+  if(!quiet) toast("Les plus rapides pour cette couche sont au travail", "", "check");
 }
 ACTIONS.foauto = () => { forAutoCrew(); refresh(); };
 let FO_PICK = 0;
@@ -467,14 +494,13 @@ ACTIONS.fopick = d => {
   const f = forage(), si = f.depth, crew = crewIds();
   const ids = Object.keys(S.dex).map(Number).filter(id=>POKE[id]).sort((a, b)=>digPower(b, si) - digPower(a, si)).slice(0, 60);
   sheet(`${sheetHead("Qui creuse ici ?")}
-    <div class="tiny muted" style="margin-bottom:8px">${esc(STRATA[si].mat)} : ${STRATA[si].good.map(t=>TYPE_NAMES[t]).join(", ")} y creusent deux fois plus vite.
-      Les plus forts pour cette strate sont en haut.</div>
-    ${crew[FO_PICK] ? `<button class="btn ghost wide sm" style="margin-bottom:8px" data-act="foset" data-id="0">Libérer cet emplacement</button>` : ""}
+    <div class="tiny muted" style="margin-bottom:8px">Ici, ${STRATA[si].good.map(t=>TYPE_NAMES[t]).join(", ")} creusent deux fois plus vite.
+      Les plus rapides sont en premier.</div>
+    ${crew[FO_PICK] ? `<button class="btn ghost wide sm" style="margin-bottom:8px" data-act="foset" data-id="0">Retirer ce Pokémon de l'équipe</button>` : ""}
     <div class="fo-pickgrid">${ids.map(id=>{ const a = digAff(id, si), on = crew.includes(id);
       return `<button class="fo-pk ${on ? "on" : ""}" data-act="foset" data-id="${id}">
-        ${sprite(id, S.dex[id].shiny, "")}<b>${fmt(Math.round(digPower(id, si)))}</b>
-        ${a !== 1 ? `<i class="fo-aff ${a > 1 ? "up" : "dn"}">${a > 1 ? "×2" : "×½"}</i>` : ""}
-        <small>N.${S.dex[id].lvl}</small></button>`; }).join("")}</div>`);
+        ${sprite(id, S.dex[id].shiny, "")}<small>N.${S.dex[id].lvl}</small>
+        ${a !== 1 ? `<i class="fo-aff ${a > 1 ? "up" : "dn"}">${a > 1 ? "rapide" : "lent"}</i>` : ""}</button>`; }).join("")}</div>`);
 };
 ACTIONS.foset = d => {
   const f = forage(), id = +d.id;
@@ -493,7 +519,7 @@ ACTIONS.foup = d => {
   const c = u.cost(lv);
   if(f.energy < c){ toast("Énergie insuffisante", "bad", "cross"); return; }
   f.energy -= c; f.up[d.k] = lv + 1;
-  if(d.k === "slot"){ f.slots = FOR_START_SLOTS + f.up.slot; toast("Nouvelle galerie : un Pokémon de plus peut creuser", "warn", "check"); }
+  if(d.k === "slot"){ f.slots = FOR_START_SLOTS + f.up.slot; toast("Une place de plus : un Pokémon de plus peut creuser", "warn", "check"); }
   Sfx.win(); save(); refresh();
 };
 ACTIONS.forconv = d => {
@@ -568,7 +594,7 @@ function forShaftDraw(V, dt){
     /* des eclats de matiere, au rythme des coups */
     if(Math.random() < dt / 160) for(let k = 0; k < 3; k++) V.parts.push({x:cx + (Math.random() - 0.5) * 20, y:cy + 6, vx:(Math.random() - 0.5) * 0.12, vy:-0.08 - Math.random() * 0.12, life:0, max:500 + Math.random() * 400, c:st.pal[Math.floor(Math.random() * 3)]});
   });
-  if(!crew.length){ x.fillStyle = "rgba(0,0,0,.45)"; x.fillRect(0, top, W, H - top); x.fillStyle = "#e8f0ff"; x.font = '9px "Press Start 2P",monospace'; x.textAlign = "center"; x.fillText("PERSONNE NE CREUSE", W / 2, H / 2 + 20); }
+  if(!crew.length){ x.fillStyle = "rgba(0,0,0,.45)"; x.fillRect(0, top, W, H - top); x.fillStyle = "#e8f0ff"; x.font = '9px "Press Start 2P",monospace'; x.textAlign = "center"; x.fillText("AJOUTE UN POKÉMON", W / 2, H / 2 + 20); }
   for(let i = V.parts.length - 1; i >= 0; i--){
     const p = V.parts[i]; p.life += dt; if(p.life > p.max){ V.parts.splice(i, 1); continue; }
     p.x += p.vx * dt; p.y += p.vy * dt; p.vy += 0.0004 * dt;
@@ -592,16 +618,17 @@ function digHtml(){
   return `<div class="dg" style="--sc:${st.c}">
     <div class="dg-head">
       <button class="sw-back" data-act="fowallquit">${ic("arrow")}</button>
-      <div class="grow"><small>PAROI · ${esc(st.n.toUpperCase())}</small><b>${DIG.items.length} objets enfouis</b></div>
+      <div class="grow"><small>FOUILLE · ${esc(st.n.toUpperCase())}</small><b>${DIG.items.length} objets cachés</b></div>
       <span class="dg-found" id="dg-found">0 / ${DIG.items.length}</span>
     </div>
-    <div class="dg-stab"><i id="dg-stab" style="width:100%"></i><span>Stabilité</span></div>
+    <div class="dg-stab"><i id="dg-stab" style="width:100%"></i><span>Solidité</span></div>
     <div class="dg-wrap" id="dg-wrap"><canvas id="dg-cv"></canvas></div>
     <div class="dg-tools">
-      <button class="dg-tool ${DIG_TOOL === "pick" ? "on" : ""}" data-act="fotool" data-t="pick"><b>⛏</b><span>Pioche</span><small>précise · 1</small></button>
-      <button class="dg-tool ${DIG_TOOL === "hammer" ? "on" : ""}" data-act="fotool" data-t="hammer"><b>🔨</b><span>Marteau</span><small>large · 2</small></button>
+      <button class="dg-tool ${DIG_TOOL === "pick" ? "on" : ""}" data-act="fotool" data-t="pick"><b>⛏</b><span>Pioche</span><small>petite zone · abîme peu</small></button>
+      <button class="dg-tool ${DIG_TOOL === "hammer" ? "on" : ""}" data-act="fotool" data-t="hammer"><b>🔨</b><span>Marteau</span><small>grande zone · abîme 2× plus</small></button>
     </div>
-    <div class="tiny dim" style="text-align:center;margin-top:6px">Un objet est à toi quand il est entièrement dégagé. Le fer ne cède jamais.</div>
+    <div class="tiny dim" style="text-align:center;margin-top:6px;line-height:1.6">Touche la roche pour creuser. Dégage <b>entièrement</b> un objet pour le gagner.<br>
+      À chaque coup, la solidité baisse : à zéro, tout s'effondre. Le métal gris ne casse jamais.</div>
     <div class="dg-res" id="dg-res"></div>
   </div>`;
 }
@@ -664,7 +691,12 @@ function digTap(X, Y){
     for(let k = 0; k < 26; k++) V.sparks.push({x:cx, y:cy, vx:(Math.random() - 0.5) * 0.5, vy:(Math.random() - 0.5) * 0.5, life:0, max:700, c:k % 2 ? "#ffd84a" : "#ffffff", s:2 + Math.random() * 2});
     try { Sfx.coin(); } catch(e){}
     const def = DIG_LOOT.find(l=>l.k === it.k);
-    toast(def.k === "mon" ? `${POKE[it.mon].name} dormait dans la roche !` : `${def.n} !`, "warn", "star");
+    if(def.k !== "page") toast(def.k === "mon" ? `${POKE[it.mon].name} dormait dans la roche !` : `${def.n} !`, "warn", "star");
+    /* une page des onze : on la trouve a l'instant ou elle est degagee */
+    if(def.k === "page"){
+      const fr = FRAGMENTS.find(x=>x.id === it.page);
+      if(fr && !(S.fragments || []).includes(fr.id)) setTimeout(()=>fragFound(fr, `Dans une fouille, couche « ${STRATA[DIG.si].n} », à ${fmt(Math.floor(forage().m))} m`), 500);
+    }
     if(def.k === "mon"){
       if(typeof momentAwake === "function") setTimeout(()=>momentAwake(it.mon), 350);
       setTimeout(()=>pzFlash(`${POKE[it.mon].name} dormait là depuis la panne. Il a l'air d'avoir bien dormi, lui.`), 3200);
@@ -692,7 +724,11 @@ function digDraw(dt){
     const X = it.x * c, Y = it.y * c, w = it.w * c, h = it.h * c;
     const glow = it.found ? Math.max(0, 1 - (V.t - it.at) / 900) : 0;
     if(glow > 0){ x.fillStyle = `rgba(255,216,74,${0.35 * glow})`; x.fillRect(X - 3, Y - 3, w + 6, h + 6); }
-    if(it.k === "mon"){
+    if(it.k === "page"){
+      x.fillStyle = "#e8d9a8"; x.fillRect(X + 3, Y + 3, w - 6, h - 6);
+      x.fillStyle = "#c9b27a"; x.fillRect(X + 3, Y + h - 7, w - 6, 4);
+      x.fillStyle = "#7a6a48"; for(let k = 0; k < 4; k++) x.fillRect(X + 8, Y + 8 + k * (h - 16) / 4, w - 16 - (k % 2) * 10, 2);
+    } else if(it.k === "mon"){
       let ok = false; const sz = w * 1.05;
       if(typeof brSprite === "function"){ const s = brSprite(it.mon, "n"); if(s){ x.drawImage(s, X + w / 2 - sz / 2, Y + h / 2 - sz / 2, sz, sz); ok = true; } }
       if(!ok){ x.fillStyle = "#5c6a7e"; x.fillRect(X + 4, Y + 4, w - 8, h - 8); }
@@ -743,7 +779,7 @@ function digEnd(left){
   DIG.ended = true;
   const rows = digClaim(DIG);
   const el = document.getElementById("dg-res"); if(!el) return;
-  const title = left ? "TU REMONTES" : DIG.collapsed ? "LA PAROI S'EFFONDRE" : "PAROI DÉGAGÉE";
+  const title = left ? "TU REMONTES" : DIG.collapsed ? "ÇA S'EFFONDRE !" : "TOUT EST DÉGAGÉ !";
   const f = forage();
   el.innerHTML = `<div class="dg-rt ${DIG.collapsed ? "bad" : ""}">${title}</div>
     <div class="tiny muted" style="margin-bottom:8px">${rows.length ? `${rows.length} objet${rows.length > 1 ? "s" : ""} sur ${DIG.items.length}` : "Rien de dégagé à temps."}</div>
@@ -751,8 +787,8 @@ function digEnd(left){
       ${r.it.k === "mon" ? sprite(r.it.mon, false, "") : itemIcon(r.def.ic, 34)}
       <div class="grow"><b>${esc(r.label)}</b><small>${esc(digGainText(r.g))}</small></div></div>`).join("")}</div>
     <div class="dg-rb">
-      <button class="btn" data-act="fowallback">Retour au puits</button>
-      ${f.walls ? `<button class="btn pri" data-act="fowallnext">Paroi suivante (${f.walls})</button>` : ""}
+      <button class="btn" data-act="fowallback">Retour au Forage</button>
+      ${f.walls ? `<button class="btn pri" data-act="fowallnext">Fouille suivante (${f.walls})</button>` : ""}
     </div>`;
   el.classList.add("on");
   if(rows.length) try { Sfx.win(); } catch(e){}
@@ -762,11 +798,12 @@ function digGainText(g){
   if(g.shards) return `+${g.shards} Fragments`;
   if(g.cores) return `+${g.cores} Noyau${g.cores > 1 ? "x" : ""}`;
   if(g.coins) return `+${fmt(g.coins)} PokéCoins`;
-  if(g.stone) return "Pierre d'évolution, rangée dans le sac";
-  if(g.treasure) return `Trésor : ${fmt(TREASURES[g.treasure].sell)} PokéCoins à la revente`;
-  if(g.egg) return g.egg.startsWith("f_") ? "À ranimer à la couveuse" : "Ébauche pour la couveuse";
+  if(g.stone) return "Pierre d'évolution, dans ton sac";
+  if(g.treasure) return `Trésor : se revend ${fmt(TREASURES[g.treasure].sell)} PokéCoins`;
+  if(g.egg) return g.egg.startsWith("f_") ? "Un fossile : il éclora à la couveuse" : "Un œuf pour la couveuse";
   if(g.held) return "Objet tenu";
   if(g.mon) return "Il rejoint ton Pokédex";
+  if(g.page) return "Rangée dans le dossier des onze, au journal";
   return "";
 }
 ACTIONS.fowallback = () => { DIG = null; go("idle"); if(typeof checkStoryTriggers === "function") checkStoryTriggers(); };
@@ -789,9 +826,9 @@ function forageOffline(sec){
    collection plutot que chiffres.
    ============================================================ */
 const BOT_AXES = {
-  rate: {n:"Cadence",  max:10, d:l=>`${4 + 3*l} Pokémon par heure`},
-  cost: {n:"Économie", max:10, d:l=>`coût horaire −${Math.round((1 - Math.pow(0.88, l))*100)}%`},
-  dur:  {n:"Autonomie",max:10, d:l=>`sessions de ${2 + l} h`}
+  rate: {n:"Plus de Pokémon par heure", max:10, d:l=>`${4 + 3*l} par heure`},
+  cost: {n:"Moins cher",                max:10, d:l=>`coût −${Math.round((1 - Math.pow(0.88, l))*100)} %`},
+  dur:  {n:"Plus longtemps",            max:10, d:l=>`${2 + l} h`}
 };
 function bot(){
   const f = forage();
@@ -829,7 +866,7 @@ ACTIONS.botrun = () => {
   b.hours = botHours(); b.rate = botRate();
   b.until = Date.now() + b.hours * 3600 * 1000;
   b.claimed = false;
-  Sfx.coin(); toast(`Capture autonome lancée pour ${b.hours} h`, "", "capture");
+  Sfx.coin(); toast(`Captures automatiques lancées pour ${b.hours} h`, "", "capture");
   save(); refresh();
 };
 /* un Pokemon « sauvage » generique : aucun habitat, aucune exclusivite */
@@ -862,7 +899,7 @@ ACTIONS.botclaim = () => {
   save();
   const ids = Object.keys(got).map(Number).sort((a2,b2)=>got[b2]-got[a2]);
   sheet(`<div class="center">
-    <div class="h" style="justify-content:center">CAPTURE AUTONOME</div>
+    <div class="h" style="justify-content:center">CAPTURES AUTOMATIQUES</div>
     <div class="tiny muted" style="margin:6px 0 11px">${b.hours} h de session. Les Pokémon rejoignent
       le Pokédex ; ils ne rapportent ni PokéCoins, ni chaîne, ni quêtes.</div>
     <div class="tiles">
@@ -879,31 +916,30 @@ ACTIONS.botclaim = () => {
   Sfx.win(); checkAchievements();
 };
 function botPanel(){
-  if(!botAvailable()) return `<div class="h sm" style="margin-top:12px">CAPTURE AUTONOME</div>
-    <div class="empty">S'ouvre au Sédiment. L'Énergie pourra alors lancer des sessions de capture
-      qui remplissent le Pokédex pendant votre absence.</div>`;
+  if(!botAvailable()) return `<div class="h sm" style="margin-top:12px">CAPTURES AUTOMATIQUES</div>
+    <div class="empty">Se débloque en atteignant la couche « Sédiment » (150 m). Tu pourras alors dépenser
+      de l'Énergie pour que des Pokémon soient capturés pendant ton absence.</div>`;
   const b = bot(), f = forage();
   const cost = botHourCost() * botHours();
   let state;
   if(botReady()) state = `<button class="btn pri wide" data-act="botclaim">Récupérer ${Math.round(b.rate*b.hours)} Pokémon</button>`;
-  else if(botRunning()) state = `<div class="tiny cy">Session en cours — encore ${fmtTime(b.until - Date.now())}</div>
+  else if(botRunning()) state = `<div class="tiny cy">En cours — encore ${fmtTime(b.until - Date.now())}</div>
       <div class="bar thin" style="margin-top:5px"><i style="width:${Math.min(100,
         (1 - (b.until - Date.now()) / (b.hours*3600*1000)) * 100)}%"></i></div>`;
   else state = `<button class="btn wide ${f.energy>=cost?"pri":""}" data-act="botrun" ${f.energy>=cost?"":"disabled"}>
-      Lancer ${botHours()} h — ${botRate()*botHours()} Pokémon — ${fmt(cost)} Énergie</button>`;
-  return `<div class="h sm" style="margin-top:12px">CAPTURE AUTONOME</div>
+      Lancer : ${botRate()*botHours()} Pokémon en ${botHours()} h · ${fmt(cost)} Énergie</button>`;
+  return `<div class="h sm" style="margin-top:12px">CAPTURES AUTOMATIQUES</div>
     <div class="panel bracket">
-      <div class="tiny muted" style="margin-bottom:8px">Elle capture pendant votre absence et ne
-        rapporte que des Pokémon. Le coût suit votre production, pour rester un vrai choix.</div>
+      <div class="tiny muted" style="margin-bottom:8px">Des Pokémon sont capturés pour toi pendant quelques heures.
+        Ils vont dans ton Pokédex, mais ne rapportent ni PokéCoins ni chaîne.</div>
       ${state}
     </div>
     <div class="list">${Object.entries(BOT_AXES).map(([k,ax])=>{
       const lv = b.lv[k], maxed = lv >= ax.max, c = botUpCost(k);
       return `<div class="item ${maxed?"on":""}">
-        <div class="perk-lv">${lv}/${ax.max}</div>
         <div class="grow"><div class="t">${esc(ax.n)}</div>
           <div class="d">${esc(ax.d(lv))}${maxed?"":` → ${esc(ax.d(lv+1))}`}</div></div>
         ${maxed?`<span class="tiny cy">max</span>`:`<button class="btn sm ${f.energy>=c?"gold":""}"
-          data-act="botup" data-k="${k}" ${f.energy>=c?"":"disabled"}>${fmt(c)}</button>`}
+          data-act="botup" data-k="${k}" ${f.energy>=c?"":"disabled"}>${ic("bolt")} ${fmt(c)}</button>`}
       </div>`;}).join("")}</div>`;
 }

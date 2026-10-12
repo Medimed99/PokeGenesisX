@@ -12,6 +12,7 @@
      wing     un etendard se deploie (aile de la Tour)
      release  une silhouette se colore et monte dans la lumiere (verrou)
      awake    un Pokemon endormi s'ebroue (paroi du Forage)
+     page     une page de journal tombe en tournoyant (les onze)
    ============================================================ */
 const MOMENT_Q = [];
 let MOMENT_ON = null;
@@ -47,29 +48,32 @@ function momentShow(m){
   const band = m.kind === "depth" ? `<div class="mo-bands">${(m.band || [c, c, c]).concat(m.band || []).map((b, i)=>`<i style="background:${b};--i:${i}"></i>`).join("")}</div>` : "";
   const door = m.kind === "door" ? `<div class="mo-door l"></div><div class="mo-door r"></div>` : "";
   const rays = (m.kind === "release" || m.kind === "door" || m.kind === "wing") ? `<div class="mo-rays"></div>` : "";
+  const page = m.kind === "page" ? `<div class="mo-paper"><i></i><i></i><i></i><i></i><i></i></div>` : "";
   const zz = m.kind === "awake" ? `<div class="mo-zz"><i>z</i><i>z</i><i>Z</i></div>` : "";
   box.className = "on k-" + m.kind;
   box.style.setProperty("--mc", c);
   box.innerHTML = `${band}${rays}<div class="mo-glow"></div>${door}
     <div class="mo-in">
       ${m.kicker ? `<div class="mo-kick">${esc(m.kicker)}</div>` : ""}
-      <div class="mo-art">${art}${zz}</div>
+      <div class="mo-art">${page || art}${zz}</div>
       <div class="mo-title">${esc(m.title || "")}</div>
       ${m.sub ? `<div class="mo-sub">${esc(m.sub)}</div>` : ""}
       ${m.line ? `<div class="mo-line">${typeof pzFace === "function" ? pzFace(m.lineMood || "Happy", 26) : ""}<span>${esc(typeof pzFmt === "function" ? pzFmt(m.line) : m.line)}</span></div>` : ""}
       ${m.quote ? `<div class="mo-quote">« ${esc(m.quote)} »</div>` : ""}
     </div>
-    <div class="mo-skip">toucher pour continuer</div>`;
-  try { ({door:()=>Sfx.win(), depth:()=>Sfx.win(), wing:()=>Sfx.win(), release:()=>Sfx.shiny(), awake:()=>Sfx.coin()})[m.kind](); } catch(e){}
+    <div class="mo-skip">${esc(m.tapText || "toucher pour continuer")}</div>`;
+  try { ({door:()=>Sfx.win(), depth:()=>Sfx.win(), wing:()=>Sfx.win(), release:()=>Sfx.shiny(), awake:()=>Sfx.coin(), page:()=>Sfx.wobble()})[m.kind](); } catch(e){}
   if(typeof buzz === "function") buzz(m.kind === "release" ? [30, 60, 30, 60, 120] : [20, 40, 60]);
   const t0 = Date.now();
-  box.onclick = () => { if(Date.now() - t0 > 700) momentEnd(); };
+  box.onclick = () => { if(Date.now() - t0 > 700) momentEnd(true); };
   clearTimeout(momentShow._t);
   momentShow._t = setTimeout(momentEnd, m.dur || (m.quote ? 6500 : m.line ? 4200 : 2800));
 }
-function momentEnd(){
+function momentEnd(tapped){
   const box = document.getElementById("moment");
   const m = MOMENT_ON;
+  /* un moment qui propose quelque chose (lire une page) ne le fait que si on touche */
+  if(m && tapped && m.onTap) setTimeout(()=>{ try { m.onTap(); } catch(e){} }, 300);
   MOMENT_ON = null;
   clearTimeout(momentShow._t);
   if(box){ box.className = "off"; setTimeout(()=>{ if(!MOMENT_ON){ box.className = ""; box.innerHTML = ""; } }, 380); }
@@ -86,7 +90,7 @@ const ROOM_MOMENTS = {
               sub:"Une espèce que tu n'as pas encore, mise de côté pour toi chaque jour.",
               line:"J'ai bricolé un tampon. Ne pose pas de questions. Surtout au système."},
   idle:      {n:"Le Forage",       icon:"bolt",  c:"#c9a86a", go:"idle",
-              sub:"Tes Pokémon creusent dans les couches du rêve, même quand tu n'es pas là.",
+              sub:"Tes Pokémon creusent tout seuls. Toi, tu fais les fouilles qu'ils trouvent.",
               line:"Tes Pokémon savent creuser. Je leur ai trouvé un puits. Un grand. Très grand."},
   expedition:{n:"L'Expédition",    icon:"map",   c:"#35f0d6", go:"expedition",
               sub:"Une couche non cartographiée. Des routes à choisir, des Champions au bout.",
@@ -121,7 +125,7 @@ function roomMomentsTick(){
 /* ---------- les autres caps ---------- */
 function momentStratum(si){
   const s = STRATA[si];
-  moment({kind:"depth", kicker:`NOUVELLE STRATE · ${fmt(s.need)} M`, title:s.n, sub:`${s.mat} — ${s.d}`, c:s.c, band:s.pal,
+  moment({kind:"depth", kicker:`NOUVELLE COUCHE · ${fmt(s.need)} M`, title:s.n, sub:s.d, c:s.c, band:s.pal,
           line:s.good.length ? `Ici, les types ${s.good.map(t=>TYPE_NAMES[t]).join(", ").replace(/, ([^,]*)$/, " et $1")} creusent deux fois plus vite. Je dis ça, je ne dis rien.` : ""});
 }
 function momentWing(z, d){

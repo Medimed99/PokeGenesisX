@@ -14,10 +14,10 @@ global.AudioContext = undefined;
 global.setInterval = () => 0;   /* pas de boucles pendant les tests */
 
 const fs = require("fs");
-const ORDER = ['_dexblob.js','_atlas.js','_atlas_shiny.js','_pmd.js','_items.js','_lore.js','_pzportrait.js','_chars.js','_trainers.js','_cardart.js','00-slugs.js','01-data.js','02-story.js','10-core.js','15-fx.js','20-ui.js','30-capture.js','32-world.js','33-fishing.js','34-research.js','36-lore.js','37-cine.js','38-forage.js','39-daily.js','39b-events.js',
+const ORDER = ['_dexblob.js','_atlas.js','_atlas_shiny.js','_pmd.js','_items.js','_lore.js','_pzportrait.js','_chars.js','_trainers.js','_cardart.js','00-slugs.js','01-data.js','02-story.js','10-core.js','15-fx.js','20-ui.js','30-capture.js','32-world.js','33-fishing.js','34-research.js','36-lore.js','37-cine.js','37b-moments.js','38-forage.js','39-daily.js','39b-events.js',
   '35-modules.js','40-battle.js','41-arena.js','50-expedition.js','51-expscene.js','51m-expmap.js','52-expgear.js','54-tower.js','55-squad.js','55b-squad-ui.js','56-breche.js','57-breche-run.js','58-breche-ui.js','59-breche-plus.js','59m-breche-map.js','59a-breche-attacks.js','59p-breche-pmd.js','59f-breche-feel.js','59g-breche-bossfight.js','59s-breche-share.js','60-poker.js','70-collection.js','72-bag.js','73-cards.js','74-eggs.js','75-extras.js','76-items.js','77-secrets.js','78-milestones.js','79-ux.js','80-guide.js','81-cosmetics.js','85-journal.js','90-admin.js','95-online.js','96-pwa.js','99-boot.js'];
 const code = ORDER.map(f=>fs.readFileSync("src/"+f,"utf8")).join("\n");
-eval(code + "\n;" + 'global.__api={POKE,POKE_IDS,evalHand,genMap,EXP_ROWS,deepFill,newState,catchChance,typeMult,RARITY,ACHIEVEMENTS,JOKERS,STORY,anteTarget,makeFighter,damageCalc,xpForLevel,handBase,HANDS,newDeck,movesFor,dexTotal,famOf,stageOf,DIRECTIVES,INFOS,TUTOS,PZ_EVENTS,atlasIndex,ATLAS_N,ATLAS_BACK0,SLUGS,cardChips,grantCardV,grantSecretCard,cardVariants,cardHas,cardOwnedCount,cardTotal,CARD_MONS,CARD_SERIES_DEF,CARD_ORDER,rollCardSeries,randomCard,migrateCards,CARD_INDEX,cardChecksum,cardBytes,tcardHtml,cardBackHtml,GEN_TAG,boosterRank,seriesName,seriesFound,monFound,cardEnvOf,CARD_ENV,resolveName,KNOWN_NAMES,sixthItem,glitchSixthItem,GEN_MARKS,checkChainMark,specialDay,isNightWindow,PZ_POKE_LINES,SIXTH_SLOTS,KONAMI,karpDealDay,karpDealAvailable,BST_BANDS,bstBand,wildIdFor,NODE_W,nodeTypeFor,EXP_ITEMS,rollExpItem,itemMinFloor,EXP_MODES,expRunModes,genMap,traitLevels,traitBonus,TOWER_TRAITS,HABITATS,HABITAT_IDS,habitatWeight,isNight,WEATHER,WEATHER_IDS,weatherDef,speciesInHabitat,FRAGMENTS,RIFT_ARC,checkFragments,riftTick,riftStage,fragmentsFound,signatureMove,moveTierName,STRATA,DRILLS,ECHO_PERKS,forage,forageRate,clickValue,drillCost,depthCost,echoGain,unlocked,offlineHours,forageTick,EXCLUSIVES,EXCL_SOURCE,isExclusive,RODS,fishPool,newFishEncounter,speciesForRarity,eggPool,repelRarity,lureMul,rstreak,rstreakCatch,rstreakBreak,RSTREAK_MILES,PERMANENTS,charmMul,runeMul,shinyOdds,friendCheck,friendEvo,canEvolve,codeHash,CODES,isSafariDay,SAFARI_POOL,botSpecies,botRate,botHours,FACTIONS,FACTION_RANKS,factionRank,factionMul,factionPts,todayRows,todayPending,REGIONS,unlockedRegions,nextEncounter,newEncounter,rollRarity,fleeChance,RARITY,CINEMAS,CINE_WHO,CINE_T,corruptText,CINE_POS,moduleUnlocked,checkAchievements,sqSkillsOf,sqLeaderOf,sqNewBattle,sqNext,sqTurnStart,sqAct,sqSkip,sqAI,sqFinish,sqUpgrade,sqState,sqStars,sqZoneOpen,SQ_ZONES,SQ_STAGES,sqWaves,sqSkillLv,MAP_ROWS,MAP_SHAPE,EXP_MAPS,expGainLevels,expExpected,EXP_GAIN,startExpedition,openSector,afterFightRewards,lineRoot,createBattle,bStep,bSpeed,arOn,arNeed,AR_KIND,AR_BIOME,towerState,SCREENS,brSummonBoss,brBossDown,BR_PATTERNS,BR_KIT_BY_TYPE,brBossKit,brTerrainReact,brTerrainUnder,brDecal,brHit,brAddZone,brMapNear,brMapPre,brUpdate,ACTIONS,ITEM_IDX,TREASURE_KEYS,BALLS,BERRIES,STONES,CHESTS,PERMANENTS,TREASURES,EXP_ITEMS,REPELS,ringGrade,RING_GRADES,evSeason,evSeasonKey,evWeeklyLegend,evWeekIndex,evState,evTier,evRunPoints,EV_TRACK,EV_SEASONS,brShareText,BR_KIND,BR_ATK,BR_LEGEND,brArchFor,brFire,brWeaponStats,brSpawnFoe,pwaAfterIntro,pwaInstallable,pwaEnv,brChunkAt,brPushOut,brMastery,BR_TERRAIN,brMissionsFor,brNewRun,brUpdate,brXpNeed,brChoices,brWeaponStats,brDaily,brGuardianWin,brGuardianFor,sqLockOpen,sqLockWaves,sqLockGate,sqLockLevel,sqLockAt,sqLockFinish,brNextEvo,brState,BR_ARCH,BR_ITEMS,ACTIVITIES,COSMETICS,FX_LAYERS,badgeCine,secretCine,BADGES,HANDS,MODULE_REQ,SCREENS,adminHash,ADMIN_HASH,ATELIER_TABS,STORY,RIFT_ARC,directStory,cineFor,RESEARCH_TASKS,researchOf,researchLevel,researchMax,researchTick,taskGoal,RESEARCH_TIERS,TALENTS,talentOf,PERFECT_ODDS,rollPerfect,weekStamp,REPORT_ROWS,lineRoot,towerLevel,towerBand,BUFF_STATS,TRAINERS,expEnemyLevel,setBuddy,buddyTick,buddyTier,buddyBonus,buddy,rollWeekly,weeklyTick,weeklyRollover,openChest,WEEKLY_POOL,BUDDY_FINDS,BUDDY_MAX_TIER,BUDDY_TIER_AFF,CHESTS,addToDex,weekKey,aimBonus,BOOSTS,startBoost,boostActive,LUCKY_DAYS,rollLuckyDay,luckyF,TREASURES,rollTreasure,treasureValue,REGION_TIERS,checkRegionTiers,regionTiersDone,rollContract,contractTick,CONTRACTS,CYCLE_MODS,PERKS,cycleReward,perkLv,loreOf,LORE,PZ_EMOS,pzMood,HELD_ITEMS,grantHeld,heldActive,PLANETS,SPECTRALS,QUEST_POOLS,questMix,rollQuests,setS:function(v){S=v},getS:function(){return S},setENC:function(v){ENC=v},getENC:function(){return ENC},getCINE:function(){return CINE},getCineLast:function(){return CINE_LAST},playStory:playStory};');
+eval(code + "\n;" + 'global.__api={POKE,POKE_IDS,evalHand,genMap,EXP_ROWS,deepFill,newState,catchChance,typeMult,RARITY,ACHIEVEMENTS,JOKERS,STORY,anteTarget,makeFighter,damageCalc,xpForLevel,handBase,HANDS,newDeck,movesFor,dexTotal,famOf,stageOf,DIRECTIVES,INFOS,TUTOS,PZ_EVENTS,atlasIndex,ATLAS_N,ATLAS_BACK0,SLUGS,cardChips,grantCardV,grantSecretCard,cardVariants,cardHas,cardOwnedCount,cardTotal,CARD_MONS,CARD_SERIES_DEF,CARD_ORDER,rollCardSeries,randomCard,migrateCards,CARD_INDEX,cardChecksum,cardBytes,tcardHtml,cardBackHtml,GEN_TAG,boosterRank,seriesName,seriesFound,monFound,cardEnvOf,CARD_ENV,resolveName,KNOWN_NAMES,sixthItem,glitchSixthItem,GEN_MARKS,checkChainMark,specialDay,isNightWindow,PZ_POKE_LINES,SIXTH_SLOTS,KONAMI,karpDealDay,karpDealAvailable,BST_BANDS,bstBand,wildIdFor,NODE_W,nodeTypeFor,EXP_ITEMS,rollExpItem,itemMinFloor,EXP_MODES,expRunModes,genMap,traitLevels,traitBonus,TOWER_TRAITS,HABITATS,HABITAT_IDS,habitatWeight,isNight,WEATHER,WEATHER_IDS,weatherDef,speciesInHabitat,FRAGMENTS,RIFT_ARC,checkFragments,riftTick,riftStage,fragmentsFound,fragNext,fragPending,fragOn,fragOnCatch,fragFound,FRAG_SRC,signatureMove,moveTierName,STRATA,forage,forageRate,forageAdvance,digPower,digAff,digRate,crewIds,wallEvery,wallCap,genWall,digHit,digClaim,DIG_LOOT,FOR_UPS,offlineHours,forageTick,EGG_TIERS,EXCLUSIVES,EXCL_SOURCE,isExclusive,RODS,fishPool,newFishEncounter,speciesForRarity,eggPool,repelRarity,lureMul,rstreak,rstreakCatch,rstreakBreak,RSTREAK_MILES,PERMANENTS,charmMul,runeMul,shinyOdds,friendCheck,friendEvo,canEvolve,codeHash,CODES,isSafariDay,SAFARI_POOL,botSpecies,botRate,botHours,FACTIONS,FACTION_RANKS,factionRank,factionMul,factionPts,todayRows,todayPending,REGIONS,unlockedRegions,nextEncounter,newEncounter,rollRarity,fleeChance,RARITY,CINEMAS,CINE_WHO,CINE_T,corruptText,CINE_POS,moduleUnlocked,checkAchievements,sqSkillsOf,sqLeaderOf,sqNewBattle,sqNext,sqTurnStart,sqAct,sqSkip,sqAI,sqFinish,sqUpgrade,sqState,sqStars,sqZoneOpen,SQ_ZONES,SQ_STAGES,sqWaves,sqSkillLv,MAP_ROWS,MAP_SHAPE,EXP_MAPS,expGainLevels,expExpected,EXP_GAIN,startExpedition,openSector,afterFightRewards,lineRoot,createBattle,bStep,bSpeed,arOn,arNeed,AR_KIND,AR_BIOME,towerState,SCREENS,brSummonBoss,brBossDown,BR_PATTERNS,BR_KIT_BY_TYPE,brBossKit,brTerrainReact,brTerrainUnder,brDecal,brHit,brAddZone,brMapNear,brMapPre,brUpdate,ACTIONS,ITEM_IDX,TREASURE_KEYS,BALLS,BERRIES,STONES,CHESTS,PERMANENTS,TREASURES,EXP_ITEMS,REPELS,ringGrade,RING_GRADES,evSeason,evSeasonKey,evWeeklyLegend,evWeekIndex,evState,evTier,evRunPoints,EV_TRACK,EV_SEASONS,brShareText,BR_KIND,BR_ATK,BR_LEGEND,brArchFor,brFire,brWeaponStats,brSpawnFoe,pwaAfterIntro,pwaInstallable,pwaEnv,brChunkAt,brPushOut,brMastery,BR_TERRAIN,brMissionsFor,brNewRun,brUpdate,brXpNeed,brChoices,brWeaponStats,brDaily,brGuardianWin,brGuardianFor,ROOM_MOMENTS,roomMomentsTick,sqLockOpen,sqLockWaves,sqLockGate,sqLockLevel,sqLockAt,sqLockFinish,brNextEvo,brState,BR_ARCH,BR_ITEMS,ACTIVITIES,COSMETICS,FX_LAYERS,badgeCine,secretCine,BADGES,HANDS,MODULE_REQ,SCREENS,adminHash,ADMIN_HASH,ATELIER_TABS,STORY,RIFT_ARC,directStory,cineFor,RESEARCH_TASKS,researchOf,researchLevel,researchMax,researchTick,taskGoal,RESEARCH_TIERS,TALENTS,talentOf,PERFECT_ODDS,rollPerfect,weekStamp,REPORT_ROWS,lineRoot,towerLevel,towerBand,BUFF_STATS,TRAINERS,expEnemyLevel,setBuddy,buddyTick,buddyTier,buddyBonus,buddy,rollWeekly,weeklyTick,weeklyRollover,openChest,WEEKLY_POOL,BUDDY_FINDS,BUDDY_MAX_TIER,BUDDY_TIER_AFF,CHESTS,addToDex,weekKey,aimBonus,BOOSTS,startBoost,boostActive,LUCKY_DAYS,rollLuckyDay,luckyF,TREASURES,rollTreasure,treasureValue,REGION_TIERS,checkRegionTiers,regionTiersDone,rollContract,contractTick,CONTRACTS,CYCLE_MODS,PERKS,cycleReward,perkLv,loreOf,LORE,PZ_EMOS,pzMood,HELD_ITEMS,grantHeld,heldActive,PLANETS,SPECTRALS,QUEST_POOLS,questMix,rollQuests,setS:function(v){S=v},getS:function(){return S},setENC:function(v){ENC=v},getENC:function(){return ENC},getCINE:function(){return CINE},getCineLast:function(){return CINE_LAST},playStory:playStory};');
 const A = global.__api;
 let pass=0, fail=0;
 const t = (n, cond, extra) => { cond?pass++:(fail++,console.log("  ECHEC:",n,extra||"")); };
@@ -764,15 +764,34 @@ t("huit lignes de rapport, toutes nommées", A.REPORT_ROWS.length === 8 &&
 
 
 /* --- récit : trois voix --- */
-t("onze fragments, découverts dans l'ordre", (()=>{
+t("onze pages, trouvées dans l'ordre, chacune là où son auteur a travaillé", (()=>{
   A.setS(A.newState());
-  const S0 = A.getS();
-  if(A.FRAGMENTS.length !== 11) return false;
+  const S0 = A.getS(); S0.level = 40; S0.bosses = ["kanto:146"]; S0.stats.expWins = 1;
+  if(A.FRAGMENTS.length !== 11 || !A.FRAGMENTS.every(f=>A.FRAG_SRC[f.src] && f.place && f.react && f.day)) return false;
+  for(let i=1;i<=386;i++) A.addToDex(i,20,false);
+  S0.integrity = 100;
   const ordre = [];
-  for(let i=1;i<=386;i++){ A.addToDex(i,20,false); while(A.checkFragments()) ordre.push(0); }
-  for(let k=0;k<=100;k++){ S0.integrity = k; while(A.checkFragments()) ordre.push(0); }
-  const got = S0.fragments;
-  return got.length === 11 && got.every((v,i)=>v === i+1);
+  for(let guard = 0; guard < 400 && ordre.length < 11; guard++){
+    const f = A.fragNext(); if(!f) break;
+    /* chaque page ne sort que de sa source */
+    const autre = Object.keys(A.FRAG_SRC).find(k=>k !== f.src && k !== "capture");
+    if(autre && A.fragPending(autre)) return false;
+    if(f.src === "capture"){ let ok = false; for(let k = 0; k < 500 && !ok; k++) ok = A.fragOnCatch(); if(!ok) return false; A.fragFound(f, "test"); }
+    else A.fragOn(f.src);
+    ordre.push(f.id);
+  }
+  return S0.fragments.length === 11 && S0.fragments.every((v,i)=>v === i+1) && S0.fragUnread.length === 11;
+})());
+t("une page dont la salle est fermée finit dans les captures", (()=>{
+  A.setS(A.newState()); const S0 = A.getS(); S0.level = 3;
+  for(let i=1;i<=60;i++) A.addToDex(i,20,false);
+  S0.fragments = [1, 2, 3]; S0.integrity = 15;
+  const f = A.fragNext();
+  return f.id === 4 && f.src === "forage" && !!A.fragPending("capture");
+})());
+t("une page n'apparaît pas avant sa condition", (()=>{
+  A.setS(A.newState()); for(let i=1;i<=5;i++) A.addToDex(i,20,false);
+  return A.fragNext() === null && A.checkFragments() === false;
 })());
 t("chaque fragment a un auteur et un texte long",
   A.FRAGMENTS.every(f=>f.who && f.t && f.t.length > 120 && f.n));
@@ -880,77 +899,69 @@ t("carte : une route ne glisse jamais de plus d'un couloir, et chaque dresseur m
 })());
 
 
-/* --- le forage --- */
-t("neuf strates, besoins et rendements croissants", (()=>{
+/* --- le forage : l'équipe creuse, on fouille les parois --- */
+t("neuf strates, de plus en plus profondes et dures, chacune avec sa matière et ses bons types", (()=>{
   if(A.STRATA.length !== 9) return false;
-  for(let i=1;i<9;i++){
-    if(A.STRATA[i].need <= A.STRATA[i-1].need) return false;
-    if(A.STRATA[i].mul  <= A.STRATA[i-1].mul)  return false;
+  for(let i=1;i<9;i++) if(A.STRATA[i].need <= A.STRATA[i-1].need || A.STRATA[i].hard <= A.STRATA[i-1].hard) return false;
+  return A.STRATA.every(s=>s.good.length && s.pal.length === 3 && s.mat);
+})());
+t("sans équipe, personne ne creuse ; avec une équipe, la profondeur et l'Énergie montent", (()=>{
+  A.setS(A.newState()); const S0 = A.getS(); S0.level = 6;
+  for(const id of [74, 27, 50]) A.addToDex(id, 15, false);
+  const f = A.forage(); f.crew = [];
+  const a = A.forageAdvance(600);
+  f.crew = [74, 27, 50];
+  const b = A.forageAdvance(600);
+  return a.m === 0 && b.m > 10 && f.energy > 0 && A.forageRate() > 0;
+})());
+t("les bons types creusent deux fois plus vite dans leur strate", (()=>{
+  A.setS(A.newState()); A.addToDex(74, 20, false); A.addToDex(4, 20, false);
+  return A.digAff(74, 0) === 2 && A.digAff(4, 0) === 1 && A.digAff(4, 3) === 2 && A.digAff(12, 3) === 0.5
+    && A.digPower(74, 0) > A.digPower(4, 0) * 1.5;
+})());
+t("une longue absence traverse plusieurs strates, et la réserve de parois plafonne", (()=>{
+  A.setS(A.newState());
+  for(const id of [76, 95, 112]) A.addToDex(id, 80, false);
+  const f = A.forage(); f.crew = [76, 95, 112];
+  const r = A.forageAdvance(8 * 3600);
+  return r.strata.length >= 2 && f.walls === A.wallCap() && f.depth >= 2 && A.wallEvery() === 420;
+})());
+t("une paroi : objets sans chevauchement, fer à l'écart, et tout se dégage à force de coups", (()=>{
+  A.setS(A.newState());
+  for(let k = 0; k < 20; k++){
+    const w = A.genWall(k % 9);
+    const cells = w.items.flatMap(it=>it.cells);
+    if(new Set(cells).size !== cells.length || w.items.length < 2) return false;
+    if(w.iron.flat().some(c=>cells.includes(c))) return false;
   }
-  return true;
+  const w = A.genWall(2); w.stab = w.max = 9999;
+  for(let pass = 0; pass < 8 && !w.over; pass++) for(let y = 0; y < w.H; y++) for(let x = 0; x < w.W; x++) A.digHit(w, "pick", x, y);
+  return w.over && !w.collapsed && w.items.every(it=>it.found);
 })());
-t("chaque strate sous la Surface ouvre une mécanique", (()=>{
-  const ks = A.STRATA.slice(1).map(x=>x.unlock && x.unlock.k);
-  return ks.every(Boolean) && new Set(ks).size === ks.length;
-})());
-t("aucune sonde ne produit avant la Couche molle", (()=>{
+t("une paroi s'effondre quand sa stabilité tombe à zéro, et l'on garde ce qui est dégagé", (()=>{
   A.setS(A.newState());
+  const w = A.genWall(0);
+  for(let i = 0; i < 200 && !w.over; i++) A.digHit(w, "hammer", 0, 0);
+  return w.over && w.collapsed && w.stab === 0;
+})());
+t("les objets d'une paroi arrivent bien : fragments, pierres, fossiles, Pokémon endormis", (()=>{
+  A.setS(A.newState()); const S0 = A.getS();
+  const w = A.genWall(3);
+  w.items = [{k:"red", found:true}, {k:"fire", found:true}, {k:"helix", found:true}, {k:"mon", mon:74, found:true}, {k:"pearl", found:false}];
+  const sh = S0.shards || 0;
+  const rows = A.digClaim(w);
+  return rows.length === 4 && (S0.shards || 0) > sh && S0.stones.fire === 1 && S0.eggs.bag.f_helix === 1 && !!S0.dex[74];
+})());
+t("un fossile déterré renferme toujours la même espèce", A.EGG_TIERS.f_helix.fossil === 138 && A.eggPool("f_amber").join() === "142");
+t("une partie d'avant la refonte garde sa profondeur", (()=>{
+  A.setS(A.newState()); const S0 = A.getS();
+  S0.forage = {energy:500, total:900, depth:4, drills:{main:3}, echoes:5, perks:{}};
   const f = A.forage();
-  f.drills = {main: 10};
-  const avant = f.energy;
-  A.forageTick(60);
-  return f.energy === avant && !A.unlocked("auto");
+  return f.m === A.STRATA[4].need && f.depth === 4 && f.energy === 500 && f.echoes === 5 && !f.drills;
 })());
-t("les sondes produisent une fois la Couche molle atteinte", (()=>{
-  A.setS(A.newState());
-  const f = A.forage();
-  f.depth = 1; f.drills = {main: 10};
-  A.forageTick(10);
-  return f.energy > 0 && A.forageRate() > 0;
-})());
-t("le coût d'une sonde croît avec le nombre possédé", (()=>{
-  A.setS(A.newState());
-  const f = A.forage(), d = A.DRILLS[0];
-  const c0 = A.drillCost(d);
-  f.drills[d.k] = 10;
-  return A.drillCost(d) > c0 * 5;
-})());
-t("la frappe vaut toujours au moins une unité", (()=>{
-  A.setS(A.newState());
-  return A.clickValue() >= 1;
-})());
-t("pas d'Échos avant la Faille mineure", (()=>{
-  A.setS(A.newState());
-  const f = A.forage();
-  f.total = 1e12; f.depth = 5;
-  return A.echoGain() === 0;
-})());
-t("le recalibrage rend des Échos une fois la Faille atteinte", (()=>{
-  A.setS(A.newState());
-  const f = A.forage();
-  f.total = 6e9; f.depth = 6;
-  return A.echoGain() > 0;
-})());
-t("six axes de recalibrage, coûts croissants", (()=>{
-  const ks = Object.keys(A.ECHO_PERKS);
-  if(ks.length !== 6) return false;
-  return ks.every(k=>{ const p = A.ECHO_PERKS[k];
-    return p.max > 0 && p.cost(1) > p.cost(0) && typeof p.d(0) === "string"; });
-})());
-t("le réservoir hors ligne se repousse", (()=>{
-  A.setS(A.newState());
-  const f = A.forage();
-  const base = A.offlineHours();
-  f.depth = 4; f.perks = {e_offline: 3};
-  return A.offlineHours() > base;
-})());
-t("la Pénétration réduit le coût de descente", (()=>{
-  A.setS(A.newState());
-  const f = A.forage();
-  f.depth = 2;
-  const c0 = A.depthCost();
-  f.perks = {e_depth: 3};
-  return A.depthCost() < c0;
+t("la réserve de parois repousse aussi le plafond hors ligne", (()=>{
+  A.setS(A.newState()); const base = A.offlineHours(); A.forage().up.cart = 2;
+  return A.offlineHours() === base + 4 && A.wallCap() === 5;
 })());
 
 
@@ -1819,6 +1830,15 @@ t("aucune action n'est définie deux fois (une action écrasée bloquait « Arch
   for(const f of order) for(const m of fs.readFileSync(__dirname + "/src/" + f, "utf8").matchAll(/^ACTIONS\.(\w+)\s*=/gm)){
     if(seen[m[1]] && seen[m[1]] !== f) dup.push(m[1]); seen[m[1]] = f; }
   return dup.length === 0;
+})());
+t("chaque salle qui s'ouvre a son moment, et une ancienne partie ne les rejoue pas", (()=>{
+  if(!Object.keys(A.ROOM_MOMENTS).every(k=>A.MODULE_REQ[k])) return false;
+  A.setS(A.newState()); const S0 = A.getS(); S0.level = 9; S0.team = [1, 4, 7];
+  A.roomMomentsTick();
+  const init = S0.flags.roomsSeen.slice();
+  S0.level = 11; for(let i = 1; i <= 6; i++) A.addToDex(i, 10, false);
+  const fired = A.roomMomentsTick();
+  return init.includes("expedition") && fired === true && S0.flags.roomsSeen.includes("tower");
 })());
 console.log(`\n${pass} tests reussis, ${fail} echecs`);
 process.exit(fail?1:0);

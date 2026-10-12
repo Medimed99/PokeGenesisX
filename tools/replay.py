@@ -1,0 +1,41 @@
+import asyncio
+from playwright.async_api import async_playwright
+async def main():
+    async with async_playwright() as p:
+        b = await p.chromium.launch(executable_path="/opt/pw-browsers/chromium-1194/chrome-linux/chrome", args=["--no-sandbox"])
+        ctx = await b.new_context(viewport={"width":390,"height":844})
+        pg = await ctx.new_page()
+        errs=[]; pg.on("pageerror", lambda e: errs.append(str(e)))
+        # 1) premiere visite : on passe l'ouverture pour obtenir une sauvegarde
+        await pg.goto("file:///home/claude/pcg/dist/index.html")
+        await pg.wait_for_timeout(1200)
+        await pg.get_by_text("Entrer dans l'archive").click()
+        await pg.wait_for_timeout(800)
+        await pg.click(".cn-skip")
+        await pg.wait_for_timeout(900)
+        # 2) on recharge : c'est desormais une sauvegarde existante, sans ouverture
+        await pg.reload(); await pg.wait_for_timeout(1500)
+        btn = pg.get_by_text("Entrer dans l'archive")
+        if await btn.count(): await btn.click()
+        await pg.wait_for_timeout(800)
+        on = await pg.evaluate("document.getElementById('cine').className")
+        print("au rechargement, cinématique affichée :", "on" in on, "(attendu : non)")
+        # 3) voie du journal
+        await pg.evaluate("ACTIONS.storyreplay ? ACTIONS.storyreplay({id:'intro'}) : playStory('intro', ()=>{})")
+        await pg.wait_for_timeout(2600)
+        cls = await pg.evaluate("document.getElementById('cine').className")
+        mon = await pg.evaluate("!!document.querySelector('#cine .cn-monitor')")
+        print("rejeu depuis le journal — cinématique :", "on" in cls, "| moniteur du professeur :", mon)
+        await pg.screenshot(path="/tmp/shots/replay_journal.png")
+        await pg.click(".cn-skip"); await pg.wait_for_timeout(700)
+        # 4) voie de l'outil game master (meme appel que l'action de l'outil)
+        await pg.evaluate("ACTIONS.admstory({id:'intro'})")
+        await pg.wait_for_timeout(4500)
+        print("après 4,5 s — moniteur du professeur :", await pg.evaluate("!!document.querySelector('#cine .cn-monitor')"))
+        await pg.screenshot(path="/tmp/shots/replay_gm.png")
+        cls = await pg.evaluate("document.getElementById('cine').className")
+        print("rejeu depuis le game master — cinématique :", "on" in cls)
+        print("ancienne scène affichée par erreur :", await pg.evaluate("document.getElementById('story').className.includes('on')"))
+        print("erreurs de page :", errs[:3] or "aucune")
+        await b.close()
+asyncio.run(main())

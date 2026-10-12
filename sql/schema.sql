@@ -24,6 +24,8 @@ create table if not exists public.saves (
   best_ante   integer     not null default 0,
   cards       integer     not null default 0,
   guardians   integer     not null default 0,
+  tower       integer     not null default 0,
+  faction     text,
   tested      boolean     not null default false,
   updated_at  timestamptz not null default now(),
 
@@ -43,6 +45,20 @@ create index if not exists saves_shinies_idx     on public.saves (shinies desc);
 create index if not exists saves_streak_idx      on public.saves (best_streak desc);
 create index if not exists saves_ante_idx        on public.saves (best_ante desc);
 create index if not exists saves_guardians_idx   on public.saves (guardians desc);
+
+-- Colonnes ajoutees apres la premiere mise en ligne. « if not exists » rend
+-- le script rejouable tel quel sur une base deja creee : il suffit de le relancer.
+alter table public.saves add column if not exists tower   integer not null default 0;
+alter table public.saves add column if not exists faction text;
+alter table public.saves drop constraint if exists saves_faction_check;
+alter table public.saves add constraint saves_faction_check
+  check (faction is null or faction in ('restaurer','seuil','echo'));
+create index if not exists saves_tower_idx       on public.saves (tower desc);
+-- la Breche : meilleure profondeur de la faille, nombre de Breches refermees
+alter table public.saves add column if not exists breche_depth  integer not null default 0;
+alter table public.saves add column if not exists breche_clears integer not null default 0;
+create index if not exists saves_breche_depth_idx  on public.saves (breche_depth desc);
+create index if not exists saves_breche_clears_idx on public.saves (breche_clears desc);
 
 -- horodatage automatique
 create or replace function public.touch_updated_at()
@@ -94,7 +110,9 @@ create policy saves_update_own on public.saves
 -- ------------------------------------------------------------
 create or replace view public.leaderboard as
   select user_id, name, level, integrity, dex_count, shinies,
-         best_streak, best_ante, cards, guardians, tested, updated_at
+         best_streak, best_ante, cards, guardians, tested, updated_at,
+         tower, faction,         -- ajoutees en fin : une vue existante refuse une insertion au milieu
+         breche_depth, breche_clears
   from public.saves
   where updated_at > now() - interval '120 days';
 
@@ -108,6 +126,11 @@ grant select on public.leaderboard to anon, authenticated;
 -- Aucun acces direct a la table : meme avec la cle publique, un client ne peut
 -- pas contourner la vue pour lire le payload d'autrui.
 revoke all on public.saves from anon;
+-- Autorisations explicites pour les joueurs connectes. Les projets Supabase
+-- recents n'exposent plus toujours automatiquement les nouvelles tables : sans
+-- ces lignes, la sauvegarde serait refusee sans raison apparente. La RLS
+-- ci-dessus limite toujours chacun a sa propre ligne.
+grant select, insert, update on public.saves to authenticated;
 
 -- ------------------------------------------------------------
 -- 3. ÉCHANGES DE CARTES
@@ -256,6 +279,8 @@ revoke all on function public.offer_card(text) from public;
 revoke all on function public.claim_card(text) from public;
 grant execute on function public.offer_card(text) to authenticated;
 grant execute on function public.claim_card(text) to authenticated;
+-- lecture de ses propres propositions (la RLS de trades filtre deja par joueur)
+grant select on public.trades to authenticated;
 
 -- ------------------------------------------------------------
 -- 4. ENTRETIEN
@@ -281,3 +306,96 @@ $$;
 -- 4. Settings > API : copier « Project URL » et la clé « anon public »,
 --    puis les saisir dans le jeu (Profil > En ligne > Compte).
 -- ============================================================
+
+-- ------------------------------------------------------------
+-- 5. BRÈCHE DU JOUR — classement quotidien
+-- Tout le monde joue la meme graine. On n'ecrit jamais directement dans la
+-- table : la fonction submit_breche_daily ne garde que le meilleur score du
+-- jour de chaque joueur, et refuse les dates incoherentes.
+-- ------------------------------------------------------------
+create table if not exists public.breche_daily (
+  user_id    uuid        not null references auth.users(id) on delete cascade,
+  day        date        not null,
+  name       text        not null default 'Archiviste',
+  score      integer     not null check (score >= 0 and score <= 1000000),
+  depth      integer     not null default 0,
+  team       integer[]   not null default '{}',
+  updated_at timestamptz not null default now(),
+  primary key (user_id, day)
+);
+create index if not exists breche_daily_day_idx on public.breche_daily (day, score desc);
+
+alter table public.breche_daily enable row level security;
+drop policy if exists breche_daily_read on public.breche_daily;
+create policy breche_daily_read on public.breche_daily for select to anon, authenticated using (true);
+
+-- lecture publique (pseudo, score, equipe : rien de prive) ; aucune ecriture directe
+grant select on public.breche_daily to anon, authenticated;
+revoke insert, update, delete on public.breche_daily from anon, authenticated;
+
+create or replace function public.submit_breche_daily(
+  p_day date, p_name text, p_score integer, p_depth integer, p_team integer[])
+returns void language plpgsql security definer set search_path = public as $$
+begin
+  if auth.uid() is null then
+    raise exception 'connexion requise' using errcode = '28000';
+  end if;
+  -- un jour d'ecart toléré : les fuseaux horaires des joueurs different
+  if p_day < current_date - 1 or p_day > current_date + 1 then
+    raise exception 'jour invalide' using errcode = '22023';
+  end if;
+  insert into public.breche_daily (user_id, day, name, score, depth, team)
+  values (auth.uid(), p_day, left(coalesce(nullif(trim(p_name), ''), 'Archiviste'), 16),
+          greatest(0, least(p_score, 1000000)), greatest(0, p_depth), coalesce(p_team[1:6], '{}'))
+  on conflict (user_id, day) do update set
+    name       = excluded.name,
+    depth      = case when excluded.score > public.breche_daily.score then excluded.depth else public.breche_daily.depth end,
+    team       = case when excluded.score > public.breche_daily.score then excluded.team  else public.breche_daily.team  end,
+    score      = greatest(public.breche_daily.score, excluded.score),
+    updated_at = now();
+end $$;
+
+revoke all on function public.submit_breche_daily(date, text, integer, integer, integer[]) from public, anon;
+grant execute on function public.submit_breche_daily(date, text, integer, integer, integer[]) to authenticated;
+
+-- ------------------------------------------------------------
+-- 6. OBJECTIF COLLECTIF DE LA SEMAINE
+-- Chaque K.O. dans la Breche compte pour tous. Une ligne par joueur et par
+-- semaine ; on n'ecrit que par la fonction add_community, plafonnee par appel
+-- (une run ne peut pas gonfler le total a elle seule).
+-- ------------------------------------------------------------
+create table if not exists public.community (
+  week       text        not null,
+  user_id    uuid        not null references auth.users(id) on delete cascade,
+  kills      bigint      not null default 0 check (kills >= 0),
+  updated_at timestamptz not null default now(),
+  primary key (week, user_id)
+);
+alter table public.community enable row level security;
+drop policy if exists community_read on public.community;
+create policy community_read on public.community for select to anon, authenticated using (true);
+grant select on public.community to anon, authenticated;
+revoke insert, update, delete on public.community from anon, authenticated;
+
+create or replace view public.community_totals with (security_invoker = on) as
+  select week, sum(kills)::bigint as total, count(*)::integer as players
+  from public.community group by week;
+grant select on public.community_totals to anon, authenticated;
+
+create or replace function public.add_community(p_week text, p_kills integer)
+returns void language plpgsql security definer set search_path = public as $$
+begin
+  if auth.uid() is null then
+    raise exception 'connexion requise' using errcode = '28000';
+  end if;
+  if p_week !~ '^S[0-9]{1,5}$' then
+    raise exception 'semaine invalide' using errcode = '22023';
+  end if;
+  insert into public.community (week, user_id, kills)
+  values (p_week, auth.uid(), greatest(0, least(p_kills, 20000)))
+  on conflict (week, user_id) do update set
+    kills = public.community.kills + greatest(0, least(excluded.kills, 20000)),
+    updated_at = now();
+end $$;
+revoke all on function public.add_community(text, integer) from public, anon;
+grant execute on function public.add_community(text, integer) to authenticated;

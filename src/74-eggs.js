@@ -123,6 +123,16 @@ function eggTick(){
   saveSoon();
 }
 
+/* ou trouver des oeufs : seulement les salles deja ouvertes, avec un bouton pour y aller */
+function eggSourcesHtml(){
+  const src = [
+    ["expedition", "en réussissant une <b>Expédition</b>", "Partir en Expédition"],
+    ["idle", "dans les <b>fouilles du Forage</b> (Pierre Ovale, fossiles)", "Aller au Forage"]
+  ].filter(([k])=>moduleUnlocked(k));
+  if(!src.length) return `On en trouve en explorant : continue de capturer, de nouvelles salles vont s'ouvrir.`;
+  return `On en trouve ${src.map(x=>x[1]).join(", ou ")}, et dans les archives les plus rares de la boutique.
+    <div class="btn-grid ${src.length > 1 ? "c2" : ""}" style="margin-top:10px">${src.map(([k,, b])=>`<button class="btn sm pri" data-act="goto" data-to="${k}">${b}</button>`).join("")}</div>`;
+}
 function eggPool(tier){
   const t = EGG_TIERS[tier];
   const out = [];
@@ -321,16 +331,12 @@ SCREENS.eggs = {
             <button class="btn xs ${eggFreeSlot()?"pri":""}" data-act="eggput" data-t="${k}"
               ${eggFreeSlot()?"":"disabled"}>Incuber</button>
           </div>`;}).join("")}
-      </div>` : `<div class="empty">Aucun œuf. Ils ne s'obtiennent qu'en <b>réussissant une Expédition</b>,
-          dans ses trésors, ou dans les <b>archives les plus rares</b>.
-          <div style="margin-top:10px"><button class="btn sm pri" data-act="goto" data-to="expedition">
-            Partir en Expédition</button></div></div>`}
+      </div>` : `<div class="empty">Aucun œuf pour l'instant. ${eggSourcesHtml()}</div>`}
 
       <div class="h sm" style="margin-top:12px">ACHETER</div>
       ${S.level < EGG_SHOP_LEVEL
-        ? `<div class="empty">Le tampon de rebut ne vend rien à un Archiviste de niveau
-            ${S.level}. Revenez au niveau ${EGG_SHOP_LEVEL} — d'ici là, les ébauches se
-            trouvent au bout d'une Expédition.</div>`
+        ? `<div class="empty">On ne peut pas encore en acheter : il faut le niveau ${EGG_SHOP_LEVEL}
+            (tu es niveau ${S.level}). D'ici là, il faut les trouver.</div>`
         : `<div class="list">
         ${Object.entries(EGG_TIERS).filter(([,t])=>t.cores > 0).map(([k,t])=>`
           <div class="shopitem">

@@ -126,7 +126,7 @@ def embed(img, ncol=64):
 
 import os
 
-def load_or_draw(path, draw_fn, box):
+def load_or_draw(path, draw_fn, box, maxbox=128):
     """Un fichier depose dans assets/ prime toujours sur le dessin de secours.
 
     C'est le point d'entree prevu pour substituer un sprite officiel : deposer
@@ -135,11 +135,16 @@ def load_or_draw(path, draw_fn, box):
     """
     if os.path.exists(path):
         im = Image.open(path).convert("RGBA")
-        if im.size != (box, box):                      # recadrage sans deformation
-            im.thumbnail((box, box), Image.NEAREST)
-            c = Image.new("RGBA", (box, box), (0, 0, 0, 0))
-            c.paste(im, ((box - im.width) // 2, (box - im.height) // 2))
-            im = c
+        bb = im.getbbox()                              # marges vides retirees
+        if bb: im = im.crop(bb)
+        # un fichier fourni garde sa finesse jusqu'a maxbox pixels : le reduire
+        # a la taille du dessin de secours (40 px) detruirait son detail
+        side = min(max(im.size), maxbox)
+        if max(im.size) > maxbox:
+            im.thumbnail((maxbox, maxbox), Image.NEAREST)
+        c = Image.new("RGBA", (side, side), (0, 0, 0, 0))   # carre, sans deformation
+        c.paste(im, ((side - im.width) // 2, (side - im.height) // 2))
+        im = c
         print("  %s : fichier fourni utilise (%dx%d)" % (path, im.width, im.height))
         return im, True
     return draw_fn(), False
@@ -148,12 +153,30 @@ prof_img,  prof_custom = load_or_draw("assets/prof.png", prof_portrait, 40)
 miss_img,  miss_custom = load_or_draw("assets/missingno.png", missingno, 64)
 prof, n1 = embed(prof_img, 64 if prof_custom else 48)
 miss, n2 = embed(miss_img, 64 if miss_custom else 32)
+# --- sprite du professeur EN PIED, facultatif ----------------------------
+# Deposer assets/prof_full.png (fond transparent). Les proportions sont gardees :
+# un sprite en pied est plus haut que large, on ne le force pas dans un carre.
+prof_full = ""
+if os.path.exists("assets/prof_full.png"):
+    im = Image.open("assets/prof_full.png").convert("RGBA")
+    bbox = im.getbbox()                      # on retire les marges vides
+    if bbox: im = im.crop(bbox)
+    if im.height > 160:                       # plafond raisonnable, sans lissage
+        r = 160 / im.height
+        im = im.resize((max(1, round(im.width * r)), 160), Image.NEAREST)
+    import io
+    buf = io.BytesIO(); im.save(buf, "PNG", optimize=True)
+    prof_full = base64.b64encode(buf.getvalue()).decode()
+    print("  assets/prof_full.png : sprite en pied utilise (%dx%d)" % (im.width, im.height))
+
 open("src/_chars.js", "w", encoding="utf-8").write(
     "/* Visuels non-Pokemon dessines pour le jeu (voir build_chars.py).\n"
     "   Prof. Racine est un personnage original ; MissingNo est une citation\n"
     "   de la silhouette affichee par le jeu d'origine sur une definition vide. */\n"
     f'const PROF_PORTRAIT = "data:image/png;base64,{prof}";\n'
-    f'const MISSING_SPRITE = "data:image/png;base64,{miss}";\n')
+    f'const MISSING_SPRITE = "data:image/png;base64,{miss}";\n'
+    + (f'const PROF_FULL = "data:image/png;base64,{prof_full}";\n' if prof_full
+       else 'const PROF_FULL = "";   /* deposer assets/prof_full.png pour un professeur en pied */\n'))
 print("prof %d o%s | missingno %d o%s | total base64 %.1f Ko"
       % (n1, " (fourni)" if prof_custom else " (dessine)",
          n2, " (fourni)" if miss_custom else " (dessine)",

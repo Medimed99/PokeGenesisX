@@ -104,11 +104,18 @@ const INFOS = {
     <b>programmes</b> s'empilent et transforment complètement une partie. Les <b>boosters</b>
     ajoutent à votre deck des espèces tirées de votre propre archive.</p>`},
 
-  idle:{n:"Le forage", d:`
-    <p>Frappez la sphère pour extraire de l'Énergie. À la Couche molle, les sondes prennent le relais
-    et le forage continue même hors ligne, jusqu'au plafond de votre réservoir.</p>
-    <p>Chaque strate multiplie le rendement et ouvre une mécanique nouvelle. Le recalibrage rend des
-    Échos permanents. Voir la fiche « Le forage » pour le détail.</p>`},
+  idle:{n:"Le Forage", d:`
+    <p><b>Ton équipe creuse toute seule</b>, même quand le jeu est fermé (jusqu'à 8 h, plus avec les améliorations).
+    Elle compte de 3 à 6 Pokémon de ton Pokédex. Plus leur niveau est haut, plus ils creusent vite.</p>
+    <p>Chaque couche est faite d'une matière différente. Certains types y creusent <b>deux fois plus vite</b>
+    (Sol et Roche dans la terre, Feu dans la glace, Eau dans le magma…), d'autres deux fois moins.
+    Le bouton « Choisir les meilleurs » compose l'équipe pour toi.</p>
+    <p>Toutes les 7 minutes, ton équipe trouve une <b>fouille</b>. Elles t'attendent (3 au début). Dans une fouille,
+    tu casses la roche à la <b>pioche</b> (petite zone) ou au <b>marteau</b> (grande zone, mais abîme deux fois plus).
+    Un objet est à toi quand il est entièrement dégagé. Si la solidité tombe à zéro, tout s'effondre : tu gardes
+    ce qui était déjà sorti.</p>
+    <p>En creusant, tu gagnes aussi de l'<b>Énergie</b>. Elle sert à améliorer le Forage, à lancer des captures
+    automatiques, ou s'échange contre des PokéCoins.</p>`},
 
   fishing:{n:"La pêche", d:`
     <p>La pêche est un mode de l'écran de capture : on bascule d'un geste entre Capture et Pêche.
@@ -330,10 +337,10 @@ const TUTOS = {
     {sel:"#screen", t:"Certains Pokémon ne remontent qu'au bout d'une ligne. Tu ne les croiseras nulle part ailleurs."}
   ]},
   idle:{steps:[
-    {sel:"#screen", t:"Les Pokémon archivés continuent de rêver, même quand tu fermes le jeu. Ce bruit de fond s'extrait. Je l'appelle Énergie Onirique."},
-    {sel:"#gball",  t:"Frappe la sphère. Fort. Au début, c'est la seule façon de forer : aucune sonde ne tient à la Surface. Ne t'inquiète pas, ça ne lui fait pas mal. Je crois."},
-    {sel:"#screen", t:"Descends jusqu'à la Couche molle : les sondes s'y accrochent, et le forage tourne sans toi. Chaque strate plus bas ouvre quelque chose de nouveau."},
-    {sel:"#screen", t:"Tout en bas, on peut recalibrer. On perd la profondeur, on garde les Échos. Et les Échos ne s'effacent jamais."}
+    {sel:"#fo-shaft", t:"Le Forage. Tes Pokémon creusent ici tout seuls, même quand tu fermes le jeu. Moi je compte les mètres. J'adore compter les mètres."},
+    {sel:".fo-tip", t:"Chaque couche a sa matière. Les types écrits ici creusent deux fois plus vite. Quand tu descends, change ton équipe."},
+    {sel:".fo-crew", t:"Ton équipe. Touche un Pokémon pour le remplacer, ou « Choisir les meilleurs » si tu me fais confiance."},
+    {sel:".fo-wallbtn", t:"Toutes les 7 minutes, ils trouvent une fouille. Ouvre-la, casse la roche, et récupère ce qu'il y a dedans. Fossiles, pierres… et parfois quelqu'un qui dormait."}
   ]},
   eggs:{steps:[
     {sel:"#screen", t:"Ce ne sont pas tout à fait des Œufs. Ce sont des Pokémon que le système a commencé à écrire, puis abandonnés en cours de route."},
@@ -480,9 +487,9 @@ const DIRECTIVES = [
    rw:{shards:20}, hint:"Écran de capture, mode Pêche.", go:"capture"},
   {id:"d8",  n:"Archiver 20 espèces",           chk:()=>dexTotal()>=20,      goal:()=>[dexTotal(),20],
    rw:{coins:900, cores:1}, hint:"Change de secteur dans le Pokédex pour repérer ce qui te manque."},
-  {id:"d9",  n:"Installer deux sondes de forage", chk:()=>drillCount()>=2,
-   goal:()=>[drillCount(),2],
-   rw:{coins:600}, hint:"Il produit pendant que tu ne joues pas.", go:"idle"},
+  {id:"d9",  n:"Faire une fouille au Forage", chk:()=>(S.stats.walls || 0)>=1,
+   goal:()=>[Math.min(1, S.stats.walls || 0),1],
+   rw:{coins:600}, hint:"Ton équipe creuse même quand tu ne joues pas. Toutes les 7 minutes, elle trouve une fouille à faire.", go:"idle"},
   {id:"d10", n:"Archiver 25 espèces",           chk:()=>dexTotal()>=25,      goal:()=>[dexTotal(),25],
    rw:{shards:40}, hint:"Le premier verrou légendaire s'ouvre à 25 espèces de Kanto."},
   {id:"d11", n:"Faire évoluer un Pokémon",      chk:()=>S.stats.evolutions>=1, goal:()=>[S.stats.evolutions,1],

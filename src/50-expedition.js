@@ -454,6 +454,7 @@ function endExpedition(win){
   const loot = [];
   if(win){
     S.stats.expWins++; S.daily.dayExp++; questTick("dayExp",1);
+    if(typeof fragOn === "function") setTimeout(()=>fragOn("expedition", "Dans un campement abandonné, au bout de l'Expédition"), 1800);
     if(!run.usedHeal) S.flags.expNoHeal = true;
     addIntegrity(0.5);
     gain("cores", 1);

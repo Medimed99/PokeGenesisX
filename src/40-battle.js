@@ -10,21 +10,26 @@ function createBattle(allies, foes, opts){
     allies, foes, ai: !!opts.ai, speed: opts.speed || 1,
     a: 0, f: 0, log: [], over: false, result: null,
     onEnd: opts.onEnd || null, title: opts.title || "COMBAT",
-    phase: 1, boss: opts.boss || null, busy: false, turn: 0
+    phase: 1, boss: opts.boss || null, busy: false, turn: 0,
+    stage: opts.stage || (opts.boss ? "boss" : null), skip: false
   };
+  if(BATTLE.speed < 1) BATTLE.speed = 1;
   blog(opts.intro || `${foes[0].name} entre dans l'arène.`);
   return BATTLE;
 }
 function blog(t){
   if(!BATTLE) return;
   BATTLE.log.push(t);
-  const el = document.getElementById("log");
-  if(el){
+  const write = () => {
+    const el = document.getElementById("log");
+    if(!el) return;
     const d = document.createElement("div");
     d.innerHTML = t;
     el.appendChild(d);
     el.scrollTop = el.scrollHeight;
-  }
+  };
+  /* avec l'arene, la ligne attend l'image qu'elle decrit */
+  if(typeof arLog === "function") arLog(write); else write();
 }
 function activeAlly(){ return BATTLE.allies[BATTLE.a]; }
 function activeFoe(){ return BATTLE.foes[BATTLE.f]; }
@@ -87,6 +92,20 @@ function endOfTurnStatus(f, side){
   }
 }
 
+/* ---------- le pas de temps ----------
+   L'arene (41) met le combat en scene : un coup critique, un K.O. ou une
+   entree en lice demandent un peu plus de temps que le pas de base. */
+function bStep(base){
+  if(!BATTLE) return base;
+  if(BATTLE.skip) return 0;
+  const need = typeof arNeed === "function" ? arNeed(base) : base;
+  return need / bSpeed();
+}
+/* maintenir le doigt sur l'arene triple la vitesse choisie */
+function bSpeed(){ return BATTLE ? BATTLE.speed * (BATTLE.turbo ? 3 : 1) * (arLit() ? B_TEMPO : 1) : 1; }
+const B_TEMPO = 1.2;                           /* l'arene joue un peu plus vite que le pas d'origine : le rythme d'abord */
+function arLit(){ return typeof arOn === "function" && arOn() && typeof arLive === "function" && arLive(); }
+
 /* ---------- tour de jeu ---------- */
 function doTurn(moveIdx, forcedSwitch){
   if(!BATTLE || BATTLE.over || BATTLE.busy) return;
@@ -117,9 +136,11 @@ function doTurn(moveIdx, forcedSwitch){
     if(att.hp <= 0 || !mv){ run(); return; }
     const act = canAct(att);
     if(act.msg) blog(act.msg);
-    if(!act.ok){ renderArena(); setTimeout(run, 480 / BATTLE.speed); return; }
+    if(!act.ok){ arHook("stun", side); renderArena(); setTimeout(run, bStep(480)); return; }
+    arHook("begin", side, att, def, mv);
     applyMove(side, att, def, mv);
-    setTimeout(run, 640 / BATTLE.speed);
+    arHook("end");
+    setTimeout(run, arLit() ? bStep(0) : bStep(640));
   };
   run();
 }
@@ -145,7 +166,7 @@ function applyMove(side, att, def, mv){
 
   if(rng() > mv.acc){
     blog(`<span class="muted">${esc(att.name)} tente ${esc(mv.name)} — échec de l'écriture.</span>`);
-    renderArena(); return;
+    arHook("miss", "ÉCHEC"); renderArena(); return;
   }
 
   /* manœuvres : montée de statistique, soin, ou altération infligée */
@@ -162,12 +183,14 @@ function applyMove(side, att, def, mv){
     } else if(mv.st){
       if(typeMult(mv.type, def.types) === 0){
         blog(`<span class="muted">${esc(mv.name)} n'a aucun effet sur ${esc(def.name)}.</span>`);
+        arHook("miss", "SANS EFFET");
       } else if(setStatus(def, mv.st)){
         blog(`${esc(att.name)} inflige <b style="color:${STATUS[mv.st].c}">${STATUS[mv.st].n}</b> à ${esc(def.name)}.`);
         flashSprite(target, STATUS[mv.st].c);
         Sfx.glitch();
       } else {
         blog(`<span class="muted">${esc(def.name)} est déjà affecté.</span>`);
+        arHook("miss", "DÉJÀ AFFECTÉ");
       }
     }
     renderArena(); return;
@@ -178,12 +201,12 @@ function applyMove(side, att, def, mv){
   /* Lévitation : immunité au type Sol */
   if(def.talent && def.talent.n === "Lévitation" && mv.type === 5){
     blog(`<span class="muted">${esc(def.name)} lévite : l'attaque ne l'atteint pas.</span>`);
-    renderArena(); return;
+    arHook("miss", "LÉVITATION"); renderArena(); return;
   }
   /* Sable Volant et Estompe : esquive */
   if(def.talent && def.talent.n === "Sable Volant" && rng() < 0.15){
     blog(`<span class="muted">${esc(def.name)} esquive.</span>`);
-    renderArena(); return;
+    arHook("miss", "ESQUIVE"); renderArena(); return;
   }
   let {dmg, eff} = damageCalc(att, def, mv, crit);
   /* Robustesse : survivre a un coup porte depuis des PV pleins */
@@ -228,10 +251,10 @@ function applyMove(side, att, def, mv){
     def._sash = true; def.hp = 1;
     blog(`<span class="ok">${esc(def.name)} tient sur ${esc(itD.n)}.</span>`);
   }
-  Sfx.hit(); if(side === "f") buzz(14);
+  if(!arLit()){ Sfx.hit(); if(side === "f") buzz(14); }      /* l'arene fait sonner le coup a l'impact */
   blog(`${esc(att.name)} utilise <b class="cy">${esc(mv.name)}</b>${mv.signature && mv.tier ? ` <span class="mvtier">${moveTierName(mv.tier)}</span>` : ""} — <b>${dmg}</b>
     ${crit?'<span class="gold-t">coup critique !</span>':""} <span class="muted">${effLabel(eff)}</span>`);
-  popDamage(target, dmg, eff);
+  popDamage(target, dmg, eff, null, crit);
   if(eff >= 2 || crit) flashArena(eff >= 2 ? "var(--amber)" : "var(--magenta)");
   renderArena();
 
@@ -249,63 +272,84 @@ function bossPhaseTwo(f){
   f.buff.atk *= 1.45; f.buff.spe *= 1.3;
   f.hp = Math.min(f.maxHp, f.hp + Math.floor(f.maxHp*0.12));
   f.status = null;
-  Sfx.glitch(); buzz([40,30,60,30,80]);
-  shakeApp();
-  flashArena("var(--magenta)", 420);
-  const ar = document.getElementById("arena");
-  if(ar){
-    const b = document.createElement("div");
-    b.className = "phase-banner";
-    b.textContent = "RECONFIGURATION";
-    ar.appendChild(b);
-    setTimeout(()=>b.remove(), 1400);
-  }
+  const lit = arLit(), B = BATTLE;
+  arHook("phase", f);
+  /* le sursaut suit le coup qui l'a provoque, pas le calcul */
+  setTimeout(()=>{
+    if(BATTLE !== B) return;
+    Sfx.glitch(); buzz([40,30,60,30,80]);
+    shakeApp();
+    if(lit) return;
+    flashArena("var(--magenta)", 420);
+    const ar = document.getElementById("arena");
+    if(ar){
+      const b = document.createElement("div");
+      b.className = "phase-banner";
+      b.textContent = "RECONFIGURATION";
+      ar.appendChild(b);
+      setTimeout(()=>b.remove(), 1400);
+    }
+  }, lit ? Math.max(0, bStep(0) - 900 / bSpeed()) : 0);
   blog(`<span class="bad">Le verrou se reconfigure. Sa signature change.</span>`);
   renderArena();
 }
 
 /* ---------- issue d'un échange ---------- */
 function handleKO(who){
+  arHook("ko", who, who === "foe" ? activeFoe() : activeAlly());
   if(who === "foe"){
     const n = BATTLE.foes.findIndex((x,i)=>i > BATTLE.f && x.hp > 0);
     if(n === -1){ finishBattle(true); return; }
     BATTLE.f = n;
     blog(`Signature suivante : <b>${esc(BATTLE.foes[n].name)}</b>.`);
+    arHook("enter", "foe", BATTLE.foes[n]);
   } else {
     const n = BATTLE.allies.findIndex(x=>x.hp > 0);
     if(n === -1){ finishBattle(false); return; }
     BATTLE.a = n;
     blog(`<b class="cy">${esc(BATTLE.allies[n].name)}</b> prend le relais.`);
+    arHook("enter", "ally", BATTLE.allies[n]);
   }
   renderArena();
 }
 function endTurn(){
   BATTLE.busy = false;
   renderArena();
-  if(!BATTLE.over && BATTLE.ai) setTimeout(()=>doTurn(0), 420 / BATTLE.speed);
+  if(!BATTLE.over && BATTLE.ai) setTimeout(()=>doTurn(0), arLit() ? bStep(0) + 180 / bSpeed() : bStep(420));
 }
 function finishBattle(win){
   BATTLE.over = true; BATTLE.result = win; BATTLE.busy = false;
   blog(win ? `<b class="ok">Combat remporté.</b>` : `<b class="bad">Votre équipe ne répond plus.</b>`);
-  win ? Sfx.win() : Sfx.lose();
-  const ar = document.getElementById("arena");
-  if(ar){
-    const b = document.createElement("div");
-    b.className = "phase-banner";
-    b.style.color = win ? "var(--cyan)" : "var(--magenta)";
-    b.style.textShadow = `0 0 18px ${win ? "var(--cyan)" : "var(--magenta)"},0 3px 0 #000`;
-    b.textContent = win ? "VICTOIRE" : "ÉCHEC";
-    ar.appendChild(b);
-    if(win) burstEl(ar, {n:26, spread:140, colors:["#35f0d6","#ffc857","#ffffff"], dur:900});
-    setTimeout(()=>b.remove(), 1400);
-  }
+  const B = BATTLE, lag = B.skip ? 0 : Math.max(0, bStep(0));
+  setTimeout(()=>{
+    if(BATTLE !== B) return;
+    win ? Sfx.win() : Sfx.lose();
+    arHook("finish", win);
+    const ar = document.getElementById("arena");
+    if(ar){
+      const b = document.createElement("div");
+      b.className = "phase-banner";
+      b.style.color = win ? "var(--cyan)" : "var(--magenta)";
+      b.style.textShadow = `0 0 18px ${win ? "var(--cyan)" : "var(--magenta)"},0 3px 0 #000`;
+      b.textContent = win ? "VICTOIRE" : "ÉCHEC";
+      ar.appendChild(b);
+      if(win) burstEl(ar, {n:26, spread:140, colors:["#35f0d6","#ffc857","#ffffff"], dur:900});
+      setTimeout(()=>b.remove(), 1400);
+    }
+  }, lag);
   renderArena();
-  const cb = BATTLE.onEnd;
-  setTimeout(()=>{ if(cb) cb(win); }, 900);
+  const cb = B.onEnd;
+  setTimeout(()=>{ if(cb) cb(win); }, lag + 900);
+}
+
+/* l'arene (41) ecoute le combat ; sans elle (tests, vieux navigateur) rien ne change */
+function arHook(){
+  if(typeof arEvent === "function") arEvent.apply(null, arguments);
 }
 
 /* ---------- retours visuels ---------- */
-function popDamage(target, dmg, eff, color){
+function popDamage(target, dmg, eff, color, crit){
+  if(typeof arOn === "function" && arOn()){ arEvent("pop", target, dmg, eff, color, crit); return; }
   const host = document.getElementById("arena"); if(!host) return;
   const heal = dmg < 0;
   const d = document.createElement("div");
@@ -323,18 +367,21 @@ function popDamage(target, dmg, eff, color){
   setTimeout(()=>d.remove(), 860);
 }
 function lungeSprite(side){
+  if(typeof arOn === "function" && arOn()) return;
   const sp = document.getElementById(side === "a" ? "spr-ally" : "spr-foe");
   if(!sp) return;
   sp.classList.add(side === "a" ? "lunge-up" : "lunge-down");
   setTimeout(()=>sp.classList.remove("lunge-up","lunge-down"), 300);
 }
 function flashSprite(target, color){
+  if(typeof arOn === "function" && arOn()){ arEvent("glow", target, color); return; }
   const sp = document.getElementById(target === "foe" ? "spr-foe" : "spr-ally");
   if(!sp) return;
   sp.style.filter = `drop-shadow(0 0 14px ${color})`;
   setTimeout(()=>{ sp.style.filter = ""; }, 420);
 }
 function flashArena(color, dur){
+  if(typeof arOn === "function" && arOn()) return;
   const host = document.getElementById("arena"); if(!host) return;
   const f = document.createElement("div");
   f.className = "arena-flash";
@@ -350,9 +397,10 @@ function doSwitch(i){
   if(!n || n.hp <= 0 || i === BATTLE.a) return;
   closeSheet();
   blog(`<b class="cy">${esc(n.name)}</b> prend le relais.`);
+  arHook("swap", "ally", activeAlly(), n);
   BATTLE.a = i;
   renderArena();
-  setTimeout(()=>doTurn(0, true), 260);
+  setTimeout(()=>doTurn(0, true), bStep(260));
 }
 ACTIONS.bswitch = () => {
   if(!BATTLE || BATTLE.over || BATTLE.busy) return;
@@ -396,7 +444,8 @@ function renderArena(){
   if(!host || !BATTLE) return;
   const A = activeAlly(), F = activeFoe();
   const foesLeft = BATTLE.foes.filter(x=>x.hp>0).length;
-  host.innerHTML = `
+  if(typeof arOn === "function" && arOn()) arRender(host);
+  else host.innerHTML = `
     <div class="arena-bg"></div>
     <div class="arena-pad foe-pad"></div>
     <div class="arena-pad ally-pad"></div>
@@ -457,6 +506,7 @@ function renderArena(){
   }
   const team = document.getElementById("battle-team");
   if(team) team.innerHTML = teamStrip(BATTLE.allies);
+  if(typeof arOn === "function" && arOn()) arSync();
 }
 function teamStrip(list){
   return list.map((f,i)=>`<div class="tmem ${f.hp<=0?"ko":""} ${BATTLE&&i===BATTLE.a?"active":""}">
@@ -685,7 +735,7 @@ function onGuardianEnd(r, i, win){
   const g = r.guardians[i];
   if(win){
     const first = !guardianBeaten(r.key, g.id);
-    if(first) S.bosses.push(guardianKey(r.key, g.id));
+    if(first){ S.bosses.push(guardianKey(r.key, g.id)); factionPts(50); }
     S.stats.bossWins++;
     const lvl = guardianLevel(r, i);
     if(first){
@@ -719,7 +769,7 @@ function onGuardianEnd(r, i, win){
     if(!S.story.includes("pz_first_guardian_fail")) S.flags.guardFail = true;
     sheet(`<div class="center"><div class="h" style="color:var(--magenta)">ÉCHEC DE L'ASSAUT</div>
       <div class="tiny muted" style="margin:8px 0">Le verrou tient. Votre équipe est renvoyée au tampon.</div>
-      <div class="tiny">Montez le niveau de vos Pokémon en expédition, ou ramenez une équipe
+      <div class="tiny">Montez le niveau de vos Pokémon en Expédition, ou ramenez une équipe
         avec un meilleur avantage de type.</div>
       <button class="btn wide" style="margin-top:9px" data-act="bossdone">Retour</button></div>`, true);
   }
@@ -733,10 +783,12 @@ SCREENS.battle = {
     return `
       <div class="row between" style="margin-bottom:6px">
         <div class="h" style="margin:0">${esc(BATTLE.title)} ${infoBtn("combat")}</div>
-        ${BATTLE.ai?`<button class="btn sm ${BATTLE.speed<=1?"pri":"ghost"}" data-act="bspeed">
-          ${ic("idle")} Vitesse ×${BATTLE.speed}</button>`:""}
+        ${BATTLE.ai?`<div class="bspd" id="bspd">
+          ${[1,2,4].map(v=>`<button class="${BATTLE.speed===v?"on":""}" data-act="bspeed" data-v="${v}">×${v}</button>`).join("")}
+          <button class="skip" data-act="bskip" title="Passer le combat">${ic("arrow")}${ic("arrow")}</button>
+        </div>`:""}
       </div>
-      <div id="arena"></div>
+      <div id="arena" class="${typeof arOn === "function" && arOn() ? "ar" : ""}"></div>
       <div id="moves" class="btn-grid c2" style="margin-top:8px"></div>
       ${BATTLE.ai?"":`<div class="btn-grid c3" style="margin-top:7px">
         <button class="btn sm" data-act="useitem" data-k="potion">Restauration ${S.items.potion||0}</button>
@@ -752,7 +804,13 @@ SCREENS.battle = {
     renderArena();
     const el = document.getElementById("log");
     if(el && BATTLE) el.innerHTML = BATTLE.log.map(t=>`<div>${t}</div>`).join("");
-    if(BATTLE && BATTLE.ai && !BATTLE.over && !BATTLE.busy) setTimeout(()=>doTurn(0), 500);
+    if(BATTLE && BATTLE.ai && !BATTLE.over && !BATTLE.busy && !BATTLE._kick){
+      /* un seul depart : l'entree en scene d'abord, le premier echange ensuite */
+      BATTLE._kick = true;
+      const B = BATTLE;
+      setTimeout(()=>{ if(BATTLE === B){ B._kick = false; doTurn(0); } },
+        typeof arIntroMs === "function" ? arIntroMs() : 500);
+    }
   }
 };
 /* sortie de secours : si la feuille de fin a ete fermee ou remplacee,
@@ -763,12 +821,21 @@ ACTIONS.battleout = () => {
   closeSheet();
   go(b && b.expedition ? "expedition" : "boss");
 };
-ACTIONS.bspeed = () => {
-  const order = [0.5, 1, 2, 4];
-  const i = order.indexOf(BATTLE.speed);
-  BATTLE.speed = order[(i + 1) % order.length];
+ACTIONS.bspeed = d => {
+  if(!BATTLE) return;
+  const order = [1, 2, 4];
+  BATTLE.speed = d && d.v ? +d.v : order[(order.indexOf(BATTLE.speed) + 1) % order.length];
   S.settings.battleSpeed = BATTLE.speed;
-  saveSoon(); renderArena(); refresh();
+  saveSoon();
+  const host = document.getElementById("bspd");
+  if(host && host.querySelectorAll) host.querySelectorAll("button[data-v]").forEach(x=>x.classList.toggle("on", +x.dataset.v === BATTLE.speed));
+  renderArena();
+};
+/* passer : le combat se resout d'un trait, on ne garde que l'issue */
+ACTIONS.bskip = () => {
+  if(!BATTLE || BATTLE.over || !BATTLE.ai) return;
+  BATTLE.skip = true;
+  arHook("skip");
 };
 ACTIONS.useitem = d => {
   if(!BATTLE || BATTLE.over || BATTLE.busy) return;
@@ -780,12 +847,14 @@ ACTIONS.useitem = d => {
     S.items.potion--;
     A.hp = Math.min(A.maxHp, A.hp + Math.floor(A.maxHp*0.55));
     blog(`<span class="ok">${esc(A.name)} est restauré.</span>`);
+    arHook("sync");
   } else {
     const ko = BATTLE.allies.find(x=>x.hp <= 0);
     if(!ko){ toast("Aucun Pokémon désindexé", "bad", "cross"); return; }
     S.items.revive--;
     ko.hp = Math.floor(ko.maxHp*0.5);
     blog(`<span class="ok">${esc(ko.name)} est réindexé.</span>`);
+    arHook("revive", ko);
   }
   saveSoon(); renderArena(); refresh();
   setTimeout(()=>doTurn(0), 300);

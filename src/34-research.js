@@ -16,7 +16,7 @@ const RESEARCH_TASKS = [
   {k:"catch",  n:"En restaurer {n}",        goal:id=>POKE[id].rar >= 4 ? 2 : POKE[id].rar >= 2 ? 4 : 8,
    d:"Capturer plusieurs exemplaires de cette espèce."},
   {k:"battle", n:"En vaincre {n} au combat", goal:id=>POKE[id].rar >= 4 ? 1 : 3,
-   d:"L'affronter en expédition, à la Tour ou contre un verrou."},
+   d:"L'affronter en Expédition ou contre un verrou."},
   {k:"evolve", n:"La faire évoluer",         goal:id=>(POKE[id].evo && POKE[id].evo.length) ? 1 : 0,
    d:"Réécrire cette espèce en sa forme suivante."},
   {k:"shiny",  n:"En croiser une chromatique", goal:()=>1,
@@ -78,6 +78,7 @@ function researchTick(id, kind, n){
   const after = researchLevel(id);
   if(after > before){
     S.stats.research = (S.stats.research || 0) + (after - before);
+    factionPts(5 * (after - before));
     gain("shards", 2 + POKE[id].rar);
     toast(`Recherche : ${POKE[id].name} ${after}/${researchMax(id)}`, "", "dex");
   }

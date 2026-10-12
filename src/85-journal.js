@@ -41,6 +41,13 @@ SCREENS.journal = {
           </div>`;}).join("")}
       </div>
       ${fragmentsPanel()}
+      <button class="btn wide" style="margin-top:10px" data-act="cineplay" data-k="intro">${ic("eye")} Revoir l'ouverture — L'écriture interrompue</button>
+      <div class="btn-grid c2" style="margin-top:10px">
+        <button class="btn ghost" data-act="info" data-k="glossaire">Les mots du système</button>
+        <button class="btn ghost" data-act="codeopen">Saisir un code</button>
+      </div>
+      ${factionOpen() ? `<button class="btn wide" style="margin-top:7px" data-act="goto" data-to="faction">
+        ${ic("eye")} Factions${S.faction && S.faction.k ? " — " + esc(FACTIONS[S.faction.k].n) : " — à choisir"}</button>` : ""}
 
       <button class="btn ghost wide" style="margin-top:10px" data-act="goto" data-to="credits">Crédits</button>
       <button class="btn ghost wide" style="margin-top:7px" data-act="goto" data-to="profile">Retour au profil</button>`;
@@ -83,6 +90,22 @@ SCREENS.credits = {
               <b>CC BY-NC 4.0</b> : réutilisation autorisée avec attribution, à condition que
               l'usage reste non commercial — ce qui est le cas ici.</div></div>
         </div>
+      </div>
+
+      <div class="panel">
+        <div class="h sm">ICÔNES D'OBJETS</div>
+        <div class="tiny">Les Balls, baies, pierres, objets tenus, trésors et accessoires utilisent les sprites
+          d'objets officiels du dépôt communautaire <b>PokeAPI/sprites</b> (images © Nintendo / Game Freak,
+          utilisées ici dans un cadre de fan non commercial). Les objets propres à Code Genesis — Data Ball,
+          Archives, Câble Link, Boussole fêlée, Module d'attraction, Bouclier Data — sont des icônes originales
+          dessinées pour le jeu.</div>
+      </div>
+      <div class="panel">
+        <div class="h sm">SPRITES DE MARCHE DE LA BRÈCHE</div>
+        <div class="tiny">Les Pokémon de la Brèche marchent grâce aux sprites « de donjon » en huit directions
+          du même dépôt <b>PMDCollab/SpriteCollab</b>, œuvre de nombreux artistes de la communauté Pokémon
+          Donjon Mystère. <span class="muted">Licence <b>CC BY-NC 4.0</b> ; la liste des artistes de chaque
+          sprite figure dans le dépôt (fichiers credits de chaque espèce).</span></div>
       </div>
 
       <div class="panel">

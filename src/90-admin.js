@@ -18,12 +18,17 @@ function renderAdmFab(){
 }
 
 ACTIONS.admtoggle = () => {
+  if(!S.settings.admin && !ADMIN_OK){ ACTIONS.adminpass(); return; }
   S.settings.admin = !S.settings.admin;
   if(S.settings.admin) toast("Outils de test activés", "warn", "gear");
   save(); refresh();
 };
 
+/* le mot de passe est demande a la premiere ouverture de chaque session :
+   une sauvegarde ou le panneau etait deja actif n'y echappe donc pas */
+let ADMIN_OK = false;
 ACTIONS.admopen = () => {
+  if(!ADMIN_OK){ ADMIN_PENDING = true; ACTIONS.adminpass(); return; }
   const beaten = S.bosses.length, totalG = 9;
   sheet(`${sheetHead("Outils de test")}
     <div class="tiny muted" style="margin-bottom:10px">
@@ -304,7 +309,6 @@ ACTIONS.admquestdone = () => {
 ACTIONS.admevent = () => { rollEvent(true); admDone("Événement : " + (S.event?S.event.n:"—")); };
 ACTIONS.admoffline = () => {
   S.lastSeen = Date.now() - 8*3600*1000;
-  S.idle.last = S.lastSeen;
   admMark(); closeSheet();
   if(!showOfflineReport()) toast("Aucune production hors ligne (achetez un générateur)", "bad", "cross");
 };

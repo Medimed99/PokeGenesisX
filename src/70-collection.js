@@ -22,7 +22,9 @@ function evoReadyCount(region){
 function canEvolve(id, e){
   const en = S.dex[id];
   if(!en) return {ok:false, why:"Espèce non archivée."};
-  if(en.lvl < e.lvl) return {ok:false, why:`Niveau ${e.lvl} requis (actuel ${en.lvl}).`};
+  const fc = friendCheck(id, e);
+  if(fc) return fc;
+  if(!friendEvo(id, e.to) && en.lvl < e.lvl) return {ok:false, why:`Niveau ${e.lvl} requis (actuel ${en.lvl}).`};
   if(en.c < dupCost(id)) return {ok:false, why:`${dupCost(id)} exemplaires requis (${en.c}).`};
   if(!canPay("coins", evoCoinCost(id))) return {ok:false, why:`${fmt(evoCoinCost(id))} PokéCoins requis.`};
   if(e.stone && (S.stones[e.stone]||0) <= 0)
@@ -75,7 +77,6 @@ SCREENS.dex = {
         </div>
       </div>
       <div class="row between" style="margin-bottom:5px">
-        <button class="btn xs" data-act="goto" data-to="research">${ic("dex")} Recherche</button>
         <span class="grow"></span>${infoBtn("rarete")}</div>
       <div class="chipbar">
         ${[["all","Tous"],["owned","Possédés"],["missing","Manquants"],["shiny","Chromatiques"],
@@ -264,9 +265,9 @@ SCREENS.shop = {
       ${this[SHOP_CAT]()}`;
   },
   balls(){
-    return `${karpDealPanel()}<div class="list">${Object.entries(BALLS).map(([k,b])=>`
+    return `${karpDealPanel()}<div class="list">${Object.entries(BALLS).filter(([,b])=>!b.hidden).map(([k,b])=>`
       <div class="shopitem">
-        <div class="ic">${ic(b.icon)}</div>
+        <div class="ic">${itemOr("ball:" + k, b.icon, 32)}</div>
         <div class="grow"><div>${esc(b.name)} <span class="tiny muted">×${S.balls[k]||0}</span></div>
           <div class="tiny muted">${esc(b.d)}</div>
           <div class="price">${ic(b.cur==="coins"?"coin":b.cur==="shards"?"shard":"core")} ${fmt(b.price)}</div></div>
@@ -274,14 +275,14 @@ SCREENS.shop = {
           <button class="btn sm" data-act="buyball" data-k="${k}" data-q="1">×1</button>
           <button class="btn sm" data-act="buyball" data-k="${k}" data-q="10">×10</button>
         </div>
-      </div>`).join("")}</div>`;
+      </div>`).join("")}</div>${permanentsPanel()}`;
   },
   boosts(){
     return `
       <div class="tiny muted" style="margin-bottom:8px">Effets temporisés. Un nouvel achat prolonge
         la durée en cours au lieu de l'écraser.</div>
       ${boostStrip()}
-      <div class="list">${Object.entries(BOOSTS).map(([id,b])=>`
+      <div class="list">${Object.entries(BOOSTS).filter(([id])=>id !== "b_shiny").map(([id,b])=>`
         <div class="shopitem ${boostActive(b.k)?"on":""}">
           <span class="sprbox" style="width:36px;height:36px">${sprite(b.spr,false,"")}</span>
           <div class="grow"><div>${esc(b.n)}
@@ -294,7 +295,7 @@ SCREENS.shop = {
       </div>
       <div class="h sm" style="margin-top:12px">RADAR</div>
       <div class="shopitem">
-        <div class="ic">${ic("boss")}</div>
+        <div class="ic">${itemOr("radar", "boss", 32)}</div>
         <div class="grow"><div>Radar Légendaire <span class="tiny dim">×${radarCount()}</span></div>
           <div class="tiny muted">Force une rencontre légendaire dans le secteur actif.</div>
           <div class="price">${ic("core")} 8</div></div>
@@ -304,7 +305,7 @@ SCREENS.shop = {
   berries(){
     return `<div class="list">${Object.entries(BERRIES).map(([k,b])=>`
       <div class="shopitem">
-        <div class="ic">${ic("seed")}</div>
+        <div class="ic">${itemOr("berry:" + k, "seed", 32)}</div>
         <div class="grow"><div>${esc(b.name)} <span class="tiny muted">×${S.berries[k]||0}</span></div>
           <div class="tiny muted">${esc(b.d)}</div>
           <div class="price">${ic(b.cur==="coins"?"coin":"shard")} ${fmt(b.price)}</div></div>
@@ -334,7 +335,7 @@ SCREENS.shop = {
   stones(){
     return `<div class="list">${Object.entries(STONES).map(([k,s])=>`
       <div class="shopitem">
-        <div class="ic">${ic("stone")}</div>
+        <div class="ic">${itemOr("stone:" + k, "stone", 32)}</div>
         <div class="grow"><div>${esc(s.name)} <span class="tiny muted">×${S.stones[k]||0}</span></div>
           <div class="tiny muted">Requise par certaines réécritures d'entité.</div>
           <div class="price">${ic("coin")} ${fmt(STONE_PRICE)}</div></div>
@@ -344,7 +345,7 @@ SCREENS.shop = {
   chests(){
     return `<div class="list">${Object.entries(CHESTS).map(([k,c])=>`
       <div class="shopitem">
-        <div class="ic">${ic("chest")}</div>
+        <div class="ic">${itemOr("chest:" + k, "chest", 32)}</div>
         <div class="grow"><div>${esc(c.name)}</div>
           <div class="tiny muted">${esc(c.d)}</div>
           <div class="price">${ic(c.cur==="coins"?"coin":"core")} ${fmt(c.price)}</div></div>
@@ -359,7 +360,7 @@ SCREENS.shop = {
         Ceux qui restent peuvent être achetés en Noyaux.</div>
       <div class="list">${list.length ? list.map(([id,c])=>`
         <div class="shopitem">
-          <div class="ic">${ic(c.t==="title"?"user":c.t==="frame"?"grid":c.t==="bg"?"map":"star")}</div>
+          <div class="ic">${cosIcon(id, 34)}</div>
           <div class="grow"><div>${esc(c.n)}</div>
             <div class="tiny muted">${({title:"Titre",frame:"Cadre",bg:"Fond",fx:"Effet"})[c.t]}</div>
             <div class="price">${ic("core")} ${prices[c.t]}</div></div>
@@ -526,7 +527,7 @@ function fxLayerHtml(){
       ["Meilleure série", S.stats.bestStreak],
       ["Évolutions", S.stats.evolutions],
       ["Prises à la sonde", S.stats.fish],
-      ["Expéditions", `${S.stats.expWins}/${S.stats.expRuns}`],
+      ["Expéditions (réussies / tentées)", `${S.stats.expWins}/${S.stats.expRuns}`],
       ["Poké-Poker", S.stats.pokerWins],
       ["Meilleure ante", S.pokerMeta.bestAnte||0],
       ["Énergie produite", fmt(S.stats.energyTotal)],
@@ -705,6 +706,7 @@ ACTIONS.setcos = d => {
   S.cos[d.k] = d.id; save(); refresh();
 };
 ACTIONS.toggleset = d => {
+  if(d.k === "admin" && !S.settings.admin){ ACTIONS.adminpass(); return; }
   S.settings[d.k] = !S.settings[d.k];
   if(d.k === "admin")
     toast(S.settings.admin ? "Panneau de test activé" : "Panneau de test désactivé",

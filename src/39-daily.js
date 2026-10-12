@@ -44,17 +44,18 @@ function todayRows(){
   }
   if(moduleUnlocked("idle")){
     const f = forage();
-    const vein = f.vein > Date.now();
-    add(!vein, "bolt", "Forage", vein ? "Un filon est ouvert : frappez maintenant."
-        : `${fmt(Math.floor(f.energy))} Énergie en réserve`, "idle", vein);
+    add(!f.walls, "bolt", "Forage", f.walls ? `${f.walls} fouille${f.walls > 1 ? "s" : ""} à faire` + (f.walls >= wallCap() ? " — c'est plein" : "")
+        : `${fmt(Math.floor(f.m))} m de profondeur · ${fmt(Math.floor(f.energy))} Énergie`, "idle", f.walls > 0);
     if(typeof botReady === "function" && botReady())
-      add(false, "capture", "Capture autonome", "Session terminée : des Pokémon attendent.", "idle", true);
+      add(false, "capture", "Captures automatiques", "Terminées : des Pokémon t'attendent au Forage.", "idle", true);
   }
   if(moduleUnlocked("expedition"))
     add(!firstWinAvailable("expedition"), "boss", "L'Expédition",
         S.expedition ? "Un parcours est en cours." :
         firstWinAvailable("expedition") ? "Première victoire du jour : récompenses ×2." : "Bonus du jour utilisé.",
         "expedition", !!S.expedition || firstWinAvailable("expedition"));
+  if((S.fragUnread || []).length)
+    add(false, "quest", "Page de journal", `${S.fragUnread.length} page${S.fragUnread.length > 1 ? "s" : ""} des onze, pas encore lue${S.fragUnread.length > 1 ? "s" : ""}`, "journal", true);
   if(moduleUnlocked("tower")){
     const lk = typeof sqLockReady === "function" && sqLockReady();
     add(!firstWinAvailable("tower") && !lk, lk ? "lock" : "user", "La Tour",

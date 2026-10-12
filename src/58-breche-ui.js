@@ -469,6 +469,8 @@ function brGuardianWin(g){
   return out;
 }
 function brFinish(R, won, quit){
+  /* une page au bord de la faille : la Breche en garde deux */
+  if(!quit && typeof fragOn === "function") setTimeout(()=>fragOn("breche", R.won ? "Au bord de la faille refermée, dans la Brèche" : "Recrachée par la faille, dans la Brèche"), 1500);
   const st = brState();
   const survived = R.t, deep = R.endless ? Math.max(0, R.t - R.bossAt) : 0;
   R.won = R.won || won;

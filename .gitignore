@@ -1,10 +1,14 @@
-# sprites bruts telecharges : regenerables via build_atlas.py et build_cardart.py
-sprites/
+# Regles ancrees a la racine (« /x/ ») : une regle sans barre initiale
+# exclurait TOUT dossier de ce nom, ou qu'il soit. C'est ainsi que « pmd/ »
+# avait ecarte assets/pmd et web/assets/pmd, et les sprites de marche ne
+# partaient jamais en ligne.
+# sprites bruts telecharges : regenerables via les scripts build_*.py
+/sprites/
 # sorties intermediaires
-build/
-node_modules/
-.vercel/
+/build/
+/node_modules/
+/.vercel/
 .DS_Store
 # donnees sources retelechargeables
-data/
-pmd/
+/data/
+/pmd/

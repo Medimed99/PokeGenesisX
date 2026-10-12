@@ -166,3 +166,78 @@ sans purge.
 - **Sauvegarde de la base** : Supabase conserve des points de restauration
   quotidiens sur les offres payantes uniquement. Sur l'offre gratuite, prévoyez
   un export régulier si la base devient précieuse.
+
+
+## Mise à jour du schéma (à chaque livraison qui touche `sql/schema.sql`)
+
+Le script est **rejouable** : sur une base existante, il ajoute seulement ce qui manque.
+
+1. Supabase → **SQL Editor** → **New query**.
+2. Coller le contenu intégral de `sql/schema.sql`.
+3. **Run**. Le message attendu est « Success. No rows returned ».
+
+Sans cette étape, le jeu envoie des colonnes que la base ne connaît pas encore, et la sauvegarde en
+ligne échoue.
+
+
+# Connecter Supabase — guide complet
+
+Ce que Supabase apporte au jeu : **comptes joueurs** (pseudo, e-mail, mot de passe), **sauvegarde
+automatique dans le cloud** récupérée sur un autre appareil, **classements**, **échanges de cartes** et
+**classement de la Brèche du jour**. Tout reste facultatif : sans Supabase, le jeu fonctionne en local.
+
+## 1. Créer le projet
+1. Sur supabase.com, **New project**. Choisissez un nom, un mot de passe de base de données
+   (à conserver, mais le jeu n'en a pas besoin) et une région proche de vos joueurs (Europe).
+2. Attendez la fin de la création (une à deux minutes).
+
+## 2. Créer les tables
+1. **SQL Editor** → **New query**.
+2. Collez **tout** le contenu de `sql/schema.sql`, puis **Run**.
+   Si Supabase prévient d'opérations « destructrices » (ce sont des `drop policy if exists`, sans
+   danger), confirmez. Résultat attendu : *Success. No rows returned*.
+3. Le script est rejouable : relancez-le à chaque version qui modifie `sql/schema.sql`.
+   Le linter signalera la vue `leaderboard` comme *security definer* : c'est voulu, c'est le seul
+   chemin de lecture publique et il n'expose que les colonnes de vitrine.
+
+## 3. Régler l'authentification
+1. **Authentication → Sign In / Providers → Email** : laissez le fournisseur **activé**, et
+   **désactivez « Confirm email »**. Raison : le service d'envoi d'e-mails intégré de Supabase
+   n'écrit qu'aux membres de votre équipe Supabase, et deux fois par heure au maximum. Avec la
+   confirmation activée, vos joueurs ne recevraient jamais l'e-mail et ne pourraient pas se connecter.
+2. **Authentication → URL Configuration** :
+   - **Site URL** : l'adresse de votre jeu, par exemple `https://poke-genesis-x.vercel.app`
+   - **Redirect URLs** : ajoutez la même adresse suivie de `/**`
+   (c'est là que reviennent les liens de réinitialisation de mot de passe).
+3. *Plus tard, recommandé* : **Authentication → Emails → SMTP Settings**, branchez un service d'envoi
+   (Resend, Brevo… ont des offres gratuites). Alors seulement, « Mot de passe oublié », la connexion
+   par code et la confirmation d'e-mail fonctionneront pour tous les joueurs. Pensez ensuite à relever
+   la limite dans **Authentication → Rate Limits** (30 e-mails par heure par défaut).
+
+## 4. Récupérer l'adresse et la clé publique
+1. Bouton **Connect** en haut du projet (ou **Settings → API Keys**).
+2. Notez la **Project URL** (`https://xxxx.supabase.co`).
+3. Notez la **Publishable key** (`sb_publishable_…`). Si elle n'existe pas encore, **Create new API
+   keys**. L'ancienne clé « anon » fonctionne aussi, mais Supabase l'abandonne fin 2026.
+4. **Ne mettez jamais la clé secrète (`sb_secret_…`) dans le jeu.** La clé publishable est publique par
+   conception : ce sont les politiques RLS du schéma qui protègent les données.
+
+## 5. Brancher Vercel
+1. Vercel → votre projet → **Settings → Environment Variables** :
+   - `SUPABASE_URL` = la Project URL
+   - `SUPABASE_PUBLISHABLE_KEY` = la clé publishable (ou `SUPABASE_ANON_KEY` avec l'ancienne clé)
+   Cochez **Production** (et **Preview** si vous voulez tester les branches).
+2. **Deployments → ⋯ → Redeploy** : une variable d'environnement ne s'applique qu'à une nouvelle
+   construction.
+
+## 6. Vérifier
+1. Ouvrez le jeu → **Profil → Espace en ligne** : l'état indique *configuré, non connecté*.
+2. **Créer un compte**. Dans Supabase, **Authentication → Users** montre le nouveau joueur.
+3. Jouez deux minutes (ou **Synchroniser**) : **Table Editor → saves** contient une ligne.
+4. Sur un autre appareil, **Se connecter** avec le même compte : la progression revient seule.
+
+## Bon à savoir
+- **Offre gratuite** : un projet sans activité pendant 7 jours peut être mis en pause ; il se relance
+  depuis le tableau de bord. Les sauvegardes de la base ne sont pas téléchargeables sur cette offre.
+- **Conflits** : si deux appareils ont progressé chacun de leur côté, le jeu demande laquelle garder.
+  Il ne tranche jamais seul entre deux progressions.

@@ -22,7 +22,8 @@ function bagCounts(){
 /* une ligne d'objet : visuel, nom, description, quantité, action éventuelle */
 function bagRow(opts){
   return `<div class="bagrow">
-    <div class="bag-ic">${opts.spr !== undefined
+    <div class="bag-ic">${opts.item && itemIcon(opts.item, 32) ? itemIcon(opts.item, 32)
+      : opts.spr !== undefined
       ? `<span class="sprbox" style="width:34px;height:34px">${sprite(opts.spr,false,"")}</span>`
       : ic(opts.icon || "star")}</div>
     <div class="grow">
@@ -54,9 +55,7 @@ SCREENS.bag = {
         ${tabs.map(([k,n,q])=>`<button class="chip ${BAG_TAB===k?"on":""}" data-act="bagtab" data-t="${k}">
           ${n}${q?` <b>${fmt(q)}</b>`:""}</button>`).join("")}
       </div>
-      ${this[BAG_TAB]()}
-      <button class="btn ghost wide" style="margin-top:10px" data-act="goto" data-to="shop">
-        Aller à la boutique</button>`;
+      ${this[BAG_TAB]()}`;
   },
 
   /* consommables rattaches a un ecran precis : on les montre, on n'y agit pas */
@@ -87,7 +86,7 @@ SCREENS.bag = {
     const rows = Object.entries(BALLS).filter(([k])=>(S.balls[k]||0) > 0);
     if(!rows.length) return this.empty("Aucune Ball. Sans Ball, aucune capture n'est possible.");
     return `<div class="baglist">
-      ${rows.map(([k,b])=>bagRow({icon:b.icon, n:b.name, q:S.balls[k], d:esc(b.d),
+      ${rows.map(([k,b])=>bagRow({item:"ball:" + k, icon:b.icon, n:b.name, q:S.balls[k], d:esc(b.d),
         extra:`<div class="tiny cy">Multiplicateur de prise ×${b.mult >= 255 ? "∞" : b.mult}</div>`,
         action:`<button class="btn xs ${selBall()===k?"pri":""}" data-act="bagselball" data-b="${k}">
           ${selBall()===k?"Équipé":"Équiper"}</button>`})).join("")}
@@ -100,7 +99,7 @@ SCREENS.bag = {
     return `<div class="baglist">
       ${rows.map(([k,b])=>{
         const on = S.buffs[k] || (k === "micle" && S.shinyCharge > 0);
-        return bagRow({icon:"seed", n:b.name, q:S.berries[k], d:esc(b.d),
+        return bagRow({item:"berry:" + k, icon:"seed", n:b.name, q:S.berries[k], d:esc(b.d),
           extra: on ? `<div class="tiny ok">Active sur la prochaine rencontre</div>` : "",
           action:`<button class="btn xs ${on?"":"pri"}" data-act="bagberry" data-k="${k}"
             ${on?"disabled":""}>${on?"Active":"Utiliser"}</button>`});
@@ -129,13 +128,13 @@ SCREENS.bag = {
 
   items(){
     const list = [];
-    if(S.items.potion) list.push(bagRow({icon:"heart", n:"Restauration", q:S.items.potion,
+    if(S.items.potion) list.push(bagRow({item:"potion", icon:"heart", n:"Restauration", q:S.items.potion,
       d:"Rend 55% des points de vie d'un Pokémon, pendant un combat.",
       extra:`<div class="tiny dim">S'utilise depuis l'écran de combat.</div>`}));
-    if(S.items.revive) list.push(bagRow({icon:"refresh", n:"Réindexation", q:S.items.revive,
+    if(S.items.revive) list.push(bagRow({item:"revive", icon:"refresh", n:"Réindexation", q:S.items.revive,
       d:"Remet en jeu un Pokémon désindexé, à la moitié de ses points de vie.",
       extra:`<div class="tiny dim">S'utilise depuis l'écran de combat.</div>`}));
-    if(S.items.radar) list.push(bagRow({icon:"boss", n:"Radar Légendaire", q:S.items.radar,
+    if(S.items.radar) list.push(bagRow({item:"radar", icon:"boss", n:"Radar Légendaire", q:S.items.radar,
       d:"Force une rencontre légendaire dans le secteur actif.",
       action:`<button class="btn xs dan" data-act="bagradar">Activer</button>`}));
     if(!list.length) return this.empty("Aucun objet. Les restaurations servent en combat, le radar force une rencontre légendaire.");
@@ -146,7 +145,7 @@ SCREENS.bag = {
     const rows = Object.entries(S.stones || {}).filter(([,q])=>q > 0);
     if(!rows.length) return this.empty("Aucune pierre. Certaines évolutions en exigent une, en plus des exemplaires et des PokéCoins.");
     return `<div class="baglist">
-      ${rows.map(([k,q])=>bagRow({icon:"stone", n:STONES[k].name, q,
+      ${rows.map(([k,q])=>bagRow({item:"stone:" + k, icon:"stone", n:STONES[k].name, q,
         d:"Requise par certaines réécritures d'espèce.",
         extra:`<div class="tiny dim">S'utilise depuis la fiche d'une espèce, dans le Pokédex.</div>`,
         action:`<button class="btn xs" data-act="goto" data-to="dex">Pokédex</button>`})).join("")}
@@ -155,11 +154,11 @@ SCREENS.bag = {
 
   held(){
     const owned = heldOwned();
-    if(!owned.length) return this.empty("Aucun objet tenu. On en trouve dans les archives scellées et les trésors d'expédition. Ils ne produisent leur effet que portés par un compagnon.");
+    if(!owned.length) return this.empty("Aucun objet tenu. On en trouve dans les archives scellées et les victoires en Expédition. Ils ne produisent leur effet que portés par un compagnon.");
     const eq = heldEquipped();
     return `<div class="baglist">
       ${owned.map(id=>{ const it = HELD_ITEMS[id];
-        return bagRow({spr:it.spr, n:it.n, q:1, d:esc(it.d),
+        return bagRow({item:"held:" + id, spr:it.spr, n:it.n, q:1, d:esc(it.d),
           extra:`<span class="tt rar r${it.rar}" style="--rc:${RARITY[it.rar].c}">${RARITY[it.rar].n}</span>`,
           action:`<button class="btn xs ${eq===id?"pri":""}" data-act="heldset" data-id="${eq===id?"":id}">
             ${eq===id?"Porté":"Porter"}</button>`});
@@ -180,7 +179,7 @@ SCREENS.bag = {
         </div>
       </div>
       <div class="baglist">
-        ${rows.map(([k,q])=>bagRow({spr:TREASURES[k].spr, n:TREASURES[k].n, q,
+        ${rows.map(([k,q])=>bagRow({item:"treasure:" + (TREASURE_KEYS[TREASURES[k].n] || ""), spr:TREASURES[k].spr, n:TREASURES[k].n, q,
           d:"Sans usage. Se revend aux archives.",
           extra:`<div class="tiny gold-t">${fmt(TREASURES[k].sell)} PokéCoins pièce</div>`})).join("")}
       </div>`;

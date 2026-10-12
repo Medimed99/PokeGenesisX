@@ -621,6 +621,15 @@ function commitResolve(){
   P.resolvePlayed = null;
   P.state = "play";
 
+  /* une main secrete jouee pour la premiere fois — de toute la sauvegarde —
+     merite sa scene : c'est une decouverte, pas une combinaison de plus */
+  const ids = played.map(u=>(P.hand.find(c=>c.u === u) || {}).id).filter(Boolean);
+  const hdef = HANDS_BY_ID[res.handKey];
+  S.pokerMeta.secrets = S.pokerMeta.secrets || [];
+  if(hdef && hdef.secret && !S.pokerMeta.secrets.includes(res.handKey)){
+    S.pokerMeta.secrets.push(res.handKey);
+    playCine(secretCine(res.handKey, ids), ()=>refresh());
+  }
   P.playedTypes[res.handKey] = (P.playedTypes[res.handKey]||0) + 1;
   if(res.handKey === "banc_karp") S.flags.karpHand = true;
   P.score += res.total;
@@ -684,7 +693,7 @@ function pkWinBlind(){
   const final = pkStage() === "champion" && !P.endless;
   P.state = "reward";
   save();
-  sheet(`<div class="center">
+  const showWin = () => sheet(`<div class="center">
     <div class="h" style="justify-content:center">${esc(BLIND_NAMES[P.blind])} FRANCHI</div>
     <div class="tiny muted">${fmt(P.score)} / ${fmt(P.target)}</div>
     <div class="tiles" style="margin:10px 0">
@@ -703,6 +712,46 @@ function pkWinBlind(){
       ${final?"Terminer la partie":"Accéder à la cache"}</button>
     ${final?`<button class="btn wide" style="margin-top:7px" data-act="pkendless">Continuer en Couche Zéro</button>`:""}
   </div>`, true);
+  if(badge !== null) playCine(badgeCine(badge, P.badges.length), showWin);
+  else showWin();
+}
+
+/* ============================================================
+   SCÈNES DU POKÉ-POKER
+   Deux moments meritent qu'on s'arrete : un badge gagne, et une
+   combinaison secrete decouverte. Les deux sont courtes, passables,
+   et avancent seules — on est au milieu d'une partie.
+   ============================================================ */
+function badgeCine(b, n){
+  const B = BADGES[b];
+  return {id:"badge_" + b, title:"Badge " + B.n, shots:[{bg:"terminal", beats:[
+    {t:"bars", on:true},
+    {t:"code", lines:["> contrôle du verrou " + (b + 1) + " / 8", "✓ couche stabilisée", "> émission du badge"], speed:16},
+    {t:"actor", id:"b", kind:"emblem", glyph:"◆", color:B.c, pos:"center", y:36, enter:"assemble"},
+    {t:"par", beats:[{t:"fx", k:"flash", lv:1}, {t:"sfx", k:"win"}]},
+    {t:"say", who:"sys", text:`Badge ${B.n} — ${n} / 8`, auto:1200},
+    {t:"say", who:"pz", text: n >= 8 ? "Huit. Le Conseil t'attend, et il ne joue pas comme les verrous."
+                                  : B.d + (n === 1 ? " Il en reste sept." : ""), auto:1800},
+    {t:"card", text:"BADGE " + B.n.toUpperCase(), sub:n + " / 8", hold:1400},
+    {t:"leave", id:"b", how:"fade"}
+  ]}]};
+}
+function secretCine(key, ids){
+  const h = HANDS_BY_ID[key];
+  const mons = (ids || []).slice(0, 5);
+  const layout = {1:["center"], 2:["left","right"], 3:["left","center","right"],
+                  4:["farleft","left","right","farright"], 5:["farleft","left","center","right","farright"]}[mons.length] || [];
+  return {id:"secret_" + key, title:h.n, shots:[{bg:"faille", beats:[
+    {t:"bars", on:true},
+    {t:"fx", k:"glitch", lv:1, ms:450},
+    {t:"code", lines:["> lecture de la main", "! combinaison non documentée", "✓ signature reconnue"], speed:16},
+    {t:"par", beats: mons.map((id,i)=>({t:"actor", id:"m" + i, kind:"mon", mon:id, pos:layout[i], y:34, enter:"pop",
+                                         size: mons.length > 3 ? 84 : 118}))},
+    {t:"par", beats:[{t:"fx", k:"flash", lv:2}, {t:"sfx", k:"shiny"}]},
+    {t:"card", text:h.n.toUpperCase(), sub:"combinaison secrète découverte", hold:1600, big:true},
+    {t:"say", who:"pz", text:h.d, auto:1900},
+    {t:"par", beats: mons.map((id,i)=>({t:"leave", id:"m" + i, how:"fade"}))}
+  ]}]};
 }
 function pkLose(){
   const P = S.poker;
@@ -958,6 +1007,17 @@ ACTIONS.pkskip = () => {
 ACTIONS.pkplay = () => pkPlay();
 ACTIONS.pkdiscard = () => pkDiscard();
 ACTIONS.pkcard = d => pkToggle(+d.u);
+ACTIONS.pkmenu = () => {
+  sheet(`${sheetHead("Partie en cours")}
+    <div class="list">
+      <div class="item" data-act="pkinfo"><div class="grow"><div class="t">Combinaisons</div>
+        <div class="d">Les mains connues et leur niveau.</div></div>${ic("arrow")}</div>
+      <div class="item" data-act="pkdeck"><div class="grow"><div class="t">Deck</div>
+        <div class="d">Les cartes restantes et la pioche.</div></div>${ic("arrow")}</div>
+      <div class="item danger" data-act="pkabandon"><div class="grow"><div class="t bad">Abandonner</div>
+        <div class="d">La progression de la partie est perdue.</div></div></div>
+    </div>`, true);
+};
 ACTIONS.pkstart = () => startPoker();
 ACTIONS.pkabandon = () => {
   sheet(`${sheetHead("Abandonner la partie ?")}<div class="tiny muted">La progression de la partie est perdue.</div>
@@ -1052,18 +1112,24 @@ function pkCardHtml(c, selected, attrs, big, extraCls){
     ${stageOf(c.id)?`<span class="pc-st">${"·".repeat(stageOf(c.id))}</span>`:""}
   </div>`;
 }
+/* le tapis : le nom de la main, puis jetons x multiplicateur, en grand */
+function pkScoreLineHtml(res){
+  if(!res) return `<div class="pk-hint">${ic("cards")}
+      <div>Touchez jusqu'à cinq cartes</div>
+      <div class="tiny dim">Le calcul de la main s'affiche ici avant de jouer.</div></div>`;
+  const lv = (S.poker.levels && S.poker.levels[res.handKey]) || 0;
+  return `<div class="pk-hn">${esc(res.handName)}${lv ? ` <span class="pk-lv">niv. ${lv + 1}</span>` : ""}</div>
+    <div class="pk-calc">
+      <span class="chips">${fmt(res.chips)}</span><span class="pk-x">×</span>
+      <span class="mult">${res.mult.toFixed(res.mult % 1 ? 2 : 0)}</span>
+    </div>
+    <div class="pk-total">= <b>${fmt(res.total)}</b></div>`;
+}
 function pkRenderLive(){
   const P = S.poker;
   const res = P.sel.length ? pkScore(true) : null;
   const line = document.getElementById("pk-score-line");
-  if(line){
-    line.innerHTML = res
-      ? `<span class="pk-hn">${esc(res.handName)}</span>
-         <span class="chips">${fmt(res.chips)}</span><span class="muted">×</span>
-         <span class="mult">${res.mult.toFixed(res.mult%1?2:0)}</span>
-         <span class="muted">=</span><span class="gold-t">${fmt(res.total)}</span>`
-      : `<span class="muted tiny">Sélectionnez jusqu'à 5 cartes</span>`;
-  }
+  if(line) line.innerHTML = pkScoreLineHtml(res);
   document.querySelectorAll("#hand .pcard").forEach(el=>{
     el.classList.toggle("sel", P.sel.includes(+el.dataset.u));
   });
@@ -1108,79 +1174,94 @@ SCREENS.poker = {
       <button class="btn ghost wide" style="margin-top:7px" data-act="pkinfo">Voir les combinaisons</button>
       <button class="btn ghost wide" style="margin-top:7px" data-act="goto" data-to="modules">Retour aux modules</button>`;
   },
+  /* choix du verrou : meme grammaire que l'ecran de jeu — l'etat en haut,
+     le verrou au centre du tapis, les decisions sous le pouce */
   blindView(P){
     const boss = P.blind === 2 || pkStage() !== "ante";
-    return `
-      <div class="row between"><div class="h" style="margin:0">${esc(pkStageLabel())}</div>
-        <span class="pill">${ic("coin")} ${P.octets}</span></div>
+    return `<div class="pk-table">
+      <div class="pk-head">
+        <div class="grow"><div class="pk-stage">${esc(pkStageLabel())}</div>
+          <div class="pk-blind">Prochain verrou</div></div>
+        <span class="pill">${ic("coin")} ${P.octets}</span>
+        <button class="pk-menu" data-act="pkmenu" aria-label="Menu">${ic("grid")}</button>
+      </div>
       ${badgeRow()}
-      <div class="blind-card" style="${boss?"":"border-color:var(--line);background:linear-gradient(180deg,var(--s2),var(--s1))"}">
-        <div class="h sm" style="color:${boss?"var(--magenta)":"var(--cyan)"}">${esc(pkBlindLabel())}</div>
-        <div class="row between">
-          <div><div class="tiny dim">Score requis</div>
-            <div style="font-family:var(--font-px);font-size:14px">${fmt(P.target || anteTarget(P.ante,P.blind))}</div></div>
-          <div class="center"><div class="tiny dim">Récompense</div>
-            <div class="gold-t">${3+P.blind} Octets</div></div>
-        </div>
-        ${boss?`<hr class="sep"><div class="tiny bad">Un verrou de secteur impose une contrainte.
-          Elle se révèle à l'entrée.</div>`:""}
-      </div>
-      <div class="btn-grid ${boss?"":"c2"}">
-        <button class="btn pri" data-act="pkstartblind">Entrer</button>
-        ${boss?"":`<button class="btn" data-act="pkskip">Contourner</button>`}
-      </div>
-      ${boss?"":`<div class="tiny dim center" style="margin-top:5px">Contourner rapporte des Octets et
-        améliore votre combinaison favorite, mais ne fait pas progresser le score.</div>`}
       ${this.jokerRow(P)}
-      <div class="btn-grid c3" style="margin-top:9px">
-        <button class="btn sm ghost" data-act="pkinfo">Combinaisons</button>
-        <button class="btn sm ghost" data-act="pkdeck">Deck (${P.deck.length})</button>
-        <button class="btn sm dan" data-act="pkabandon">Abandonner</button>
-      </div>`;
+      <div class="pk-felt">
+        <div class="pk-blindcard ${boss ? "boss" : ""}">
+          <div class="pb-kind">${boss ? "VERROU DE SECTEUR" : "VERROU"}</div>
+          <div class="pb-name">${esc(pkBlindLabel())}</div>
+          <div class="pb-row">
+            <div><div class="tiny dim">Score requis</div>
+              <div class="pb-big">${fmt(P.target || anteTarget(P.ante, P.blind))}</div></div>
+            <div><div class="tiny dim">Récompense</div>
+              <div class="pb-big gold-t">${3 + P.blind} <span class="tiny">Octets</span></div></div>
+          </div>
+          ${boss ? `<div class="tiny bad" style="margin-top:8px">Il impose une contrainte, révélée à l'entrée.
+            ${pkStage() === "ante" ? "Le vaincre délivre un badge." : ""}</div>`
+                 : `<div class="tiny dim" style="margin-top:8px">Contourner rapporte des Octets et améliore votre
+                    combinaison favorite, sans faire avancer le score.</div>`}
+        </div>
+      </div>
+      <div class="pk-actions ${boss ? "solo" : ""}">
+        ${boss ? "" : `<button class="btn" data-act="pkskip">Contourner</button>`}
+        <button class="btn pri" data-act="pkstartblind">Entrer</button>
+      </div>
+    </div>`;
   },
+  /* Ecran de jeu, pense pour le pouce. Tout tenait dans le haut de l'ecran
+     et laissait le bas vide ; la main de huit cartes defilait de cote et se
+     coupait ; « Abandonner » voisinait avec « Jouer ». Desormais, de haut en
+     bas : l'etat de la manche, le tapis (le calcul de la main, en grand), la
+     main en deux rangees, et les actions a portee de pouce. */
   playView(P, resolving){
     const shown = resolving ? (P.resolvePlayed||[]) : null;
-    return `
-      <div class="row between" style="margin-bottom:4px">
-        <div class="h" style="margin:0">${esc(pkStageLabel())} · ${esc(pkBlindLabel())}</div>
+    const pct = Math.min(100, P.score / P.target * 100);
+    return `<div class="pk-table">
+      <div class="pk-head">
+        <div class="grow">
+          <div class="pk-stage">${esc(pkStageLabel())}</div>
+          <div class="pk-blind">${esc(pkBlindLabel())}</div>
+        </div>
         <span class="pill">${ic("coin")} ${P.octets}</span>
+        <button class="pk-menu" data-act="pkmenu" aria-label="Menu">${ic("grid")}</button>
       </div>
       ${badgeRow()}
       ${P.boss?`<div class="blind-card"><b class="bad">${esc(P.boss.n)}</b>
         <div class="tiny">${esc(P.boss.d)}</div></div>`:""}
-      <div id="poker-felt">
-        <div class="row between tiny">
-          <span class="muted">Objectif</span>
-          <b class="mono-num">${fmt(P.score)} / ${fmt(P.target)}</b>
-        </div>
-        <div class="bar thick" style="margin:5px 0 4px"><i style="width:${Math.min(100,P.score/P.target*100)}%"></i></div>
-        <div class="score-line" id="pk-score-line"><span class="muted tiny">Sélectionnez jusqu'à 5 cartes</span></div>
-        ${this.jokerRow(P)}
-        <div id="hand" class="${resolving?"resolving":""}">
-          ${P.hand.map(c=>{
-            const inPlay = resolving && shown.includes(c.u);
-            const dim = resolving && !inPlay;
-            return pkCardHtml(c, inPlay, `data-u="${c.u}"${resolving?"":' data-act="pkcard"'}`,
-              false, dim ? "dimmed" : "");
-          }).join("")}
-        </div>
-        <div class="handinfo">
-          <span>Mains <b class="cy">${P.handsLeft}</b></span>
-          <span>Défausses <b class="gold-t">${P.discardsLeft}</b></span>
-          <span>Pioche ${P.draw.length}</span>
-        </div>
-        ${resolving
-          ? `<button class="btn wide ghost" data-act="pkskipres" style="margin-top:5px">Passer l'animation</button>`
-          : `<div class="btn-grid c2" style="margin-top:5px">
-          <button class="btn pri" id="pk-play" data-act="pkplay" ${P.sel.length&&P.handsLeft>0?"":"disabled"}>Jouer</button>
-          <button class="btn" id="pk-disc" data-act="pkdiscard" ${P.sel.length&&P.discardsLeft>0?"":"disabled"}>Défausser</button>
-        </div>`}
+      <div class="pk-goal">
+        <div class="row between tiny"><span class="muted">Objectif</span>
+          <b class="mono-num">${fmt(P.score)} <span class="muted">/ ${fmt(P.target)}</span></b></div>
+        <div class="bar thick" style="margin-top:5px"><i style="width:${pct}%"></i></div>
       </div>
-      <div class="btn-grid c3" style="margin-top:9px">
-        <button class="btn sm ghost" data-act="pkinfo">Combinaisons</button>
-        <button class="btn sm ghost" data-act="pkdeck">Deck</button>
-        <button class="btn sm dan" data-act="pkabandon">Abandonner</button>
-      </div>`;
+      ${this.jokerRow(P)}
+
+      <div class="pk-felt" id="poker-felt">
+        <div class="score-line big" id="pk-score-line">${pkScoreLineHtml(null)}</div>
+      </div>
+
+      <div class="handinfo">
+        <span>Mains <b class="cy">${P.handsLeft}</b></span>
+        <span>Défausses <b class="gold-t">${P.discardsLeft}</b></span>
+        <span>Pioche <b>${P.draw.length}</b></span>
+      </div>
+      <div id="hand" class="grid ${P.hand.length > 8 ? "g5" : ""} ${resolving?"resolving":""}">
+        ${P.hand.map(c=>{
+          const inPlay = resolving && shown.includes(c.u);
+          const dim = resolving && !inPlay;
+          return pkCardHtml(c, inPlay, `data-u="${c.u}"${resolving?"":' data-act="pkcard"'}`,
+            false, dim ? "dimmed" : "");
+        }).join("")}
+      </div>
+      <div class="pk-actions">
+        ${resolving
+          ? `<button class="btn wide ghost" data-act="pkskipres">Passer l'animation</button>`
+          : `<button class="btn" id="pk-disc" data-act="pkdiscard" ${P.sel.length&&P.discardsLeft>0?"":"disabled"}>
+               Défausser</button>
+             <button class="btn pri" id="pk-play" data-act="pkplay" ${P.sel.length&&P.handsLeft>0?"":"disabled"}>
+               Jouer la main</button>`}
+      </div>
+    </div>`;
   },
   shopView(P){
     const lic = P.shop.licence ? LICENCES.find(l=>l.id===P.shop.licence.id) : null;

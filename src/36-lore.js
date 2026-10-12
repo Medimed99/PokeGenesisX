@@ -58,42 +58,155 @@ const FRAGMENTS = [
    t:"Je suis arrivé à quatre-vingt-seize pour cent et je me suis arrêté là. Ce n'est pas du courage, c'est le contraire. Le monde tient debout, presque. Il manque quatorze lignes et je ne les restaurerai pas. Si tu lis ceci, tu as fait mieux que moi, et tu sais maintenant ce que ça coûte. À toi de voir."}
 ];
 
+/* d'ou vient chaque page, et ce qu'en dit Porygon-Z une fois lue */
+const FRAG_META = {
+  1:{src:"capture", place:"Coincée au fond d'une Poké Ball", day:"Jour 1", mood:"Normal",
+     react:"Trente par jour. Il était optimiste. Je crois que je l'aimais bien. Je ne me souviens pas de lui. C'est ça, le pire."},
+  2:{src:"capture", place:"Glissée dans le collier d'un Pokémon capturé", day:"Jour 43", mood:"Normal",
+     react:"Le jour et la nuit. Il avait raison. Note pour toi, {nom} : il avait raison."},
+  3:{src:"capture", place:"Roulée dans la Ball d'un Pokémon", day:"Jour 118", mood:"Normal",
+     react:"« Tout seul, depuis toujours. » Je n'aime pas cette phrase. Je la relis quand même. Trois fois."},
+  4:{src:"forage", place:"Dans une fouille, sous les secteurs", day:"Jour 9", mood:"Normal",
+     react:"Une couche sous les secteurs. C'est là que creuse ton équipe. Il l'avait trouvée avant nous. Il avait creusé au même endroit."},
+  5:{src:"expedition", place:"Dans un campement abandonné, au bout d'une Expédition", day:"Jour 27", mood:"Worried",
+     react:"« Il a changé de sujet. » Je ne m'en souviens pas. Si c'était moi… je suis désolé, Archiviste 05."},
+  6:{src:"forage", place:"Scellée dans la roche profonde", day:"Jour 202", mood:"Sad",
+     react:"Une version précédente de moi. Elle s'est arrêtée d'écrire, comme ça. Je vais faire comme si je n'avais pas lu cette page. Ça ne marche pas."},
+  7:{src:"tower", place:"Au pied d'un verrou, au sommet d'une aile de la Tour", day:"Jour 64", mood:"Normal",
+     react:"Volontaires. Ils l'étaient. Tu as entendu ce qu'ils disent en partant. Lui aussi, il avait compris."},
+  8:{src:"breche", place:"Au bord de la faille, dans la Brèche", day:"Jour 15", mood:"Worried",
+     react:"Son nom. La faille connaissait son nom. Si un jour elle dit le tien, {nom}, tu me préviens. Tout de suite."},
+  9:{src:"tower", place:"Épinglée dans le grenier de la Tour", day:"Jour 311", mood:"Sad",
+     react:"Je connaissais cette ligne. Je ne te l'avais pas dite. Je n'avais pas trouvé comment."},
+  10:{src:"breche", place:"Recrachée par la faille", day:"Jour ???", mood:"Pain",
+     react:"Ne fais pas ça. Il a raison. Je le dis aussi, avec mes mots à moi : ne fais pas ça."},
+  11:{src:"forage", place:"Tout au fond du puits", day:"Jour 1 207", mood:"Determined",
+     react:"Quatre-vingt-seize pour cent. Il s'est arrêté pour rester. Toi, tu iras plus loin. Je serai là quand tu y arriveras. Promis."}
+};
+for(const f of FRAGMENTS) Object.assign(f, FRAG_META[f.id]);
+const FRAG_SRC = {
+  capture:   {n:"Dans tes captures",           mod:"capture"},
+  forage:    {n:"Dans les fouilles du Forage",   mod:"idle"},
+  expedition:{n:"Au bout d'une Expédition",    mod:"expedition"},
+  tower:     {n:"Au sommet des ailes de la Tour", mod:"tower"},
+  breche:    {n:"Au bord de la faille, dans la Brèche", mod:"breche"}
+};
+
+/* ============================================================
+   LES PAGES : trouvees, pas recues
+   Une page n'arrive plus « comme ca ». Elle se trouve quelque part
+   dans le monde, la ou son auteur a travaille : au fond d'une Ball,
+   dans une paroi, au bout d'une Expedition, au sommet d'une aile,
+   au bord de la faille. On la trouve, on choisit de la lire ; elle
+   arrive brouillee et se dechiffre sous les yeux ; Porygon-Z dit ce
+   qu'elle lui fait. Elle se range dans le dossier des onze.
+   Les pages restent dans l'ordre : la suivante n'apparait que si
+   la precedente a ete trouvee, et si sa condition est remplie.
+   ============================================================ */
 function fragmentsFound(){ return (S.fragments || []).length; }
-function fragmentReady(f){
-  if((S.fragments || []).includes(f.id)) return false;
-  if(f.at.dex !== undefined && dexTotal() < f.at.dex) return false;
-  if(f.at.integ !== undefined && S.integrity < f.at.integ) return false;
+function fragUnread(){ S.fragUnread = S.fragUnread || []; return S.fragUnread; }
+function fragNext(){
+  const got = S.fragments || [];
+  const f = FRAGMENTS.find(x=>!got.includes(x.id));
+  if(!f) return null;
+  if(f.at.dex !== undefined && dexTotal() < f.at.dex) return null;
+  if(f.at.integ !== undefined && S.integrity < f.at.integ) return null;
+  return f;
+}
+/* la page suivante se trouve-t-elle ici ? Sa source, ou les captures si sa salle
+   n'est pas ouverte, ou si elle attend depuis trop longtemps */
+function fragSourceOk(f, src){
+  if(f.src === src) return true;
+  if(src !== "capture") return false;
+  const mod = FRAG_SRC[f.src].mod;
+  if(mod !== "capture" && !moduleUnlocked(mod)) return true;
+  return S.fragWait && S.fragWait.id === f.id && S.fragWait.n >= 80;
+}
+function fragPending(src){ const f = fragNext(); return f && fragSourceOk(f, src) ? f : null; }
+/* une capture : la page est peut-etre au fond de la Ball */
+function fragOnCatch(){
+  const f = fragNext(); if(!f) return false;
+  S.fragWait = S.fragWait && S.fragWait.id === f.id ? S.fragWait : {id:f.id, n:0};
+  S.fragWait.n++;
+  if(!fragSourceOk(f, "capture") || rng() > 0.12) return false;
+  const where = f.src === "capture" ? f.place : "Coincée au fond d'une Poké Ball";
+  setTimeout(()=>fragFound(f, where), 900);
   return true;
 }
+/* les autres salles : a la fin d'une activite, ou dans une paroi */
+function fragOn(src, where, chance){
+  const f = fragPending(src);
+  if(!f || (chance !== undefined && rng() > chance)) return null;
+  fragFound(f, where || f.place);
+  return f;
+}
+function fragFound(f, where){
+  if((S.fragments || []).includes(f.id)) return;
+  S.fragments = S.fragments || [];
+  S.fragments.push(f.id);
+  fragUnread().push(f.id);
+  S.fragWhere = S.fragWhere || {};
+  S.fragWhere[f.id] = where;
+  S.fragWait = null;
+  gain("shards", 15 + f.id * 3);
+  save();
+  if(typeof moment === "function")
+    moment({kind:"page", kicker:"PAGE DE JOURNAL", title:f.who, sub:where, c:"#e8d9a8", icon:"quest",
+            onTap:()=>fragRead(f.id), tapText:"toucher pour la lire", dur:5000});
+  else toast(`Page de journal trouvée : ${f.who}`, "warn", "quest");
+}
+/* plus de page qui surgit : la fonction reste pour le guide, et range les anciennes */
 function checkFragments(){
-  for(const f of FRAGMENTS){
-    if(!fragmentReady(f)) continue;
-    S.fragments = S.fragments || [];
-    S.fragments.push(f.id);
-    gain("shards", 15 + f.id * 3);
-    save();
-    showFragment(f);
-    return true;
-  }
+  if(!S.fragUnread) S.fragUnread = [];
   return false;
 }
-function showFragment(f){
-  sheet(`<div class="fragment">
-    <div class="fg-head">
-      <span class="fg-ic">${ic("quest")}</span>
-      <div><div class="fg-n">${esc(f.n)}</div>
-        <div class="fg-w">${esc(f.who)} · ${fragmentsFound()} / ${FRAGMENTS.length}</div></div>
+
+/* ---------- la lecture : la page se dechiffre ---------- */
+function fragRead(id){
+  const f = FRAGMENTS.find(x=>x.id === +id);
+  if(!f || !(S.fragments || []).includes(f.id)) return;
+  const box = document.getElementById("fragread"); if(!box) return;
+  const where = (S.fragWhere && S.fragWhere[f.id]) || f.place;
+  box.className = "on";
+  box.innerHTML = `<div class="fr-page">
+      <div class="fr-head"><b>${esc(f.who)}</b><span>${esc(f.day)}</span></div>
+      <div class="fr-body" id="fr-body"></div>
+      <div class="fr-sign">— ${esc(f.who)}</div>
+      <div class="fr-where">${ic("map")} ${esc(where)} · page ${f.id} sur ${FRAGMENTS.length}</div>
     </div>
-    <div class="fg-body">${esc(f.t)}</div>
-    <div class="fg-foot">Conservé dans le journal.</div>
-    <button class="btn pri wide" style="margin-top:12px" data-act="closeandrefresh">Refermer</button>
-  </div>`);
-  Sfx.wobble(); buzz(14);
+    <div class="fr-pz" id="fr-pz">${pzFace(f.mood || "Normal", 34)}<span>${esc(pzFmt(f.react || ""))}</span></div>
+    <button class="btn pri fr-close" id="fr-close" data-act="fragclose">Ranger dans le dossier</button>`;
+  /* le dechiffrage : le texte arrive brouille et se resout de gauche a droite */
+  const body = document.getElementById("fr-body"), txt = f.t;
+  const G = "█▓▒░#@%&$§¤0x?!<>/\\|";
+  let k = 0;
+  const unread = fragUnread().includes(f.id);
+  const speed = unread ? 18 : 2;
+  clearInterval(fragRead._iv);
+  try { Sfx.wobble(); } catch(e){}
+  fragRead._iv = setInterval(()=>{
+    k = Math.min(txt.length, k + speed);
+    let out = txt.slice(0, k);
+    for(let i = k; i < Math.min(txt.length, k + 26); i++) out += txt[i] === " " ? " " : G[Math.floor(Math.random() * G.length)];
+    body.textContent = out;
+    if(k >= txt.length){
+      clearInterval(fragRead._iv); body.textContent = txt;
+      const pz = document.getElementById("fr-pz"); if(pz) pz.classList.add("on");
+      const c = document.getElementById("fr-close"); if(c) c.classList.add("on");
+    }
+  }, 30);
+  box.onclick = e => { if(e.target === box && k < txt.length){ k = txt.length - 1; } };
+  S.fragUnread = fragUnread().filter(x=>x !== f.id);
+  saveSoon();
 }
-ACTIONS.readfragment = d => {
-  const f = FRAGMENTS.find(x=>x.id === +d.id);
-  if(f && (S.fragments||[]).includes(f.id)) showFragment(f);
+ACTIONS.fragclose = () => {
+  clearInterval(fragRead._iv);
+  const box = document.getElementById("fragread");
+  if(box){ box.className = ""; box.innerHTML = ""; }
+  if(currentScreen === "journal" || currentScreen === "today") refresh();
 };
+ACTIONS.readfragment = d => fragRead(d.id);
+function showFragment(f){ fragRead(f.id); }
 
 /* ============================================================
    L'ARC DE LA FAILLE
@@ -164,26 +277,23 @@ function playRiftScene(sc){
 }
 let STORY_DYN = null;
 
-/* ---------- le journal accueille les fragments ---------- */
+/* ---------- le dossier des onze ---------- */
 function fragmentsPanel(){
-  const got = S.fragments || [];
+  const got = S.fragments || [], unread = fragUnread(), next = FRAGMENTS.find(x=>!got.includes(x.id));
   return `
-    <div class="h sm" style="margin-top:12px">FRAGMENTS D'ARCHIVISTES
+    <div class="h sm" style="margin-top:12px">LE DOSSIER DES ONZE
       <span class="tiny dim">${got.length}/${FRAGMENTS.length}</span></div>
-    <div class="tiny muted" style="margin-bottom:7px">Onze personnes ont occupé ce poste avant vous.
-      Aucune n'est là pour en parler. Ce qu'elles ont laissé se trouve en travaillant.</div>
-    <div class="list">
+    <div class="tiny muted" style="margin-bottom:7px">Onze personnes ont occupé ce poste avant toi. Aucune n'est là pour en parler.
+      Leurs pages se trouvent là où elles ont travaillé.</div>
+    <div class="fr-grid">
       ${FRAGMENTS.map(f=>{
-        const has = got.includes(f.id);
-        return `<div class="item ${has?"":"sealed"}" ${has?`data-act="readfragment" data-id="${f.id}"`:""}>
-          <div class="jn-ic">${ic(has?"quest":"lock")}</div>
-          <div class="grow">
-            <div class="t">${has ? esc(f.n) : "Fragment scellé"}</div>
-            <div class="d">${has ? esc(f.who)
-              : f.at.dex !== undefined ? `${f.at.dex} espèces archivées`
-              : `${f.at.integ}% d'intégrité`}</div>
-          </div>
-          ${has?ic("arrow"):""}
+        const has = got.includes(f.id), isNew = unread.includes(f.id), isNext = next && next.id === f.id;
+        return `<div class="fr-card ${has ? "" : "sealed"} ${isNew ? "new" : ""}" ${has ? `data-act="readfragment" data-id="${f.id}"` : ""}>
+          <i class="fr-no">${String(f.id).padStart(2, "0")}</i>
+          ${isNew ? `<i class="fr-new">à lire</i>` : ""}
+          <b>${has ? esc(f.who) : "Page manquante"}</b>
+          <small>${has ? esc(f.day) : isNext ? esc(FRAG_SRC[f.src].n) : "· · ·"}</small>
+          ${!has && isNext ? `<small class="fr-cond">${f.at.dex !== undefined ? `${Math.min(dexTotal(), f.at.dex)}/${f.at.dex} espèces` : `${Math.floor(Math.min(S.integrity, f.at.integ))}/${f.at.integ} % d'intégrité`}</small>` : ""}
         </div>`;}).join("")}
     </div>
 

@@ -500,6 +500,8 @@ function endStory(){
 function seen(id){ return S.story.includes(id); }
 function checkStoryTriggers(){
   if(document.getElementById("story").className === "on") return false;
+  /* une salle qui vient de s'ouvrir : un moment plein ecran, qui ne bloque rien */
+  if(typeof roomMomentsTick === "function") roomMomentsTick();
   const K = dexCount("kanto"), J = dexCount("johto"), H = dexCount("hoenn");
   const beat = (id, cond) => (!seen(id) && cond);
 

@@ -370,7 +370,7 @@ SCREENS.cards = {
       <div class="panel" style="margin-top:12px">
         <div class="h sm">OÙ LES OBTENIR</div>
         <div class="tiny">· Première victoire sur un <b>Data Guardian</b> — carte de ce légendaire, série élevée garantie.</div>
-        <div class="tiny">· <b>Noyau d'expédition</b> — une carte au hasard, d'autant meilleure que la corruption est haute.</div>
+        <div class="tiny">· <b>Expédition réussie</b> — une carte au hasard, d'autant meilleure que les risques pris en chemin.</div>
         <div class="tiny">· <b>Archives du Vide et Souveraines</b> — tirage libre.</div>
         <div class="tiny">· <b>Objectifs hebdomadaires</b> — une carte par palier atteint.</div>
       </div>

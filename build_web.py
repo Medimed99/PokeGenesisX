@@ -38,6 +38,8 @@ sizes = {
     "pz.png":        extract("_pzportrait.js", "PZ_STRIP", "pz.png"),
     "prof.png":      extract("_chars.js", "PROF_PORTRAIT", "prof.png"),
     "missingno.png": extract("_chars.js", "MISSING_SPRITE", "missingno.png"),
+    "atlas_shiny.png": extract("_atlas_shiny.js", "ATLAS_SHINY_URL", "atlas_shiny.png"),
+    "prof_full.png": extract("_chars.js", "PROF_FULL", "prof_full.png"),
     "cardart.png":   extract("_cardart.js", "CARD_ATLAS", "cardart.png"),
 }
 
@@ -70,11 +72,14 @@ assets_js = f"""/* Version hebergee : les images sont servies comme fichiers, pa
    cache indefiniment sans jamais servir une version perimee. */
 const ATLAS_COLS={cols}, ATLAS_ROWS={rows}, ATLAS_N={n}, ATLAS_BACK0={back0};
 const ATLAS_URL="{paths['atlas.png']}";
+const PMD_BASE="assets/pmd/";
+const ATLAS_SHINY_URL="{paths.get('atlas_shiny.png') or paths['atlas.png']}";
 const PZ_EMOS = {pz_emos};
 const PZ_W = {pz_w}, PZ_H = {pz_h};
 const PZ_STRIP="{paths['pz.png']}";
 const PROF_PORTRAIT="{paths['prof.png']}";
 const MISSING_SPRITE="{paths['missingno.png']}";
+const PROF_FULL="{paths.get('prof_full.png') or ''}";
 const CARD_COLS={card_cols}, CARD_ROWS={card_rows}, CARD_CELL={card_cell};
 const CARD_SERIES={card_series};
 const CARD_INDEX={card_index};
@@ -83,7 +88,8 @@ const CARD_ATLAS="{paths['cardart.png']}";
 
 # --- configuration du service en ligne, depuis l'environnement -------------
 sb_url = os.environ.get("SUPABASE_URL", "").strip().rstrip("/")
-sb_key = os.environ.get("SUPABASE_ANON_KEY", "").strip()
+# la cle publique : nouvelle cle « publishable » ou ancienne cle « anon », au choix
+sb_key = (os.environ.get("SUPABASE_PUBLISHABLE_KEY", "") or os.environ.get("SUPABASE_ANON_KEY", "")).strip()
 config_js = f"""/* Renseigne au moment du build depuis les variables d'environnement
    SUPABASE_URL et SUPABASE_ANON_KEY. Laisse vide, le jeu reste jouable :
    le joueur peut saisir les valeurs lui-meme dans Profil > En ligne. */
@@ -93,7 +99,7 @@ window.PCG_CONFIG = {{ url: {json.dumps(sb_url)}, key: {json.dumps(sb_key)} }};
 # --- assemblage du script --------------------------------------------------
 parts = []
 for f in ORDER:
-    if f in ("_atlas.js", "_pzportrait.js", "_chars.js", "_cardart.js"):
+    if f in ("_atlas.js", "_atlas_shiny.js", "_pmdimg.js", "_pzportrait.js", "_chars.js", "_cardart.js"):
         continue
     parts.append(f"/* ===== {f} ===== */")
     parts.append(open(os.path.join(SRC, f), encoding="utf-8").read())
@@ -106,7 +112,8 @@ tpl = tpl.replace("/*__CSS__*/", css).replace("/*__JS__*/", js)
 # manifeste et service worker reels : l'installation PWA devient possible
 tpl = tpl.replace("</head>",
     '<link rel="manifest" href="manifest.webmanifest">\n'
-    f'<link rel="icon" href="{paths["pz.png"]}">\n'
+    '<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">\n'
+    '<link rel="apple-touch-icon" href="apple-touch-icon.png">\n'
     '<script src="config.js"></script>\n</head>')
 tpl = tpl.replace("</body>",
     """<script>
@@ -125,6 +132,7 @@ manifest = {
     "name": "Pokémon Code Genesis",
     "short_name": "Code Genesis",
     "description": "Jeu de collection fan-made. Le monde est un fichier corrompu ; vous êtes l'Archiviste.",
+    "id": "./",
     "start_url": ".",
     "scope": ".",
     "display": "standalone",
@@ -132,8 +140,9 @@ manifest = {
     "background_color": "#04060b",
     "theme_color": "#04060b",
     "icons": [
-        {"src": paths["pz.png"], "sizes": "400x40", "type": "image/png"},
-        {"src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable"}
+        {"src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+        {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
+        {"src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
     ]
 }
 open(os.path.join(OUT, "manifest.webmanifest"), "w", encoding="utf-8").write(
@@ -148,7 +157,20 @@ open(os.path.join(OUT, "icon.svg"), "w", encoding="utf-8").write(
 
 # --- service worker --------------------------------------------------------
 html_hash = hashlib.sha1(tpl.encode()).hexdigest()[:8]
-precache = ["./", "./index.html", "./manifest.webmanifest", "./icon.svg"] + list(paths.values())
+# les icones de l'application : fichiers versionnes dans assets/icons (voir build_icons.py)
+import shutil
+for f in os.listdir("assets/icons"):
+    shutil.copy(os.path.join("assets/icons", f), os.path.join(OUT, f))
+# les planches de marche PMD : chargees a la demande, espece par espece
+os.makedirs(os.path.join(OUT, "assets", "pmd"), exist_ok=True)
+if os.path.isdir("assets/pmd"):
+    for f in os.listdir("assets/pmd"):
+        shutil.copy(os.path.join("assets/pmd", f), os.path.join(OUT, "assets", "pmd", f))
+    print(f"sprites de marche : {len(os.listdir('assets/pmd'))} planches copiées")
+else:
+    print("ATTENTION : assets/pmd absent — la Brèche utilisera les sprites fixes (lancez build_pmd.py)")
+precache = ["./", "./index.html", "./manifest.webmanifest", "./icon.svg",
+            "./icon-192.png", "./icon-512.png", "./apple-touch-icon.png"] + list(paths.values())
 sw = f"""/* Service worker : les images portent une empreinte, on peut donc les garder
    indefiniment. Le HTML passe par le reseau d'abord, pour qu'une nouvelle
    version soit prise en compte des le rechargement suivant. */
@@ -173,17 +195,17 @@ self.addEventListener("fetch", e => {{
   if(url.pathname.startsWith("/rest/") || url.pathname.startsWith("/auth/")) return;
 
   if(url.pathname.includes("/assets/")){{
+    /* on ne garde que les reponses valides : une erreur 404 mise en cache serait
+       resservie indefiniment, meme une fois le fichier publie */
     e.respondWith(caches.match(e.request).then(hit => hit || fetch(e.request).then(r => {{
-      const copy = r.clone();
-      caches.open(CACHE).then(c => c.put(e.request, copy));
+      if(r.ok){{ const copy = r.clone(); caches.open(CACHE).then(c => c.put(e.request, copy)); }}
       return r;
     }})));
     return;
   }}
   e.respondWith(fetch(e.request)
     .then(r => {{
-      const copy = r.clone();
-      caches.open(CACHE).then(c => c.put(e.request, copy));
+      if(r.ok){{ const copy = r.clone(); caches.open(CACHE).then(c => c.put(e.request, copy)); }}
       return r;
     }})
     .catch(() => caches.match(e.request).then(hit => hit || caches.match("./index.html"))));

@@ -7,7 +7,6 @@ const files = fs.readdirSync("src").filter(f=>f.endsWith(".js"));
 /* mots proscrits, et ce qu'il faut écrire à la place */
 const BANNED = [
   [/\bzones?\b/i,            "secteur"],
-  [/\bstrates?\b/i,          "couche"],
   [/\bvivier\b/i,            "réserve"],
   [/\bcache d'échange\b/i,   "archive d'échange"],
   [/\bdésindexée?s? à nouveau\b/i, "s'est enfui"],

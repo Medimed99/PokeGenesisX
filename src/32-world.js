@@ -36,6 +36,7 @@ const HABITAT_IDS = Object.keys(HABITATS);
 
 function habitatUnlocked(k){
   const h = HABITATS[k];
+  if(!h) return false;
   return !h.need || dexCount(S.region) >= h.need;
 }
 function currentHabitat(){
@@ -108,6 +109,7 @@ function habitatWeight(id, hab, night, w){
     if(night && DAY_TYPES.includes(t))   weight *= 0.65;
     if(!night && NIGHT_TYPES.includes(t))weight *= 0.55;
   }
+  weight *= lureMul(p);
   /* meteo */
   for(const t of p.types){
     if(w.boost && w.boost.includes(t)) weight *= w.mult;
@@ -126,6 +128,7 @@ function speciesInHabitat(rar){
   for(let i = r.from; i <= r.to; i++){
     const p = POKE[i];
     if(!p || p.rar !== rar) continue;
+    if(isExclusive(i)) continue;                 /* peche, oeufs, forage */
     if(isGuardianSpecies(i) && !isReleasedGuardian(i)) continue;
     const wt = habitatWeight(i, hab, night, w);
     if(wt <= 0) continue;
@@ -147,7 +150,7 @@ function habitatMissing(k){
   let n = 0;
   for(let i = r.from; i <= r.to; i++){
     const p = POKE[i];
-    if(!p || S.dex[i]) continue;
+    if(!p || S.dex[i] || isExclusive(i)) continue;
     if(p.types.some(t=>hab.types.includes(t))) n++;
   }
   return n;
@@ -178,6 +181,8 @@ function habitatBar(){
         <span>${esc(h.n.split(" ")[0])}</span>
         ${open ? `<b>${habitatMissing(k)}</b>` : `<em>${h.need}</em>`}
       </button>`;}).join("")}
+    ${isSafariDay() ? `<button class="habchip ${S.habitat==="safari"?"on":""}" style="--hc:#e0b64a"
+        data-act="sethab" data-k="safari">${itemOr("ball:safari", "seed", 20)}<span>Safari</span><b>${S.balls.safari||0}</b></button>` : ""}
   </div>`;
 }
 ACTIONS.sethab = d => {

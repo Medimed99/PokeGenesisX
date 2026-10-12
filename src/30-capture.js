@@ -395,6 +395,8 @@ function onCatch(ballKey){
   if(ENC.shiny) researchTick(ENC.id, "shiny", 1);
   pikaLine(ENC.id);
   if(typeof pzMuse === "function") pzMuse(ENC.id, isNew);
+  /* une page de journal au fond de la Ball, parfois */
+  if(!isNew && typeof fragOnCatch === "function") fragOnCatch();
   contractTick(ENC.id, isNew);
 
   /* recompenses */

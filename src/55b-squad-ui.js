@@ -653,6 +653,8 @@ function sqEnd(){
   B._ended = true;
   const R = sqFinish(B), Z = SQ_ZONES[B.z];
   if(typeof checkAchievements === "function") checkAchievements();
+  /* le verrou cede : sa silhouette se colore et monte dans la lumiere, avant les resultats */
+  if(R.lock && R.first && typeof momentRelease === "function") setTimeout(()=>momentRelease(R.lock.g), 1200 / sqSp());
   const last = B.s === SQ_STAGES - 1;
   const nextOk = B.result && !last && !B.lock;
   setTimeout(()=>{
@@ -691,12 +693,13 @@ function sqRestart(z, s, d){
   SQ_ZSEL = z; SQ_DSEL = d;
   SQ_PREP = {z, s, d, team:sqDefaultTeam(), waves:sqWaves(z, s, null, d), sort:"lvl"};
 }
-ACTIONS.sqagain = () => { const B = SQB; if(!B) return; sqRestart(B.z, B.s, B.d); ACTIONS.sqfight(); };
-ACTIONS.sqprepagain = () => { const B = SQB; if(!B) return; sqRestart(B.z, B.s, B.d); SQB = null; SQV = null; go("tower", "prep"); };
+ACTIONS.sqagain = () => { const B = SQB; if(!B) return; sqWingFlush(); sqRestart(B.z, B.s, B.d); ACTIONS.sqfight(); };
+ACTIONS.sqprepagain = () => { const B = SQB; if(!B) return; sqWingFlush(); sqRestart(B.z, B.s, B.d); SQB = null; SQV = null; go("tower", "prep"); };
 ACTIONS.sqnext = () => { const B = SQB; if(!B) return; sqRestart(B.z, B.s + 1, B.d); SQB = null; SQV = null; go("tower", "prep"); if(typeof checkStoryTriggers === "function") checkStoryTriggers(); };
 ACTIONS.sqzoneend = () => {
   const lk = SQB && SQB.lock; SQB = null; SQV = null;
   if(lk) go("boss"); else go("tower", "zone");
+  sqWingFlush();
   /* une scene peut attendre la fin du combat : le premier boss d'aile, le premier verrou */
   if(typeof checkStoryTriggers === "function") checkStoryTriggers();
   if(typeof guideTick === "function") guideTick();
