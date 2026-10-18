@@ -4698,6 +4698,72 @@ details.fo-more[open]>summary::before{content:"▾ "}
 .bn-row{display:flex;flex-wrap:wrap;align-items:center;gap:4px 9px;padding:7px 2px;border-top:1px dashed var(--line);font-size:11px}
 .bn-row b{font-size:12px;font-weight:600}
 
+/* ---------- le sélecteur de Pokémon ---------- */
+#sheet-root .sheet.tall{max-height:94%}
+.pp{position:relative;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.pp-top{position:sticky;top:-14px;z-index:5;margin:0 -14px;padding:8px 14px 6px;background:linear-gradient(180deg,#0b1222 85%,#0b122200);}
+#screen .pp-top{top:-10px;margin:0 -12px;padding:8px 12px 6px;background:linear-gradient(180deg,#070c18 85%,#070c1800)}
+.pp-slots{display:grid;gap:6px}
+.pp-slots.c1{grid-template-columns:1fr;max-width:140px}
+.pp-slots.c3{grid-template-columns:repeat(3,1fr)}
+.pp-slots.c4{grid-template-columns:repeat(4,1fr)}
+.pp-slots.c6{grid-template-columns:repeat(6,1fr)}
+.pp-slot{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;min-height:84px;padding:14px 3px 5px;border-radius:12px;border:1px solid var(--line2);background:linear-gradient(180deg,#14203a,#0c1426);touch-action:none;cursor:grab;transition:border-color .15s,transform .15s,box-shadow .15s}
+.pp-slots.c6 .pp-slot{min-height:72px;padding-top:12px}
+.pp-slot b{font-size:9.5px;line-height:1.15;text-align:center;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pp-slot small{font-size:9px;color:var(--ink3);white-space:nowrap}
+.pp-slot .pp-spr{width:44px;height:44px;display:grid;place-items:center;pointer-events:none}
+.pp-slots.c6 .pp-slot .pp-spr{width:36px;height:36px}
+.pp-slot .pp-spr img,.pp-slot .pp-spr canvas{max-width:100%;max-height:100%}
+.pp-slot.lead{border-color:#ffd24a99;box-shadow:inset 0 0 12px #ffd24a22}
+.pp-slot.empty{border-style:dashed;justify-content:center;color:var(--ink3);cursor:pointer}
+.pp-plus{font-size:22px;line-height:1;opacity:.6}
+.pp-n{position:absolute;top:3px;left:5px;font-size:9px;font-weight:800;color:var(--cyan)}
+.pp-slot.lead .pp-n{color:#ffd24a}
+.pp-x{position:absolute;top:1px;right:2px;width:22px;height:22px;display:grid;place-items:center;font-style:normal;font-size:15px;color:var(--ink3);border-radius:50%;cursor:pointer}
+.pp-x:hover{color:#fff;background:#ff3d7f55}
+.pp-slot.armed{border-color:var(--amber);box-shadow:0 0 0 2px var(--amber),0 0 14px #ffc85766;animation:ppArm 1s ease-in-out infinite}
+@keyframes ppArm{50%{box-shadow:0 0 0 2px var(--amber),0 0 22px #ffc857aa}}
+.pp-slot.over{border-color:var(--cyan);box-shadow:0 0 0 2px var(--cyan),0 0 18px #35f0d688;transform:scale(1.05)}
+.pp-slot.pop{animation:ppPop .35s cubic-bezier(.2,1.6,.4,1)}
+@keyframes ppPop{0%{transform:scale(.85)}100%{transform:none}}
+.pp-slot.lifted,.pp-cell.lifted{opacity:.35;transform:scale(.94)}
+.pp-slots.shake{animation:ppShake .35s}
+@keyframes ppShake{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.pp-hint{font-size:10.5px;color:var(--ink3);margin-top:6px;line-height:1.35;min-height:28px}
+.pp-hint b{color:var(--amber)}
+.pp-cancel{color:var(--cyan);text-decoration:underline;margin-left:4px;cursor:pointer}
+.pp-tools{display:flex;flex-direction:column;gap:6px;margin:4px 0 8px}
+.pp-tools input{width:100%}
+.pp-sorts{display:flex;gap:4px;flex-wrap:wrap}
+.pp-types{display:flex;gap:3px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.pp-ty{flex:none;background:none;border:0;padding:0;opacity:.55;cursor:pointer}
+.pp-ty.on{opacity:1;transform:scale(1.08)}
+.pp-ty .tt{font-size:8px;padding:2px 4px}
+.pp-box{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:5px;padding:4px;border-radius:12px;transition:background .15s,box-shadow .15s}
+.pp-box.over{background:#ff3d7f14;box-shadow:inset 0 0 0 2px #ff3d7f88}
+.pp-cell{position:relative;display:flex;flex-direction:column;align-items:center;padding:12px 2px 4px;border-radius:10px;border:1px solid var(--line);background:#0d1628;cursor:pointer;transition:transform .12s,opacity .15s}
+.pp-cell:active{transform:scale(.95)}
+.pp-cell .pp-spr{width:44px;height:44px;display:grid;place-items:center;pointer-events:none}
+.pp-cell .pp-spr img,.pp-cell .pp-spr canvas{max-width:44px;max-height:44px}
+.pp-nm{font-size:8.5px;color:var(--ink2);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pp-lv{position:absolute;top:2px;left:4px;font-size:8.5px;color:var(--ink3)}
+.pp-k{position:absolute;top:2px;right:4px;font-size:9px;font-weight:800;color:#0b1222}
+.pp-cell.picked{border-color:var(--cyan);background:linear-gradient(180deg,#123049,#0d1628);box-shadow:0 0 10px #35f0d633}
+.pp-cell.picked .pp-k{min-width:15px;height:15px;padding:0 3px;border-radius:8px;background:var(--cyan);display:grid;place-items:center}
+.pp-cell.dim{opacity:.5}
+.pp-td{display:flex;gap:2px;margin-top:2px}
+.pp-td .tt{width:12px;height:4px;padding:0;border-radius:2px;font-size:0}
+.pp-more{grid-column:1/-1;margin-top:4px}
+.pp-ghost{position:fixed;left:0;top:0;z-index:200;width:64px;height:64px;display:grid;place-items:center;pointer-events:none;border-radius:50%;background:radial-gradient(circle,#35f0d644,transparent 70%);filter:drop-shadow(0 6px 10px #000c)}
+.pp-ghost img,.pp-ghost canvas{width:60px;height:60px}
+.pp.dragging .pp-cell:not(.lifted){opacity:.8}
+.pp-ok{position:sticky;bottom:-14px;margin:8px -14px -14px;padding:8px 14px 14px;background:linear-gradient(0deg,#0b1222 80%,#0b122200);z-index:6}
+.sw-pp{margin-top:6px}
+.tp-grip{flex:none;width:22px;align-self:stretch;display:grid;place-items:center;color:var(--ink3);font-size:12px;letter-spacing:-2px;cursor:grab;touch-action:none}
+.tp-row.lifted{z-index:5;position:relative;box-shadow:0 8px 20px #000a;border-color:var(--cyan)!important;transition:none}
+.tp-sel .tp-row{transition:transform .15s}
+
 </style>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
@@ -13837,119 +13903,7 @@ function ownedSorted(){
 function teamFighters(ids, boost){
   return ids.filter(id=>S.dex[id]).map(id=>makeFighter(id, S.dex[id].lvl, {shiny:S.dex[id].shiny, boost:boost||1}));
 }
-/* ---------- sélecteur d'équipe ----------
-   Recherche par nom, ordre explicite, retrait d'un geste. L'ordre compte :
-   le premier de la liste entre en jeu, les suivants prennent le relais. */
-let TP = null;
-function teamPicker(title, max, onConfirm, preset){
-  TP = {
-    sel: (preset || S.team.slice(0, max)).filter(id=>S.dex[id]),
-    max, title, onConfirm, q: "", sort: "power"
-  };
-  drawTeamPicker();
-}
-function tpPool(){
-  const q = TP.q.trim().toLowerCase();
-  let ids = Object.keys(S.dex).map(Number);
-  if(q) ids = ids.filter(id=>POKE[id].name.toLowerCase().includes(q)
-                          || String(id).padStart(3,"0").includes(q));
-  const sorters = {
-    power: (a,b)=>(POKE[b].bst*(1+S.dex[b].lvl/100)) - (POKE[a].bst*(1+S.dex[a].lvl/100)),
-    level: (a,b)=>S.dex[b].lvl - S.dex[a].lvl,
-    num:   (a,b)=>a-b,
-    name:  (a,b)=>POKE[a].name.localeCompare(POKE[b].name)
-  };
-  return ids.sort(sorters[TP.sort] || sorters.power);
-}
-function drawTeamPicker(){
-  const pool = tpPool();
-  const full = TP.sel.length >= TP.max;
-  sheet(`${sheetHead(TP.title)}
-    <div class="tiny muted" style="margin-bottom:8px">
-      L'ordre compte : le premier entre en jeu, les autres prennent le relais.
-      Touchez une flèche pour le déplacer.</div>
-
-    <div class="tp-sel">
-      ${TP.sel.length ? TP.sel.map((id,i)=>`
-        <div class="tp-row">
-          <span class="tp-pos">${i+1}</span>
-          <span class="sprbox" style="width:38px;height:38px">${sprite(id, S.dex[id].shiny, "")}</span>
-          <div class="grow">
-            <div class="tiny">${esc(POKE[id].name)}</div>
-            <div class="wrap" style="gap:3px;margin-top:2px">${typeTags(POKE[id].types)}
-              <span class="tt t1">N.${S.dex[id].lvl}</span></div>
-          </div>
-          <div class="tp-ord">
-            <button class="tp-b" data-act="tpmove" data-i="${i}" data-d="-1" ${i===0?"disabled":""}>▲</button>
-            <button class="tp-b" data-act="tpmove" data-i="${i}" data-d="1" ${i===TP.sel.length-1?"disabled":""}>▼</button>
-          </div>
-          <button class="tp-x" data-act="tpdel" data-i="${i}" aria-label="Retirer">${ic("cross")}</button>
-        </div>`).join("")
-        : `<div class="empty" style="padding:16px">Aucun Pokémon sélectionné.</div>`}
-      ${Array.from({length: Math.max(0, TP.max - TP.sel.length)}, ()=>
-        `<div class="tp-row ghost"><span class="tp-pos">—</span>
-          <div class="grow tiny dim">emplacement libre</div></div>`).join("")}
-    </div>
-
-    <button class="btn pri wide" style="margin:9px 0" data-act="tconfirm"
-      ${TP.sel.length?"":"disabled"}>Valider (${TP.sel.length}/${TP.max})</button>
-
-    <div class="row" style="gap:6px;margin-bottom:7px">
-      <input id="tp-q" type="text" placeholder="Rechercher un Pokémon…" value="${esc(TP.q)}"
-        oninput="tpSearch(this.value)" style="flex:1">
-    </div>
-    <div class="chipbar">
-      ${[["power","Puissance"],["level","Niveau"],["num","Numéro"],["name","Nom"]].map(([k,n])=>
-        `<button class="chip ${TP.sort===k?"on":""}" data-act="tpsort" data-s="${k}">${n}</button>`).join("")}
-    </div>
-
-    ${pool.length ? `<div class="dexgrid">
-      ${pool.slice(0,80).map(id=>{
-        const on = TP.sel.includes(id);
-        return `<div class="dexcell owned r${POKE[id].rar} ${on?"picked":""} ${(!on&&full)?"muted-cell":""}"
-            data-act="tptoggle" data-id="${id}">
-          <span class="no">${S.dex[id].lvl}</span>
-          ${on?`<span class="cnt">${TP.sel.indexOf(id)+1}</span>`:""}
-          ${sprite(id, S.dex[id].shiny, "")}
-          <span class="nm">${esc(POKE[id].name)}</span>
-        </div>`;}).join("")}
-      </div>`
-      : `<div class="empty">Aucun Pokémon ne correspond.</div>`}`);
-  const inp = document.getElementById("tp-q");
-  if(inp && TP.q){ try { inp.focus(); inp.setSelectionRange(TP.q.length, TP.q.length); } catch(e){} }
-}
-/* la recherche ne doit pas redessiner la feuille a chaque frappe */
-function tpSearch(v){
-  if(!TP) return;
-  TP.q = v;
-  clearTimeout(TP._t);
-  TP._t = setTimeout(()=>drawTeamPicker(), 180);
-}
-ACTIONS.tptoggle = d => {
-  const id = +d.id;
-  const i = TP.sel.indexOf(id);
-  if(i >= 0) TP.sel.splice(i, 1);
-  else if(TP.sel.length < TP.max) TP.sel.push(id);
-  else { toast("Équipe complète — retirez-en un d'abord", "bad", "cross"); return; }
-  drawTeamPicker();
-};
-ACTIONS.tpdel  = d => { TP.sel.splice(+d.i, 1); drawTeamPicker(); };
-ACTIONS.tpmove = d => {
-  const i = +d.i, j = i + (+d.d);
-  if(j < 0 || j >= TP.sel.length) return;
-  [TP.sel[i], TP.sel[j]] = [TP.sel[j], TP.sel[i]];
-  drawTeamPicker();
-};
-ACTIONS.tpsort = d => { TP.sort = d.s; drawTeamPicker(); };
-ACTIONS.tconfirm = () => {
-  const sel = TP.sel.slice();
-  const cb = TP.onConfirm;
-  TP = null;
-  closeSheet();
-  S.team = sel.slice();
-  saveSoon();
-  cb(sel);
-};
+/* le sélecteur d'équipe est dans 40b-picker.js */
 
 /* ============================================================
    DATA GUARDIANS
@@ -14165,6 +14119,366 @@ ACTIONS.useitem = d => {
   saveSoon(); renderArena(); refresh();
   setTimeout(()=>doTurn(0), 300);
 };
+
+/* ===== 40b-picker.js ===== */
+/* ============================================================
+   40b — LE SÉLECTEUR DE POKÉMON
+   Utilisé partout où l'on compose une équipe : Mon équipe, la Tour,
+   l'Expédition, les Data Guardians, la Brèche.
+
+   Ce qu'il faisait mal : des flèches pour l'ordre, aucun glisser-
+   déposer, et chaque toucher redessinait toute la feuille — on
+   perdait sa place dans la liste.
+
+   Désormais :
+   · les emplacements restent collés en haut, toujours visibles ;
+   · GLISSER un Pokémon de la box sur un emplacement le place (celui
+     qui l'occupait retourne dans la box) ; glisser un emplacement
+     sur un autre les échange ; le glisser vers la box le retire ;
+   · TOUCHER un Pokémon de la box l'ajoute (ou le retire s'il est
+     déjà dans l'équipe) ; toucher un emplacement le « vise » : le
+     prochain Pokémon touché prendra sa place ; la croix le retire ;
+   · rien n'est redessiné en entier : seuls les emplacements et les
+     marques de la box changent, la liste ne bouge pas.
+   Sur écran tactile, on saisit un Pokémon de la box par un appui
+   un peu long (le défilement reste libre) ; les emplacements se
+   saisissent tout de suite.
+   ============================================================ */
+
+let PP = null;
+
+function ppPower(id){ return typeof monPower === "function" ? monPower(id) : Math.round(POKE[id].bst * (1 + S.dex[id].lvl / 50)); }
+const PP_SORTS = [["power", "Puissance"], ["level", "Niveau"], ["stars", "Étoiles"], ["num", "N°"], ["name", "Nom"]];
+function ppPool(){
+  const q = (PP.q || "").trim().toLowerCase();
+  let ids = Object.keys(S.dex).map(Number).filter(id=>POKE[id] && (!PP.filter || PP.filter(id)));
+  if(q) ids = ids.filter(id=>POKE[id].name.toLowerCase().includes(q) || String(id).padStart(3, "0").includes(q));
+  if(PP.type) ids = ids.filter(id=>POKE[id].types.includes(PP.type));
+  const st = id => typeof starsOf === "function" ? starsOf(id) : 0;
+  const so = {
+    power:(a, b)=>ppPower(b) - ppPower(a),
+    level:(a, b)=>S.dex[b].lvl - S.dex[a].lvl || ppPower(b) - ppPower(a),
+    stars:(a, b)=>st(b) - st(a) || ppPower(b) - ppPower(a),
+    num:(a, b)=>a - b,
+    name:(a, b)=>POKE[a].name.localeCompare(POKE[b].name)
+  }[PP.sort] || ((a, b)=>ppPower(b) - ppPower(a));
+  return ids.sort(so);
+}
+
+/* ---------- montage ---------- */
+/* cfg : {max, sel, leader (le premier a un rôle), leadLabel, filter(id), onChange(sel), hint} */
+function ppMount(host, cfg){
+  if(!host) return;
+  PP = Object.assign({q:"", sort:"power", type:0, armed:null, drag:null, show:120}, PP && PP.keep ? {q:PP.q, sort:PP.sort, type:PP.type} : {}, cfg);
+  PP.sel = (cfg.sel || []).filter(id=>S.dex[id]).slice(0, cfg.max);
+  PP.host = host;
+  host.innerHTML = `<div class="pp">
+    <div class="pp-top" id="pp-top">
+      <div class="pp-slots c${PP.max}" id="pp-slots"></div>
+      <div class="pp-hint" id="pp-hint"></div>
+    </div>
+    <div class="pp-tools">
+      <input id="pp-q" type="text" placeholder="Rechercher…" value="${esc(PP.q)}" autocomplete="off">
+      <div class="pp-sorts">${PP_SORTS.map(([k, n])=>`<button class="chip ${PP.sort === k ? "on" : ""}" data-ppsort="${k}">${n}</button>`).join("")}</div>
+      <div class="pp-types">${Object.keys(TYPE_NAMES).map(t=>`<button class="pp-ty ${PP.type == t ? "on" : ""}" data-pptype="${t}" title="${esc(TYPE_NAMES[t])}"><i class="tt t${t}">${esc(TYPE_NAMES[t].slice(0, 3))}</i></button>`).join("")}</div>
+    </div>
+    <div class="pp-box" id="pp-box" data-ppbox="1"></div>
+  </div>`;
+  ppSlots(); ppBox();
+  ppBind(host);
+}
+function ppEmit(){
+  ppSlots(); ppMark();
+  if(PP.onChange) try { PP.onChange(PP.sel.slice()); } catch(e){}
+}
+function ppSlots(){
+  const el = document.getElementById("pp-slots"); if(!el || !PP) return;
+  el.innerHTML = Array.from({length:PP.max}, (_, i)=>{
+    const id = PP.sel[i], armed = PP.armed === i;
+    if(!id) return `<div class="pp-slot empty ${armed ? "armed" : ""}" data-ppslot="${i}"><span class="pp-n">${PP.leader && i === 0 ? "♛" : i + 1}</span><span class="pp-plus">+</span></div>`;
+    const e = S.dex[id];
+    return `<div class="pp-slot ${PP.leader && i === 0 ? "lead" : ""} ${armed ? "armed" : ""}" data-ppslot="${i}">
+      <span class="pp-n">${PP.leader && i === 0 ? "♛" : i + 1}</span>
+      <i class="pp-x" data-ppx="${i}" aria-label="Retirer">×</i>
+      <span class="pp-spr">${sprite(id, e.shiny, "")}</span>
+      <b>${esc(POKE[id].name)}</b>
+      <small>N.${e.lvl}${typeof starsOf === "function" ? ` · ${"★".repeat(starsOf(id))}` : ""}</small>
+    </div>`;
+  }).join("");
+  const h = document.getElementById("pp-hint");
+  if(h) h.innerHTML = PP.armed !== null
+    ? `<b>Emplacement ${PP.armed + 1}</b> : touche le Pokémon qui prend cette place. <span class="pp-cancel" data-ppdisarm="1">Annuler</span>`
+    : (PP.hint || `Glisse pour changer l'ordre ou remplacer · touche un Pokémon pour l'ajouter ou le retirer${PP.leader && PP.leadLabel ? ` · ♛ ${esc(PP.leadLabel)}` : ""}`);
+}
+function ppBox(){
+  const el = document.getElementById("pp-box"); if(!el || !PP) return;
+  const pool = ppPool();
+  PP.poolLen = pool.length;
+  el.innerHTML = pool.length ? pool.slice(0, PP.show).map(id=>{
+    const e = S.dex[id];
+    return `<div class="pp-cell r${POKE[id].rar}" data-ppid="${id}">
+      <span class="pp-lv">${e.lvl}</span>
+      <span class="pp-k"></span>
+      <span class="pp-spr">${sprite(id, e.shiny, "")}</span>
+      <span class="pp-nm">${esc(POKE[id].name)}</span>
+      <span class="pp-td">${POKE[id].types.map(t=>`<i class="tt t${t}"></i>`).join("")}</span>
+    </div>`; }).join("") + (pool.length > PP.show ? `<button class="btn ghost wide pp-more" data-ppmore="1">Voir ${Math.min(120, pool.length - PP.show)} de plus (${pool.length - PP.show} restants)</button>` : "")
+    : `<div class="empty">Aucun Pokémon ne correspond.</div>`;
+  ppMark();
+}
+/* seules les marques changent : la box ne bouge pas */
+function ppMark(){
+  const el = document.getElementById("pp-box"); if(!el || !PP) return;
+  const full = PP.sel.length >= PP.max;
+  el.querySelectorAll(".pp-cell").forEach(c=>{
+    const id = +c.dataset.ppid, k = PP.sel.indexOf(id);
+    c.classList.toggle("picked", k >= 0);
+    c.classList.toggle("dim", k < 0 && full && PP.armed === null);
+    const b = c.querySelector(".pp-k"); if(b) b.textContent = k < 0 ? "" : (PP.leader && k === 0 ? "♛" : String(k + 1));
+  });
+}
+
+/* ---------- les opérations ---------- */
+function ppPlace(id, slot){
+  const sel = PP.sel.slice(), cur = sel.indexOf(id);
+  if(slot === undefined || slot === null){ if(cur < 0 && sel.length < PP.max) sel.push(id); }
+  else if(cur >= 0){
+    /* déjà dans l'équipe : on échange les deux places */
+    const j = Math.min(slot, sel.length - 1);
+    [sel[cur], sel[j]] = [sel[j], sel[cur]];
+  } else if(slot < sel.length) sel[slot] = id;
+  else if(sel.length < PP.max) sel.push(id);
+  PP.sel = sel; PP.armed = null;
+  ppEmit(); ppPop(id);
+}
+function ppRemove(i){ if(PP.sel[i] === undefined) return; PP.sel.splice(i, 1); PP.armed = null; ppEmit(); }
+function ppSwap(i, j){
+  const sel = PP.sel; if(sel[i] === undefined) return;
+  j = Math.min(j, sel.length - 1);
+  if(i === j) return;
+  [sel[i], sel[j]] = [sel[j], sel[i]];
+  ppEmit(); ppPop(sel[j]);
+}
+function ppPop(id){
+  const k = PP.sel.indexOf(id); if(k < 0) return;
+  const s = document.querySelector(`#pp-slots [data-ppslot="${k}"]`);
+  if(s){ s.classList.remove("pop"); void s.offsetWidth; s.classList.add("pop"); }
+  if(typeof buzz === "function") buzz(8);
+}
+function ppFull(){
+  const t = document.getElementById("pp-slots");
+  if(t){ t.classList.remove("shake"); void t.offsetWidth; t.classList.add("shake"); }
+  toast("Équipe complète : glisse-le sur un emplacement, ou touche d'abord l'emplacement à remplacer", "", "eye");
+}
+function ppTapCell(id){
+  if(PP.armed !== null){ ppPlace(id, PP.armed); return; }
+  const k = PP.sel.indexOf(id);
+  if(k >= 0){ ppRemove(k); return; }
+  if(PP.sel.length >= PP.max){ ppFull(); return; }
+  ppPlace(id);
+}
+function ppTapSlot(i){
+  PP.armed = PP.armed === i ? null : i;
+  ppSlots(); ppMark();
+}
+
+/* ---------- le glisser-déposer (souris et tactile) ---------- */
+function ppBind(host){
+  host.addEventListener("pointerdown", ppDown);
+  host.addEventListener("click", ppClick);
+  const q = host.querySelector("#pp-q");
+  if(q) q.addEventListener("input", ()=>{ PP.q = q.value; clearTimeout(PP._qt); PP._qt = setTimeout(()=>{ PP.show = 120; ppBox(); }, 160); });
+}
+/* les touches sans glisser : boutons de tri, types, croix, « voir plus » */
+function ppClick(e){
+  if(!PP) return;
+  const t = e.target;
+  const so = t.closest("[data-ppsort]"), ty = t.closest("[data-pptype]"), mo = t.closest("[data-ppmore]"), da = t.closest("[data-ppdisarm]");
+  if(so){ PP.sort = so.dataset.ppsort; PP.host.querySelectorAll("[data-ppsort]").forEach(b=>b.classList.toggle("on", b === so)); ppBox(); return; }
+  if(ty){ const v = +ty.dataset.pptype; PP.type = PP.type === v ? 0 : v; PP.host.querySelectorAll("[data-pptype]").forEach(b=>b.classList.toggle("on", +b.dataset.pptype === PP.type)); ppBox(); return; }
+  if(mo){ PP.show += 120; ppBox(); return; }
+  if(da){ PP.armed = null; ppSlots(); ppMark(); return; }
+}
+const PP_LONG = 230;
+function ppDown(e){
+  if(!PP || e.button > 0) return;
+  const x = e.target.closest("[data-ppx]");
+  if(x){ e.preventDefault(); ppRemove(+x.dataset.ppx); return; }
+  const cell = e.target.closest("[data-ppid]"), slot = e.target.closest(".pp-slot[data-ppslot]");
+  if(!cell && !slot) return;
+  const src = slot ? {kind:"slot", i:+slot.dataset.ppslot, id:PP.sel[+slot.dataset.ppslot], el:slot} : {kind:"cell", id:+cell.dataset.ppid, el:cell};
+  if(src.kind === "slot" && !src.id){ /* un emplacement vide : on le vise, c'est tout */
+    const up = () => { document.removeEventListener("pointerup", up); ppTapSlot(src.i); };
+    document.addEventListener("pointerup", up); return;
+  }
+  const touch = e.pointerType !== "mouse";
+  const D = PP.drag = {src, x0:e.clientX, y0:e.clientY, x:e.clientX, y:e.clientY, on:false, dead:false, pid:e.pointerId};
+  /* tactile, dans la box : il faut un appui un peu long, sinon c'est un défilement */
+  if(touch && src.kind === "cell") D.timer = setTimeout(()=>{ if(PP && PP.drag === D && !D.dead) ppStartDrag(D); }, PP_LONG);
+  if(touch && src.kind === "slot") D.timer = setTimeout(()=>{ if(PP && PP.drag === D && !D.dead) ppStartDrag(D); }, 120);
+  document.addEventListener("pointermove", ppMove, {passive:false});
+  document.addEventListener("pointerup", ppUp);
+  document.addEventListener("pointercancel", ppCancel);
+  document.addEventListener("touchmove", ppTouchBlock, {passive:false});
+}
+function ppTouchBlock(e){ if(PP && PP.drag && PP.drag.on) e.preventDefault(); }
+function ppMove(e){
+  const D = PP && PP.drag; if(!D || e.pointerId !== D.pid) return;
+  D.x = e.clientX; D.y = e.clientY;
+  const dist = Math.hypot(D.x - D.x0, D.y - D.y0);
+  if(!D.on){
+    if(e.pointerType === "mouse" && dist > 5) ppStartDrag(D);
+    else if(e.pointerType !== "mouse" && dist > 9){
+      /* le doigt a bougé avant l'appui long : c'est un défilement (sauf sur les emplacements) */
+      if(D.src.kind === "slot") ppStartDrag(D); else { D.dead = true; clearTimeout(D.timer); }
+    }
+    if(!D.on) return;
+  }
+  e.preventDefault();
+  ppGhostMove(D);
+  ppHover(D);
+  ppAutoScroll(D);
+}
+function ppStartDrag(D){
+  D.on = true;
+  const g = document.createElement("div");
+  g.className = "pp-ghost";
+  g.innerHTML = sprite(D.src.id, S.dex[D.src.id] && S.dex[D.src.id].shiny, "");
+  document.body.appendChild(g);
+  D.ghost = g;
+  D.src.el.classList.add("lifted");
+  PP.host.classList.add("dragging");
+  if(typeof buzz === "function") buzz(12);
+  ppGhostMove(D); ppHover(D);
+}
+function ppGhostMove(D){ if(D.ghost) D.ghost.style.transform = `translate(${D.x - 32}px, ${D.y - 40}px)`; }
+function ppTargetAt(D){
+  const el = document.elementFromPoint(D.x, D.y);
+  if(!el) return null;
+  const s = el.closest && el.closest("#pp-slots .pp-slot[data-ppslot]");
+  if(s) return {kind:"slot", i:+s.dataset.ppslot, el:s};
+  const b = el.closest && el.closest("[data-ppbox]");
+  if(b) return {kind:"box", el:b};
+  return null;
+}
+function ppHover(D){
+  const t = ppTargetAt(D);
+  PP.host.querySelectorAll(".pp-slot.over").forEach(s=>{ if(!t || s !== t.el) s.classList.remove("over"); });
+  const box = document.getElementById("pp-box");
+  if(box) box.classList.toggle("over", !!(t && t.kind === "box" && D.src.kind === "slot"));
+  if(t && t.kind === "slot") t.el.classList.add("over");
+}
+/* près du bord de la zone qui défile, la liste suit le doigt */
+function ppAutoScroll(D){
+  const sc = PP.host.closest(".sheet") || document.getElementById("screen");
+  if(!sc) return;
+  const r = sc.getBoundingClientRect(), edge = 60;
+  cancelAnimationFrame(D.raf);
+  const v = D.y > r.bottom - edge ? (D.y - (r.bottom - edge)) / 4 : D.y < r.top + edge ? -((r.top + edge) - D.y) / 4 : 0;
+  if(!v) return;
+  const step = () => { if(!PP || PP.drag !== D || !D.on) return; sc.scrollTop += v; ppHover(D); D.raf = requestAnimationFrame(step); };
+  D.raf = requestAnimationFrame(step);
+}
+function ppEnd(){
+  const D = PP && PP.drag; if(!D) return null;
+  clearTimeout(D.timer); cancelAnimationFrame(D.raf);
+  if(D.ghost) D.ghost.remove();
+  D.src.el && D.src.el.classList.remove("lifted");
+  if(PP.host){ PP.host.classList.remove("dragging"); PP.host.querySelectorAll(".pp-slot.over").forEach(s=>s.classList.remove("over")); }
+  const box = document.getElementById("pp-box"); if(box) box.classList.remove("over");
+  document.removeEventListener("pointermove", ppMove);
+  document.removeEventListener("pointerup", ppUp);
+  document.removeEventListener("pointercancel", ppCancel);
+  document.removeEventListener("touchmove", ppTouchBlock);
+  PP.drag = null;
+  return D;
+}
+function ppCancel(){ ppEnd(); }
+function ppUp(e){
+  const D = PP && PP.drag; if(!D || e.pointerId !== D.pid) return;
+  D.x = e.clientX; D.y = e.clientY;
+  const t = D.on ? ppTargetAt(D) : null;
+  ppEnd();
+  if(!D.on){
+    if(D.dead) return;
+    /* un simple toucher */
+    if(D.src.kind === "cell") ppTapCell(D.src.id); else ppTapSlot(D.src.i);
+    return;
+  }
+  if(D.src.kind === "cell"){
+    if(t && t.kind === "slot") ppPlace(D.src.id, t.i);
+  } else {
+    if(t && t.kind === "slot") ppSwap(D.src.i, t.i);
+    else if(t && t.kind === "box") ppRemove(D.src.i);
+  }
+}
+
+/* ============================================================
+   LA FEUILLE « COMPOSER UNE ÉQUIPE »
+   Même appel qu'avant : teamPicker(titre, max, onConfirm, preset).
+   ============================================================ */
+let TP = null;
+function teamPicker(title, max, onConfirm, preset, opts){
+  opts = opts || {};
+  TP = {max, title, onConfirm};
+  sheet(`${sheetHead(title)}
+    <div id="pp-host"></div>
+    <div class="pp-ok"><button class="btn pri wide" id="pp-ok" data-act="tconfirm">Valider</button></div>`);
+  const host = document.getElementById("pp-host");
+  const sh = host && host.closest(".sheet"); if(sh) sh.classList.add("tall");
+  ppMount(host, {max, sel:(preset || S.team.slice(0, max)), leader:max > 1, leadLabel:opts.leadLabel || "le premier entre en jeu, les autres prennent le relais",
+    filter:opts.filter, keep:true, onChange:ppOkLabel});
+  ppOkLabel();
+}
+function ppOkLabel(){
+  const b = document.getElementById("pp-ok"); if(!b || !PP) return;
+  b.textContent = `Valider (${PP.sel.length}/${PP.max})`;
+  b.disabled = !PP.sel.length;
+}
+ACTIONS.tconfirm = () => {
+  if(!TP || !PP) return;
+  const sel = PP.sel.slice(), cb = TP.onConfirm;
+  TP = null;
+  closeSheet();
+  /* une équipe de six reste l'équipe du joueur ; une sélection plus courte ne l'écrase pas */
+  if(sel.length >= Math.min(6, (S.team || []).length) && PP.max >= 6) S.team = sel.slice();
+  saveSoon();
+  cb(sel);
+};
+
+/* ============================================================
+   UNE LISTE QU'ON RÉORDONNE AU DOIGT
+   Pour l'ordre de l'équipe en pleine Expédition : on saisit une
+   ligne par sa poignée, on la lâche où l'on veut.
+   ============================================================ */
+function sortableList(listEl, onMove){
+  if(!listEl) return;
+  listEl.addEventListener("pointerdown", e=>{
+    const h = e.target.closest("[data-grip]"); if(!h) return;
+    const row = h.closest("[data-row]"); if(!row) return;
+    e.preventDefault();
+    const rows = () => [...listEl.querySelectorAll("[data-row]")];
+    const from = rows().indexOf(row), y0 = e.clientY, H = row.getBoundingClientRect().height + 5;
+    row.classList.add("lifted");
+    let to = from;
+    const block = ev => ev.preventDefault();
+    document.addEventListener("touchmove", block, {passive:false});
+    const mv = ev => {
+      const dy = ev.clientY - y0;
+      row.style.transform = `translateY(${dy}px)`;
+      to = clamp(from + Math.round(dy / H), 0, rows().length - 1);
+      rows().forEach((r, k)=>{ if(r === row) return; const shift = from < to ? (k > from && k <= to ? -H : 0) : (k < from && k >= to ? H : 0); r.style.transform = shift ? `translateY(${shift}px)` : ""; });
+    };
+    const up = () => {
+      document.removeEventListener("pointermove", mv); document.removeEventListener("pointerup", up); document.removeEventListener("pointercancel", up);
+      document.removeEventListener("touchmove", block);
+      rows().forEach(r=>{ r.style.transform = ""; r.classList.remove("lifted"); });
+      if(to !== from) onMove(from, to);
+    };
+    document.addEventListener("pointermove", mv); document.addEventListener("pointerup", up); document.addEventListener("pointercancel", up);
+    if(typeof buzz === "function") buzz(10);
+  });
+}
 
 /* ===== 41-arena.js ===== */
 /* ============================================================
@@ -16086,11 +16400,12 @@ function drawExpOrder(){
   if(!run){ closeSheet(); return; }
   sheet(`${sheetHead("Ordre de l'équipe")}
     <div class="tiny muted" style="margin-bottom:9px">Le premier valide entre en jeu ; les suivants
-      prennent le relais quand il tombe. Modifiable à tout moment, sans coût.</div>
+      prennent le relais quand il tombe. Glisse une ligne par sa poignée ⋮⋮ pour changer l'ordre.</div>
     <div class="tp-sel">
       ${run.team.map((m,i)=>{
         const ko = m.hp <= 0, pct = Math.max(0, m.hp/m.maxHp*100);
-        return `<div class="tp-row ${ko?"ghost":""}">
+        return `<div class="tp-row ${ko?"ghost":""}" data-row="${i}">
+          <span class="tp-grip" data-grip="1" aria-label="Déplacer">⋮⋮</span>
           <span class="tp-pos">${i+1}</span>
           <span class="sprbox" style="width:38px;height:38px">${sprite(m.id, runShiny(m), "")}</span>
           <div class="grow">
@@ -16099,13 +16414,14 @@ function drawExpOrder(){
               <i style="width:${pct}%"></i></div>
             <div class="tiny dim mono-num">${ko?"hors ligne":`${m.hp} / ${m.maxHp}`}</div>
           </div>
-          <div class="tp-ord">
-            <button class="tp-b" data-act="expmove" data-i="${i}" data-d="-1" ${i===0?"disabled":""}>▲</button>
-            <button class="tp-b" data-act="expmove" data-i="${i}" data-d="1" ${i===run.team.length-1?"disabled":""}>▼</button>
-          </div>
         </div>`;}).join("")}
     </div>
     <button class="btn pri wide" style="margin-top:10px" data-act="closeandrefresh">Fermer</button>`);
+  if(typeof sortableList === "function") sortableList(document.querySelector("#sheet-root .tp-sel"), (from, to)=>{
+    const r = teamRun(); if(!r) return;
+    const m = r.team.splice(from, 1)[0]; r.team.splice(to, 0, m);
+    saveSoon(); drawExpOrder();
+  });
 }
 /* la seule facon de relever un membre tombe : une fois, et il faut choisir qui */
 ACTIONS.exprevive = () => {
@@ -18784,6 +19100,17 @@ SCREENS.tower = {
     pmdWake();
     if(arg === "fight" && SQB) sqFightAfter();
     else if(typeof tutoMaybe === "function") tutoMaybe(arg === "prep" ? "towerprep" : !arg ? "tower" : "");
+    if(arg === "prep" && SQ_PREP && typeof ppMount === "function"){
+      const P = SQ_PREP;
+      ppMount(document.getElementById("pp-host"), {max:SQ_TEAM, sel:P.team, leader:true, keep:true,
+        leadLabel:"le meneur donne son passif à toute l'équipe",
+        onChange:sel=>{
+          P.team = sel;
+          const L = sel[0] ? sqLeaderOf(sel[0]) : null, el = document.getElementById("sw-leader");
+          if(el){ el.className = "sw-leader " + (L ? "" : "none"); el.textContent = "♛ " + (sel[0] ? sqLeaderText(L) : "Le premier emplacement est celui du meneur."); }
+          const f = document.getElementById("sw-fight"); if(f) f.disabled = !sel.length;
+        }});
+    }
   }
 };
 
@@ -18900,19 +19227,9 @@ function sqPrepHtml(){
         ${W.map(m=>`<span class="sw-wm ${m.boss ? "boss" : ""}" style="--tc:${sqCol(POKE[m.id].types[0])}">${m.guardian && !guardianBeaten(P.lock.r, m.id) ? `<span class="guardsil">${sprite(m.id, false, "")}</span>` : sprite(m.id, false, "")}<i>${m.lv}</i></span>`).join("")}</div>`).join("")}</div>
       ${P.lock ? `<div class="sw-lockhint">${ic("bolt")} Insensible à l'étourdissement et aux pertes de jauge. À mi-vie, il se reconfigure : purge, Attaque +, deux renforts.
         Types : ${POKE[P.lock.id].types.map(t=>`<span class="tt t${t}">${TYPE_NAMES[t]}</span>`).join(" ")}</div>` : ""}
-      <div class="sw-slots">${[0, 1, 2, 3].map(i=>{ const id = P.team[i];
-        return `<button class="sw-slot ${i === 0 ? "lead" : ""} ${id ? "" : "empty"}" data-act="sqslot" data-i="${i}">
-          ${i === 0 ? `<span class="sw-crown2">♛ MENEUR</span>` : ""}
-          ${id ? `${pmdCanvas(id, 0, 62, {shiny:S.dex[id].shiny})}<b>${esc(POKE[id].name)}</b><small>N.${S.dex[id].lvl} ${POKE[id].types.map(t=>sqTypeDot(t, 9)).join("")}</small>`
-               : `<span class="sw-plus">+</span>`}</button>`; }).join("")}</div>
-      <div class="sw-leader ${L ? "" : "none"}">♛ ${P.team[0] ? esc(sqLeaderText(L)) : "Le premier emplacement est celui du meneur."}</div>
-      <div class="row between" style="margin:10px 0 6px"><div class="h sm" style="margin:0">VOS POKÉMON</div>
-        <div class="segmini"><button class="${P.sort === "lvl" ? "on" : ""}" data-act="sqsort" data-k="lvl">Niveau</button><button class="${P.sort === "bst" ? "on" : ""}" data-act="sqsort" data-k="bst">Puissance</button></div></div>
-      <div class="sw-grid">${ids.map(id=>{ const k = P.team.indexOf(id);
-        return `<button class="sw-cell ${k >= 0 ? "picked" : ""}" data-act="sqpickmon" data-id="${id}">
-          ${sprite(id, S.dex[id].shiny, "")}<i class="sw-lv">${S.dex[id].lvl}</i>${k >= 0 ? `<i class="sw-no">${k === 0 ? "♛" : k + 1}</i>` : ""}
-          <span class="sw-cell-t">${POKE[id].types.map(t=>`<i style="background:${sqCol(t)}"></i>`).join("")}</span>${sqLeaderOf(id) ? `<i class="sw-hasl">♛</i>` : ""}</button>`; }).join("")}</div>
-      <div class="sw-go"><button class="btn pri wide" data-act="sqfight" ${P.team.length ? "" : "disabled"}>COMBAT</button></div>
+      <div class="sw-leader ${L ? "" : "none"}" id="sw-leader">♛ ${P.team[0] ? esc(sqLeaderText(L)) : "Le premier emplacement est celui du meneur."}</div>
+      <div id="pp-host" class="sw-pp"></div>
+      <div class="sw-go"><button class="btn pri wide" id="sw-fight" data-act="sqfight" ${P.team.length ? "" : "disabled"}>COMBAT</button></div>
     </div>`;
 }
 ACTIONS.sqzoneback = () => { const lk = SQ_PREP && SQ_PREP.lock; SQ_PREP = null; lk ? go("boss") : go("tower", "zone"); };

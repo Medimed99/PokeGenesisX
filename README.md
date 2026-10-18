@@ -296,6 +296,7 @@ Analyse complète dans le projet claude.ai (« Feuille de route — grandeur et 
   `assets/music/LISEZMOI.txt`. Réglage Musique + volume dans Profil › Réglages.
 - **Fil conducteur** (`39c-session.js`) : bandeau « Prochaine étape » (priorités + `NEXTSTEP_HOOKS`), coffres de
   session (3 objectifs, 5 coffres par jour, de bronze à onirique), `srcHint()` dit où trouver ce qui manque.
+- **Sélecteur de Pokémon** (`40b-picker.js`) : emplacements collés en haut, glisser-déposer (box → emplacement, emplacement ↔ emplacement, emplacement → box), toucher pour ajouter/retirer/viser un emplacement, mises à jour sans redessiner ; appui long en tactile. `sortableList()` pour réordonner une liste à la poignée (ordre en Expédition).
 - **Mon équipe** (`42-team.js`) : 6 Pokémon, 60 % de toute l'expérience gagnée, Bonbons d'équipe, étoiles par
   exemplaires (1/4/10/25/60, +6 % par étoile, `makeFighter(..., {owned:true})`), puissance d'équipe. Au dock.
 - **Le Monde** (`79b-world.js`) : l'accueil est la carte de l'archive, tuile par tuile : zones réindexées dans le rendu de leur couche (Kanto 4 teintes, Johto couleur, Hoenn étendu), zones désindexées en données corrompues animées, une présence jamais nommée qui rôde ; 10 chantiers par région (Johto ×3,

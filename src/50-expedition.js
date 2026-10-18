@@ -857,11 +857,12 @@ function drawExpOrder(){
   if(!run){ closeSheet(); return; }
   sheet(`${sheetHead("Ordre de l'équipe")}
     <div class="tiny muted" style="margin-bottom:9px">Le premier valide entre en jeu ; les suivants
-      prennent le relais quand il tombe. Modifiable à tout moment, sans coût.</div>
+      prennent le relais quand il tombe. Glisse une ligne par sa poignée ⋮⋮ pour changer l'ordre.</div>
     <div class="tp-sel">
       ${run.team.map((m,i)=>{
         const ko = m.hp <= 0, pct = Math.max(0, m.hp/m.maxHp*100);
-        return `<div class="tp-row ${ko?"ghost":""}">
+        return `<div class="tp-row ${ko?"ghost":""}" data-row="${i}">
+          <span class="tp-grip" data-grip="1" aria-label="Déplacer">⋮⋮</span>
           <span class="tp-pos">${i+1}</span>
           <span class="sprbox" style="width:38px;height:38px">${sprite(m.id, runShiny(m), "")}</span>
           <div class="grow">
@@ -870,13 +871,14 @@ function drawExpOrder(){
               <i style="width:${pct}%"></i></div>
             <div class="tiny dim mono-num">${ko?"hors ligne":`${m.hp} / ${m.maxHp}`}</div>
           </div>
-          <div class="tp-ord">
-            <button class="tp-b" data-act="expmove" data-i="${i}" data-d="-1" ${i===0?"disabled":""}>▲</button>
-            <button class="tp-b" data-act="expmove" data-i="${i}" data-d="1" ${i===run.team.length-1?"disabled":""}>▼</button>
-          </div>
         </div>`;}).join("")}
     </div>
     <button class="btn pri wide" style="margin-top:10px" data-act="closeandrefresh">Fermer</button>`);
+  if(typeof sortableList === "function") sortableList(document.querySelector("#sheet-root .tp-sel"), (from, to)=>{
+    const r = teamRun(); if(!r) return;
+    const m = r.team.splice(from, 1)[0]; r.team.splice(to, 0, m);
+    saveSoon(); drawExpOrder();
+  });
 }
 /* la seule facon de relever un membre tombe : une fois, et il faut choisir qui */
 ACTIONS.exprevive = () => {

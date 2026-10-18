@@ -32,6 +32,17 @@ SCREENS.tower = {
     pmdWake();
     if(arg === "fight" && SQB) sqFightAfter();
     else if(typeof tutoMaybe === "function") tutoMaybe(arg === "prep" ? "towerprep" : !arg ? "tower" : "");
+    if(arg === "prep" && SQ_PREP && typeof ppMount === "function"){
+      const P = SQ_PREP;
+      ppMount(document.getElementById("pp-host"), {max:SQ_TEAM, sel:P.team, leader:true, keep:true,
+        leadLabel:"le meneur donne son passif à toute l'équipe",
+        onChange:sel=>{
+          P.team = sel;
+          const L = sel[0] ? sqLeaderOf(sel[0]) : null, el = document.getElementById("sw-leader");
+          if(el){ el.className = "sw-leader " + (L ? "" : "none"); el.textContent = "♛ " + (sel[0] ? sqLeaderText(L) : "Le premier emplacement est celui du meneur."); }
+          const f = document.getElementById("sw-fight"); if(f) f.disabled = !sel.length;
+        }});
+    }
   }
 };
 
@@ -148,19 +159,9 @@ function sqPrepHtml(){
         ${W.map(m=>`<span class="sw-wm ${m.boss ? "boss" : ""}" style="--tc:${sqCol(POKE[m.id].types[0])}">${m.guardian && !guardianBeaten(P.lock.r, m.id) ? `<span class="guardsil">${sprite(m.id, false, "")}</span>` : sprite(m.id, false, "")}<i>${m.lv}</i></span>`).join("")}</div>`).join("")}</div>
       ${P.lock ? `<div class="sw-lockhint">${ic("bolt")} Insensible à l'étourdissement et aux pertes de jauge. À mi-vie, il se reconfigure : purge, Attaque +, deux renforts.
         Types : ${POKE[P.lock.id].types.map(t=>`<span class="tt t${t}">${TYPE_NAMES[t]}</span>`).join(" ")}</div>` : ""}
-      <div class="sw-slots">${[0, 1, 2, 3].map(i=>{ const id = P.team[i];
-        return `<button class="sw-slot ${i === 0 ? "lead" : ""} ${id ? "" : "empty"}" data-act="sqslot" data-i="${i}">
-          ${i === 0 ? `<span class="sw-crown2">♛ MENEUR</span>` : ""}
-          ${id ? `${pmdCanvas(id, 0, 62, {shiny:S.dex[id].shiny})}<b>${esc(POKE[id].name)}</b><small>N.${S.dex[id].lvl} ${POKE[id].types.map(t=>sqTypeDot(t, 9)).join("")}</small>`
-               : `<span class="sw-plus">+</span>`}</button>`; }).join("")}</div>
-      <div class="sw-leader ${L ? "" : "none"}">♛ ${P.team[0] ? esc(sqLeaderText(L)) : "Le premier emplacement est celui du meneur."}</div>
-      <div class="row between" style="margin:10px 0 6px"><div class="h sm" style="margin:0">VOS POKÉMON</div>
-        <div class="segmini"><button class="${P.sort === "lvl" ? "on" : ""}" data-act="sqsort" data-k="lvl">Niveau</button><button class="${P.sort === "bst" ? "on" : ""}" data-act="sqsort" data-k="bst">Puissance</button></div></div>
-      <div class="sw-grid">${ids.map(id=>{ const k = P.team.indexOf(id);
-        return `<button class="sw-cell ${k >= 0 ? "picked" : ""}" data-act="sqpickmon" data-id="${id}">
-          ${sprite(id, S.dex[id].shiny, "")}<i class="sw-lv">${S.dex[id].lvl}</i>${k >= 0 ? `<i class="sw-no">${k === 0 ? "♛" : k + 1}</i>` : ""}
-          <span class="sw-cell-t">${POKE[id].types.map(t=>`<i style="background:${sqCol(t)}"></i>`).join("")}</span>${sqLeaderOf(id) ? `<i class="sw-hasl">♛</i>` : ""}</button>`; }).join("")}</div>
-      <div class="sw-go"><button class="btn pri wide" data-act="sqfight" ${P.team.length ? "" : "disabled"}>COMBAT</button></div>
+      <div class="sw-leader ${L ? "" : "none"}" id="sw-leader">♛ ${P.team[0] ? esc(sqLeaderText(L)) : "Le premier emplacement est celui du meneur."}</div>
+      <div id="pp-host" class="sw-pp"></div>
+      <div class="sw-go"><button class="btn pri wide" id="sw-fight" data-act="sqfight" ${P.team.length ? "" : "disabled"}>COMBAT</button></div>
     </div>`;
 }
 ACTIONS.sqzoneback = () => { const lk = SQ_PREP && SQ_PREP.lock; SQ_PREP = null; lk ? go("boss") : go("tower", "zone"); };
