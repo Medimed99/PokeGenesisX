@@ -266,6 +266,27 @@ Mr. Mine (la profondeur comme récit, des trouvailles qui t'attendent).
 - Ancienne partie : la strate devient une profondeur en mètres, les Échos restent (+3 % de forage chacun).
 - Rythme : `node forsim.js`.
 
+### Forge, minerais et chantiers (`38b-forge.js`)
+- **Minerais** (`ORES`) : cuivre, fer, argent, or, rêvite — un par paire de couches (`ORE_BY_STRATUM`). L'équipe en
+  remonte un toutes les 2 minutes de forage (`ORE_SECS`), et chaque fouille cache 3 à 5 **pépites** (une case,
+  `small`) qui ne comptent pas pour « tout dégager ».
+- **Forge** (`TOOLS`, `toolCost`) : pioche, marteau, foreuse, étais ; six matières, du bois à l'onirique. Une matière
+  coûte son minerai, un peu du précédent et de l'Énergie. Les anciennes améliorations « pioche » et « étais » sont
+  migrées vers les outils (`forage()`). Chaque matière a sa palette : boutons de fouille, outil qui frappe,
+  pioches des Pokémon, étais et foreuse dans le puits. Lanternes, détecteur et wagonnets montrent aussi les
+  améliorations.
+- **Chantiers** (`FOR_SITES`) : Grotte Azurée, Cratère Ardent, Ruines Oubliées, Pic Météore. Repérés quand le
+  puits principal atteint une profondeur, ouverts contre de l'Énergie. Chacun garde sa profondeur
+  (`siteSwitch`), a une roche plus dure (`hard`, compensée en Énergie), des types favoris, un butin pondéré et un
+  minerai favori (30 % du minerai remonté).
+
+## Pouvoirs des cartes (`73b-cardpowers.js`)
+- Toute carte de légendaire le fait apparaître au **Sanctuaire** de l'Expédition (nœud `legend`, deuxième
+  secteur, chance 30 % + 4 % par espèce possédée, max 75 %). Vaincu, il rejoint l'équipe du parcours.
+- Chaque légendaire a un pouvoir propre (`CARD_POWERS`) : 5 **decks** de Poké-Poker (Psychique, Arc-en-ciel,
+  Équilibre, Céleste, Profondeurs), 6 **programmes** qui rejoignent la boutique, 10 **objets Kecleon** en Expédition.
+- Force selon l'**Éclat** : 1, 2, 3 illustrations possédées (`cardTier`). Annonce par un moment à chaque palier.
+
 ## Porygon-Z et le nom du joueur
 
 - **Le nom** : dans l'ouverture, Porygon-Z demande le nom dans sa bulle (temps `ask` des cinématiques,

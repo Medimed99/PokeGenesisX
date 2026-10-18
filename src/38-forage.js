@@ -63,6 +63,12 @@ function forage(){
   f.crew = f.crew || []; f.up = f.up || {}; f.slots = f.slots || FOR_START_SLOTS;
   f.walls = f.walls || 0; f.wallAt = f.wallAt || 0; f.wallsDone = f.wallsDone || 0;
   f.maxM = Math.max(f.maxM || 0, f.m);
+  /* la forge : les anciennes ameliorations « pioche » et « etais » deviennent des outils forges */
+  if(!f.tools){
+    f.tools = {pick:Math.min(5, f.up.pick || 0), hammer:0, drill:0, prop:Math.min(5, f.up.prop || 0)};
+    delete f.up.pick; delete f.up.prop;
+  }
+  f.ore = f.ore || {}; f.oreAt = f.oreAt || 0; f.site = f.site || "main";
   f.depth = stratumIdx(f.m);          /* compatibilite : l'indice de la strate */
   return f;
 }
@@ -72,8 +78,9 @@ function nextStratum(){ return STRATA[stratumIdx(forage().m) + 1] || null; }
 /* au-dela du Noyau, la durete continue de croitre : la descente ne finit jamais */
 function stratumHard(m){
   const i = stratumIdx(m), s = STRATA[i];
-  if(i < STRATA.length - 1) return s.hard;
-  return s.hard * (1 + (m - s.need) / 8000);
+  const k = typeof siteHard === "function" ? siteHard() : 1;
+  if(i < STRATA.length - 1) return s.hard * k;
+  return s.hard * k * (1 + (m - s.need) / 8000);
 }
 /* compatibilite avec les anciens appels */
 function unlocked(k){ return true; }
@@ -82,7 +89,8 @@ function unlocked(k){ return true; }
 function digAff(id, si){
   const p = POKE[id], s = STRATA[si];
   if(!p) return 1;
-  if(p.types.some(t=>s.good.includes(t))) return 2;
+  const sg = typeof forSite === "function" ? forSite().good : [];
+  if(p.types.some(t=>s.good.includes(t) || sg.includes(t))) return 2;
   if(p.types.some(t=>s.bad.includes(t))) return 0.5;
   return 1;
 }
@@ -96,7 +104,8 @@ function crewIds(){ const f = forage(); return f.crew.filter(id=>S.dex[id] && PO
 function crewPower(si){
   if(si === undefined) si = forage().depth;
   const f = forage();
-  return crewIds().reduce((a, id)=>a + digPower(id, si), 0) * (1 + f.echoes * 0.03) * (1 + forUpLv("drill") * 0.15);
+  return crewIds().reduce((a, id)=>a + digPower(id, si), 0) * (1 + f.echoes * 0.03) * (1 + forUpLv("drill") * 0.15)
+    * (typeof toolDrillMul === "function" ? toolDrillMul() : 1);
 }
 /* metres par seconde a la profondeur m */
 function digRate(m){
@@ -105,7 +114,7 @@ function digRate(m){
   return crewPower(stratumIdx(m)) / stratumHard(m);
 }
 /* Energie par metre : chaque strate vaut davantage */
-function energyPerM(si){ return 6 * Math.pow(1.9, si); }
+function energyPerM(si){ return 6 * Math.pow(1.9, si) * (typeof siteHard === "function" ? Math.pow(siteHard(), 0.85) : 1); }
 function forageRate(){ const f = forage(); return digRate() * energyPerM(f.depth); }
 /* une paroi toutes les sept minutes de forage : au metre, les strates profondes n'en
    donnaient presque plus ; au temps, il y a toujours une raison de revenir, et plus
@@ -121,17 +130,13 @@ function drillCount(){ return crewIds().length; }
 const FOR_UPS = {
   slot:  {n:"Une place de plus dans l'équipe", max:FOR_SLOTS_MAX - FOR_START_SLOTS, cost:l=>[1500, 25000, 400000][l],
           d:l=>`${FOR_START_SLOTS + l} Pokémon`},
-  drill: {n:"Creuser plus vite",       max:8, cost:l=>Math.round(800 * Math.pow(3.2, l)),
+  drill: {n:"Creuser plus vite",       max:12, cost:l=>Math.round(800 * Math.pow(3.2, l)),
           d:l=>`+${15 * l} %`},
   cart:  {n:"Plus de fouilles en attente", max:5, cost:l=>Math.round(3000 * Math.pow(3.5, l)),
           d:l=>`${3 + l} fouilles, ${8 + 2 * l} h hors ligne`},
-  prop:  {n:"Fouilles plus solides",   max:5, cost:l=>Math.round(600 * Math.pow(3, l)),
-          d:l=>`${40 + 8 * l} coups avant l'effondrement`},
-  pick:  {n:"Meilleure pioche",        max:3, cost:l=>Math.round(2500 * Math.pow(6, l)),
-          d:l=>["pioche normale", "frappe plus fort", "frappe aussi en diagonale", "frappe presque comme un marteau"][l]},
   radar: {n:"Détecteur d'objets",      max:3, cost:l=>Math.round(5000 * Math.pow(5, l)),
           d:l=>["aucun indice", "un point brille sur chaque objet", "on devine la forme des gros objets", "les objets rares scintillent"][l]},
-  lamp:  {n:"Plus d'objets rares",     max:4, cost:l=>Math.round(9000 * Math.pow(4, l)),
+  lamp:  {n:"Plus d'objets rares",     max:6, cost:l=>Math.round(9000 * Math.pow(4, l)),
           d:l=>`×${(1 + 0.3 * l).toFixed(1).replace(".", ",")}`}
 };
 function forUpLv(k){ return (forage().up || {})[k] || 0; }
@@ -164,6 +169,16 @@ function forageAdvance(sec){
       f.wallAt -= every;
       if(f.walls < wallCap()){ f.walls++; out.w++; }
     }
+    /* le minerai : celui de la couche, parfois celui du chantier */
+    if(typeof oreGain === "function"){
+      f.oreAt += t;
+      while(f.oreAt >= ORE_SECS){
+        f.oreAt -= ORE_SECS;
+        const so = forSite().ore;
+        const o = so && rng() < 0.3 ? so : oreOf(si);
+        oreGain(o, 1); out.ore = out.ore || {}; out.ore[o] = (out.ore[o] || 0) + 1;
+      }
+    }
     if(nx && f.m >= nx.need - 1e-6){ f.m = nx.need; out.strata.push(si + 1); }
   }
   f.maxM = Math.max(f.maxM, f.m);
@@ -193,6 +208,7 @@ function forageTick(dt){
 }
 function forStratumReached(si){
   const s = STRATA[si];
+  if(typeof forSitesCheck === "function") forSitesCheck();
   if(typeof momentStratum === "function") momentStratum(si);
   else toast(`Forage : ${s.n} atteinte — ${s.mat}`, "warn", "bolt");
   if(si === 2 && !S.flags.firstFossil){ S.flags.firstFossil = true; forage().walls = Math.min(wallCap(), forage().walls + 1); }
@@ -241,7 +257,10 @@ function forHoenn(){ return typeof regionUnlocked === "function" && regionUnlock
 /* qui dort dans la roche : les types de la strate, des secteurs ouverts, jamais un legendaire */
 const DIG_MON_TYPES = [[5, 6], [5, 11, 4], [6, 5, 2], [15, 11], [6, 9, 5], [10, 6, 5], [9, 14, 13], [8, 17, 4], [14, 16, 8]];
 function digMonFor(si, rnd){
-  const T = DIG_MON_TYPES[Math.min(si, DIG_MON_TYPES.length - 1)], pool = [];
+  const site = typeof forSite === "function" ? forSite() : {};
+  /* aux Ruines, les Zarbi dorment dans les murs */
+  if(site.zarbi && rnd() < 0.35 && unlockedRegions().some(r=>201 >= r.from && 201 <= r.to)) return 201;
+  const T = site.mons || DIG_MON_TYPES[Math.min(si, DIG_MON_TYPES.length - 1)], pool = [];
   for(const r of unlockedRegions()) for(let i = r.from; i <= r.to; i++){
     const p = POKE[i];
     if(!p || p.leg || isExclusive(i) || p.bst > 300 + si * 40) continue;
@@ -272,7 +291,8 @@ function genWall(si, rnd){
   const occ = new Array(W * H).fill(-1);
   const items = [];
   const lamp = 1 + 0.3 * forUpLv("lamp");
-  const table = DIG_LOOT.map(l=>[l, l.wt(si) * (l.rare ? lamp : 1)]).filter(x=>x[1] > 0);
+  const sl = typeof forSite === "function" ? forSite().loot : {};
+  const table = DIG_LOOT.map(l=>[l, l.wt(si) * (l.rare ? lamp : 1) * (sl[l.k] || 1)]).filter(x=>x[1] > 0);
   const tot = table.reduce((a, x)=>a + x[1], 0);
   const n = 2 + Math.floor(rnd() * 3) + (si >= 5 && rnd() < 0.4 ? 1 : 0);
   let tries = 0;
@@ -297,6 +317,20 @@ function genWall(si, rnd){
     cells.forEach(c=>{ occ[c] = items.length; });
     items.push(it);
   }
+  /* le minerai : de petites pepites, une case chacune ; celles de la couche
+     surtout, parfois une plus ancienne. Elles ne comptent pas pour « tout degager ». */
+  if(typeof oreOf === "function"){
+    const oi = ORE_IDS.indexOf(oreOf(si)), so = forSite().ore;
+    const nOre = 3 + Math.floor(rnd() * 3);
+    for(let k = 0, t = 0; k < nOre && t < 80; t++){
+      const x0 = Math.floor(rnd() * W), y0 = Math.floor(rnd() * H), c = y0 * W + x0;
+      if(occ[c] !== -1) continue;
+      const r = rnd();
+      const ore = so && r < 0.25 ? so : r < 0.75 ? ORE_IDS[oi] : ORE_IDS[Math.floor(rnd() * (oi + 1))];
+      const it = {k:"ore", ore, x:x0, y:y0, w:1, h:1, found:false, small:true, n:1 + (rnd() < 0.3 ? 1 : 0), cells:[c]};
+      occ[c] = items.length; items.push(it); k++;
+    }
+  }
   /* le fer : indestructible ; il protege ce qu'il couvre */
   const iron = [];
   const nIron = 1 + Math.floor(rnd() * 3);
@@ -309,29 +343,33 @@ function genWall(si, rnd){
     cells.forEach(c=>{ occ[c] = -2; L[c] = 99; });
     iron.push(cells); k++;
   }
-  const max = 40 + 8 * forUpLv("prop");
+  const max = 40 + 8 * (typeof toolTier === "function" ? toolTier("prop") : 0);
   return {si, W, H, L, items, iron, occ, stab:max, max, hits:0, over:false, collapsed:false};
 }
 /* un coup : pioche ("pick") ou marteau ("hammer") en (x, y) */
 function digHit(wall, tool, x, y){
   if(wall.over) return null;
-  const W = wall.W, H = wall.H, pl = forUpLv("pick");
+  const W = wall.W, H = wall.H;
   const hits = [];
-  const add = (dx, dy, n) => { const X = x + dx, Y = y + dy; if(X >= 0 && Y >= 0 && X < W && Y < H) hits.push([Y * W + X, n]); };
+  const add = (dx, dy, n) => { const X = x + dx, Y = y + dy; if(n > 0 && X >= 0 && Y >= 0 && X < W && Y < H) hits.push([Y * W + X, n]); };
+  const ORTH = [[1,0],[-1,0],[0,1],[0,-1]], DIAG = [[1,1],[1,-1],[-1,1],[-1,-1]];
+  let cost = 1;
   if(tool === "hammer"){
-    add(0, 0, 2); [[1,0],[-1,0],[0,1],[0,-1]].forEach(([a, b])=>add(a, b, 2)); [[1,1],[1,-1],[-1,1],[-1,-1]].forEach(([a, b])=>add(a, b, 1));
+    const T = HAMMER_T[toolTier("hammer")];
+    add(0, 0, T.c); ORTH.forEach(([a, b])=>add(a, b, T.a)); DIAG.forEach(([a, b])=>add(a, b, T.d));
+    if(T.ring) [[2,0],[-2,0],[0,2],[0,-2]].forEach(([a, b])=>add(a, b, 1));
+    cost = T.cost;
   } else {
-    add(0, 0, pl >= 1 ? 3 : 2); [[1,0],[-1,0],[0,1],[0,-1]].forEach(([a, b])=>add(a, b, pl >= 3 ? 2 : 1));
-    if(pl >= 2) [[1,1],[1,-1],[-1,1],[-1,-1]].forEach(([a, b])=>add(a, b, 1));
+    const [c, a, d] = PICK_T[toolTier("pick")];
+    add(0, 0, c); ORTH.forEach(([p, q])=>add(p, q, a)); DIAG.forEach(([p, q])=>add(p, q, d));
   }
   const ironHit = wall.occ[y * W + x] === -2;
   for(const [c, n] of hits) if(wall.L[c] < 99) wall.L[c] = Math.max(0, wall.L[c] - (ironHit ? 0 : n));
-  const cost = tool === "hammer" ? 2 : 1;
-  wall.stab = Math.max(0, wall.stab - cost);
+  wall.stab = Math.max(0, +(wall.stab - cost).toFixed(2));
   wall.hits++;
   const fresh = [];
   for(const it of wall.items) if(!it.found && it.cells.every(c=>wall.L[c] === 0)){ it.found = true; fresh.push(it); }
-  const all = wall.items.every(it=>it.found);
+  const all = wall.items.every(it=>it.found || it.small);
   if(all || wall.stab <= 0){ wall.over = true; wall.collapsed = !all; }
   return {fresh, iron:ironHit, over:wall.over, collapsed:wall.collapsed};
 }
@@ -340,6 +378,13 @@ function digClaim(wall){
   const out = [];
   for(const it of wall.items){
     if(!it.found) continue;
+    if(it.k === "ore"){
+      const o = oreDef(it.ore), fresh = oreGain(it.ore, it.n);
+      const prev = out.find(r=>r.ore === it.ore);
+      if(prev){ prev.g.ore += it.n; prev.label = `${o.n} ×${prev.g.ore}`; }
+      else out.push({it, ore:it.ore, def:{ic:null}, g:{ore:it.n}, label:o.n + (it.n > 1 ? " ×" + it.n : ""), fresh});
+      continue;
+    }
     const def = DIG_LOOT.find(l=>l.k === it.k);
     const g = def.give(wall.si, it);
     const row = {it, def, g, label:def.n};
@@ -363,7 +408,7 @@ function digClaim(wall){
     out.push(row);
   }
   const f = forage();
-  f.found += out.length; f.wallsDone++;
+  f.found += out.filter(r=>!r.ore).length; f.wallsDone++;
   S.stats.walls = (S.stats.walls || 0) + 1;
   saveSoon();
   return out;
@@ -402,10 +447,10 @@ SCREENS.idle = {
         <div><b>3</b><span>Tu les dégages pour gagner des objets.</span></div>
       </div>` : ""}
 
-      <div class="fo-shaft" id="fo-shaft" style="--sc:${st.c}">
+      <div class="fo-shaft" id="fo-shaft" style="--sc:${st.c};--st:${forSite().tint || "transparent"}">
         <canvas id="fo-cv"></canvas>
         <div class="fo-hud">
-          <div><b>${esc(st.n)}</b><small>${fmt(Math.floor(f.m))} m de profondeur</small></div>
+          <div><b>${esc(st.n)}</b><small>${(f.site || "main") !== "main" ? esc(forSite().n) + " · " : ""}${fmt(Math.floor(f.m))} m de profondeur</small></div>
           <div class="fo-rate"><b id="fo-rate">${forFmtRate(rate)}</b><small>m / s</small></div>
         </div>
         ${nx ? `<div class="fo-next"><i style="width:${Math.min(100, (f.m - st.need) / (nx.need - st.need) * 100).toFixed(1)}%"></i>
@@ -436,6 +481,10 @@ SCREENS.idle = {
           ${a !== 1 ? `<i class="fo-aff ${a > 1 ? "up" : "dn"}">${a > 1 ? "rapide" : "lent"}</i>` : ""}</button>`; }).join("")}</div>
       <div class="tiny dim" style="margin-top:4px">Touche un Pokémon pour le remplacer. Plus son niveau est haut, plus il creuse vite.</div>
 
+      <div class="row between" style="margin:16px 0 6px"><div class="h sm" style="margin:0">LA FORGE</div>
+        <span class="pill">${ic("bolt")} ${fmt(Math.floor(f.energy))}</span></div>
+      ${forForgeHtml()}
+
       <div class="row between" style="margin:16px 0 6px"><div class="h sm" style="margin:0">AMÉLIORER</div>
         <span class="pill">${ic("bolt")} <b id="fo-energy">${fmt(Math.floor(f.energy))}</b> Énergie</span></div>
       <div class="tiny dim" style="margin:-2px 0 6px">L'Énergie se gagne toute seule en creusant : plus c'est profond, plus elle monte vite.</div>
@@ -446,6 +495,11 @@ SCREENS.idle = {
             <div class="d">${maxed ? `${esc(u.d(lv))} · au maximum` : `${esc(u.d(lv))} <span class="fo-arr">→</span> <b>${esc(u.d(lv + 1))}</b>`}</div></div>
           ${maxed ? `<span class="tiny cy">max</span>` : `<button class="btn sm ${f.energy >= c ? "gold" : ""}" data-act="foup" data-k="${k}" ${f.energy >= c ? "" : "disabled"}>${ic("bolt")} ${fmt(c)}</button>`}
         </div>`; }).join("")}</div>
+
+      <div class="row between" style="margin:16px 0 6px"><div class="h sm" style="margin:0">LES CHANTIERS</div>
+        <span class="tiny dim">${FOR_SITES.filter(x=>siteOpen(x.id)).length} / ${FOR_SITES.length} ouverts</span></div>
+      <div class="tiny dim" style="margin:-2px 0 6px">D'autres puits, avec d'autres trésors. Ton équipe creuse dans un seul à la fois.</div>
+      ${forSitesHtml()}
 
       <details class="fo-more">
         <summary>Les couches · ${STRATA.filter(x=>f.maxM >= x.need).length} sur ${STRATA.length} découvertes</summary>
@@ -575,6 +629,8 @@ function forShaftDraw(V, dt){
   /* la matiere courante, avec sa texture qui defile vers le haut */
   const scroll = (f.m * 18) % H;
   x.fillStyle = st.pal[0]; x.fillRect(0, top, W, H - top);
+  const tint = typeof forSite === "function" && forSite().tint;
+  if(tint){ x.globalAlpha = 0.18; x.fillStyle = tint; x.fillRect(0, 0, W, H); x.globalAlpha = 1; }
   for(const [rx, ry, r, k] of V.rocks){
     const yy = top + ((ry - scroll + H * 4) % (H - top));
     x.fillStyle = k < 0.5 ? st.pal[1] : st.pal[2]; x.fillRect(rx, yy, r * 2, r * 1.4);
@@ -591,9 +647,11 @@ function forShaftDraw(V, dt){
     if(typeof brAnimDraw === "function") ok = brAnimDraw(x, id, "attack", S.dex[id] && S.dex[id].shiny ? "s" : "n", 0, ph, cx, cy, size);
     if(!ok && typeof brPmdDraw === "function") ok = brPmdDraw(x, id, "n", 0, t * 0.6 + i, cx, cy, size);
     if(!ok && typeof brSprite === "function"){ const s = brSprite(id, "n"); if(s) x.drawImage(s, cx - size / 2, cy - size * 0.8, size, size); }
+    if(typeof forCrewTool === "function") forCrewTool(x, cx, cy, size, ph);
     /* des eclats de matiere, au rythme des coups */
     if(Math.random() < dt / 160) for(let k = 0; k < 3; k++) V.parts.push({x:cx + (Math.random() - 0.5) * 20, y:cy + 6, vx:(Math.random() - 0.5) * 0.12, vy:-0.08 - Math.random() * 0.12, life:0, max:500 + Math.random() * 400, c:st.pal[Math.floor(Math.random() * 3)]});
   });
+  if(typeof forShaftDecor === "function") forShaftDecor(x, V, W, H, top);
   if(!crew.length){ x.fillStyle = "rgba(0,0,0,.45)"; x.fillRect(0, top, W, H - top); x.fillStyle = "#e8f0ff"; x.font = '9px "Press Start 2P",monospace'; x.textAlign = "center"; x.fillText("AJOUTE UN POKÉMON", W / 2, H / 2 + 20); }
   for(let i = V.parts.length - 1; i >= 0; i--){
     const p = V.parts[i]; p.life += dt; if(p.life > p.max){ V.parts.splice(i, 1); continue; }
@@ -618,17 +676,17 @@ function digHtml(){
   return `<div class="dg" style="--sc:${st.c}">
     <div class="dg-head">
       <button class="sw-back" data-act="fowallquit">${ic("arrow")}</button>
-      <div class="grow"><small>FOUILLE · ${esc(st.n.toUpperCase())}</small><b>${DIG.items.length} objets cachés</b></div>
-      <span class="dg-found" id="dg-found">0 / ${DIG.items.length}</span>
+      <div class="grow"><small>FOUILLE · ${esc(st.n.toUpperCase())}</small><b>${digBig().length} objets cachés <span class="dg-oreh">+ ${DIG.items.length - digBig().length} pépites</span></b></div>
+      <span class="dg-found" id="dg-found">0 / ${digBig().length}</span>
     </div>
     <div class="dg-stab"><i id="dg-stab" style="width:100%"></i><span>Solidité</span></div>
     <div class="dg-wrap" id="dg-wrap"><canvas id="dg-cv"></canvas></div>
     <div class="dg-tools">
-      <button class="dg-tool ${DIG_TOOL === "pick" ? "on" : ""}" data-act="fotool" data-t="pick"><b>⛏</b><span>Pioche</span><small>petite zone · abîme peu</small></button>
-      <button class="dg-tool ${DIG_TOOL === "hammer" ? "on" : ""}" data-act="fotool" data-t="hammer"><b>🔨</b><span>Marteau</span><small>grande zone · abîme 2× plus</small></button>
+      <button class="dg-tool tt${toolTier("pick")} ${DIG_TOOL === "pick" ? "on" : ""}" data-act="fotool" data-t="pick">${toolSvg("pick", toolTier("pick"), 34)}<span>${esc(toolName("pick"))}</span><small>petite zone · abîme peu</small></button>
+      <button class="dg-tool tt${toolTier("hammer")} ${DIG_TOOL === "hammer" ? "on" : ""}" data-act="fotool" data-t="hammer">${toolSvg("hammer", toolTier("hammer"), 34)}<span>${esc(toolName("hammer"))}</span><small>grande zone · abîme plus</small></button>
     </div>
     <div class="tiny dim" style="text-align:center;margin-top:6px;line-height:1.6">Touche la roche pour creuser. Dégage <b>entièrement</b> un objet pour le gagner.<br>
-      À chaque coup, la solidité baisse : à zéro, tout s'effondre. Le métal gris ne casse jamais.</div>
+      Les <b>pépites</b> de minerai sont en bonus. À chaque coup, la solidité baisse : à zéro, tout s'effondre. Le métal gris ne casse jamais.</div>
     <div class="dg-res" id="dg-res"></div>
   </div>`;
 }
@@ -675,12 +733,14 @@ function digAfter(){
   requestAnimationFrame(loop);
   digHud();
 }
+function digBig(){ return DIG ? DIG.items.filter(i=>!i.small) : []; }
 function digTap(X, Y){
   if(!DIG || DIG.over) return;
   const r = digHit(DIG, DIG_TOOL, X, Y);
   if(!r) return;
   const V = DIG.view, cell = V.cell, st = STRATA[DIG.si];
   V.shake = DIG_TOOL === "hammer" ? 7 : 4;
+  V.swing = {x:(X + 0.5) * cell, y:(Y + 0.5) * cell, t:V.t, tool:DIG_TOOL};
   for(let k = 0; k < (DIG_TOOL === "hammer" ? 14 : 8); k++)
     V.sparks.push({x:(X + 0.5) * cell, y:(Y + 0.5) * cell, vx:(Math.random() - 0.5) * 0.4, vy:-Math.random() * 0.35, life:0, max:420, c:r.iron ? "#e8eef8" : st.pal[Math.floor(Math.random() * 3)], s:2 + Math.random() * 3});
   if(r.iron){ if(typeof arTone === "function") arTone(1400, .08, "square", .03, 900); buzz(4); }
@@ -690,6 +750,7 @@ function digTap(X, Y){
     const cx = (it.x + it.w / 2) * cell, cy = (it.y + it.h / 2) * cell;
     for(let k = 0; k < 26; k++) V.sparks.push({x:cx, y:cy, vx:(Math.random() - 0.5) * 0.5, vy:(Math.random() - 0.5) * 0.5, life:0, max:700, c:k % 2 ? "#ffd84a" : "#ffffff", s:2 + Math.random() * 2});
     try { Sfx.coin(); } catch(e){}
+    if(it.k === "ore"){ const o = oreDef(it.ore); for(let k = 0; k < 10; k++) V.sparks.push({x:cx, y:cy, vx:(Math.random() - 0.5) * 0.35, vy:-Math.random() * 0.4, life:0, max:600, c:o.pal[k % 3], s:2 + Math.random() * 2}); continue; }
     const def = DIG_LOOT.find(l=>l.k === it.k);
     if(def.k !== "page") toast(def.k === "mon" ? `${POKE[it.mon].name} dormait dans la roche !` : `${def.n} !`, "warn", "star");
     /* une page des onze : on la trouve a l'instant ou elle est degagee */
@@ -710,7 +771,7 @@ function digTap(X, Y){
 function digHud(){
   const s = document.getElementById("dg-stab");
   if(s){ const k = DIG.stab / DIG.max; s.style.width = (k * 100).toFixed(1) + "%"; s.className = k < 0.25 ? "low" : k < 0.5 ? "mid" : ""; }
-  const fo = document.getElementById("dg-found"); if(fo) fo.textContent = `${DIG.items.filter(i=>i.found).length} / ${DIG.items.length}`;
+  const fo = document.getElementById("dg-found"); if(fo) fo.textContent = `${digBig().filter(i=>i.found).length} / ${digBig().length}`;
 }
 function digDraw(dt){
   const V = DIG.view, cv = V.cv, x = cv.getContext("2d"), c = V.cell, st = STRATA[DIG.si];
@@ -724,6 +785,13 @@ function digDraw(dt){
     const X = it.x * c, Y = it.y * c, w = it.w * c, h = it.h * c;
     const glow = it.found ? Math.max(0, 1 - (V.t - it.at) / 900) : 0;
     if(glow > 0){ x.fillStyle = `rgba(255,216,74,${0.35 * glow})`; x.fillRect(X - 3, Y - 3, w + 6, h + 6); }
+    if(it.k === "ore"){
+      const o = oreDef(it.ore);
+      x.fillStyle = o.pal[2]; x.fillRect(X + c * 0.15, Y + c * 0.3, c * 0.7, c * 0.5);
+      x.fillStyle = o.pal[1]; x.fillRect(X + c * 0.2, Y + c * 0.2, c * 0.55, c * 0.45);
+      x.fillStyle = o.pal[0]; x.fillRect(X + c * 0.3, Y + c * 0.25, c * 0.18, c * 0.14);
+      continue;
+    }
     if(it.k === "page"){
       x.fillStyle = "#e8d9a8"; x.fillRect(X + 3, Y + 3, w - 6, h - 6);
       x.fillStyle = "#c9b27a"; x.fillRect(X + 3, Y + h - 7, w - 6, 4);
@@ -757,6 +825,8 @@ function digDraw(dt){
     if(DIG.hint && DIG.hint.has(i) && Math.sin(V.t / 220 + i) > 0.3){ x.fillStyle = "#ffe9a8"; x.fillRect(X + c / 2 - 1, Y + c / 2 - 1, 3, 3); }
   }
   if(DIG.rare) for(const it of DIG.items){ const def = DIG_LOOT.find(l=>l.k === it.k); if(!it.found && def.rare && Math.sin(V.t / 160 + it.x) > 0.85){ const cc = it.cells[0]; x.fillStyle = "#ffffff"; x.fillRect((cc % WALL_W) * c + c / 2, Math.floor(cc / WALL_W) * c + 3, 2, 2); } }
+  const tint = typeof forSite === "function" && forSite().tint;
+  if(tint){ x.globalAlpha = 0.16; x.fillStyle = tint; x.fillRect(0, 0, WALL_W * c, WALL_H * c); x.globalAlpha = 1; }
   /* la grille, legere */
   x.strokeStyle = "rgba(0,0,0,.12)"; x.lineWidth = 1;
   for(let i = 1; i < WALL_W; i++){ x.beginPath(); x.moveTo(i * c + .5, 0); x.lineTo(i * c + .5, WALL_H * c); x.stroke(); }
@@ -767,6 +837,14 @@ function digDraw(dt){
     x.globalAlpha = 1 - p.life / p.max; x.fillStyle = p.c; x.fillRect(p.x, p.y, p.s, p.s);
   }
   x.globalAlpha = 1;
+  /* l'outil qui frappe : on voit sa matiere */
+  if(V.swing && typeof toolCanvas === "function"){
+    const k = (V.t - V.swing.t) / 200;
+    if(k < 1){
+      const tc = toolCanvas(V.swing.tool, toolTier(V.swing.tool));
+      if(tc){ const sz = c * 2.2; x.save(); x.translate(V.swing.x + c * 0.4, V.swing.y - c * 0.2); x.rotate(-0.9 + k * 1.3); x.globalAlpha = 1 - Math.max(0, k - 0.6) * 2.5; x.drawImage(tc, -sz * 0.15, -sz * 0.85, sz, sz); x.restore(); x.globalAlpha = 1; }
+    } else V.swing = null;
+  }
   /* l'effondrement : la roche tombe sur tout */
   if(V.collapse){
     const k = Math.min(1, (V.t - V.collapse) / 650);
@@ -782,9 +860,9 @@ function digEnd(left){
   const title = left ? "TU REMONTES" : DIG.collapsed ? "ÇA S'EFFONDRE !" : "TOUT EST DÉGAGÉ !";
   const f = forage();
   el.innerHTML = `<div class="dg-rt ${DIG.collapsed ? "bad" : ""}">${title}</div>
-    <div class="tiny muted" style="margin-bottom:8px">${rows.length ? `${rows.length} objet${rows.length > 1 ? "s" : ""} sur ${DIG.items.length}` : "Rien de dégagé à temps."}</div>
+    <div class="tiny muted" style="margin-bottom:8px">${rows.filter(r=>!r.ore).length ? `${rows.filter(r=>!r.ore).length} objet${rows.filter(r=>!r.ore).length > 1 ? "s" : ""} sur ${digBig().length}` : "Aucun objet dégagé à temps."}</div>
     <div class="dg-loot">${rows.map((r, i)=>`<div class="dg-li" style="--d:${i * 140}ms">
-      ${r.it.k === "mon" ? sprite(r.it.mon, false, "") : itemIcon(r.def.ic, 34)}
+      ${r.ore ? oreSvg(r.ore, 30) : r.it.k === "mon" ? sprite(r.it.mon, false, "") : itemIcon(r.def.ic, 34)}
       <div class="grow"><b>${esc(r.label)}</b><small>${esc(digGainText(r.g))}</small></div></div>`).join("")}</div>
     <div class="dg-rb">
       <button class="btn" data-act="fowallback">Retour au Forage</button>
@@ -792,9 +870,16 @@ function digEnd(left){
     </div>`;
   el.classList.add("on");
   if(rows.length) try { Sfx.win(); } catch(e){}
+  /* un minerai jamais vu : on dit a quoi il sert */
+  for(const r of rows) if(r.ore && r.fresh && typeof moment === "function"){
+    const o = oreDef(r.ore), i = ORE_IDS.indexOf(r.ore);
+    moment({kind:"release", c:o.pal[1], html:oreSvg(r.ore, 64), kicker:"NOUVEAU MINERAI", title:o.n,
+      sub:`Il sert à forger des outils ${TOOL_TIERS[i + 1].adj}. Va voir « La Forge », dans le Forage.`});
+  }
   if(typeof checkAchievements === "function") checkAchievements();
 }
 function digGainText(g){
+  if(g.ore) return "Minerai, pour la forge";
   if(g.shards) return `+${g.shards} Fragments`;
   if(g.cores) return `+${g.cores} Noyau${g.cores > 1 ? "x" : ""}`;
   if(g.coins) return `+${fmt(g.coins)} PokéCoins`;

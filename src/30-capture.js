@@ -199,91 +199,87 @@ function fleeChance(){
   return clamp(0.04 + ENC.attempts * 0.06 + ENC.rar * 0.028, 0, 0.60);
 }
 
-/* --- visée : mini-jeu d'adresse ---
-   Principe repris de la v1 : uniquement du bonus, jamais de malus.
-   Rater la secteur rend exactement la chance nominale, viser juste la majore
-   jusqu'a x1.25. Le geste devient actif sans punir le joueur pressé. */
+/* --- la visée : une barre, un curseur, un toucher ---
+   On touche LANCER : un curseur part de gauche a droite et revient, d'autant
+   plus vite que le Pokemon est rare. On touche de nouveau pour l'arreter.
+   Au centre de la cible, +25 % ; puis +15 %, +7 % ; a cote, rien de plus.
+   Jamais de malus : viser ne fait que gagner. */
 let AIM = null;
 function skillEnabled(){ return S && S.settings && S.settings.skill !== false; }
+/* la visee a chaque lancer, sauf la Master Ball (capture assuree) et MissingNo */
 function aimNeeded(){
-  if(!skillEnabled() || !ENC || ENC.missing || busy) return false;
-  if(selBall() === "master") return false;
-  return catchChance(selBall()) < 0.95;      /* inutile quand la prise est acquise */
-}
-function startAim(){
-  if(AIM) return;
-  const w = 30 - Math.min(16, ENC.rar * 4);              /* secteur plus etroite si rare */
-  const lo = 18 + rng() * (78 - w);
-  AIM = {pos: 0, dir: 1, speed: 1.15 + ENC.rar * 0.32, zone: [lo, lo + w], timer: null, best: 1};
-  refresh();
-  AIM.timer = setInterval(()=>{
-    if(!AIM) return;
-    AIM.pos += AIM.dir * AIM.speed;
-    if(AIM.pos >= 100){ AIM.pos = 100; AIM.dir = -1; }
-    if(AIM.pos <= 0){ AIM.pos = 0; AIM.dir = 1; }
-    const c = document.getElementById("aim-cursor");
-    if(!c){ stopAim(); return; }
-    c.style.left = AIM.pos + "%";
-    const inZone = AIM.pos >= AIM.zone[0] && AIM.pos <= AIM.zone[1];
-    c.classList.toggle("hot", inZone);
-  }, 16);
-}
-function stopAim(){ if(AIM){ clearInterval(AIM.timer); AIM = null; } }
-function aimBonus(pos, zone){
-  if(pos < zone[0] || pos > zone[1]) return 1;
-  const center = (zone[0] + zone[1]) / 2, half = (zone[1] - zone[0]) / 2;
-  return 1 + (1 - Math.abs(pos - center) / half) * 0.25;
-}
-function lockAim(){
-  if(!AIM) return;
-  const bonus = aimBonus(AIM.pos, AIM.zone);
-  const perfect = bonus >= 1.22;
-  stopAim();
-  if(bonus > 1){
-    S.stats.skill = (S.stats.skill||0) + 1;
-    if(perfect){
-      S.stats.perfect = (S.stats.perfect||0) + 1;
-      Sfx.shiny(); buzz([15,30,15]);
-      toast("Verrouillage parfait — ×" + bonus.toFixed(2), "warn", "star");
-    } else {
-      Sfx.wobble(); buzz(12);
-      toast("Verrouillage ×" + bonus.toFixed(2), "", "check");
-    }
-  }
-  refresh();
-  throwBall(selBall(), bonus);
-}
-
-/* --- le cercle de lancer (facon Pokemon GO) ---
-   Un cercle colore retrecit en boucle autour du Pokemon ; sa couleur dit la
-   difficulte. On lance d'un seul toucher : plus le cercle est petit a cet
-   instant, plus le bonus est grand. Principe inchange : jamais de malus. */
-const RING_GRADES = [
-  {max:0.36, n:"Excellent", mul:1.35, c:"#ffd24a"},
-  {max:0.62, n:"Super",     mul:1.20, c:"#35f0d6"},
-  {max:0.88, n:"Bien",      mul:1.08, c:"#5ce07a"}
-];
-/* present a chaque lancer : meme quand la prise est quasi acquise, un
-   « Excellent » compte pour la quete du jour et les succes. Seules la Master
-   Ball (capture assuree) et MissingNo s'en passent. */
-function ringActive(){
   if(!skillEnabled() || !ENC || ENC.missing || busy) return false;
   return selBall() !== "master";
 }
-function ringPeriod(){ return Math.max(0.9, 1.6 - (ENC ? ENC.rar : 0) * 0.14); }
-function ringScale(){
-  if(!ENC) return 1;
-  if(!ENC.ringT0) ENC.ringT0 = (typeof performance !== "undefined" ? performance.now() : Date.now());
-  const P = ringPeriod() * 1000, now = (typeof performance !== "undefined" ? performance.now() : Date.now());
-  return 1 - (((now - ENC.ringT0) % P) / P) * 0.8;
+function ringActive(){ return aimNeeded(); }
+/* les paliers : distance au centre de la cible, de 0 (centre) a 1 (bord) */
+const RING_GRADES = [
+  {max:0.2, n:"Excellent", mul:1.25, c:"#ffd24a"},
+  {max:0.5, n:"Super",     mul:1.15, c:"#35f0d6"},
+  {max:1.0, n:"Bien",      mul:1.07, c:"#5ce07a"}
+];
+function ringGrade(d){ for(const g of RING_GRADES) if(d <= g.max) return g; return null; }
+function aimGrade(pos, zone){
+  if(pos < zone[0] || pos > zone[1]) return null;
+  const center = (zone[0] + zone[1]) / 2, half = (zone[1] - zone[0]) / 2;
+  return ringGrade(Math.abs(pos - center) / half);
 }
-function ringColor(c){ return c >= 0.6 ? "#5ce07a" : c >= 0.3 ? "#ffe45e" : c >= 0.15 ? "#ffb35c" : "#ff5c5c"; }
-function ringGrade(scale){ for(const g of RING_GRADES) if(scale <= g.max) return g; return null; }
-function ringHtml(){
-  if(!ringActive()) return "";
-  const P = ringPeriod(), sc = ringScale(), phase = (1 - sc) / 0.8 * P;
-  return `<div class="throw-ring" style="--rc:${ringColor(catchChance(selBall()))};--rp:${P.toFixed(2)}s">
-    <b class="tr-target"></b><i style="animation-delay:-${phase.toFixed(3)}s"></i></div>`;
+function aimBonus(pos, zone){ const g = aimGrade(pos, zone); return g ? g.mul : 1; }
+function aimSpeed(){ return 70 + (ENC ? ENC.rar : 0) * 32; }          /* % de barre par seconde */
+function startAim(){
+  if(AIM) return;
+  const w = Math.max(16, 34 - (ENC ? ENC.rar : 0) * 4);                 /* cible plus etroite si rare */
+  const lo = 12 + rng() * (76 - w);
+  AIM = {pos:0, dir:1, zone:[lo, lo + w], t:0, raf:0};
+  refresh();
+  const loop = now => {
+    if(!AIM) return;
+    const dt = AIM.t ? Math.min(50, now - AIM.t) : 0; AIM.t = now;
+    AIM.pos += AIM.dir * aimSpeed() * dt / 1000;
+    if(AIM.pos >= 100){ AIM.pos = 100 - (AIM.pos - 100); AIM.dir = -1; }
+    if(AIM.pos <= 0){ AIM.pos = -AIM.pos; AIM.dir = 1; }
+    const c = document.getElementById("aim-cursor");
+    if(c){ c.style.left = AIM.pos + "%"; c.classList.toggle("hot", !!aimGrade(AIM.pos, AIM.zone)); }
+    AIM.raf = requestAnimationFrame(loop);
+  };
+  AIM.raf = requestAnimationFrame(loop);
+}
+function stopAim(){ if(AIM){ cancelAnimationFrame(AIM.raf); AIM = null; } }
+function lockAim(){
+  if(!AIM) return;
+  const pos = AIM.pos, zone = AIM.zone;
+  const g = aimGrade(pos, zone);
+  stopAim();
+  if(g){
+    S.stats.skill = (S.stats.skill || 0) + 1;
+    if(g.n === "Excellent"){
+      S.stats.excellent = (S.stats.excellent || 0) + 1;
+      S.stats.perfect = (S.stats.perfect || 0) + 1;
+      S.daily.dayExcellent = (S.daily.dayExcellent || 0) + 1;
+      questTick("dayExcellent", 1);
+    }
+  }
+  refresh();
+  aimFreeze(pos, zone, g);
+  if(g) ringPop(g); else { try { Sfx.click(); } catch(e){} }
+  throwBall(selBall(), g ? g.mul : 1);
+}
+/* la barre reste un instant figee la ou on l'a arretee : on voit ce qu'on a fait */
+function aimFreeze(pos, zone, g){
+  const host = document.getElementById("aim-slot"); if(!host) return;
+  host.innerHTML = aimBarHtml({pos, zone}, true, g);
+  setTimeout(()=>{ const h = document.getElementById("aim-slot"); if(h && !AIM) h.innerHTML = ""; }, 900);
+}
+function aimBarHtml(A, frozen, g){
+  const [lo, hi] = A.zone, mid = (lo + hi) / 2, half = (hi - lo) / 2;
+  const band = k => `left:${mid - half * k}%;width:${half * 2 * k}%`;
+  return `<div class="aimbar ${frozen ? "frozen" : ""}">
+      <div class="aim-z z1" style="${band(1)}"></div>
+      <div class="aim-z z2" style="${band(0.5)}"></div>
+      <div class="aim-z z3" style="${band(0.2)}"></div>
+      <div class="aim-cursor ${g ? "hot" : ""}" id="${frozen ? "aim-frozen" : "aim-cursor"}" style="left:${A.pos}%"></div>
+      ${frozen ? `<span class="aim-res" style="color:${g ? g.c : "#9fb0c8"}">${g ? `${g.n} +${Math.round((g.mul - 1) * 100)} %` : "À côté — +0 %"}</span>` : ""}
+    </div>`;
 }
 function ringPop(g){
   const st = document.getElementById("enc-stage");
@@ -767,14 +763,11 @@ SCREENS.capture = {
         </button>`;}).join("")}
     </div>
 
-    ${AIM ? `<div class="aimbar">
-        <div class="aim-zone" style="left:${AIM.zone[0]}%;width:${AIM.zone[1]-AIM.zone[0]}%"></div>
-        <div class="aim-cursor" id="aim-cursor" style="left:${AIM.pos}%"></div>
-      </div>` : ""}
+    <div id="aim-slot">${AIM ? aimBarHtml(AIM) : ""}</div>
 
     <button class="throwbtn ${AIM?"locking":""}" data-act="throwsel"
       ${(!ENC||busy||stock<=0)?"disabled":""} style="margin-bottom:9px">
-      ${AIM ? "VERROUILLER"
+      ${AIM ? "STOP !"
         : ENC ? (stock<=0 ? "STOCK ÉPUISÉ"
           : ENC.missing ? "ANALYSER LA FAILLE"
           : `LANCER — ${Math.round(chance*100)}%`) : "ANALYSE EN COURS"}
@@ -858,7 +851,7 @@ SCREENS.capture = {
         ${ENC.featured?'<span class="tt" style="color:var(--cyan);border-color:var(--cyan)">VEDETTE</span>':""}
         ${isNew?'<span class="tt" style="color:var(--green);border-color:var(--green)">INÉDIT</span>':""}
       </div>
-      <div id="enc-sprite">${sprite(ENC.id, ENC.shiny, "", {anim:true, eager:true})}${ringHtml()}</div>
+      <div id="enc-sprite">${sprite(ENC.id, ENC.shiny, "", {anim:true, eager:true})}</div>
       <div class="enc-foot">
         <span class="tiny dim">${ENC.attempts?`essais ${ENC.attempts}`:"intacte"}</span>
         <span class="tiny"><b>Niv.${ENC.level}</b></span>
@@ -882,22 +875,10 @@ SCREENS.capture = {
 };
 ACTIONS.pickball = d => { S.selBall = d.b; saveSoon(); refresh(); };
 ACTIONS.throwsel = () => {
-  if(AIM) stopAim();
-  let bonus = 1;
-  if(ringActive()){
-    const g = ringGrade(ringScale());
-    if(g){
-      bonus = g.mul;
-      S.stats.skill = (S.stats.skill || 0) + 1;
-      if(g.n === "Excellent"){
-        S.stats.excellent = (S.stats.excellent || 0) + 1;
-        S.daily.dayExcellent = (S.daily.dayExcellent || 0) + 1;
-        questTick("dayExcellent", 1);
-      }
-      ringPop(g);
-    }
-  }
-  throwBall(selBall(), bonus);
+  /* premier toucher : le curseur part ; second toucher : il s'arrete, et la Ball part */
+  if(AIM){ lockAim(); return; }
+  if(aimNeeded()){ startAim(); return; }
+  throwBall(selBall(), 1);
 };
 ACTIONS.aimlock = () => lockAim();
 ACTIONS.regioninfo = d => {

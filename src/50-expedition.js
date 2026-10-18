@@ -22,7 +22,8 @@ const NODE_TYPES = {
   rest:    {n:"Repos",      i:"heart",  c:"var(--green)"},
   treasure:{n:"Trésor",     i:"chest",  c:"var(--amber)"},
   boss:    {n:"Noyau",      i:"boss",   c:"var(--magenta)"},
-  champ:   {n:"Champion",   i:"boss",   c:"var(--amber)"}
+  champ:   {n:"Champion",   i:"boss",   c:"var(--amber)"},
+  legend:  {n:"Sanctuaire", i:"star",   c:"var(--gold)"}
 };
 
 /* ============================================================
@@ -335,6 +336,7 @@ function openSector(run, mapIdx){
   run.leader = mapIdx < run.maps - 1 ? pickLeader(run) : null;
   run.row = -1; run.col = -1;
   run.avail = run.map[0].map((_, i) => i);
+  if(typeof sanctPlace === "function") sanctPlace(run, mapIdx);
 }
 
 function nodeTypeFor(y, r){
@@ -369,7 +371,7 @@ function expMods(){
    de combats, plus d'usure) et se préparer (soins, objets).
    ============================================================ */
 const EXP_START_LV = 5;
-const EXP_GAIN = {fight:1, trainer:2, elite:2, champ:3, boss:0};
+const EXP_GAIN = {fight:1, trainer:2, elite:2, champ:3, boss:0, legend:2};
 function expStartLevel(id){
   /* l'archive donne un leger elan, jamais une avance decisive */
   return EXP_START_LV + Math.min(3, Math.floor(((S.dex[id] && S.dex[id].lvl) || 0) / 15));
@@ -591,7 +593,7 @@ SCREENS.expedition = {
           <div class="nm">${esc(POKE[m.id].name)}</div>
           <div class="bar hp ${m.hp/m.maxHp>.5?"":m.hp/m.maxHp>.2?"mid":"low"}">
             <i style="width:${Math.max(0,m.hp/m.maxHp*100)}%"></i></div>
-          ${it ? `<span class="titem">${itemIcon("exp:" + m.item, 14) || ""}</span>` : ""}
+          ${it ? `<span class="titem">${itemIcon("exp:" + m.item, 14) || (it.card ? sprBox(it.spr, false, 14) : "")}</span>` : ""}
         </div>`; }).join("")}</div>
 
       <div class="btn-grid c4" style="margin-top:9px">
@@ -1074,10 +1076,10 @@ function expFight(run, kind, spec){
   if(!allies.length){ endExpedition(false); return; }
   const foes = enemyTeamFor(run, kind, spec);
   const titles = {champ:"CHAMPION " + ((run.leader && run.leader.n) || "").toUpperCase(), fight:"RENCONTRE SAUVAGE", trainer:"ARCHIVISTE " + (TYPE_NAMES[trainerFor(run).t] || "").toUpperCase(),
-                  elite:"SIGNATURE ÉLITE", boss:"NOYAU DE COUCHE"};
+                  elite:"SIGNATURE ÉLITE", boss:"NOYAU DE COUCHE", legend:"SANCTUAIRE LÉGENDAIRE"};
   createBattle(allies, foes, {
     ai: true, speed: S.settings.battleSpeed || 1,
-    title: titles[kind], stage: kind === "boss" || kind === "champ" ? "boss" : kind === "elite" ? "elite" : null,
+    title: titles[kind], stage: kind === "boss" || kind === "champ" || kind === "legend" ? "boss" : kind === "elite" ? "elite" : null,
     intro: kind === "boss" ? `Le noyau de la couche se manifeste.`
                            : `Des entités hostiles bloquent le passage.`,
     onEnd: win => {
@@ -1121,6 +1123,8 @@ function afterFightRewards(run, kind, beaten){
 
   if(kind === "boss"){ save(); endExpedition(true); return; }
   const lv = run.maps ? expGainLevels(run, EXP_GAIN[kind] || 0) : {ups:[], evos:[]};
+  /* le Sanctuaire : le légendaire vaincu rejoint l'équipe */
+  if(kind === "legend" && beaten && beaten[0] && typeof sanctJoin === "function"){ sanctJoin(run, beaten[0]); return; }
   /* un champion tombe : badge, l'equipe grandit, une relique a choisir, puis le secteur suivant */
   if(kind === "champ"){
     const L = run.leader || {k:"?", t:1, n:"Champion"};

@@ -236,6 +236,7 @@ function xnodeArt(run, n){
     case "shop": return xpxIcon("mart", 2);
     case "swap": return itemIcon("stone:link", 30) || xpxIcon("ask", 2);
     case "event": return xpxIcon("ask", 2);
+    case "legend": return `<span class="xleg">${n.leg ? sprite(n.leg, false, "") : ""}</span>`;
   }
   return "";
 }

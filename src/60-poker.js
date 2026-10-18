@@ -156,6 +156,10 @@ function handBase(id){
 }
 /* on evalue toutes les combinaisons possibles et on garde la plus rentable */
 function evalHand(cards){
+  if(typeof evalHandRainbow === "function" && cards.some(c=>c.rb)) return evalHandRainbow(cards, evalHandRaw);
+  return evalHandRaw(cards);
+}
+function evalHandRaw(cards){
   let best = null, bestVal = -1;
   for(const h of HANDS){
     let cs = null;
@@ -359,27 +363,30 @@ function badgeRow(){
 
 /* ---------- construction du deck ---------- */
 const BASE_FAMS = [1,4,7,10,13,16,19,21,23,25,27,29,32,41,43,46,50,54,58,60,63,66,69,74,92,129,133];
-function newDeck(){
+function newDeck(o){
+  o = o || {};
   const out = [];
   let u = 0;
   const push = (id, shiny) => out.push({u:u++, id, shiny:!!shiny, ed:""});
   /* chaque famille retenue apporte sa lignee complete : les combos evolutifs sont atteignables */
-  const fams = shuffle(BASE_FAMS).slice(0, 14);
+  const fams = o.fams || shuffle(BASE_FAMS).slice(0, o.famCount || 14);
+  const size = o.size || 52;
   for(const root of fams) for(const m of (FAM_MEMBERS[root]||[root])) push(m);
   /* on complete a 52 par des doublons, ce qui rend paires et brelans possibles */
   const pool = out.map(c=>c.id);
-  while(out.length < 52) push(pick(pool));
-  return out.slice(0, 52);
+  while(out.length < size) push(pick(pool));
+  return out.slice(0, size);
 }
 
 /* ---------- etat de partie ---------- */
-function startPoker(){
+function startPoker(deckId){
+  deckId = deckId && typeof pkDeckOpen === "function" && pkDeckOpen(deckId) ? deckId : "std";
   S.poker = {
     ante:1, blind:0, state:"blind",
     score:0, target:anteTarget(1,0),
     hands:4, discards:3, handsLeft:4, discardsLeft:3,
     handSize:8, slots:5, econ:0,
-    deck:newDeck(), draw:[], hand:[], sel:[],
+    deckId, deck:(typeof pkBuildDeck === "function" ? pkBuildDeck(deckId) : newDeck()), draw:[], hand:[], sel:[],
     jokers:[], licences:[], levels:{},
     boss:null, playedTypes:{}, discardedThisRound:0, roundHands:0, noDiscard:true,
     stage:"ante", eliteIdx:0, badges:[],
@@ -399,12 +406,13 @@ function pkStartRound(){
   if(st === "elite")         base = Math.round(anteTarget(9, 2) * (1 + (P.eliteIdx||0) * 0.45));
   else if(st === "champion") base = Math.round(anteTarget(9, 2) * 3.4);
   else                       base = anteTarget(P.ante, P.blind, P.boss);
-  P.target = Math.round(base * (P.discount || 1));
+  P.target = Math.round(base * (P.discount || 1) * (typeof pkDeckTargetMul === "function" ? pkDeckTargetMul(P) : 1));
   P.discount = 1;
   P.score = 0;
   P.handsLeft = f.oneHand ? 1 : P.hands - (f.lessHand||0);
   P.discardsLeft = Math.max(0, P.discards - (f.lessDiscard||0));
   P.draw = shuffle(P.deck.map(c=>Object.assign({}, c)));
+  if(typeof pkDeckOnRound === "function") pkDeckOnRound(P);
   P.hand = []; P.sel = [];
   P.roundHands = 0; P.discardedThisRound = 0;
   P.state = "play";
@@ -474,6 +482,7 @@ function pkScore(preview){
     if(c.ed === "glass") x.mult *= 2;
     if(c.ed === "gold" && !preview) P.octets += 3;
     x.scored.push(c);
+    if(P.deckId === "psy" && POKE[c.id].types.includes(14)) x.mult *= tierVal(150, [1.1, 1.15, 1.2]);
     for(const j of P.jokers){
       const def = jokerDef(j);
       if(def && def.onCard) def.onCard(c, x, j);
@@ -492,6 +501,11 @@ function pkScore(preview){
   if(f.firstZero && P.roundHands === 0){
     const commit = step("boss", P.boss.n);
     x.chips = 0; x.mult = 0; commit();
+  }
+  if(P.deckId === "balance" && !x.cancel){
+    const commit = step("deck", "Équilibre");
+    const avg = (x.chips + x.mult) / 2;
+    x.chips = avg; x.mult = avg; commit();
   }
   if(x.cancel){
     const commit = step("boss", "Main annulée");
@@ -677,6 +691,7 @@ function pkWinBlind(){
   const P = S.poker;
   let reward = 3 + P.blind + P.handsLeft + P.econ;
   for(const j of P.jokers) if(jokerDef(j)?.passive === "econ") reward += 2;
+  if(typeof pkWishBonus === "function") reward += pkWishBonus(P);
   const interest = Math.min(5, Math.floor(P.octets/5));
   reward += interest;
   P.octets += reward;
@@ -799,7 +814,7 @@ ACTIONS.pkshop = () => { closeSheet(); const P = S.poker; P.state = "shop"; pkRo
 function pkRollShop(){
   const P = S.poker;
   const owned = P.jokers.map(j=>j.id);
-  const pool = JOKERS.filter(j=>!owned.includes(j.id));
+  const pool = JOKERS.filter(j=>!owned.includes(j.id) && (typeof jokerAvail !== "function" || jokerAvail(j)));
   const weighted = [];
   for(const j of pool){ const w = [10,6,3,1][j.rar]; for(let i=0;i<w;i++) weighted.push(j); }
   const offer = [];
@@ -925,7 +940,7 @@ function applySpectral(id){
   }
   if(id === "sp_forge"){
     const owned = P.jokers.map(j=>j.id);
-    const pool = JOKERS.filter(j=>j.rar === 3 && !owned.includes(j.id));
+    const pool = JOKERS.filter(j=>j.rar === 3 && !owned.includes(j.id) && (typeof jokerAvail !== "function" || jokerAvail(j)));
     if(!pool.length || P.jokers.length >= jokerSlots()){
       P.octets += 8; toast("Aucun emplacement libre — 8 Octets rendus", "bad", "coin"); return;
     }
@@ -1018,7 +1033,28 @@ ACTIONS.pkmenu = () => {
         <div class="d">La progression de la partie est perdue.</div></div></div>
     </div>`, true);
 };
-ACTIONS.pkstart = () => startPoker();
+ACTIONS.pkstart = () => startPoker(S.pokerMeta.deck);
+ACTIONS.pkdecksel = d => {
+  if(typeof pkDeckOpen === "function" && !pkDeckOpen(d.id)){
+    const dd = pkDeckDef(d.id);
+    toast(`Il faut une carte de ${POKE[dd.card] && monFound(dd.card) ? POKE[dd.card].name : "ce légendaire"} pour ouvrir ce deck`, "warn", "cards");
+    return;
+  }
+  S.pokerMeta.deck = d.id; save(); refresh();
+};
+/* le choix du deck, sous le bouton de lancement : on voit aussi les decks fermés */
+function pkDeckPicker(){
+  if(typeof PK_DECKS === "undefined") return "";
+  const cur = pkDeckOpen(S.pokerMeta.deck || "std") ? (S.pokerMeta.deck || "std") : "std";
+  return `<div class="h sm" style="margin-top:4px">DECK</div>
+    <div class="pk-decks">${PK_DECKS.map(d=>{
+      const open = pkDeckOpen(d.id), t = d.card ? cardTier(d.card) : 0;
+      return `<button class="pk-deck ${cur === d.id ? "on" : ""} ${open ? "" : "locked"}" data-act="pkdecksel" data-id="${d.id}">
+        <span class="pkd-art">${d.card ? (open ? sprite(d.card, false, "") : `<span class="monunknown">?</span>`) : ic("cards")}</span>
+        <span class="grow"><b>${esc(d.n)}</b>${t ? ` <i class="cpw-t t${t}">${TIER_NAMES[t]}</i>` : ""}
+          <small>${open ? esc(pkDeckDesc(d)) : "Fermé · s'ouvre avec une carte de " + esc(d.card && monFound(d.card) ? POKE[d.card].name : "légendaire") + "."}</small></span>
+      </button>`;}).join("")}</div>`;
+}
 ACTIONS.pkabandon = () => {
   sheet(`${sheetHead("Abandonner la partie ?")}<div class="tiny muted">La progression de la partie est perdue.</div>
     <div class="btn-grid c2" style="margin-top:10px">
@@ -1099,7 +1135,7 @@ function pkCardHtml(c, selected, attrs, big, extraCls){
   const p = POKE[c.id];
   const t = p.types[0];
   const ed = c.ed || "";
-  return `<div class="pcard ${selected?"sel":""} ${ed} ${c.shiny?"shy":""} ${big?"big":""} ${extraCls||""} t${t}bg" ${attrs||""}>
+  return `<div class="pcard ${selected?"sel":""} ${ed} ${c.shiny?"shy":""} ${c.rb?"rb":""} ${big?"big":""} ${extraCls||""} t${t}bg" ${attrs||""}>
     <div class="pc-top">
       <span class="pc-nm">${esc(p.name)}</span>
       ${c.shiny?'<span class="pc-sh">◆</span>':""}
@@ -1110,6 +1146,7 @@ function pkCardHtml(c, selected, attrs, big, extraCls){
       <span class="pc-ch">${cardChips(c)}</span>
     </div>
     ${stageOf(c.id)?`<span class="pc-st">${"·".repeat(stageOf(c.id))}</span>`:""}
+    ${c.rb?`<span class="pc-rb" title="Arc-en-ciel : copie l'espèce qui complète la main">◇</span>`:""}
   </div>`;
 }
 /* le tapis : le nom de la main, puis jetons x multiplicateur, en grand */
@@ -1170,6 +1207,7 @@ SCREENS.poker = {
         <div class="tile"><div class="k">Meilleur score</div><div class="v">${fmt(S.stats.pokerBest||0)}</div></div>
         <div class="tile"><div class="k">Archive</div><div class="v">${dexTotal()}</div></div>
       </div>
+      ${ok ? pkDeckPicker() : ""}
       <button class="btn pri wide" data-act="pkstart" ${ok?"":"disabled"}>Lancer une partie</button>
       <button class="btn ghost wide" style="margin-top:7px" data-act="pkinfo">Voir les combinaisons</button>
       <button class="btn ghost wide" style="margin-top:7px" data-act="goto" data-to="modules">Retour aux modules</button>`;
@@ -1181,7 +1219,7 @@ SCREENS.poker = {
     return `<div class="pk-table">
       <div class="pk-head">
         <div class="grow"><div class="pk-stage">${esc(pkStageLabel())}</div>
-          <div class="pk-blind">Prochain verrou</div></div>
+          <div class="pk-blind">Prochain verrou${P.deckId && P.deckId !== "std" && typeof pkDeckDef === "function" ? ` · <span class="gold-t">${esc(pkDeckDef(P.deckId).n)}</span>` : ""}</div></div>
         <span class="pill">${ic("coin")} ${P.octets}</span>
         <button class="pk-menu" data-act="pkmenu" aria-label="Menu">${ic("grid")}</button>
       </div>

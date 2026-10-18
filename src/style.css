@@ -4389,3 +4389,93 @@ details.fo-more>summary::before{content:"▸ ";color:var(--cyan)}
 details.fo-more[open]>summary::before{content:"▾ "}
 .fo-more .btn small{font-size:8.5px;color:var(--ink3)}
 .fo-st .tt{font-size:7.5px;padding:1px 4px}
+/* la barre de visée : trois bandes de cible, du plus large au plus précis */
+.aimbar{height:34px}
+.aim-z{position:absolute;top:0;bottom:0}
+.aim-z.z1{background:rgba(92,224,122,.28);border-left:1px solid #5ce07a;border-right:1px solid #5ce07a}
+.aim-z.z2{background:rgba(53,240,214,.38)}
+.aim-z.z3{background:linear-gradient(180deg,#ffe48a,#ffc23a);box-shadow:0 0 12px #ffd24a88}
+.aim-cursor{width:5px;margin-left:-2.5px;background:#fff;box-shadow:0 0 10px #fff, 0 0 2px #000;z-index:2}
+.aim-cursor.hot{background:#ffd24a;box-shadow:0 0 18px #ffd24a}
+.aimbar.frozen{animation:aimFreeze .9s ease-out}
+.aim-res{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:3;font-family:var(--font-px);font-size:10px;text-shadow:0 1px 0 #000,0 0 6px #000}
+@keyframes aimFreeze{0%{transform:scale(1.04)}100%{transform:none}}
+
+/* ---------- pouvoirs des cartes ---------- */
+.cpw{display:flex;gap:9px;align-items:center;padding:7px 4px;border-top:1px dashed var(--line);cursor:pointer;opacity:.62}
+.cpw.on{opacity:1}
+.cpw-t{font-size:10px;font-style:normal;padding:1px 6px;border-radius:8px;border:1px solid var(--line2);color:var(--ink3);white-space:nowrap}
+.cpw-t.t1{color:#cfd8e3;border-color:#6f7d90}
+.cpw-t.t2{color:#4fb2ff;border-color:#4fb2ff}
+.cpw-t.t3{color:#ffd24a;border-color:#ffd24a;box-shadow:0 0 8px #ffd24a55}
+.cpw-sheet{border-color:#ffd24a66}
+.pk-decks{display:flex;flex-direction:column;gap:6px;margin:6px 0 10px}
+.pk-deck{display:flex;gap:9px;align-items:center;text-align:left;padding:7px 9px;border-radius:10px;border:1px solid var(--line2);background:var(--panel2,#111a2c);color:var(--ink);font:inherit}
+.pk-deck small{display:block;color:var(--ink3);font-size:11px;line-height:1.3;margin-top:2px}
+.pk-deck b{font-size:13px}
+.pk-deck.on{border-color:var(--cyan);box-shadow:0 0 0 1px var(--cyan) inset,0 0 12px #35f0d633}
+.pk-deck.locked{opacity:.45}
+.pkd-art{width:40px;height:40px;flex:none;display:grid;place-items:center}
+.pkd-art img,.pkd-art canvas{max-width:40px;max-height:40px}
+.pcard.rb{box-shadow:0 0 0 2px transparent;background-image:linear-gradient(135deg,#ff3d7f33,#ffd24a33,#5ce07a33,#35f0d633,#9b6bff33)!important;animation:rbGlow 2.4s linear infinite}
+.pcard .pc-rb{position:absolute;top:2px;right:3px;font-size:13px;background:linear-gradient(90deg,#ff3d7f,#ffd24a,#5ce07a,#35f0d6,#9b6bff);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:900}
+@keyframes rbGlow{0%{box-shadow:0 0 8px #ff3d7f88}25%{box-shadow:0 0 8px #ffd24a88}50%{box-shadow:0 0 8px #5ce07a88}75%{box-shadow:0 0 8px #35f0d688}100%{box-shadow:0 0 8px #9b6bff88}}
+.xleg{display:grid;place-items:center;width:44px;height:44px;filter:brightness(0) drop-shadow(0 0 6px #ffd24a) drop-shadow(0 0 2px #ffd24a);animation:xlegPulse 2.2s ease-in-out infinite}
+.xleg img,.xleg canvas{max-width:44px;max-height:44px}
+@keyframes xlegPulse{50%{filter:brightness(0) drop-shadow(0 0 12px #ffd24a) drop-shadow(0 0 3px #fff3b0)}}
+.xs-sanct{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 70%,#ffd24a33,transparent 60%),repeating-linear-gradient(90deg,#ffd24a10 0 2px,transparent 2px 46px);pointer-events:none}
+.xs-legend{position:absolute;left:50%;top:44%;transform:translate(-50%,-50%);animation:legendIn 1.6s ease-out both}
+@keyframes legendIn{0%{opacity:0;transform:translate(-50%,-75%) scale(.7)}100%{opacity:1;transform:translate(-50%,-50%)}}
+.xs-legend .spr{animation:legendReveal 2.6s ease-out both}
+@keyframes legendReveal{0%,50%{filter:brightness(0) drop-shadow(0 0 18px #ffd24a)}100%{filter:drop-shadow(0 0 14px #ffd24a)}}
+.xs-warn.gold{color:#ffd24a;border-color:#ffd24a;text-shadow:0 0 10px #ffd24a}
+.xs-ware.card{border-color:#ffd24a88;box-shadow:0 0 10px #ffd24a22 inset}
+
+/* ---------- la forge et les chantiers ---------- */
+.pix{display:block;image-rendering:pixelated}
+.tool-art{display:inline-grid;place-items:center;position:relative}
+.tool-art.tt4 svg{filter:drop-shadow(0 0 4px #ffd24a88)}
+.tool-art.tt5 svg{filter:drop-shadow(0 0 6px #b06bffcc);animation:toolDream 2.4s ease-in-out infinite}
+@keyframes toolDream{50%{filter:drop-shadow(0 0 12px #e2b8ff) brightness(1.15)}}
+.fo-ores{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-bottom:8px}
+.fo-ore{display:flex;flex-direction:column;align-items:center;gap:1px;padding:6px 2px;border:1px solid var(--line2);border-radius:9px;background:var(--panel2,#111a2c)}
+.fo-ore b{font-size:13px}
+.fo-ore small{font-size:9px;color:var(--ink3)}
+.fo-ore.here{border-color:var(--cyan);box-shadow:0 0 8px #35f0d633}
+.fo-ore.unk{opacity:.4}
+.fo-ore.unk svg{filter:brightness(0) opacity(.6)}
+.fo-forge{display:flex;flex-direction:column;gap:7px}
+.fo-tool{display:flex;gap:10px;align-items:center;padding:9px;border:1px solid var(--line2);border-radius:11px;background:linear-gradient(90deg,#ffffff06,transparent)}
+.fo-tool.tt1{border-color:#c8733a66}.fo-tool.tt2{border-color:#9aa3ad77}.fo-tool.tt3{border-color:#d3dce799}
+.fo-tool.tt4{border-color:#ffd24a99;background:linear-gradient(90deg,#ffd24a14,transparent)}
+.fo-tool.tt5{border-color:#b06bffbb;background:linear-gradient(90deg,#b06bff22,transparent)}
+.fo-tart{width:54px;height:54px;flex:none;display:grid;place-items:center;border-radius:10px;background:radial-gradient(circle,#ffffff10,transparent 70%)}
+.fo-tool .t{font-size:13px}
+.fo-tool .d{font-size:11px;color:var(--ink2);line-height:1.35}
+.fo-cost{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;font-size:11px}
+.fo-cost span{display:inline-flex;align-items:center;gap:3px}
+.fo-cost .miss{color:var(--bad,#ff5470)}
+.fo-fbtn{flex:none;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 8px;border-radius:10px;border:1px solid var(--line2);background:#0b1220;color:var(--ink3);font:inherit;font-size:11px}
+.fo-fbtn.ok{border-color:#ffd24a;color:#ffd24a;box-shadow:0 0 10px #ffd24a33;animation:fbtnPulse 1.8s ease-in-out infinite}
+@keyframes fbtnPulse{50%{box-shadow:0 0 16px #ffd24a66}}
+.fo-fbtn .fo-next{opacity:.9}
+.fo-fbtn:disabled .fo-next{filter:grayscale(.6) opacity(.6)}
+.fo-sites{display:flex;gap:7px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+.fo-site{flex:0 0 96px;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 4px;border-radius:11px;border:1px solid var(--line2);background:var(--panel2,#111a2c);color:var(--ink);font:inherit;text-align:center}
+.fo-site b{font-size:11px;line-height:1.2}
+.fo-site small{font-size:10px;color:var(--ink3)}
+.fo-site.here{border-color:var(--st);box-shadow:0 0 0 1px var(--st) inset,0 0 12px color-mix(in srgb,var(--st) 40%,transparent)}
+.fo-site.reach{border-style:dashed;border-color:var(--st)}
+.fo-site.locked{opacity:.45}
+.fo-sart{position:relative;width:54px;height:40px;border-radius:7px;overflow:hidden;background:#0b0f1a;display:grid;place-items:center}
+.fo-sart.big{width:100%;height:90px}
+.fo-sart i{position:absolute;left:0;right:0;height:34%;background:var(--st);opacity:.35}
+.fo-sart i:nth-child(1){top:33%;opacity:.25}.fo-sart i:nth-child(2){top:58%;opacity:.4}.fo-sart i:nth-child(3){top:82%;opacity:.6}
+.fo-sart b{position:relative;color:#fff;font-size:18px;text-shadow:0 0 8px var(--st)}
+.fo-sart.big b{font-size:34px}
+.fo-site.locked .fo-sart b{opacity:.3}
+.fo-sitehero{margin-top:4px}
+.dg-tool{display:flex;flex-direction:column;align-items:center;gap:2px}
+.dg-tool .tool-art{margin-bottom:2px}
+.dg-oreh{font-size:11px;color:var(--ink3);font-weight:400}
+.mo-html svg{width:96px;height:96px}

@@ -188,6 +188,7 @@ function enterNode(run, node){
     case "rest":     run.pend = {k:"rest"}; break;
     case "shop":     run.shopStock = null; run.pend = {k:"shop"}; break;
     case "treasure": run.pend = {k:"items", list:rollExpItem(run.floor, 3)}; break;
+    case "legend":   run.pend = {k:"legend", id:node.leg || 150, lv:sanctLevel(run)}; break;
     case "event":    run.pend = {k:"event", e:Math.floor(rng() * EXP_EVENTS.length), cid:randomWildId()}; break;
     default: run.pend = null;
   }
@@ -345,7 +346,11 @@ const XS_SCENES = {
       return;
     }
     const stage = `<div class="xs-light"></div><div class="xs-cards">${p.list.map((c, i)=>xsMonCard(c, i, "xsdraft", p.seen ? 0 : 500 + i * 380)).join("")}</div>`;
-    const panel = `<div class="xs-kicker" style="color:#5ce07a">RECRUTEMENT</div>
+    const panel = p.legend ? `<div class="xs-kicker" style="color:#ffd24a">SANCTUAIRE</div>
+      <div class="xs-title">${esc(POKE[p.list[0].id].name)} accepte de te suivre</div>
+      <div class="xs-say">Ton équipe est complète. Touche sa carte, puis choisis qui lui laisse sa place.</div>
+      <button class="btn ghost wide" data-act="xsdraftskip">Le laisser au sanctuaire · +${80 + run.floor * 8} Bits</button>`
+      : `<div class="xs-kicker" style="color:#5ce07a">RECRUTEMENT</div>
       <div class="xs-title">${p.list.length} signatures détectées</div>
       <div class="xs-say">${full ? "Votre équipe est complète : en prendre un, c'est en laisser partir un autre." : "Une seule rejoint l'expédition. Touchez une carte."}</div>
       <button class="btn ghost wide" data-act="xsdraftskip">Passer · +${80 + run.floor * 8} Bits</button>`;
@@ -406,7 +411,16 @@ const XS_SCENES = {
       {k:"relic", n:"Relique inconnue", d:"Une relique au hasard.", p:130, ic:"held:h_relic"},
       {k:"hp", n:"Bloc de PV", d:"+18% de PV max à toute l'équipe.", p:110, ic:"berry:sitrus"},
       {k:"full", n:"Purge complète", d:"Soigne entièrement l'équipe.", p:90, ic:"revive"}
-    ];
+    ].concat(typeof cardShopWares === "function" ? cardShopWares() : []);
+    if(p.give && EXP_ITEMS[p.give]){
+      const it = EXP_ITEMS[p.give];
+      if(!xsOpenNow()){ const g = p.give; p.give = null; XS_SCENES.shop(run, p); p.give = g; }
+      xsPanel(`<div class="xs-kicker" style="color:#ffd24a">${esc(it.n.toUpperCase())}</div>
+        <div class="xs-title">Qui le porte ?</div>
+        <div class="xs-say">${esc(it.d)}</div>
+        ${xsTeamPick(run, "xsshopgive", true)}`);
+      return;
+    }
     const stage = `<div class="xs-shopbg"></div>
       <div class="xs-keeper">${pmdCanvas(352, 0, 120)}</div>
       <div class="xs-counter"></div>
@@ -414,8 +428,8 @@ const XS_SCENES = {
     const panel = `<div class="row between"><div class="xs-kicker" style="color:#ffc857">BOUTIQUE KECLEON</div>
         <span class="pill">${ic("coin")} <b id="xs-purse">${run.bits}</b></span></div>
       <div class="xs-shelf">${run.shopStock.map((it, i)=>`
-        <button class="xs-ware ${run.bits >= it.p ? "" : "poor"}" data-act="xsbuy" data-i="${i}">
-          ${itemIcon(it.ic, 30) || ic("star")}<span class="grow"><b>${esc(it.n)}</b><small>${esc(it.d)}</small></span>
+        <button class="xs-ware ${run.bits >= it.p ? "" : "poor"} ${it.card ? "card" : ""}" data-act="xsbuy" data-i="${i}">
+          ${itemIcon(it.ic, 30) || (it.spr ? sprBox(it.spr, false, 30) : ic("star"))}<span class="grow"><b>${esc(it.n)}</b><small>${esc(it.d)}</small></span>
           <span class="xs-price">${it.p}</span></button>`).join("") || `<div class="tiny muted">Étagères vides.</div>`}</div>
       <button class="btn pri wide" data-act="xsok">Repartir</button>`;
     xsOpen("shop", "#ffc857", p.keepStage && xsOpenNow() ? null : stage, panel, true);
@@ -729,6 +743,8 @@ ACTIONS.xsbuy = d => {
   if(it.k === "relic"){ const r = grantRelic(run); run.pend.relic = r ? r.id : null; if(!r) toast("Plus rien à acheter", "warn", "shard2"); }
   if(it.k === "hp") for(const m of run.team){ m.maxHp = Math.floor(m.maxHp * 1.18); if(m.hp > 0) m.hp += Math.floor(m.maxHp * 0.18); }
   run.shopStock.splice(+d.i, 1);
+  /* un objet de carte : on choisit son porteur, puis on revient au comptoir */
+  if(it.k === "citem"){ run.pend.give = it.id; save(); if(typeof Sfx !== "undefined") Sfx.coin(); expResume(run); return; }
   save();
   /* l'achat se voit : l'objet passe du comptoir a l'equipe */
   if(it.k !== "relic"){
@@ -754,6 +770,16 @@ ACTIONS.xsitemgive = d => {
   save();
   xsGain(`<span class="xg-give">${itemIcon("exp:" + id, 40) || ""}${pmdCanvas(m.id, 0, 80)}</span>`, POKE[m.id].name + " porte " + EXP_ITEMS[id].n,
     old && EXP_ITEMS[old] ? EXP_ITEMS[old].n + " est abandonné" : EXP_ITEMS[id].d, ()=>xsDone(run));
+};
+ACTIONS.xsshopgive = d => {
+  const run = xsRun(); if(!run || !run.pend || run.pend.k !== "shop") return;
+  const id = run.pend.give, m = run.team[+d.i];
+  if(!m || !EXP_ITEMS[id]) return;
+  const old = m.item;
+  m.item = id; run.pend.give = null; run.pend.keepStage = true;
+  save();
+  xsGain(`<span class="xg-give">${sprBox(EXP_ITEMS[id].spr, false, 40)}${pmdCanvas(m.id, 0, 80)}</span>`, POKE[m.id].name + " porte " + EXP_ITEMS[id].n,
+    old && EXP_ITEMS[old] ? EXP_ITEMS[old].n + " est abandonné" : EXP_ITEMS[id].d, ()=>expResume(run));
 };
 ACTIONS.xsev = d => {
   const run = xsRun(); if(!run || !run.pend || run.pend.k !== "event" || run.pend.res) return;

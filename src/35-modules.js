@@ -314,7 +314,7 @@ function showOfflineReport(){
       <div class="baglist" style="text-align:left">
         ${dig.m >= 1 ? `<div class="bagrow"><div class="bag-ic">${ic("bolt")}</div>
           <div class="grow"><div class="bag-n">Forage : +${fmt(Math.floor(dig.m))} m</div>
-            <div class="bag-d">${fmt(r.energy)} Énergie${dig.w ? ` · ${dig.w} fouille${dig.w > 1 ? "s" : ""} trouvée${dig.w > 1 ? "s" : ""}` : ""}${dig.strata.length ? ` · ${esc(STRATA[dig.strata[dig.strata.length - 1]].n)} atteinte` : ""}</div></div>
+            <div class="bag-d">${fmt(r.energy)} Énergie${dig.w ? ` · ${dig.w} fouille${dig.w > 1 ? "s" : ""} trouvée${dig.w > 1 ? "s" : ""}` : ""}${dig.strata.length ? ` · ${esc(STRATA[dig.strata[dig.strata.length - 1]].n)} atteinte` : ""}${dig.ore ? " · " + Object.keys(dig.ore).map(o=>dig.ore[o] + " " + (typeof oreDef === "function" ? oreDef(o).n.toLowerCase() : o)).join(", ") : ""}</div></div>
           <b class="rp-d">${forage().walls ? forage().walls + " ⛏" : ""}</b></div>` : ""}
         <div class="bagrow"><div class="bag-ic">${ic("coin")}</div>
           <div class="grow"><div class="bag-n">PokéCoins des archives</div>

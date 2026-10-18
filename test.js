@@ -14,10 +14,10 @@ global.AudioContext = undefined;
 global.setInterval = () => 0;   /* pas de boucles pendant les tests */
 
 const fs = require("fs");
-const ORDER = ['_dexblob.js','_atlas.js','_atlas_shiny.js','_pmd.js','_items.js','_lore.js','_pzportrait.js','_chars.js','_trainers.js','_cardart.js','00-slugs.js','01-data.js','02-story.js','10-core.js','15-fx.js','20-ui.js','30-capture.js','32-world.js','33-fishing.js','34-research.js','36-lore.js','37-cine.js','37b-moments.js','38-forage.js','39-daily.js','39b-events.js',
-  '35-modules.js','40-battle.js','41-arena.js','50-expedition.js','51-expscene.js','51m-expmap.js','52-expgear.js','54-tower.js','55-squad.js','55b-squad-ui.js','56-breche.js','57-breche-run.js','58-breche-ui.js','59-breche-plus.js','59m-breche-map.js','59a-breche-attacks.js','59p-breche-pmd.js','59f-breche-feel.js','59g-breche-bossfight.js','59s-breche-share.js','60-poker.js','70-collection.js','72-bag.js','73-cards.js','74-eggs.js','75-extras.js','76-items.js','77-secrets.js','78-milestones.js','79-ux.js','80-guide.js','81-cosmetics.js','85-journal.js','90-admin.js','95-online.js','96-pwa.js','99-boot.js'];
+const ORDER = ['_dexblob.js','_atlas.js','_atlas_shiny.js','_pmd.js','_items.js','_lore.js','_pzportrait.js','_chars.js','_trainers.js','_cardart.js','00-slugs.js','01-data.js','02-story.js','10-core.js','15-fx.js','20-ui.js','30-capture.js','32-world.js','33-fishing.js','34-research.js','36-lore.js','37-cine.js','37b-moments.js','38-forage.js','38b-forge.js','39-daily.js','39b-events.js',
+  '35-modules.js','40-battle.js','41-arena.js','50-expedition.js','51-expscene.js','51m-expmap.js','52-expgear.js','54-tower.js','55-squad.js','55b-squad-ui.js','56-breche.js','57-breche-run.js','58-breche-ui.js','59-breche-plus.js','59m-breche-map.js','59a-breche-attacks.js','59p-breche-pmd.js','59f-breche-feel.js','59g-breche-bossfight.js','59s-breche-share.js','60-poker.js','70-collection.js','72-bag.js','73-cards.js','73b-cardpowers.js','74-eggs.js','75-extras.js','76-items.js','77-secrets.js','78-milestones.js','79-ux.js','80-guide.js','81-cosmetics.js','85-journal.js','90-admin.js','95-online.js','96-pwa.js','99-boot.js'];
 const code = ORDER.map(f=>fs.readFileSync("src/"+f,"utf8")).join("\n");
-eval(code + "\n;" + 'global.__api={POKE,POKE_IDS,evalHand,genMap,EXP_ROWS,deepFill,newState,catchChance,typeMult,RARITY,ACHIEVEMENTS,JOKERS,STORY,anteTarget,makeFighter,damageCalc,xpForLevel,handBase,HANDS,newDeck,movesFor,dexTotal,famOf,stageOf,DIRECTIVES,INFOS,TUTOS,PZ_EVENTS,atlasIndex,ATLAS_N,ATLAS_BACK0,SLUGS,cardChips,grantCardV,grantSecretCard,cardVariants,cardHas,cardOwnedCount,cardTotal,CARD_MONS,CARD_SERIES_DEF,CARD_ORDER,rollCardSeries,randomCard,migrateCards,CARD_INDEX,cardChecksum,cardBytes,tcardHtml,cardBackHtml,GEN_TAG,boosterRank,seriesName,seriesFound,monFound,cardEnvOf,CARD_ENV,resolveName,KNOWN_NAMES,sixthItem,glitchSixthItem,GEN_MARKS,checkChainMark,specialDay,isNightWindow,PZ_POKE_LINES,SIXTH_SLOTS,KONAMI,karpDealDay,karpDealAvailable,BST_BANDS,bstBand,wildIdFor,NODE_W,nodeTypeFor,EXP_ITEMS,rollExpItem,itemMinFloor,EXP_MODES,expRunModes,genMap,traitLevels,traitBonus,TOWER_TRAITS,HABITATS,HABITAT_IDS,habitatWeight,isNight,WEATHER,WEATHER_IDS,weatherDef,speciesInHabitat,FRAGMENTS,RIFT_ARC,checkFragments,riftTick,riftStage,fragmentsFound,fragNext,fragPending,fragOn,fragOnCatch,fragFound,FRAG_SRC,signatureMove,moveTierName,STRATA,forage,forageRate,forageAdvance,digPower,digAff,digRate,crewIds,wallEvery,wallCap,genWall,digHit,digClaim,DIG_LOOT,FOR_UPS,offlineHours,forageTick,EGG_TIERS,EXCLUSIVES,EXCL_SOURCE,isExclusive,RODS,fishPool,newFishEncounter,speciesForRarity,eggPool,repelRarity,lureMul,rstreak,rstreakCatch,rstreakBreak,RSTREAK_MILES,PERMANENTS,charmMul,runeMul,shinyOdds,friendCheck,friendEvo,canEvolve,codeHash,CODES,isSafariDay,SAFARI_POOL,botSpecies,botRate,botHours,FACTIONS,FACTION_RANKS,factionRank,factionMul,factionPts,todayRows,todayPending,REGIONS,unlockedRegions,nextEncounter,newEncounter,rollRarity,fleeChance,RARITY,CINEMAS,CINE_WHO,CINE_T,corruptText,CINE_POS,moduleUnlocked,checkAchievements,sqSkillsOf,sqLeaderOf,sqNewBattle,sqNext,sqTurnStart,sqAct,sqSkip,sqAI,sqFinish,sqUpgrade,sqState,sqStars,sqZoneOpen,SQ_ZONES,SQ_STAGES,sqWaves,sqSkillLv,MAP_ROWS,MAP_SHAPE,EXP_MAPS,expGainLevels,expExpected,EXP_GAIN,startExpedition,openSector,afterFightRewards,lineRoot,createBattle,bStep,bSpeed,arOn,arNeed,AR_KIND,AR_BIOME,towerState,SCREENS,brSummonBoss,brBossDown,BR_PATTERNS,BR_KIT_BY_TYPE,brBossKit,brTerrainReact,brTerrainUnder,brDecal,brHit,brAddZone,brMapNear,brMapPre,brUpdate,ACTIONS,ITEM_IDX,TREASURE_KEYS,BALLS,BERRIES,STONES,CHESTS,PERMANENTS,TREASURES,EXP_ITEMS,REPELS,ringGrade,RING_GRADES,evSeason,evSeasonKey,evWeeklyLegend,evWeekIndex,evState,evTier,evRunPoints,EV_TRACK,EV_SEASONS,brShareText,BR_KIND,BR_ATK,BR_LEGEND,brArchFor,brFire,brWeaponStats,brSpawnFoe,pwaAfterIntro,pwaInstallable,pwaEnv,brChunkAt,brPushOut,brMastery,BR_TERRAIN,brMissionsFor,brNewRun,brUpdate,brXpNeed,brChoices,brWeaponStats,brDaily,brGuardianWin,brGuardianFor,ROOM_MOMENTS,roomMomentsTick,sqLockOpen,sqLockWaves,sqLockGate,sqLockLevel,sqLockAt,sqLockFinish,brNextEvo,brState,BR_ARCH,BR_ITEMS,ACTIVITIES,COSMETICS,FX_LAYERS,badgeCine,secretCine,BADGES,HANDS,MODULE_REQ,SCREENS,adminHash,ADMIN_HASH,ATELIER_TABS,STORY,RIFT_ARC,directStory,cineFor,RESEARCH_TASKS,researchOf,researchLevel,researchMax,researchTick,taskGoal,RESEARCH_TIERS,TALENTS,talentOf,PERFECT_ODDS,rollPerfect,weekStamp,REPORT_ROWS,lineRoot,towerLevel,towerBand,BUFF_STATS,TRAINERS,expEnemyLevel,setBuddy,buddyTick,buddyTier,buddyBonus,buddy,rollWeekly,weeklyTick,weeklyRollover,openChest,WEEKLY_POOL,BUDDY_FINDS,BUDDY_MAX_TIER,BUDDY_TIER_AFF,CHESTS,addToDex,weekKey,aimBonus,BOOSTS,startBoost,boostActive,LUCKY_DAYS,rollLuckyDay,luckyF,TREASURES,rollTreasure,treasureValue,REGION_TIERS,checkRegionTiers,regionTiersDone,rollContract,contractTick,CONTRACTS,CYCLE_MODS,PERKS,cycleReward,perkLv,loreOf,LORE,PZ_EMOS,pzMood,HELD_ITEMS,grantHeld,heldActive,PLANETS,SPECTRALS,QUEST_POOLS,questMix,rollQuests,setS:function(v){S=v},getS:function(){return S},setENC:function(v){ENC=v},getENC:function(){return ENC},getCINE:function(){return CINE},getCineLast:function(){return CINE_LAST},playStory:playStory};');
+eval(code + "\n;" + 'global.__api={POKE,POKE_IDS,evalHand,genMap,EXP_ROWS,deepFill,newState,catchChance,typeMult,RARITY,ACHIEVEMENTS,JOKERS,STORY,anteTarget,makeFighter,damageCalc,xpForLevel,handBase,HANDS,newDeck,movesFor,dexTotal,famOf,stageOf,DIRECTIVES,INFOS,TUTOS,PZ_EVENTS,atlasIndex,ATLAS_N,ATLAS_BACK0,SLUGS,cardChips,grantCardV,grantSecretCard,cardVariants,cardHas,cardOwnedCount,cardTotal,CARD_MONS,CARD_SERIES_DEF,CARD_ORDER,rollCardSeries,randomCard,migrateCards,CARD_INDEX,cardChecksum,cardBytes,tcardHtml,cardBackHtml,GEN_TAG,boosterRank,seriesName,seriesFound,monFound,cardEnvOf,CARD_ENV,resolveName,KNOWN_NAMES,sixthItem,glitchSixthItem,GEN_MARKS,checkChainMark,specialDay,isNightWindow,PZ_POKE_LINES,SIXTH_SLOTS,KONAMI,karpDealDay,karpDealAvailable,BST_BANDS,bstBand,wildIdFor,NODE_W,nodeTypeFor,EXP_ITEMS,rollExpItem,itemMinFloor,EXP_MODES,expRunModes,genMap,traitLevels,traitBonus,TOWER_TRAITS,HABITATS,HABITAT_IDS,habitatWeight,isNight,WEATHER,WEATHER_IDS,weatherDef,speciesInHabitat,FRAGMENTS,RIFT_ARC,checkFragments,riftTick,riftStage,fragmentsFound,fragNext,fragPending,fragOn,fragOnCatch,fragFound,FRAG_SRC,signatureMove,moveTierName,STRATA,forage,forageRate,forageAdvance,digPower,digAff,digRate,crewIds,wallEvery,wallCap,genWall,digHit,digClaim,DIG_LOOT,FOR_UPS,offlineHours,forageTick,EGG_TIERS,EXCLUSIVES,EXCL_SOURCE,isExclusive,RODS,fishPool,newFishEncounter,speciesForRarity,eggPool,repelRarity,lureMul,rstreak,rstreakCatch,rstreakBreak,RSTREAK_MILES,PERMANENTS,charmMul,runeMul,shinyOdds,friendCheck,friendEvo,canEvolve,codeHash,CODES,isSafariDay,SAFARI_POOL,botSpecies,botRate,botHours,FACTIONS,FACTION_RANKS,factionRank,factionMul,factionPts,todayRows,todayPending,REGIONS,unlockedRegions,nextEncounter,newEncounter,rollRarity,fleeChance,RARITY,CINEMAS,CINE_WHO,CINE_T,corruptText,CINE_POS,moduleUnlocked,checkAchievements,sqSkillsOf,sqLeaderOf,sqNewBattle,sqNext,sqTurnStart,sqAct,sqSkip,sqAI,sqFinish,sqUpgrade,sqState,sqStars,sqZoneOpen,SQ_ZONES,SQ_STAGES,sqWaves,sqSkillLv,MAP_ROWS,MAP_SHAPE,EXP_MAPS,expGainLevels,expExpected,EXP_GAIN,startExpedition,openSector,afterFightRewards,lineRoot,createBattle,bStep,bSpeed,arOn,arNeed,AR_KIND,AR_BIOME,towerState,SCREENS,brSummonBoss,brBossDown,BR_PATTERNS,BR_KIT_BY_TYPE,brBossKit,brTerrainReact,brTerrainUnder,brDecal,brHit,brAddZone,brMapNear,brMapPre,brUpdate,ACTIONS,ITEM_IDX,TREASURE_KEYS,BALLS,BERRIES,STONES,CHESTS,PERMANENTS,TREASURES,EXP_ITEMS,REPELS,ringGrade,RING_GRADES,evSeason,evSeasonKey,evWeeklyLegend,evWeekIndex,evState,evTier,evRunPoints,EV_TRACK,EV_SEASONS,brShareText,BR_KIND,BR_ATK,BR_LEGEND,brArchFor,brFire,brWeaponStats,brSpawnFoe,pwaAfterIntro,pwaInstallable,pwaEnv,brChunkAt,brPushOut,brMastery,BR_TERRAIN,brMissionsFor,brNewRun,brUpdate,brXpNeed,brChoices,brWeaponStats,brDaily,brGuardianWin,brGuardianFor,ROOM_MOMENTS,roomMomentsTick,sqLockOpen,sqLockWaves,sqLockGate,sqLockLevel,sqLockAt,sqLockFinish,brNextEvo,brState,BR_ARCH,BR_ITEMS,ACTIVITIES,COSMETICS,FX_LAYERS,badgeCine,secretCine,BADGES,HANDS,MODULE_REQ,SCREENS,adminHash,ADMIN_HASH,ATELIER_TABS,STORY,RIFT_ARC,directStory,cineFor,RESEARCH_TASKS,researchOf,researchLevel,researchMax,researchTick,taskGoal,RESEARCH_TIERS,TALENTS,talentOf,PERFECT_ODDS,rollPerfect,weekStamp,REPORT_ROWS,lineRoot,towerLevel,towerBand,BUFF_STATS,TRAINERS,expEnemyLevel,setBuddy,buddyTick,buddyTier,buddyBonus,buddy,rollWeekly,weeklyTick,weeklyRollover,openChest,WEEKLY_POOL,BUDDY_FINDS,BUDDY_MAX_TIER,BUDDY_TIER_AFF,CHESTS,addToDex,weekKey,aimBonus,BOOSTS,startBoost,boostActive,LUCKY_DAYS,rollLuckyDay,luckyF,TREASURES,rollTreasure,treasureValue,REGION_TIERS,checkRegionTiers,regionTiersDone,rollContract,contractTick,CONTRACTS,CYCLE_MODS,PERKS,cycleReward,perkLv,loreOf,LORE,PZ_EMOS,pzMood,HELD_ITEMS,grantHeld,heldActive,PLANETS,SPECTRALS,QUEST_POOLS,questMix,rollQuests,cardTier,CARD_POWERS,ORES,ORE_IDS,oreOf,oreHave,oreGain,TOOLS,toolTier,toolCost,toolCanForge,PICK_T,HAMMER_T,DRILL_T,FOR_SITES,siteOpen,siteReachable,siteSwitch,siteDepth,mainMaxM,stratumHard,toolSvg,PK_DECKS,pkBuildDeck,startPoker,pkScore,pkStartRound,pkRollShop,jokerAvail,evalHandRainbow,sanctPlace,sanctChance,sanctJoin,cardShopWares,CARD_ITEM_IDS,MOMENT_Q,pkWishBonus,pkDeckTargetMul,psyFamilies,setS:function(v){S=v},getS:function(){return S},setENC:function(v){ENC=v},getENC:function(){return ENC},getCINE:function(){return CINE},getCineLast:function(){return CINE_LAST},playStory:playStory};');
 const A = global.__api;
 let pass=0, fail=0;
 const t = (n, cond, extra) => { cond?pass++:(fail++,console.log("  ECHEC:",n,extra||"")); };
@@ -142,7 +142,7 @@ t("antes croissantes", A.anteTarget(1,0) < A.anteTarget(1,2) && A.anteTarget(1,2
 /* --- contenu --- */
 t("27 scenes narratives", A.STORY.length===27, A.STORY.length);
 t("84 succes", A.ACHIEVEMENTS.length===84, A.ACHIEVEMENTS.length);
-t("29 programmes", A.JOKERS.length===29, A.JOKERS.length);
+t("35 programmes (dont 6 ouverts par les cartes)", A.JOKERS.length===35 && A.JOKERS.filter(j=>j.card).length===6, A.JOKERS.length);
 t("6 paliers de rarete", A.RARITY.length===6);
 
 
@@ -214,9 +214,9 @@ t("les trouvailles du compagnon sont toutes valides",
 
 
 /* --- visée : bonus, jamais de malus --- */
-t("hors zone : aucun effet", A.aimBonus(10,[40,60])===1 && A.aimBonus(90,[40,60])===1);
-t("centre parfait : x1.25", Math.abs(A.aimBonus(50,[40,60])-1.25)<1e-9);
-t("bord de zone : neutre", Math.abs(A.aimBonus(40,[40,60])-1)<1e-9);
+t("hors de la cible : aucun effet", A.aimBonus(10,[40,60])===1 && A.aimBonus(90,[40,60])===1);
+t("centre de la cible : +25 %", Math.abs(A.aimBonus(50,[40,60])-1.25)<1e-9);
+t("la cible est dégressive du centre vers le bord", A.aimBonus(50,[40,60]) > A.aimBonus(46,[40,60]) && A.aimBonus(46,[40,60]) > A.aimBonus(41,[40,60]) && A.aimBonus(41,[40,60]) > 1);
 t("jamais hors bornes", (()=>{ for(let z=0;z<60;z+=7){ const zone=[z,z+24];
   for(let p=0;p<=100;p+=1){ const b=A.aimBonus(p,zone); if(b<1||b>1.2500001) return false; } }
   return true; })());
@@ -602,9 +602,9 @@ t("dix-huit archivistes, un type chacun", A.TRAINERS.length === 18 &&
   new Set(A.TRAINERS.map(x=>x.t)).size === 18);
 
 /* --- équipement --- */
-t("seize objets, tous chiffrés", (()=>{
+t("seize objets, tous chiffrés (plus dix objets de carte)", (()=>{
   const ids = Object.keys(A.EXP_ITEMS);
-  if(ids.length !== 16) return false;
+  if(ids.filter(id=>!A.EXP_ITEMS[id].card).length !== 16 || ids.filter(id=>A.EXP_ITEMS[id].card).length !== 10) return false;
   return ids.every(id=>{
     const it = A.EXP_ITEMS[id];
     return it.n && it.d && it.spr && it.rar >= 0 &&
@@ -936,7 +936,7 @@ t("une paroi : objets sans chevauchement, fer à l'écart, et tout se dégage à
   }
   const w = A.genWall(2); w.stab = w.max = 9999;
   for(let pass = 0; pass < 8 && !w.over; pass++) for(let y = 0; y < w.H; y++) for(let x = 0; x < w.W; x++) A.digHit(w, "pick", x, y);
-  return w.over && !w.collapsed && w.items.every(it=>it.found);
+  return w.over && !w.collapsed && w.items.filter(it=>!it.small).every(it=>it.found);
 })());
 t("une paroi s'effondre quand sa stabilité tombe à zéro, et l'on garde ce qui est dégagé", (()=>{
   A.setS(A.newState());
@@ -1467,10 +1467,10 @@ t("chaque forme d'attaque s'exécute en jeu et inflige des dégâts", (()=>{
 
 
 /* --- cercle de lancer --- */
-t("le cercle de lancer : trois paliers, jamais de malus", (()=>{
-  const e = A.ringGrade(0.3), s2 = A.ringGrade(0.5), b = A.ringGrade(0.8), none = A.ringGrade(0.95);
+t("la barre de visée : trois paliers, jamais de malus", (()=>{
+  const e = A.ringGrade(0.1), s2 = A.ringGrade(0.4), b = A.ringGrade(0.9), none = A.ringGrade(1.2);
   return e.n === "Excellent" && s2.n === "Super" && b.n === "Bien" && none === null
-    && A.RING_GRADES.every(g=>g.mul > 1) && e.mul > s2.mul && s2.mul > b.mul;
+    && A.RING_GRADES.every(g=>g.mul > 1) && e.mul === 1.25 && e.mul > s2.mul && s2.mul > b.mul;
 })());
 /* --- événements --- */
 t("la saison est la même pour tous, et change toutes les deux semaines", (()=>{
@@ -1515,7 +1515,8 @@ t("chaque objet de chaque catalogue a son icône", (()=>{
   Object.keys(A.PERMANENTS).forEach(k=>need("perm:" + k));
   Object.keys(A.REPELS).forEach(k=>need("repel:" + k));
   Object.keys(A.HELD_ITEMS).forEach(k=>need("held:" + k));
-  Object.keys(A.EXP_ITEMS).forEach(k=>need("exp:" + k));
+  /* les objets de carte ont pour icône le légendaire lui-même */
+  Object.keys(A.EXP_ITEMS).filter(k=>!A.EXP_ITEMS[k].card).forEach(k=>need("exp:" + k));
   Object.values(A.TREASURES).forEach(t=>need("treasure:" + (A.TREASURE_KEYS[t.n] || "?")));
   Object.keys(A.BR_ITEMS).forEach(k=>need("br:" + k));
   for(let tp = 1; tp <= 18; tp++) need("br:cat" + tp);
@@ -1839,6 +1840,167 @@ t("chaque salle qui s'ouvre a son moment, et une ancienne partie ne les rejoue p
   S0.level = 11; for(let i = 1; i <= 6; i++) A.addToDex(i, 10, false);
   const fired = A.roomMomentsTick();
   return init.includes("expedition") && fired === true && S0.flags.roomsSeen.includes("tower");
+})());
+
+/* --- pouvoirs des cartes --- */
+t("pouvoirs : chaque légendaire en carte a un pouvoir, et l'Éclat suit le nombre d'illustrations", (()=>{
+  if(!A.CARD_MONS.every(id=>A.CARD_POWERS[id] && A.CARD_POWERS[id].d(1) && A.CARD_POWERS[id].d(3))) return false;
+  A.setS(A.newState());
+  const t0 = A.cardTier(150);
+  A.grantCardV("art", 150); const t1 = A.cardTier(150);
+  A.grantCardV("g5", 150); const t2 = A.cardTier(150);
+  A.grantCardV("g3", 150); A.grantCardV("g2", 150); const t3 = A.cardTier(150);
+  return t0 === 0 && t1 === 1 && t2 === 2 && t3 === 3;
+})());
+t("pouvoirs : une carte nouvelle annonce son pouvoir ; un doublon ne dit rien", (()=>{
+  A.setS(A.newState()); const S0 = A.getS();
+  const n = () => (S0.cardPowerLog || []).length;
+  A.grantCardV("art", 245); const a = n();
+  A.grantCardV("art", 245); const b = n();
+  A.grantCardV("g5", 245); const c = n();
+  A.grantCardV("g3", 245); A.grantCardV("g2", 245); const d = n();
+  return a === 1 && b === 1 && c === 2 && d === 3 && S0.cardPowerLog[2].t === 3;
+})());
+t("pouvoirs : les programmes de carte n'arrivent en boutique que si la carte est possédée", (()=>{
+  A.setS(A.newState());
+  const j = A.JOKERS.find(x=>x.id === "jc_146");
+  if(!j || A.jokerAvail(j)) return false;
+  A.grantCardV("art", 146);
+  return A.jokerAvail(j) && /Mult/.test(j.d) && /Éclat I/.test(j.d);
+})());
+t("pouvoirs : les decks se construisent comme annoncé", (()=>{
+  A.setS(A.newState());
+  for(const s of ["art", "g5", "g3"]){ A.grantCardV(s, 249); A.grantCardV(s, 384); A.grantCardV(s, 150); }
+  const deep = A.pkBuildDeck("deep"), sky = A.pkBuildDeck("sky"), psy = A.pkBuildDeck("psy"), std = A.pkBuildDeck("std");
+  const nPsy = d => d.filter(c=>A.POKE[c.id].types.includes(14)).length;
+  const legs = sky.filter(c=>A.CARD_MONS.includes(c.id)).length;
+  return deep.length === 36 && std.length === 52 && sky.length === 52 && legs === 4
+    && nPsy(psy) >= 12 && nPsy(psy) > nPsy(std) && new Set(deep.map(c=>c.u)).size === 36;
+})());
+t("pouvoirs : un deck fermé ne se lance pas, un deck ouvert oui", (()=>{
+  A.setS(A.newState()); const S0 = A.getS();
+  try { A.startPoker("balance"); } catch(e){}
+  const a = S0.poker && S0.poker.deckId;
+  A.grantCardV("art", 386);
+  try { A.startPoker("balance"); } catch(e){}
+  return a === "std" && S0.poker.deckId === "balance" && A.pkDeckTargetMul(S0.poker) === 2;
+})());
+t("pouvoirs : une carte arc-en-ciel copie l'espèce qui complète la main", (()=>{
+  const cs = [{u:1, id:25, shiny:false, ed:""}, {u:2, id:25, shiny:false, ed:""}, {u:3, id:1, shiny:false, ed:"", rb:true}];
+  const ev = A.evalHand(cs);
+  const plain = A.evalHand(cs.map(c=>Object.assign({}, c, {rb:false})));
+  return ev.key === "brelan" && plain.key !== "brelan" && ev.scoring.some(c=>c.u === 3 && c.id === 1);
+})());
+t("pouvoirs : le deck Équilibre égalise Jetons et Mult avant le calcul", (()=>{
+  A.setS(A.newState()); A.grantCardV("art", 386); const S0 = A.getS();
+  try { A.startPoker("balance"); } catch(e){}
+  const P = S0.poker; P.state = "play";
+  P.hand = [{u:900, id:25, shiny:false, ed:""}, {u:901, id:25, shiny:false, ed:""}]; P.sel = [900, 901];
+  const x = A.pkScore(true);
+  return x && Math.abs(x.chips - x.mult) < 0.01 && x.total > 0;
+})());
+t("pouvoirs : le Sanctuaire apparaît dans le secteur prévu, avec un légendaire possédé", (()=>{
+  A.setS(A.newState()); A.addToDex(6, 40, false); A.addToDex(25, 10, false); A.addToDex(1, 5, false);
+  const S0 = A.getS();
+  if(A.sanctChance() !== 0) return false;
+  A.grantCardV("art", 381);
+  try { A.startExpedition([6, 25, 1]); } catch(e){}
+  const run = S0.expedition; if(!run) return false;
+  run.sanctAt = 1; A.openSector(run, 1);
+  const nodes = run.map.flat().filter(n=>n.t === "legend");
+  return A.sanctChance() > 0.3 && nodes.length === 1 && nodes[0].leg === 381;
+})());
+t("pouvoirs : vaincu, le légendaire rejoint l'équipe (ou attend qu'on lui fasse une place)", (()=>{
+  A.setS(A.newState()); A.addToDex(6, 40, false); A.addToDex(25, 10, false); A.addToDex(1, 5, false);
+  const S0 = A.getS(); A.grantCardV("art", 245);
+  try { A.startExpedition([6, 25, 1]); } catch(e){}
+  const run = S0.expedition; if(!run) return false;
+  try { A.sanctJoin(run, 245); } catch(e){}
+  const joined = run.team.some(m=>m.id === 245);
+  while(run.team.length < 6) run.team.push({id:16, level:5, hp:10, maxHp:10});
+  try { A.sanctJoin(run, 245); } catch(e){}
+  return joined && run.pend && run.pend.k === "draft" && run.pend.legend === 1 && run.pend.list[0].id === 245;
+})());
+t("pouvoirs : les objets de carte ne se vendent qu'à la boutique, et seulement carte en main", (()=>{
+  A.setS(A.newState());
+  if(A.cardShopWares().length) return false;
+  for(let i = 0; i < 40; i++) if(A.rollExpItem(12, 3).some(id=>A.CARD_ITEM_IDS.includes(id))) return false;
+  A.grantCardV("art", 383);
+  const w = A.cardShopWares();
+  return w.length === 1 && w[0].id === "c_383" && w[0].p === 150 && A.EXP_ITEMS.c_383.atk === 1.4;
+})());
+
+/* --- la forge et les chantiers --- */
+t("forge : une ancienne partie garde sa pioche et ses étais, devenus des outils forgés", (()=>{
+  A.setS(A.newState()); const S0 = A.getS();
+  S0.forage = {m:500, maxM:500, crew:[], slots:3, walls:0, wallAt:0, up:{pick:2, prop:3, drill:4}, energy:10, total:10, echoes:0, found:0, wallsDone:0};
+  const f = A.forage();
+  return f.tools.pick === 2 && f.tools.prop === 3 && f.tools.hammer === 0 && f.tools.drill === 0
+    && f.up.drill === 4 && f.up.pick === undefined && !A.FOR_UPS.pick && !A.FOR_UPS.prop;
+})());
+t("forge : chaque matière coûte le minerai de sa couche, et l'outil progresse vraiment", (()=>{
+  for(let t = 1; t <= 5; t++){ const c = A.toolCost(t); if(!(c.ore[A.ORE_IDS[t - 1]] > 0) || !(c.energy > 0)) return false; }
+  for(let t = 1; t <= 5; t++){
+    const a = A.PICK_T[t - 1], b = A.PICK_T[t];
+    if(b[0] + b[1] + b[2] <= a[0] + a[1] + a[2]) return false;
+    if(A.DRILL_T[t] <= A.DRILL_T[t - 1] || A.HAMMER_T[t].cost > A.HAMMER_T[t - 1].cost) return false;
+  }
+  return A.toolCost(5).energy > A.toolCost(1).energy * 100;
+})());
+t("forge : forger consomme minerai et Énergie, et change l'outil", (()=>{
+  A.setS(A.newState()); const S0 = A.getS(); const f = A.forage();
+  if(A.toolCanForge("pick")) return false;
+  f.energy = 1e9; A.oreGain("cu", 25);
+  try { A.ACTIONS.foforge({k:"pick"}); } catch(e){}
+  return A.toolTier("pick") === 1 && A.oreHave("cu") === 5 && f.energy === 1e9 - A.toolCost(1).energy
+    && /cuivre/.test(A.toolSvg("pick", 1, 20) ? "cuivre" : "");
+})());
+t("forge : une pioche en or dégage bien plus qu'une pioche en bois", (()=>{
+  A.setS(A.newState()); const f = A.forage();
+  const count = tier => { f.tools.pick = tier; const w = A.genWall(0); w.stab = w.max = 999; w.L = w.L.map(v=>v >= 99 ? v : 6); w.occ = w.occ.map(v=>v === -2 ? -1 : v); w.L = w.L.map(()=>6); const before = w.L.reduce((a, b)=>a + b, 0); A.digHit(w, "pick", 5, 4); return before - w.L.reduce((a, b)=>a + b, 0); };
+  const a = count(0), b = count(4);
+  return b > a * 1.5;
+})());
+t("forge : l'équipe remonte le minerai de sa couche en creusant", (()=>{
+  A.setS(A.newState());
+  for(const id of [74, 27, 50]) A.addToDex(id, 15, false);
+  const f = A.forage(); f.crew = [74, 27, 50];
+  const r = A.forageAdvance(3600);
+  const tot = A.ORE_IDS.reduce((a, o)=>a + A.oreHave(o), 0);
+  return tot >= 29 && tot <= 30 && A.oreHave("cu") > 0 && r.ore && A.oreOf(0) === "cu" && A.oreOf(8) === "dr";
+})());
+t("forge : les fouilles cachent des pépites, qui ne bloquent pas la fin", (()=>{
+  A.setS(A.newState());
+  const w = A.genWall(4);
+  const ores = w.items.filter(it=>it.k === "ore");
+  if(ores.length < 3 || !ores.every(it=>it.small && it.cells.length === 1)) return false;
+  ores.forEach(it=>it.found = true);
+  const rows = A.digClaim(w);
+  return rows.some(r=>r.ore) && A.ORE_IDS.some(o=>A.oreHave(o) > 0);
+})());
+t("chantiers : fermés au départ, repérés en profondeur, ouverts contre de l'Énergie", (()=>{
+  A.setS(A.newState()); const f = A.forage();
+  if(A.siteReachable("azur") || A.siteOpen("azur")) return false;
+  f.m = f.maxM = 500; f.energy = 1e9;
+  if(!A.siteReachable("azur") || A.siteReachable("ardent")) return false;
+  try { A.ACTIONS.fositeopen({id:"azur"}); } catch(e){}
+  return A.siteOpen("azur") && f.energy === 1e9 - A.FOR_SITES[1].cost;
+})());
+t("chantiers : changer de puits garde la profondeur de chacun, et la roche y est plus dure", (()=>{
+  A.setS(A.newState()); const f = A.forage();
+  f.m = f.maxM = 1200; f.sitesOpen = {azur:true};
+  const h0 = A.stratumHard(0);
+  if(!A.siteSwitch("azur")) return false;
+  const a = f.m, h1 = A.stratumHard(0);
+  f.m = 77; f.maxM = 77;
+  A.siteSwitch("main");
+  return a === 0 && f.m === 1200 && A.siteDepth("azur").m === 77 && h1 > h0 * 1.5 && A.mainMaxM() === 1200;
+})());
+t("chantiers : la Grotte Azurée cache plus de Pierres Eau que le puits principal", (()=>{
+  A.setS(A.newState()); const f = A.forage(); f.m = f.maxM = 1200; f.sitesOpen = {azur:true};
+  const water = () => { let n = 0; for(let i = 0; i < 500; i++) n += A.genWall(2).items.filter(it=>it.k === "water").length; return n; };
+  const a = water(); A.siteSwitch("azur"); const b = water();
+  return b > a * 1.5;
 })());
 console.log(`\n${pass} tests reussis, ${fail} echecs`);
 process.exit(fail?1:0);

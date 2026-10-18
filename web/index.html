@@ -4408,6 +4408,96 @@ details.fo-more>summary::before{content:"▸ ";color:var(--cyan)}
 details.fo-more[open]>summary::before{content:"▾ "}
 .fo-more .btn small{font-size:8.5px;color:var(--ink3)}
 .fo-st .tt{font-size:7.5px;padding:1px 4px}
+/* la barre de visée : trois bandes de cible, du plus large au plus précis */
+.aimbar{height:34px}
+.aim-z{position:absolute;top:0;bottom:0}
+.aim-z.z1{background:rgba(92,224,122,.28);border-left:1px solid #5ce07a;border-right:1px solid #5ce07a}
+.aim-z.z2{background:rgba(53,240,214,.38)}
+.aim-z.z3{background:linear-gradient(180deg,#ffe48a,#ffc23a);box-shadow:0 0 12px #ffd24a88}
+.aim-cursor{width:5px;margin-left:-2.5px;background:#fff;box-shadow:0 0 10px #fff, 0 0 2px #000;z-index:2}
+.aim-cursor.hot{background:#ffd24a;box-shadow:0 0 18px #ffd24a}
+.aimbar.frozen{animation:aimFreeze .9s ease-out}
+.aim-res{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:3;font-family:var(--font-px);font-size:10px;text-shadow:0 1px 0 #000,0 0 6px #000}
+@keyframes aimFreeze{0%{transform:scale(1.04)}100%{transform:none}}
+
+/* ---------- pouvoirs des cartes ---------- */
+.cpw{display:flex;gap:9px;align-items:center;padding:7px 4px;border-top:1px dashed var(--line);cursor:pointer;opacity:.62}
+.cpw.on{opacity:1}
+.cpw-t{font-size:10px;font-style:normal;padding:1px 6px;border-radius:8px;border:1px solid var(--line2);color:var(--ink3);white-space:nowrap}
+.cpw-t.t1{color:#cfd8e3;border-color:#6f7d90}
+.cpw-t.t2{color:#4fb2ff;border-color:#4fb2ff}
+.cpw-t.t3{color:#ffd24a;border-color:#ffd24a;box-shadow:0 0 8px #ffd24a55}
+.cpw-sheet{border-color:#ffd24a66}
+.pk-decks{display:flex;flex-direction:column;gap:6px;margin:6px 0 10px}
+.pk-deck{display:flex;gap:9px;align-items:center;text-align:left;padding:7px 9px;border-radius:10px;border:1px solid var(--line2);background:var(--panel2,#111a2c);color:var(--ink);font:inherit}
+.pk-deck small{display:block;color:var(--ink3);font-size:11px;line-height:1.3;margin-top:2px}
+.pk-deck b{font-size:13px}
+.pk-deck.on{border-color:var(--cyan);box-shadow:0 0 0 1px var(--cyan) inset,0 0 12px #35f0d633}
+.pk-deck.locked{opacity:.45}
+.pkd-art{width:40px;height:40px;flex:none;display:grid;place-items:center}
+.pkd-art img,.pkd-art canvas{max-width:40px;max-height:40px}
+.pcard.rb{box-shadow:0 0 0 2px transparent;background-image:linear-gradient(135deg,#ff3d7f33,#ffd24a33,#5ce07a33,#35f0d633,#9b6bff33)!important;animation:rbGlow 2.4s linear infinite}
+.pcard .pc-rb{position:absolute;top:2px;right:3px;font-size:13px;background:linear-gradient(90deg,#ff3d7f,#ffd24a,#5ce07a,#35f0d6,#9b6bff);-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:900}
+@keyframes rbGlow{0%{box-shadow:0 0 8px #ff3d7f88}25%{box-shadow:0 0 8px #ffd24a88}50%{box-shadow:0 0 8px #5ce07a88}75%{box-shadow:0 0 8px #35f0d688}100%{box-shadow:0 0 8px #9b6bff88}}
+.xleg{display:grid;place-items:center;width:44px;height:44px;filter:brightness(0) drop-shadow(0 0 6px #ffd24a) drop-shadow(0 0 2px #ffd24a);animation:xlegPulse 2.2s ease-in-out infinite}
+.xleg img,.xleg canvas{max-width:44px;max-height:44px}
+@keyframes xlegPulse{50%{filter:brightness(0) drop-shadow(0 0 12px #ffd24a) drop-shadow(0 0 3px #fff3b0)}}
+.xs-sanct{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 70%,#ffd24a33,transparent 60%),repeating-linear-gradient(90deg,#ffd24a10 0 2px,transparent 2px 46px);pointer-events:none}
+.xs-legend{position:absolute;left:50%;top:44%;transform:translate(-50%,-50%);animation:legendIn 1.6s ease-out both}
+@keyframes legendIn{0%{opacity:0;transform:translate(-50%,-75%) scale(.7)}100%{opacity:1;transform:translate(-50%,-50%)}}
+.xs-legend .spr{animation:legendReveal 2.6s ease-out both}
+@keyframes legendReveal{0%,50%{filter:brightness(0) drop-shadow(0 0 18px #ffd24a)}100%{filter:drop-shadow(0 0 14px #ffd24a)}}
+.xs-warn.gold{color:#ffd24a;border-color:#ffd24a;text-shadow:0 0 10px #ffd24a}
+.xs-ware.card{border-color:#ffd24a88;box-shadow:0 0 10px #ffd24a22 inset}
+
+/* ---------- la forge et les chantiers ---------- */
+.pix{display:block;image-rendering:pixelated}
+.tool-art{display:inline-grid;place-items:center;position:relative}
+.tool-art.tt4 svg{filter:drop-shadow(0 0 4px #ffd24a88)}
+.tool-art.tt5 svg{filter:drop-shadow(0 0 6px #b06bffcc);animation:toolDream 2.4s ease-in-out infinite}
+@keyframes toolDream{50%{filter:drop-shadow(0 0 12px #e2b8ff) brightness(1.15)}}
+.fo-ores{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-bottom:8px}
+.fo-ore{display:flex;flex-direction:column;align-items:center;gap:1px;padding:6px 2px;border:1px solid var(--line2);border-radius:9px;background:var(--panel2,#111a2c)}
+.fo-ore b{font-size:13px}
+.fo-ore small{font-size:9px;color:var(--ink3)}
+.fo-ore.here{border-color:var(--cyan);box-shadow:0 0 8px #35f0d633}
+.fo-ore.unk{opacity:.4}
+.fo-ore.unk svg{filter:brightness(0) opacity(.6)}
+.fo-forge{display:flex;flex-direction:column;gap:7px}
+.fo-tool{display:flex;gap:10px;align-items:center;padding:9px;border:1px solid var(--line2);border-radius:11px;background:linear-gradient(90deg,#ffffff06,transparent)}
+.fo-tool.tt1{border-color:#c8733a66}.fo-tool.tt2{border-color:#9aa3ad77}.fo-tool.tt3{border-color:#d3dce799}
+.fo-tool.tt4{border-color:#ffd24a99;background:linear-gradient(90deg,#ffd24a14,transparent)}
+.fo-tool.tt5{border-color:#b06bffbb;background:linear-gradient(90deg,#b06bff22,transparent)}
+.fo-tart{width:54px;height:54px;flex:none;display:grid;place-items:center;border-radius:10px;background:radial-gradient(circle,#ffffff10,transparent 70%)}
+.fo-tool .t{font-size:13px}
+.fo-tool .d{font-size:11px;color:var(--ink2);line-height:1.35}
+.fo-cost{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;font-size:11px}
+.fo-cost span{display:inline-flex;align-items:center;gap:3px}
+.fo-cost .miss{color:var(--bad,#ff5470)}
+.fo-fbtn{flex:none;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 8px;border-radius:10px;border:1px solid var(--line2);background:#0b1220;color:var(--ink3);font:inherit;font-size:11px}
+.fo-fbtn.ok{border-color:#ffd24a;color:#ffd24a;box-shadow:0 0 10px #ffd24a33;animation:fbtnPulse 1.8s ease-in-out infinite}
+@keyframes fbtnPulse{50%{box-shadow:0 0 16px #ffd24a66}}
+.fo-fbtn .fo-next{opacity:.9}
+.fo-fbtn:disabled .fo-next{filter:grayscale(.6) opacity(.6)}
+.fo-sites{display:flex;gap:7px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+.fo-site{flex:0 0 96px;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 4px;border-radius:11px;border:1px solid var(--line2);background:var(--panel2,#111a2c);color:var(--ink);font:inherit;text-align:center}
+.fo-site b{font-size:11px;line-height:1.2}
+.fo-site small{font-size:10px;color:var(--ink3)}
+.fo-site.here{border-color:var(--st);box-shadow:0 0 0 1px var(--st) inset,0 0 12px color-mix(in srgb,var(--st) 40%,transparent)}
+.fo-site.reach{border-style:dashed;border-color:var(--st)}
+.fo-site.locked{opacity:.45}
+.fo-sart{position:relative;width:54px;height:40px;border-radius:7px;overflow:hidden;background:#0b0f1a;display:grid;place-items:center}
+.fo-sart.big{width:100%;height:90px}
+.fo-sart i{position:absolute;left:0;right:0;height:34%;background:var(--st);opacity:.35}
+.fo-sart i:nth-child(1){top:33%;opacity:.25}.fo-sart i:nth-child(2){top:58%;opacity:.4}.fo-sart i:nth-child(3){top:82%;opacity:.6}
+.fo-sart b{position:relative;color:#fff;font-size:18px;text-shadow:0 0 8px var(--st)}
+.fo-sart.big b{font-size:34px}
+.fo-site.locked .fo-sart b{opacity:.3}
+.fo-sitehero{margin-top:4px}
+.dg-tool{display:flex;flex-direction:column;align-items:center;gap:2px}
+.dg-tool .tool-art{margin-bottom:2px}
+.dg-oreh{font-size:11px;color:var(--ink3);font-weight:400}
+.mo-html svg{width:96px;height:96px}
 
 </style>
 <link rel="manifest" href="manifest.webmanifest">
@@ -7408,91 +7498,87 @@ function fleeChance(){
   return clamp(0.04 + ENC.attempts * 0.06 + ENC.rar * 0.028, 0, 0.60);
 }
 
-/* --- visée : mini-jeu d'adresse ---
-   Principe repris de la v1 : uniquement du bonus, jamais de malus.
-   Rater la secteur rend exactement la chance nominale, viser juste la majore
-   jusqu'a x1.25. Le geste devient actif sans punir le joueur pressé. */
+/* --- la visée : une barre, un curseur, un toucher ---
+   On touche LANCER : un curseur part de gauche a droite et revient, d'autant
+   plus vite que le Pokemon est rare. On touche de nouveau pour l'arreter.
+   Au centre de la cible, +25 % ; puis +15 %, +7 % ; a cote, rien de plus.
+   Jamais de malus : viser ne fait que gagner. */
 let AIM = null;
 function skillEnabled(){ return S && S.settings && S.settings.skill !== false; }
+/* la visee a chaque lancer, sauf la Master Ball (capture assuree) et MissingNo */
 function aimNeeded(){
-  if(!skillEnabled() || !ENC || ENC.missing || busy) return false;
-  if(selBall() === "master") return false;
-  return catchChance(selBall()) < 0.95;      /* inutile quand la prise est acquise */
-}
-function startAim(){
-  if(AIM) return;
-  const w = 30 - Math.min(16, ENC.rar * 4);              /* secteur plus etroite si rare */
-  const lo = 18 + rng() * (78 - w);
-  AIM = {pos: 0, dir: 1, speed: 1.15 + ENC.rar * 0.32, zone: [lo, lo + w], timer: null, best: 1};
-  refresh();
-  AIM.timer = setInterval(()=>{
-    if(!AIM) return;
-    AIM.pos += AIM.dir * AIM.speed;
-    if(AIM.pos >= 100){ AIM.pos = 100; AIM.dir = -1; }
-    if(AIM.pos <= 0){ AIM.pos = 0; AIM.dir = 1; }
-    const c = document.getElementById("aim-cursor");
-    if(!c){ stopAim(); return; }
-    c.style.left = AIM.pos + "%";
-    const inZone = AIM.pos >= AIM.zone[0] && AIM.pos <= AIM.zone[1];
-    c.classList.toggle("hot", inZone);
-  }, 16);
-}
-function stopAim(){ if(AIM){ clearInterval(AIM.timer); AIM = null; } }
-function aimBonus(pos, zone){
-  if(pos < zone[0] || pos > zone[1]) return 1;
-  const center = (zone[0] + zone[1]) / 2, half = (zone[1] - zone[0]) / 2;
-  return 1 + (1 - Math.abs(pos - center) / half) * 0.25;
-}
-function lockAim(){
-  if(!AIM) return;
-  const bonus = aimBonus(AIM.pos, AIM.zone);
-  const perfect = bonus >= 1.22;
-  stopAim();
-  if(bonus > 1){
-    S.stats.skill = (S.stats.skill||0) + 1;
-    if(perfect){
-      S.stats.perfect = (S.stats.perfect||0) + 1;
-      Sfx.shiny(); buzz([15,30,15]);
-      toast("Verrouillage parfait — ×" + bonus.toFixed(2), "warn", "star");
-    } else {
-      Sfx.wobble(); buzz(12);
-      toast("Verrouillage ×" + bonus.toFixed(2), "", "check");
-    }
-  }
-  refresh();
-  throwBall(selBall(), bonus);
-}
-
-/* --- le cercle de lancer (facon Pokemon GO) ---
-   Un cercle colore retrecit en boucle autour du Pokemon ; sa couleur dit la
-   difficulte. On lance d'un seul toucher : plus le cercle est petit a cet
-   instant, plus le bonus est grand. Principe inchange : jamais de malus. */
-const RING_GRADES = [
-  {max:0.36, n:"Excellent", mul:1.35, c:"#ffd24a"},
-  {max:0.62, n:"Super",     mul:1.20, c:"#35f0d6"},
-  {max:0.88, n:"Bien",      mul:1.08, c:"#5ce07a"}
-];
-/* present a chaque lancer : meme quand la prise est quasi acquise, un
-   « Excellent » compte pour la quete du jour et les succes. Seules la Master
-   Ball (capture assuree) et MissingNo s'en passent. */
-function ringActive(){
   if(!skillEnabled() || !ENC || ENC.missing || busy) return false;
   return selBall() !== "master";
 }
-function ringPeriod(){ return Math.max(0.9, 1.6 - (ENC ? ENC.rar : 0) * 0.14); }
-function ringScale(){
-  if(!ENC) return 1;
-  if(!ENC.ringT0) ENC.ringT0 = (typeof performance !== "undefined" ? performance.now() : Date.now());
-  const P = ringPeriod() * 1000, now = (typeof performance !== "undefined" ? performance.now() : Date.now());
-  return 1 - (((now - ENC.ringT0) % P) / P) * 0.8;
+function ringActive(){ return aimNeeded(); }
+/* les paliers : distance au centre de la cible, de 0 (centre) a 1 (bord) */
+const RING_GRADES = [
+  {max:0.2, n:"Excellent", mul:1.25, c:"#ffd24a"},
+  {max:0.5, n:"Super",     mul:1.15, c:"#35f0d6"},
+  {max:1.0, n:"Bien",      mul:1.07, c:"#5ce07a"}
+];
+function ringGrade(d){ for(const g of RING_GRADES) if(d <= g.max) return g; return null; }
+function aimGrade(pos, zone){
+  if(pos < zone[0] || pos > zone[1]) return null;
+  const center = (zone[0] + zone[1]) / 2, half = (zone[1] - zone[0]) / 2;
+  return ringGrade(Math.abs(pos - center) / half);
 }
-function ringColor(c){ return c >= 0.6 ? "#5ce07a" : c >= 0.3 ? "#ffe45e" : c >= 0.15 ? "#ffb35c" : "#ff5c5c"; }
-function ringGrade(scale){ for(const g of RING_GRADES) if(scale <= g.max) return g; return null; }
-function ringHtml(){
-  if(!ringActive()) return "";
-  const P = ringPeriod(), sc = ringScale(), phase = (1 - sc) / 0.8 * P;
-  return `<div class="throw-ring" style="--rc:${ringColor(catchChance(selBall()))};--rp:${P.toFixed(2)}s">
-    <b class="tr-target"></b><i style="animation-delay:-${phase.toFixed(3)}s"></i></div>`;
+function aimBonus(pos, zone){ const g = aimGrade(pos, zone); return g ? g.mul : 1; }
+function aimSpeed(){ return 70 + (ENC ? ENC.rar : 0) * 32; }          /* % de barre par seconde */
+function startAim(){
+  if(AIM) return;
+  const w = Math.max(16, 34 - (ENC ? ENC.rar : 0) * 4);                 /* cible plus etroite si rare */
+  const lo = 12 + rng() * (76 - w);
+  AIM = {pos:0, dir:1, zone:[lo, lo + w], t:0, raf:0};
+  refresh();
+  const loop = now => {
+    if(!AIM) return;
+    const dt = AIM.t ? Math.min(50, now - AIM.t) : 0; AIM.t = now;
+    AIM.pos += AIM.dir * aimSpeed() * dt / 1000;
+    if(AIM.pos >= 100){ AIM.pos = 100 - (AIM.pos - 100); AIM.dir = -1; }
+    if(AIM.pos <= 0){ AIM.pos = -AIM.pos; AIM.dir = 1; }
+    const c = document.getElementById("aim-cursor");
+    if(c){ c.style.left = AIM.pos + "%"; c.classList.toggle("hot", !!aimGrade(AIM.pos, AIM.zone)); }
+    AIM.raf = requestAnimationFrame(loop);
+  };
+  AIM.raf = requestAnimationFrame(loop);
+}
+function stopAim(){ if(AIM){ cancelAnimationFrame(AIM.raf); AIM = null; } }
+function lockAim(){
+  if(!AIM) return;
+  const pos = AIM.pos, zone = AIM.zone;
+  const g = aimGrade(pos, zone);
+  stopAim();
+  if(g){
+    S.stats.skill = (S.stats.skill || 0) + 1;
+    if(g.n === "Excellent"){
+      S.stats.excellent = (S.stats.excellent || 0) + 1;
+      S.stats.perfect = (S.stats.perfect || 0) + 1;
+      S.daily.dayExcellent = (S.daily.dayExcellent || 0) + 1;
+      questTick("dayExcellent", 1);
+    }
+  }
+  refresh();
+  aimFreeze(pos, zone, g);
+  if(g) ringPop(g); else { try { Sfx.click(); } catch(e){} }
+  throwBall(selBall(), g ? g.mul : 1);
+}
+/* la barre reste un instant figee la ou on l'a arretee : on voit ce qu'on a fait */
+function aimFreeze(pos, zone, g){
+  const host = document.getElementById("aim-slot"); if(!host) return;
+  host.innerHTML = aimBarHtml({pos, zone}, true, g);
+  setTimeout(()=>{ const h = document.getElementById("aim-slot"); if(h && !AIM) h.innerHTML = ""; }, 900);
+}
+function aimBarHtml(A, frozen, g){
+  const [lo, hi] = A.zone, mid = (lo + hi) / 2, half = (hi - lo) / 2;
+  const band = k => `left:${mid - half * k}%;width:${half * 2 * k}%`;
+  return `<div class="aimbar ${frozen ? "frozen" : ""}">
+      <div class="aim-z z1" style="${band(1)}"></div>
+      <div class="aim-z z2" style="${band(0.5)}"></div>
+      <div class="aim-z z3" style="${band(0.2)}"></div>
+      <div class="aim-cursor ${g ? "hot" : ""}" id="${frozen ? "aim-frozen" : "aim-cursor"}" style="left:${A.pos}%"></div>
+      ${frozen ? `<span class="aim-res" style="color:${g ? g.c : "#9fb0c8"}">${g ? `${g.n} +${Math.round((g.mul - 1) * 100)} %` : "À côté — +0 %"}</span>` : ""}
+    </div>`;
 }
 function ringPop(g){
   const st = document.getElementById("enc-stage");
@@ -7976,14 +8062,11 @@ SCREENS.capture = {
         </button>`;}).join("")}
     </div>
 
-    ${AIM ? `<div class="aimbar">
-        <div class="aim-zone" style="left:${AIM.zone[0]}%;width:${AIM.zone[1]-AIM.zone[0]}%"></div>
-        <div class="aim-cursor" id="aim-cursor" style="left:${AIM.pos}%"></div>
-      </div>` : ""}
+    <div id="aim-slot">${AIM ? aimBarHtml(AIM) : ""}</div>
 
     <button class="throwbtn ${AIM?"locking":""}" data-act="throwsel"
       ${(!ENC||busy||stock<=0)?"disabled":""} style="margin-bottom:9px">
-      ${AIM ? "VERROUILLER"
+      ${AIM ? "STOP !"
         : ENC ? (stock<=0 ? "STOCK ÉPUISÉ"
           : ENC.missing ? "ANALYSER LA FAILLE"
           : `LANCER — ${Math.round(chance*100)}%`) : "ANALYSE EN COURS"}
@@ -8067,7 +8150,7 @@ SCREENS.capture = {
         ${ENC.featured?'<span class="tt" style="color:var(--cyan);border-color:var(--cyan)">VEDETTE</span>':""}
         ${isNew?'<span class="tt" style="color:var(--green);border-color:var(--green)">INÉDIT</span>':""}
       </div>
-      <div id="enc-sprite">${sprite(ENC.id, ENC.shiny, "", {anim:true, eager:true})}${ringHtml()}</div>
+      <div id="enc-sprite">${sprite(ENC.id, ENC.shiny, "", {anim:true, eager:true})}</div>
       <div class="enc-foot">
         <span class="tiny dim">${ENC.attempts?`essais ${ENC.attempts}`:"intacte"}</span>
         <span class="tiny"><b>Niv.${ENC.level}</b></span>
@@ -8091,22 +8174,10 @@ SCREENS.capture = {
 };
 ACTIONS.pickball = d => { S.selBall = d.b; saveSoon(); refresh(); };
 ACTIONS.throwsel = () => {
-  if(AIM) stopAim();
-  let bonus = 1;
-  if(ringActive()){
-    const g = ringGrade(ringScale());
-    if(g){
-      bonus = g.mul;
-      S.stats.skill = (S.stats.skill || 0) + 1;
-      if(g.n === "Excellent"){
-        S.stats.excellent = (S.stats.excellent || 0) + 1;
-        S.daily.dayExcellent = (S.daily.dayExcellent || 0) + 1;
-        questTick("dayExcellent", 1);
-      }
-      ringPop(g);
-    }
-  }
-  throwBall(selBall(), bonus);
+  /* premier toucher : le curseur part ; second toucher : il s'arrete, et la Ball part */
+  if(AIM){ lockAim(); return; }
+  if(aimNeeded()){ startAim(); return; }
+  throwBall(selBall(), 1);
 };
 ACTIONS.aimlock = () => lockAim();
 ACTIONS.regioninfo = d => {
@@ -9839,7 +9910,7 @@ function momentShow(m){
   if(!box || !box.style) return;
   MOMENT_ON = m;
   const c = m.c || "#35f0d6";
-  const art = m.spr ? `<span class="mo-spr">${sprite(m.spr, !!m.shiny, "", {anim:true, eager:true})}</span>`
+  const art = m.html ? `<span class="mo-item mo-html">${m.html}</span>` : m.spr ? `<span class="mo-spr">${sprite(m.spr, !!m.shiny, "", {anim:true, eager:true})}</span>`
     : m.item ? `<span class="mo-item">${itemIcon(m.item, 64) || ic(m.icon || "star")}</span>`
     : m.icon ? `<span class="mo-ic">${ic(m.icon)}</span>` : "";
   const band = m.kind === "depth" ? `<div class="mo-bands">${(m.band || [c, c, c]).concat(m.band || []).map((b, i)=>`<i style="background:${b};--i:${i}"></i>`).join("")}</div>` : "";
@@ -10005,6 +10076,12 @@ function forage(){
   f.crew = f.crew || []; f.up = f.up || {}; f.slots = f.slots || FOR_START_SLOTS;
   f.walls = f.walls || 0; f.wallAt = f.wallAt || 0; f.wallsDone = f.wallsDone || 0;
   f.maxM = Math.max(f.maxM || 0, f.m);
+  /* la forge : les anciennes ameliorations « pioche » et « etais » deviennent des outils forges */
+  if(!f.tools){
+    f.tools = {pick:Math.min(5, f.up.pick || 0), hammer:0, drill:0, prop:Math.min(5, f.up.prop || 0)};
+    delete f.up.pick; delete f.up.prop;
+  }
+  f.ore = f.ore || {}; f.oreAt = f.oreAt || 0; f.site = f.site || "main";
   f.depth = stratumIdx(f.m);          /* compatibilite : l'indice de la strate */
   return f;
 }
@@ -10014,8 +10091,9 @@ function nextStratum(){ return STRATA[stratumIdx(forage().m) + 1] || null; }
 /* au-dela du Noyau, la durete continue de croitre : la descente ne finit jamais */
 function stratumHard(m){
   const i = stratumIdx(m), s = STRATA[i];
-  if(i < STRATA.length - 1) return s.hard;
-  return s.hard * (1 + (m - s.need) / 8000);
+  const k = typeof siteHard === "function" ? siteHard() : 1;
+  if(i < STRATA.length - 1) return s.hard * k;
+  return s.hard * k * (1 + (m - s.need) / 8000);
 }
 /* compatibilite avec les anciens appels */
 function unlocked(k){ return true; }
@@ -10024,7 +10102,8 @@ function unlocked(k){ return true; }
 function digAff(id, si){
   const p = POKE[id], s = STRATA[si];
   if(!p) return 1;
-  if(p.types.some(t=>s.good.includes(t))) return 2;
+  const sg = typeof forSite === "function" ? forSite().good : [];
+  if(p.types.some(t=>s.good.includes(t) || sg.includes(t))) return 2;
   if(p.types.some(t=>s.bad.includes(t))) return 0.5;
   return 1;
 }
@@ -10038,7 +10117,8 @@ function crewIds(){ const f = forage(); return f.crew.filter(id=>S.dex[id] && PO
 function crewPower(si){
   if(si === undefined) si = forage().depth;
   const f = forage();
-  return crewIds().reduce((a, id)=>a + digPower(id, si), 0) * (1 + f.echoes * 0.03) * (1 + forUpLv("drill") * 0.15);
+  return crewIds().reduce((a, id)=>a + digPower(id, si), 0) * (1 + f.echoes * 0.03) * (1 + forUpLv("drill") * 0.15)
+    * (typeof toolDrillMul === "function" ? toolDrillMul() : 1);
 }
 /* metres par seconde a la profondeur m */
 function digRate(m){
@@ -10047,7 +10127,7 @@ function digRate(m){
   return crewPower(stratumIdx(m)) / stratumHard(m);
 }
 /* Energie par metre : chaque strate vaut davantage */
-function energyPerM(si){ return 6 * Math.pow(1.9, si); }
+function energyPerM(si){ return 6 * Math.pow(1.9, si) * (typeof siteHard === "function" ? Math.pow(siteHard(), 0.85) : 1); }
 function forageRate(){ const f = forage(); return digRate() * energyPerM(f.depth); }
 /* une paroi toutes les sept minutes de forage : au metre, les strates profondes n'en
    donnaient presque plus ; au temps, il y a toujours une raison de revenir, et plus
@@ -10063,17 +10143,13 @@ function drillCount(){ return crewIds().length; }
 const FOR_UPS = {
   slot:  {n:"Une place de plus dans l'équipe", max:FOR_SLOTS_MAX - FOR_START_SLOTS, cost:l=>[1500, 25000, 400000][l],
           d:l=>`${FOR_START_SLOTS + l} Pokémon`},
-  drill: {n:"Creuser plus vite",       max:8, cost:l=>Math.round(800 * Math.pow(3.2, l)),
+  drill: {n:"Creuser plus vite",       max:12, cost:l=>Math.round(800 * Math.pow(3.2, l)),
           d:l=>`+${15 * l} %`},
   cart:  {n:"Plus de fouilles en attente", max:5, cost:l=>Math.round(3000 * Math.pow(3.5, l)),
           d:l=>`${3 + l} fouilles, ${8 + 2 * l} h hors ligne`},
-  prop:  {n:"Fouilles plus solides",   max:5, cost:l=>Math.round(600 * Math.pow(3, l)),
-          d:l=>`${40 + 8 * l} coups avant l'effondrement`},
-  pick:  {n:"Meilleure pioche",        max:3, cost:l=>Math.round(2500 * Math.pow(6, l)),
-          d:l=>["pioche normale", "frappe plus fort", "frappe aussi en diagonale", "frappe presque comme un marteau"][l]},
   radar: {n:"Détecteur d'objets",      max:3, cost:l=>Math.round(5000 * Math.pow(5, l)),
           d:l=>["aucun indice", "un point brille sur chaque objet", "on devine la forme des gros objets", "les objets rares scintillent"][l]},
-  lamp:  {n:"Plus d'objets rares",     max:4, cost:l=>Math.round(9000 * Math.pow(4, l)),
+  lamp:  {n:"Plus d'objets rares",     max:6, cost:l=>Math.round(9000 * Math.pow(4, l)),
           d:l=>`×${(1 + 0.3 * l).toFixed(1).replace(".", ",")}`}
 };
 function forUpLv(k){ return (forage().up || {})[k] || 0; }
@@ -10106,6 +10182,16 @@ function forageAdvance(sec){
       f.wallAt -= every;
       if(f.walls < wallCap()){ f.walls++; out.w++; }
     }
+    /* le minerai : celui de la couche, parfois celui du chantier */
+    if(typeof oreGain === "function"){
+      f.oreAt += t;
+      while(f.oreAt >= ORE_SECS){
+        f.oreAt -= ORE_SECS;
+        const so = forSite().ore;
+        const o = so && rng() < 0.3 ? so : oreOf(si);
+        oreGain(o, 1); out.ore = out.ore || {}; out.ore[o] = (out.ore[o] || 0) + 1;
+      }
+    }
     if(nx && f.m >= nx.need - 1e-6){ f.m = nx.need; out.strata.push(si + 1); }
   }
   f.maxM = Math.max(f.maxM, f.m);
@@ -10135,6 +10221,7 @@ function forageTick(dt){
 }
 function forStratumReached(si){
   const s = STRATA[si];
+  if(typeof forSitesCheck === "function") forSitesCheck();
   if(typeof momentStratum === "function") momentStratum(si);
   else toast(`Forage : ${s.n} atteinte — ${s.mat}`, "warn", "bolt");
   if(si === 2 && !S.flags.firstFossil){ S.flags.firstFossil = true; forage().walls = Math.min(wallCap(), forage().walls + 1); }
@@ -10183,7 +10270,10 @@ function forHoenn(){ return typeof regionUnlocked === "function" && regionUnlock
 /* qui dort dans la roche : les types de la strate, des secteurs ouverts, jamais un legendaire */
 const DIG_MON_TYPES = [[5, 6], [5, 11, 4], [6, 5, 2], [15, 11], [6, 9, 5], [10, 6, 5], [9, 14, 13], [8, 17, 4], [14, 16, 8]];
 function digMonFor(si, rnd){
-  const T = DIG_MON_TYPES[Math.min(si, DIG_MON_TYPES.length - 1)], pool = [];
+  const site = typeof forSite === "function" ? forSite() : {};
+  /* aux Ruines, les Zarbi dorment dans les murs */
+  if(site.zarbi && rnd() < 0.35 && unlockedRegions().some(r=>201 >= r.from && 201 <= r.to)) return 201;
+  const T = site.mons || DIG_MON_TYPES[Math.min(si, DIG_MON_TYPES.length - 1)], pool = [];
   for(const r of unlockedRegions()) for(let i = r.from; i <= r.to; i++){
     const p = POKE[i];
     if(!p || p.leg || isExclusive(i) || p.bst > 300 + si * 40) continue;
@@ -10214,7 +10304,8 @@ function genWall(si, rnd){
   const occ = new Array(W * H).fill(-1);
   const items = [];
   const lamp = 1 + 0.3 * forUpLv("lamp");
-  const table = DIG_LOOT.map(l=>[l, l.wt(si) * (l.rare ? lamp : 1)]).filter(x=>x[1] > 0);
+  const sl = typeof forSite === "function" ? forSite().loot : {};
+  const table = DIG_LOOT.map(l=>[l, l.wt(si) * (l.rare ? lamp : 1) * (sl[l.k] || 1)]).filter(x=>x[1] > 0);
   const tot = table.reduce((a, x)=>a + x[1], 0);
   const n = 2 + Math.floor(rnd() * 3) + (si >= 5 && rnd() < 0.4 ? 1 : 0);
   let tries = 0;
@@ -10239,6 +10330,20 @@ function genWall(si, rnd){
     cells.forEach(c=>{ occ[c] = items.length; });
     items.push(it);
   }
+  /* le minerai : de petites pepites, une case chacune ; celles de la couche
+     surtout, parfois une plus ancienne. Elles ne comptent pas pour « tout degager ». */
+  if(typeof oreOf === "function"){
+    const oi = ORE_IDS.indexOf(oreOf(si)), so = forSite().ore;
+    const nOre = 3 + Math.floor(rnd() * 3);
+    for(let k = 0, t = 0; k < nOre && t < 80; t++){
+      const x0 = Math.floor(rnd() * W), y0 = Math.floor(rnd() * H), c = y0 * W + x0;
+      if(occ[c] !== -1) continue;
+      const r = rnd();
+      const ore = so && r < 0.25 ? so : r < 0.75 ? ORE_IDS[oi] : ORE_IDS[Math.floor(rnd() * (oi + 1))];
+      const it = {k:"ore", ore, x:x0, y:y0, w:1, h:1, found:false, small:true, n:1 + (rnd() < 0.3 ? 1 : 0), cells:[c]};
+      occ[c] = items.length; items.push(it); k++;
+    }
+  }
   /* le fer : indestructible ; il protege ce qu'il couvre */
   const iron = [];
   const nIron = 1 + Math.floor(rnd() * 3);
@@ -10251,29 +10356,33 @@ function genWall(si, rnd){
     cells.forEach(c=>{ occ[c] = -2; L[c] = 99; });
     iron.push(cells); k++;
   }
-  const max = 40 + 8 * forUpLv("prop");
+  const max = 40 + 8 * (typeof toolTier === "function" ? toolTier("prop") : 0);
   return {si, W, H, L, items, iron, occ, stab:max, max, hits:0, over:false, collapsed:false};
 }
 /* un coup : pioche ("pick") ou marteau ("hammer") en (x, y) */
 function digHit(wall, tool, x, y){
   if(wall.over) return null;
-  const W = wall.W, H = wall.H, pl = forUpLv("pick");
+  const W = wall.W, H = wall.H;
   const hits = [];
-  const add = (dx, dy, n) => { const X = x + dx, Y = y + dy; if(X >= 0 && Y >= 0 && X < W && Y < H) hits.push([Y * W + X, n]); };
+  const add = (dx, dy, n) => { const X = x + dx, Y = y + dy; if(n > 0 && X >= 0 && Y >= 0 && X < W && Y < H) hits.push([Y * W + X, n]); };
+  const ORTH = [[1,0],[-1,0],[0,1],[0,-1]], DIAG = [[1,1],[1,-1],[-1,1],[-1,-1]];
+  let cost = 1;
   if(tool === "hammer"){
-    add(0, 0, 2); [[1,0],[-1,0],[0,1],[0,-1]].forEach(([a, b])=>add(a, b, 2)); [[1,1],[1,-1],[-1,1],[-1,-1]].forEach(([a, b])=>add(a, b, 1));
+    const T = HAMMER_T[toolTier("hammer")];
+    add(0, 0, T.c); ORTH.forEach(([a, b])=>add(a, b, T.a)); DIAG.forEach(([a, b])=>add(a, b, T.d));
+    if(T.ring) [[2,0],[-2,0],[0,2],[0,-2]].forEach(([a, b])=>add(a, b, 1));
+    cost = T.cost;
   } else {
-    add(0, 0, pl >= 1 ? 3 : 2); [[1,0],[-1,0],[0,1],[0,-1]].forEach(([a, b])=>add(a, b, pl >= 3 ? 2 : 1));
-    if(pl >= 2) [[1,1],[1,-1],[-1,1],[-1,-1]].forEach(([a, b])=>add(a, b, 1));
+    const [c, a, d] = PICK_T[toolTier("pick")];
+    add(0, 0, c); ORTH.forEach(([p, q])=>add(p, q, a)); DIAG.forEach(([p, q])=>add(p, q, d));
   }
   const ironHit = wall.occ[y * W + x] === -2;
   for(const [c, n] of hits) if(wall.L[c] < 99) wall.L[c] = Math.max(0, wall.L[c] - (ironHit ? 0 : n));
-  const cost = tool === "hammer" ? 2 : 1;
-  wall.stab = Math.max(0, wall.stab - cost);
+  wall.stab = Math.max(0, +(wall.stab - cost).toFixed(2));
   wall.hits++;
   const fresh = [];
   for(const it of wall.items) if(!it.found && it.cells.every(c=>wall.L[c] === 0)){ it.found = true; fresh.push(it); }
-  const all = wall.items.every(it=>it.found);
+  const all = wall.items.every(it=>it.found || it.small);
   if(all || wall.stab <= 0){ wall.over = true; wall.collapsed = !all; }
   return {fresh, iron:ironHit, over:wall.over, collapsed:wall.collapsed};
 }
@@ -10282,6 +10391,13 @@ function digClaim(wall){
   const out = [];
   for(const it of wall.items){
     if(!it.found) continue;
+    if(it.k === "ore"){
+      const o = oreDef(it.ore), fresh = oreGain(it.ore, it.n);
+      const prev = out.find(r=>r.ore === it.ore);
+      if(prev){ prev.g.ore += it.n; prev.label = `${o.n} ×${prev.g.ore}`; }
+      else out.push({it, ore:it.ore, def:{ic:null}, g:{ore:it.n}, label:o.n + (it.n > 1 ? " ×" + it.n : ""), fresh});
+      continue;
+    }
     const def = DIG_LOOT.find(l=>l.k === it.k);
     const g = def.give(wall.si, it);
     const row = {it, def, g, label:def.n};
@@ -10305,7 +10421,7 @@ function digClaim(wall){
     out.push(row);
   }
   const f = forage();
-  f.found += out.length; f.wallsDone++;
+  f.found += out.filter(r=>!r.ore).length; f.wallsDone++;
   S.stats.walls = (S.stats.walls || 0) + 1;
   saveSoon();
   return out;
@@ -10344,10 +10460,10 @@ SCREENS.idle = {
         <div><b>3</b><span>Tu les dégages pour gagner des objets.</span></div>
       </div>` : ""}
 
-      <div class="fo-shaft" id="fo-shaft" style="--sc:${st.c}">
+      <div class="fo-shaft" id="fo-shaft" style="--sc:${st.c};--st:${forSite().tint || "transparent"}">
         <canvas id="fo-cv"></canvas>
         <div class="fo-hud">
-          <div><b>${esc(st.n)}</b><small>${fmt(Math.floor(f.m))} m de profondeur</small></div>
+          <div><b>${esc(st.n)}</b><small>${(f.site || "main") !== "main" ? esc(forSite().n) + " · " : ""}${fmt(Math.floor(f.m))} m de profondeur</small></div>
           <div class="fo-rate"><b id="fo-rate">${forFmtRate(rate)}</b><small>m / s</small></div>
         </div>
         ${nx ? `<div class="fo-next"><i style="width:${Math.min(100, (f.m - st.need) / (nx.need - st.need) * 100).toFixed(1)}%"></i>
@@ -10378,6 +10494,10 @@ SCREENS.idle = {
           ${a !== 1 ? `<i class="fo-aff ${a > 1 ? "up" : "dn"}">${a > 1 ? "rapide" : "lent"}</i>` : ""}</button>`; }).join("")}</div>
       <div class="tiny dim" style="margin-top:4px">Touche un Pokémon pour le remplacer. Plus son niveau est haut, plus il creuse vite.</div>
 
+      <div class="row between" style="margin:16px 0 6px"><div class="h sm" style="margin:0">LA FORGE</div>
+        <span class="pill">${ic("bolt")} ${fmt(Math.floor(f.energy))}</span></div>
+      ${forForgeHtml()}
+
       <div class="row between" style="margin:16px 0 6px"><div class="h sm" style="margin:0">AMÉLIORER</div>
         <span class="pill">${ic("bolt")} <b id="fo-energy">${fmt(Math.floor(f.energy))}</b> Énergie</span></div>
       <div class="tiny dim" style="margin:-2px 0 6px">L'Énergie se gagne toute seule en creusant : plus c'est profond, plus elle monte vite.</div>
@@ -10388,6 +10508,11 @@ SCREENS.idle = {
             <div class="d">${maxed ? `${esc(u.d(lv))} · au maximum` : `${esc(u.d(lv))} <span class="fo-arr">→</span> <b>${esc(u.d(lv + 1))}</b>`}</div></div>
           ${maxed ? `<span class="tiny cy">max</span>` : `<button class="btn sm ${f.energy >= c ? "gold" : ""}" data-act="foup" data-k="${k}" ${f.energy >= c ? "" : "disabled"}>${ic("bolt")} ${fmt(c)}</button>`}
         </div>`; }).join("")}</div>
+
+      <div class="row between" style="margin:16px 0 6px"><div class="h sm" style="margin:0">LES CHANTIERS</div>
+        <span class="tiny dim">${FOR_SITES.filter(x=>siteOpen(x.id)).length} / ${FOR_SITES.length} ouverts</span></div>
+      <div class="tiny dim" style="margin:-2px 0 6px">D'autres puits, avec d'autres trésors. Ton équipe creuse dans un seul à la fois.</div>
+      ${forSitesHtml()}
 
       <details class="fo-more">
         <summary>Les couches · ${STRATA.filter(x=>f.maxM >= x.need).length} sur ${STRATA.length} découvertes</summary>
@@ -10517,6 +10642,8 @@ function forShaftDraw(V, dt){
   /* la matiere courante, avec sa texture qui defile vers le haut */
   const scroll = (f.m * 18) % H;
   x.fillStyle = st.pal[0]; x.fillRect(0, top, W, H - top);
+  const tint = typeof forSite === "function" && forSite().tint;
+  if(tint){ x.globalAlpha = 0.18; x.fillStyle = tint; x.fillRect(0, 0, W, H); x.globalAlpha = 1; }
   for(const [rx, ry, r, k] of V.rocks){
     const yy = top + ((ry - scroll + H * 4) % (H - top));
     x.fillStyle = k < 0.5 ? st.pal[1] : st.pal[2]; x.fillRect(rx, yy, r * 2, r * 1.4);
@@ -10533,9 +10660,11 @@ function forShaftDraw(V, dt){
     if(typeof brAnimDraw === "function") ok = brAnimDraw(x, id, "attack", S.dex[id] && S.dex[id].shiny ? "s" : "n", 0, ph, cx, cy, size);
     if(!ok && typeof brPmdDraw === "function") ok = brPmdDraw(x, id, "n", 0, t * 0.6 + i, cx, cy, size);
     if(!ok && typeof brSprite === "function"){ const s = brSprite(id, "n"); if(s) x.drawImage(s, cx - size / 2, cy - size * 0.8, size, size); }
+    if(typeof forCrewTool === "function") forCrewTool(x, cx, cy, size, ph);
     /* des eclats de matiere, au rythme des coups */
     if(Math.random() < dt / 160) for(let k = 0; k < 3; k++) V.parts.push({x:cx + (Math.random() - 0.5) * 20, y:cy + 6, vx:(Math.random() - 0.5) * 0.12, vy:-0.08 - Math.random() * 0.12, life:0, max:500 + Math.random() * 400, c:st.pal[Math.floor(Math.random() * 3)]});
   });
+  if(typeof forShaftDecor === "function") forShaftDecor(x, V, W, H, top);
   if(!crew.length){ x.fillStyle = "rgba(0,0,0,.45)"; x.fillRect(0, top, W, H - top); x.fillStyle = "#e8f0ff"; x.font = '9px "Press Start 2P",monospace'; x.textAlign = "center"; x.fillText("AJOUTE UN POKÉMON", W / 2, H / 2 + 20); }
   for(let i = V.parts.length - 1; i >= 0; i--){
     const p = V.parts[i]; p.life += dt; if(p.life > p.max){ V.parts.splice(i, 1); continue; }
@@ -10560,17 +10689,17 @@ function digHtml(){
   return `<div class="dg" style="--sc:${st.c}">
     <div class="dg-head">
       <button class="sw-back" data-act="fowallquit">${ic("arrow")}</button>
-      <div class="grow"><small>FOUILLE · ${esc(st.n.toUpperCase())}</small><b>${DIG.items.length} objets cachés</b></div>
-      <span class="dg-found" id="dg-found">0 / ${DIG.items.length}</span>
+      <div class="grow"><small>FOUILLE · ${esc(st.n.toUpperCase())}</small><b>${digBig().length} objets cachés <span class="dg-oreh">+ ${DIG.items.length - digBig().length} pépites</span></b></div>
+      <span class="dg-found" id="dg-found">0 / ${digBig().length}</span>
     </div>
     <div class="dg-stab"><i id="dg-stab" style="width:100%"></i><span>Solidité</span></div>
     <div class="dg-wrap" id="dg-wrap"><canvas id="dg-cv"></canvas></div>
     <div class="dg-tools">
-      <button class="dg-tool ${DIG_TOOL === "pick" ? "on" : ""}" data-act="fotool" data-t="pick"><b>⛏</b><span>Pioche</span><small>petite zone · abîme peu</small></button>
-      <button class="dg-tool ${DIG_TOOL === "hammer" ? "on" : ""}" data-act="fotool" data-t="hammer"><b>🔨</b><span>Marteau</span><small>grande zone · abîme 2× plus</small></button>
+      <button class="dg-tool tt${toolTier("pick")} ${DIG_TOOL === "pick" ? "on" : ""}" data-act="fotool" data-t="pick">${toolSvg("pick", toolTier("pick"), 34)}<span>${esc(toolName("pick"))}</span><small>petite zone · abîme peu</small></button>
+      <button class="dg-tool tt${toolTier("hammer")} ${DIG_TOOL === "hammer" ? "on" : ""}" data-act="fotool" data-t="hammer">${toolSvg("hammer", toolTier("hammer"), 34)}<span>${esc(toolName("hammer"))}</span><small>grande zone · abîme plus</small></button>
     </div>
     <div class="tiny dim" style="text-align:center;margin-top:6px;line-height:1.6">Touche la roche pour creuser. Dégage <b>entièrement</b> un objet pour le gagner.<br>
-      À chaque coup, la solidité baisse : à zéro, tout s'effondre. Le métal gris ne casse jamais.</div>
+      Les <b>pépites</b> de minerai sont en bonus. À chaque coup, la solidité baisse : à zéro, tout s'effondre. Le métal gris ne casse jamais.</div>
     <div class="dg-res" id="dg-res"></div>
   </div>`;
 }
@@ -10617,12 +10746,14 @@ function digAfter(){
   requestAnimationFrame(loop);
   digHud();
 }
+function digBig(){ return DIG ? DIG.items.filter(i=>!i.small) : []; }
 function digTap(X, Y){
   if(!DIG || DIG.over) return;
   const r = digHit(DIG, DIG_TOOL, X, Y);
   if(!r) return;
   const V = DIG.view, cell = V.cell, st = STRATA[DIG.si];
   V.shake = DIG_TOOL === "hammer" ? 7 : 4;
+  V.swing = {x:(X + 0.5) * cell, y:(Y + 0.5) * cell, t:V.t, tool:DIG_TOOL};
   for(let k = 0; k < (DIG_TOOL === "hammer" ? 14 : 8); k++)
     V.sparks.push({x:(X + 0.5) * cell, y:(Y + 0.5) * cell, vx:(Math.random() - 0.5) * 0.4, vy:-Math.random() * 0.35, life:0, max:420, c:r.iron ? "#e8eef8" : st.pal[Math.floor(Math.random() * 3)], s:2 + Math.random() * 3});
   if(r.iron){ if(typeof arTone === "function") arTone(1400, .08, "square", .03, 900); buzz(4); }
@@ -10632,6 +10763,7 @@ function digTap(X, Y){
     const cx = (it.x + it.w / 2) * cell, cy = (it.y + it.h / 2) * cell;
     for(let k = 0; k < 26; k++) V.sparks.push({x:cx, y:cy, vx:(Math.random() - 0.5) * 0.5, vy:(Math.random() - 0.5) * 0.5, life:0, max:700, c:k % 2 ? "#ffd84a" : "#ffffff", s:2 + Math.random() * 2});
     try { Sfx.coin(); } catch(e){}
+    if(it.k === "ore"){ const o = oreDef(it.ore); for(let k = 0; k < 10; k++) V.sparks.push({x:cx, y:cy, vx:(Math.random() - 0.5) * 0.35, vy:-Math.random() * 0.4, life:0, max:600, c:o.pal[k % 3], s:2 + Math.random() * 2}); continue; }
     const def = DIG_LOOT.find(l=>l.k === it.k);
     if(def.k !== "page") toast(def.k === "mon" ? `${POKE[it.mon].name} dormait dans la roche !` : `${def.n} !`, "warn", "star");
     /* une page des onze : on la trouve a l'instant ou elle est degagee */
@@ -10652,7 +10784,7 @@ function digTap(X, Y){
 function digHud(){
   const s = document.getElementById("dg-stab");
   if(s){ const k = DIG.stab / DIG.max; s.style.width = (k * 100).toFixed(1) + "%"; s.className = k < 0.25 ? "low" : k < 0.5 ? "mid" : ""; }
-  const fo = document.getElementById("dg-found"); if(fo) fo.textContent = `${DIG.items.filter(i=>i.found).length} / ${DIG.items.length}`;
+  const fo = document.getElementById("dg-found"); if(fo) fo.textContent = `${digBig().filter(i=>i.found).length} / ${digBig().length}`;
 }
 function digDraw(dt){
   const V = DIG.view, cv = V.cv, x = cv.getContext("2d"), c = V.cell, st = STRATA[DIG.si];
@@ -10666,6 +10798,13 @@ function digDraw(dt){
     const X = it.x * c, Y = it.y * c, w = it.w * c, h = it.h * c;
     const glow = it.found ? Math.max(0, 1 - (V.t - it.at) / 900) : 0;
     if(glow > 0){ x.fillStyle = `rgba(255,216,74,${0.35 * glow})`; x.fillRect(X - 3, Y - 3, w + 6, h + 6); }
+    if(it.k === "ore"){
+      const o = oreDef(it.ore);
+      x.fillStyle = o.pal[2]; x.fillRect(X + c * 0.15, Y + c * 0.3, c * 0.7, c * 0.5);
+      x.fillStyle = o.pal[1]; x.fillRect(X + c * 0.2, Y + c * 0.2, c * 0.55, c * 0.45);
+      x.fillStyle = o.pal[0]; x.fillRect(X + c * 0.3, Y + c * 0.25, c * 0.18, c * 0.14);
+      continue;
+    }
     if(it.k === "page"){
       x.fillStyle = "#e8d9a8"; x.fillRect(X + 3, Y + 3, w - 6, h - 6);
       x.fillStyle = "#c9b27a"; x.fillRect(X + 3, Y + h - 7, w - 6, 4);
@@ -10699,6 +10838,8 @@ function digDraw(dt){
     if(DIG.hint && DIG.hint.has(i) && Math.sin(V.t / 220 + i) > 0.3){ x.fillStyle = "#ffe9a8"; x.fillRect(X + c / 2 - 1, Y + c / 2 - 1, 3, 3); }
   }
   if(DIG.rare) for(const it of DIG.items){ const def = DIG_LOOT.find(l=>l.k === it.k); if(!it.found && def.rare && Math.sin(V.t / 160 + it.x) > 0.85){ const cc = it.cells[0]; x.fillStyle = "#ffffff"; x.fillRect((cc % WALL_W) * c + c / 2, Math.floor(cc / WALL_W) * c + 3, 2, 2); } }
+  const tint = typeof forSite === "function" && forSite().tint;
+  if(tint){ x.globalAlpha = 0.16; x.fillStyle = tint; x.fillRect(0, 0, WALL_W * c, WALL_H * c); x.globalAlpha = 1; }
   /* la grille, legere */
   x.strokeStyle = "rgba(0,0,0,.12)"; x.lineWidth = 1;
   for(let i = 1; i < WALL_W; i++){ x.beginPath(); x.moveTo(i * c + .5, 0); x.lineTo(i * c + .5, WALL_H * c); x.stroke(); }
@@ -10709,6 +10850,14 @@ function digDraw(dt){
     x.globalAlpha = 1 - p.life / p.max; x.fillStyle = p.c; x.fillRect(p.x, p.y, p.s, p.s);
   }
   x.globalAlpha = 1;
+  /* l'outil qui frappe : on voit sa matiere */
+  if(V.swing && typeof toolCanvas === "function"){
+    const k = (V.t - V.swing.t) / 200;
+    if(k < 1){
+      const tc = toolCanvas(V.swing.tool, toolTier(V.swing.tool));
+      if(tc){ const sz = c * 2.2; x.save(); x.translate(V.swing.x + c * 0.4, V.swing.y - c * 0.2); x.rotate(-0.9 + k * 1.3); x.globalAlpha = 1 - Math.max(0, k - 0.6) * 2.5; x.drawImage(tc, -sz * 0.15, -sz * 0.85, sz, sz); x.restore(); x.globalAlpha = 1; }
+    } else V.swing = null;
+  }
   /* l'effondrement : la roche tombe sur tout */
   if(V.collapse){
     const k = Math.min(1, (V.t - V.collapse) / 650);
@@ -10724,9 +10873,9 @@ function digEnd(left){
   const title = left ? "TU REMONTES" : DIG.collapsed ? "ÇA S'EFFONDRE !" : "TOUT EST DÉGAGÉ !";
   const f = forage();
   el.innerHTML = `<div class="dg-rt ${DIG.collapsed ? "bad" : ""}">${title}</div>
-    <div class="tiny muted" style="margin-bottom:8px">${rows.length ? `${rows.length} objet${rows.length > 1 ? "s" : ""} sur ${DIG.items.length}` : "Rien de dégagé à temps."}</div>
+    <div class="tiny muted" style="margin-bottom:8px">${rows.filter(r=>!r.ore).length ? `${rows.filter(r=>!r.ore).length} objet${rows.filter(r=>!r.ore).length > 1 ? "s" : ""} sur ${digBig().length}` : "Aucun objet dégagé à temps."}</div>
     <div class="dg-loot">${rows.map((r, i)=>`<div class="dg-li" style="--d:${i * 140}ms">
-      ${r.it.k === "mon" ? sprite(r.it.mon, false, "") : itemIcon(r.def.ic, 34)}
+      ${r.ore ? oreSvg(r.ore, 30) : r.it.k === "mon" ? sprite(r.it.mon, false, "") : itemIcon(r.def.ic, 34)}
       <div class="grow"><b>${esc(r.label)}</b><small>${esc(digGainText(r.g))}</small></div></div>`).join("")}</div>
     <div class="dg-rb">
       <button class="btn" data-act="fowallback">Retour au Forage</button>
@@ -10734,9 +10883,16 @@ function digEnd(left){
     </div>`;
   el.classList.add("on");
   if(rows.length) try { Sfx.win(); } catch(e){}
+  /* un minerai jamais vu : on dit a quoi il sert */
+  for(const r of rows) if(r.ore && r.fresh && typeof moment === "function"){
+    const o = oreDef(r.ore), i = ORE_IDS.indexOf(r.ore);
+    moment({kind:"release", c:o.pal[1], html:oreSvg(r.ore, 64), kicker:"NOUVEAU MINERAI", title:o.n,
+      sub:`Il sert à forger des outils ${TOOL_TIERS[i + 1].adj}. Va voir « La Forge », dans le Forage.`});
+  }
   if(typeof checkAchievements === "function") checkAchievements();
 }
 function digGainText(g){
+  if(g.ore) return "Minerai, pour la forge";
   if(g.shards) return `+${g.shards} Fragments`;
   if(g.cores) return `+${g.cores} Noyau${g.cores > 1 ? "x" : ""}`;
   if(g.coins) return `+${fmt(g.coins)} PokéCoins`;
@@ -10884,6 +11040,363 @@ function botPanel(){
         ${maxed?`<span class="tiny cy">max</span>`:`<button class="btn sm ${f.energy>=c?"gold":""}"
           data-act="botup" data-k="${k}" ${f.energy>=c?"":"disabled"}>${ic("bolt")} ${fmt(c)}</button>`}
       </div>`;}).join("")}</div>`;
+}
+
+/* ===== 38b-forge.js ===== */
+/* ============================================================
+   38b — LA FORGE ET LES CHANTIERS
+   En deux jours, un joueur assidu avait tout amélioré. Il manquait
+   trois choses au Forage :
+
+   · Des MINERAIS. Cuivre, Fer, Argent, Or, puis la Rêvite du fond
+     du rêve. Chaque couche a le sien ; l'équipe en remonte en
+     creusant, et les fouilles en cachent dans la roche.
+   · Une FORGE. Les outils ne s'achètent plus avec de l'Énergie
+     seule : on les forge avec du minerai. Six matières, de la
+     pioche en bois à la pioche onirique — et l'outil change de
+     couleur à l'écran, dans la fouille comme dans le puits.
+   · Des CHANTIERS. D'autres puits s'ouvrent quand le premier est
+     assez profond. Chacun repart de zéro, plus dur, avec ses
+     trésors : la grotte pour les perles, le cratère pour le feu,
+     les ruines pour les fossiles, le pic pour les étoiles.
+   ============================================================ */
+
+/* ---------- les minerais ---------- */
+const ORES = [
+  {id:"cu", n:"Cuivre", pal:["#f6b884", "#c8733a", "#7f421c"], d:"Dans les deux premières couches."},
+  {id:"fe", n:"Fer",    pal:["#e4e9ef", "#9aa3ad", "#59616b"], d:"Dans le Sédiment et la Veine froide."},
+  {id:"ag", n:"Argent", pal:["#ffffff", "#d3dce7", "#8794a6"], d:"Dans le Socle et la Nappe chaude."},
+  {id:"au", n:"Or",     pal:["#fff3b0", "#ffd24a", "#b07d0a"], d:"Dans la Faille mineure et le Substrat."},
+  {id:"dr", n:"Rêvite", pal:["#f3d8ff", "#b06bff", "#5d2aa8"], d:"Au Noyau onirique. Ou tombée du ciel, au Pic Météore."}
+];
+const ORE_IDS = ORES.map(o=>o.id);
+const ORE_BY_STRATUM = ["cu", "cu", "fe", "fe", "ag", "ag", "au", "au", "dr"];
+const ORE_SECS = 120;          /* l'équipe remonte un minerai toutes les deux minutes de forage */
+function oreDef(id){ return ORES.find(o=>o.id === id); }
+function oreOf(si){ return ORE_BY_STRATUM[Math.min(si, ORE_BY_STRATUM.length - 1)]; }
+function oreHave(id){ return (forage().ore || {})[id] || 0; }
+function oreGain(id, n){
+  const f = forage();
+  f.ore = f.ore || {};
+  f.ore[id] = (f.ore[id] || 0) + n;
+  f.oreSeen = f.oreSeen || {};
+  if(!f.oreSeen[id]){ f.oreSeen[id] = true; return true; }
+  return false;
+}
+/* une pépite, en pixels : trois tons */
+function oreSvg(id, size){
+  const o = oreDef(id); if(!o) return "";
+  const [L, H, h] = o.pal;
+  const g = ["..LLH...", ".LHHHh..", "LHHHHHh.", "HHHLHHhh", ".HHHHhh.", "..hhhh.."];
+  return pixSvg(g, {L, H, h}, size || 18, 8, 6);
+}
+
+/* ---------- un petit moteur de pixels : une grille, une palette ---------- */
+function pixSvg(rows, pal, size, w, h){
+  w = w || rows[0].length; h = h || rows.length;
+  let r = "";
+  rows.forEach((row, y)=>{ for(let x = 0; x < row.length; x++){ const c = pal[row[x]]; if(c) r += `<rect x="${x}" y="${y}" width="1.02" height="1.02" fill="${c}"/>`; } });
+  return `<svg class="pix" viewBox="0 0 ${w} ${h}" width="${size}" height="${Math.round(size * h / w)}" shape-rendering="crispEdges" aria-hidden="true">${r}</svg>`;
+}
+
+/* ---------- les outils ---------- */
+const TOOL_TIERS = [
+  {n:"bois",     adj:"en bois",    pal:["#d8a46a", "#a06b38", "#64401f"], handle:["#a06b38", "#64401f"]},
+  {n:"cuivre",   adj:"en cuivre",  pal:ORES[0].pal, handle:["#a06b38", "#64401f"]},
+  {n:"fer",      adj:"en fer",     pal:ORES[1].pal, handle:["#8a5a30", "#55361a"]},
+  {n:"argent",   adj:"en argent",  pal:ORES[2].pal, handle:["#3d4a66", "#26304a"]},
+  {n:"or",       adj:"en or",      pal:ORES[3].pal, handle:["#7a2a2a", "#4a1818"]},
+  {n:"onirique", adj:"onirique",   pal:ORES[4].pal, handle:["#2a1a4a", "#170d2c"]}
+];
+const TOOL_ART = {
+  pick:[
+    "................", "....hhHHHL......", "...hHHHHHHLL....", "..hHh....HHHL...",
+    "..hh......WHHL..", ".h.......Ww.HHL.", "........Ww...HL.", ".......Ww....HH.",
+    "......Ww......H.", ".....Ww.......h.", "....Ww..........", "...Ww...........",
+    "..Ww............", ".Ww.............", ".w..............", "................"],
+  hammer:[
+    "................", ".......hL.......", "......hHHL......", ".....hHHHHL.....",
+    "....hHHHHHHL....", ".....hHHHHHHL...", "......hHHHHHH...", ".....Ww.hHHHh...",
+    "....Ww...hHh....", "...Ww.....h.....", "..Ww............", ".Ww.............",
+    "Ww..............", "w...............", "................", "................"],
+  drill:[
+    "................", "....wwwwwwww....", "...wLHHHHHHhw...", "...wLHHHHHHhw...",
+    "....wwwwwwww....", ".....LHHHHh.....", ".....LhHHHh.....", "......LHHh......",
+    "......LhHh......", ".......LHh......", ".......Lh.......", ".......Lh.......",
+    "........h.......", "................", "................", "................"],
+  prop:[
+    "................", "LLLLLLLLLLLLLLLL", "HHHHHHHHHHHHHHHH", "hhhhhhhhhhhhhhhh",
+    "..LHh......LHh..", "..LHh......LHh..", "..LHh......LHh..", "..LHh......LHh..",
+    "..LHh......LHh..", "..LHh......LHh..", "..LHh......LHh..", "..LHh......LHh..",
+    "..LHh......LHh..", "..LHh......LHh..", ".hhhhh....hhhhh.", "................"]
+};
+function toolPal(t){
+  const T = TOOL_TIERS[clamp(t || 0, 0, 5)];
+  return {L:T.pal[0], H:T.pal[1], h:T.pal[2], W:T.handle[0], w:T.handle[1]};
+}
+function toolSvg(kind, t, size){
+  return `<span class="tool-art tt${t || 0}">${pixSvg(TOOL_ART[kind], toolPal(t), size || 32)}</span>`;
+}
+/* pour le canvas : une image 16 x 16 par outil et par matière */
+const TOOL_CV = {};
+function toolCanvas(kind, t){
+  const k = kind + t;
+  if(TOOL_CV[k]) return TOOL_CV[k];
+  if(typeof document === "undefined" || !document.createElement) return null;
+  const cv = document.createElement("canvas");
+  if(!cv.getContext) return null;
+  cv.width = 16; cv.height = 16;
+  const x = cv.getContext("2d"), pal = toolPal(t);
+  TOOL_ART[kind].forEach((row, y)=>{ for(let i = 0; i < 16; i++){ const c = pal[row[i]]; if(c){ x.fillStyle = c; x.fillRect(i, y, 1, 1); } } });
+  return (TOOL_CV[k] = cv);
+}
+
+/* ce que fait chaque outil, selon sa matière */
+const PICK_T   = [[2, 1, 0], [3, 1, 0], [3, 1, 1], [3, 2, 1], [4, 2, 1], [4, 2, 2]];
+const HAMMER_T = [
+  {c:2, a:2, d:1, cost:2},   {c:3, a:2, d:1, cost:2},   {c:3, a:2, d:1, cost:1.6},
+  {c:3, a:2, d:2, cost:1.6}, {c:4, a:3, d:2, cost:1.4}, {c:4, a:3, d:2, cost:1.2, ring:1}];
+const DRILL_T  = [1, 1.3, 1.7, 2.2, 2.9, 3.8];
+const TOOLS = {
+  pick:  {n:"Pioche",  pl:false, d:t=>{ const [c, a, dg] = PICK_T[t]; return `creuse ${c} couches au centre, ${a} autour${dg ? `, ${dg} en diagonale` : ""}`; }},
+  hammer:{n:"Marteau", pl:false, d:t=>{ const H = HAMMER_T[t]; return `frappe ${H.c} au centre, ${H.a} autour${H.ring ? ", et plus loin" : ""} · −${String(H.cost).replace(".", ",")} de solidité par coup`; }},
+  drill: {n:"Foreuse", pl:false, d:t=>`ton équipe creuse ×${String(DRILL_T[t]).replace(".", ",")}`},
+  prop:  {n:"Étais",   pl:true,  d:t=>`${40 + 8 * t} de solidité par fouille`}
+};
+const TOOL_IDS = Object.keys(TOOLS);
+function toolTier(k){ const f = forage(); return (f.tools && f.tools[k]) || 0; }
+function toolName(k, t){ if(t === undefined) t = toolTier(k); return TOOLS[k].n + " " + TOOL_TIERS[t].adj; }
+function toolDrillMul(){ return DRILL_T[toolTier("drill")]; }
+/* le prix d'une matière : le minerai de cette matière, un peu de la précédente, et de l'Énergie */
+function toolCost(t){
+  const ore = {};
+  ore[ORE_IDS[t - 1]] = [0, 20, 40, 70, 110, 160][t];
+  if(t >= 2) ore[ORE_IDS[t - 2]] = [0, 0, 15, 30, 50, 80][t];
+  return {ore, energy:Math.round(2500 * Math.pow(6, t - 1))};
+}
+function toolCanForge(k){
+  const t = toolTier(k); if(t >= 5) return false;
+  const c = toolCost(t + 1), f = forage();
+  if(f.energy < c.energy) return false;
+  return Object.keys(c.ore).every(o=>oreHave(o) >= c.ore[o]);
+}
+ACTIONS.foforge = d => {
+  const k = d.k, f = forage();
+  if(!TOOLS[k]) return;
+  const t = toolTier(k);
+  if(t >= 5) return;
+  if(!toolCanForge(k)){ toast("Il manque du minerai ou de l'Énergie", "bad", "cross"); return; }
+  const c = toolCost(t + 1);
+  f.energy -= c.energy;
+  for(const o in c.ore) f.ore[o] -= c.ore[o];
+  f.tools[k] = t + 1;
+  if(k === "drill"){ const V = FOR_VIEW; if(V) V.rocks = forRocks(V.W, V.H); }
+  S.stats.forged = (S.stats.forged || 0) + 1;
+  save();
+  try { Sfx.win(); } catch(e){}
+  if(typeof moment === "function") moment({kind:"release", c:TOOL_TIERS[t + 1].pal[1],
+    html:toolSvg(k, t + 1, 96),
+    kicker:"LA FORGE", title:toolName(k, t + 1), sub:TOOLS[k].d(t + 1),
+    line:t + 1 === 5 ? "Un outil fait de rêve. Je ne savais pas qu'on pouvait forger ça. Moi non plus, je ne sais pas comment je le sais." :
+         ["", "Du cuivre. Ça brille un peu. C'est un début, {nom}.", "Du fer. Ça, ça ne plie plus.", "De l'argent. La roche recule avant même le coup.", "De l'or. Franchement, on frime un peu. Mais ça marche."][t + 1]}, true);
+  refresh();
+};
+
+/* ---------- les chantiers ---------- */
+const FOR_SITES = [
+  {id:"main",   n:"Puits principal", tint:null,      hard:1,   need:0,    cost:0,
+   d:"Le premier puits. Toutes les couches, sans préférence.", loot:{}, good:[], ore:null},
+  {id:"azur",   n:"Grotte Azurée",   tint:"#4fb2ff", hard:1.6, need:450,  cost:40000,
+   d:"Des galeries noyées. Beaucoup de perles, de Pierres Eau, et des Pokémon de l'eau et de la glace.",
+   loot:{water:4, pearl:3, bpearl:3, heart:2, helix:2}, good:[11, 15], ore:"ag", mons:[11, 15], tag:"Perles · Pierre Eau · Argent"},
+  {id:"ardent", n:"Cratère Ardent",  tint:"#ff6a3d", hard:2.4, need:1100, cost:250000,
+   d:"Un volcan éteint, pas tout à fait. Pierres Feu, ambre, et beaucoup d'or dans la roche chaude.",
+   loot:{fire:4, amber:3, claw:2, ever:2}, good:[10, 5], ore:"au", mons:[10, 5, 6], tag:"Pierre Feu · Ambre · Or"},
+  {id:"ruines", n:"Ruines Oubliées", tint:"#c9a86a", hard:3.4, need:2500, cost:1500000,
+   d:"Les restes d'une ville d'avant l'index. Fossiles en pagaille, objets anciens, et des signes sur les murs.",
+   loot:{helix:3, dome:3, amber:2, root:3, claw:3, held:3, bone:2}, good:[14, 8], ore:"fe", mons:[14, 8, 6], zarbi:1, tag:"Fossiles · Objets anciens · Zarbi"},
+  {id:"pic",    n:"Pic Météore",     tint:"#b06bff", hard:4.8, need:5000, cost:8000000,
+   d:"Une montagne frappée par une étoile. Pierres Lune et Soleil, morceaux d'étoile, et de la Rêvite tombée du ciel.",
+   loot:{moon:4, sun:3, star:4, dust:3}, good:[18, 14, 6], ore:"dr", mons:[18, 6, 14], tag:"Pierres Lune et Soleil · Étoiles · Rêvite"}
+];
+function siteDef(id){ return FOR_SITES.find(s=>s.id === id) || FOR_SITES[0]; }
+function forSite(){ return siteDef(forage().site || "main"); }
+function siteHard(){ return forSite().hard; }
+/* la profondeur la plus grande atteinte au puits principal ouvre les chantiers */
+function mainMaxM(){
+  const f = forage();
+  return (f.site || "main") === "main" ? f.maxM : ((f.sites && f.sites.main && f.sites.main.maxM) || 0);
+}
+function siteOpen(id){ const f = forage(); return id === "main" || !!(f.sitesOpen && f.sitesOpen[id]); }
+function siteReachable(id){ return mainMaxM() >= siteDef(id).need; }
+function siteDepth(id){
+  const f = forage();
+  if((f.site || "main") === id) return {m:f.m, maxM:f.maxM};
+  const s = (f.sites || {})[id] || {};
+  return {m:s.m || 0, maxM:s.maxM || 0};
+}
+/* changer de chantier : on range la profondeur du puits quitté, on reprend celle du nouveau */
+function siteSwitch(id){
+  const f = forage(), cur = f.site || "main";
+  if(id === cur || !siteOpen(id)) return false;
+  f.sites = f.sites || {};
+  f.sites[cur] = {m:f.m, maxM:f.maxM};
+  const nx = f.sites[id] || {m:0, maxM:0};
+  f.site = id; f.m = nx.m || 0; f.maxM = nx.maxM || 0;
+  f.depth = stratumIdx(f.m);
+  return true;
+}
+ACTIONS.fosite = d => {
+  const S1 = siteDef(d.id), f = forage(), dep = siteDepth(S1.id);
+  const open = siteOpen(S1.id), reach = siteReachable(S1.id), here = (f.site || "main") === S1.id;
+  const lootTxt = S1.tag ? `<div class="tiny"><b>On y trouve :</b> ${esc(S1.tag)}</div>` : "";
+  const goodTxt = S1.good.length ? `<div class="tiny">Ici, ${S1.good.map(t=>`<span class="tt t${t}">${TYPE_NAMES[t]}</span>`).join(" ")} creusent aussi deux fois plus vite.</div>` : "";
+  sheet(`${sheetHead(S1.n)}
+    <div class="fo-sitehero" style="--st:${S1.tint || STRATA[0].c}">${forSiteArt(S1, 1)}</div>
+    <div class="tiny muted" style="margin:8px 0">${esc(S1.d)}</div>
+    ${lootTxt}${goodTxt}
+    ${S1.hard > 1 ? `<div class="tiny dim">La roche y est ${String(S1.hard).replace(".", ",")}× plus dure, mais chaque mètre rapporte plus d'Énergie.</div>` : ""}
+    ${open ? `<div class="tiny cy" style="margin-top:6px">Profondeur : ${fmt(Math.floor(dep.m))} m · record ${fmt(Math.floor(dep.maxM))} m</div>` : ""}
+    <div style="margin-top:12px">${here ? `<div class="tiny gold-t">Ton équipe creuse ici.</div>`
+      : open ? `<button class="btn pri wide" data-act="fositego" data-id="${S1.id}">Envoyer l'équipe ici</button>
+                <div class="tiny dim" style="margin-top:5px">Le puits quitté garde sa profondeur. Tu pourras y revenir quand tu veux.</div>`
+      : reach ? `<button class="btn pri wide" data-act="fositeopen" data-id="${S1.id}" ${f.energy >= S1.cost ? "" : "disabled"}>Ouvrir ce chantier · ${ic("bolt")} ${fmt(S1.cost)}</button>`
+      : `<div class="tiny dim">S'ouvre quand le puits principal atteint ${fmt(S1.need)} m (record actuel : ${fmt(Math.floor(mainMaxM()))} m).</div>`}</div>`);
+};
+ACTIONS.fositeopen = d => {
+  const S1 = siteDef(d.id), f = forage();
+  if(siteOpen(S1.id) || !siteReachable(S1.id)) return;
+  if(f.energy < S1.cost){ toast("Énergie insuffisante", "bad", "cross"); return; }
+  f.energy -= S1.cost;
+  f.sitesOpen = f.sitesOpen || {}; f.sitesOpen[S1.id] = true;
+  closeSheet();
+  if(typeof moment === "function") moment({kind:"door", c:S1.tint || "#35f0d6", icon:"map",
+    kicker:"NOUVEAU CHANTIER", title:S1.n, sub:S1.d,
+    line:"Un autre puits. Tout recommence à zéro mètre, {nom} — mais la roche n'y cache pas les mêmes choses."}, true);
+  save(); refresh();
+};
+ACTIONS.fositego = d => {
+  if(!siteSwitch(d.id)) return;
+  forAutoCrew(true);
+  closeSheet();
+  toast(`L'équipe part pour : ${siteDef(d.id).n}`, "warn", "map");
+  save(); refresh();
+};
+/* une vignette : le chantier en coupe, à sa couleur */
+function forSiteArt(S1, big){
+  const c = S1.tint || "#a8865a";
+  const icon = {main:"⛏", azur:"≈", ardent:"▲", ruines:"Π", pic:"✦"}[S1.id] || "⛏";
+  return `<span class="fo-sart ${big ? "big" : ""}" style="--st:${c}"><i></i><i></i><i></i><b>${icon}</b></span>`;
+}
+function forSitesHtml(){
+  const f = forage(), cur = f.site || "main";
+  return `<div class="fo-sites">${FOR_SITES.map(S1=>{
+    const open = siteOpen(S1.id), reach = siteReachable(S1.id), dep = siteDepth(S1.id);
+    const cls = S1.id === cur ? "here" : open ? "open" : reach ? "reach" : "locked";
+    return `<button class="fo-site ${cls}" data-act="fosite" data-id="${S1.id}" style="--st:${S1.tint || "#a8865a"}">
+      ${forSiteArt(S1)}
+      <b>${open || reach ? esc(S1.n) : "???"}</b>
+      <small>${S1.id === cur ? "ici · " + fmt(Math.floor(dep.m)) + " m" : open ? fmt(Math.floor(dep.m)) + " m" : reach ? "à ouvrir" : "dès " + fmt(S1.need) + " m"}</small>
+    </button>`; }).join("")}</div>`;
+}
+/* le moment où un chantier devient accessible (une seule fois) */
+function forSitesCheck(){
+  const f = forage();
+  f.sitesSeen = f.sitesSeen || {};
+  for(const S1 of FOR_SITES){
+    if(S1.id === "main" || f.sitesSeen[S1.id] || !siteReachable(S1.id)) continue;
+    f.sitesSeen[S1.id] = true;
+    if(typeof moment === "function") moment({kind:"door", c:S1.tint, icon:"map", kicker:"FORAGE · CHANTIER REPÉRÉ", title:S1.n,
+      sub:"Un autre puits est accessible. Ouvre-le depuis « Les chantiers », en bas du Forage.",
+      line:"Le puits principal est assez profond pour voir à côté. Il y a d'autres trous dans le rêve, {nom}."});
+  }
+}
+
+/* ---------- la forge, à l'écran ---------- */
+function forOreRow(){
+  const f = forage(), seen = f.oreSeen || {};
+  return `<div class="fo-ores">${ORES.map(o=>{
+    const n = oreHave(o.id), known = seen[o.id] || n > 0;
+    return `<span class="fo-ore ${known ? "" : "unk"} ${o.id === oreOf(f.depth) ? "here" : ""}" title="${esc(known ? o.n + " — " + o.d : "Minerai inconnu")}">
+      ${oreSvg(o.id, 18)}<b>${known ? fmt(n) : "?"}</b><small>${known ? esc(o.n) : "???"}</small></span>`; }).join("")}</div>`;
+}
+function forForgeHtml(){
+  const f = forage();
+  return `<div class="tiny dim" style="margin:-2px 0 6px">Ton équipe remonte du <b>${esc(oreDef(oreOf(f.depth)).n.toLowerCase())}</b> dans cette couche, et les fouilles en cachent.
+      Le minerai sert à forger de meilleurs outils.</div>
+    ${forOreRow()}
+    <div class="fo-forge">${TOOL_IDS.map(k=>{
+      const t = toolTier(k), max = t >= 5, c = max ? null : toolCost(t + 1), ok = !max && toolCanForge(k);
+      return `<div class="fo-tool tt${t}">
+        <div class="fo-tart">${toolSvg(k, t, 46)}</div>
+        <div class="grow">
+          <div class="t"><b>${esc(toolName(k, t))}</b></div>
+          <div class="d">${esc(TOOLS[k].d(t))}</div>
+          ${max ? `<div class="d gold-t">Matière la plus haute.</div>` : `<div class="d">Ensuite : <b>${esc(TOOL_TIERS[t + 1].n)}</b> — ${esc(TOOLS[k].d(t + 1))}</div>
+          <div class="fo-cost">${Object.keys(c.ore).map(o=>`<span class="${oreHave(o) >= c.ore[o] ? "" : "miss"}">${oreSvg(o, 14)} ${fmt(oreHave(o))}/${fmt(c.ore[o])}</span>`).join("")}
+            <span class="${f.energy >= c.energy ? "" : "miss"}">${ic("bolt")} ${fmt(c.energy)}</span></div>`}
+        </div>
+        ${max ? "" : `<button class="fo-fbtn ${ok ? "ok" : ""}" data-act="foforge" data-k="${k}" ${ok ? "" : "disabled"}>
+          <span class="fo-next">${toolSvg(k, t + 1, 26)}</span>Forger</button>`}
+      </div>`; }).join("")}</div>`;
+}
+
+/* ---------- le décor du puits : ce qu'on a amélioré se voit ---------- */
+function forShaftDecor(x, V, W, H, top){
+  const f = forage(), t = V.t / 1000;
+  /* les étais, des deux côtés, à la matière forgée */
+  const pt = toolTier("prop"), pp = toolPal(pt);
+  for(const sx of [6, W - 14]){
+    x.fillStyle = pp.H; x.fillRect(sx, top, 8, H - top);
+    x.fillStyle = pp.L; x.fillRect(sx, top, 2, H - top);
+    x.fillStyle = pp.h; x.fillRect(sx + 6, top, 2, H - top);
+    for(let yy = top + 30; yy < H; yy += 56){ x.fillStyle = pp.H; x.fillRect(sx < W / 2 ? sx : sx - 14, yy, 22, 5); x.fillStyle = pp.h; x.fillRect(sx < W / 2 ? sx : sx - 14, yy + 4, 22, 1); }
+  }
+  if(pt >= 5){ x.globalAlpha = 0.25 + 0.15 * Math.sin(t * 3); x.fillStyle = pp.L; x.fillRect(4, top, 12, H - top); x.fillRect(W - 16, top, 12, H - top); x.globalAlpha = 1; }
+  /* les lanternes : une par amélioration « Plus d'objets rares » */
+  const lamps = forUpLv("lamp");
+  for(let i = 0; i < lamps; i++){
+    const lx = 26 + i * ((W - 52) / Math.max(1, lamps - 1 || 1)), ly = top + 8;
+    const fl = 0.75 + 0.25 * Math.sin(t * 6 + i * 1.7);
+    const g = x.createRadialGradient ? x.createRadialGradient(lx, ly + 4, 1, lx, ly + 4, 22) : null;
+    if(g){ g.addColorStop(0, `rgba(255,214,120,${0.45 * fl})`); g.addColorStop(1, "rgba(255,214,120,0)"); x.fillStyle = g; x.fillRect(lx - 22, ly - 18, 44, 44); }
+    x.fillStyle = "#3a2a1a"; x.fillRect(lx - 1, ly - 8, 2, 6);
+    x.fillStyle = "#6a5030"; x.fillRect(lx - 4, ly - 2, 8, 2);
+    x.fillStyle = `rgba(255,220,130,${fl})`; x.fillRect(lx - 3, ly, 6, 6);
+    x.fillStyle = "#6a5030"; x.fillRect(lx - 4, ly + 6, 8, 2);
+  }
+  /* la foreuse, au sommet du puits */
+  const dc = toolCanvas("drill", toolTier("drill"));
+  if(dc){
+    const dx = W / 2 - 16, dy = top - 30 + Math.sin(t * 18) * 1.2;
+    x.drawImage(dc, dx, dy, 32, 32);
+    if(toolTier("drill") >= 3 && Math.random() < 0.3){ x.fillStyle = toolPal(toolTier("drill")).L; x.fillRect(W / 2 + (Math.random() - 0.5) * 10, top + 2, 2, 2); }
+  }
+  /* le détecteur : une antenne qui clignote */
+  const rl = forUpLv("radar");
+  if(rl){
+    const ax = W / 2 + 44, ay = top - 30;
+    x.fillStyle = "#8a96a8"; x.fillRect(ax, ay + 6, 2, 16); x.fillRect(ax - 6, ay + 4, 14, 2);
+    for(let i = 0; i < rl; i++){ const on = Math.sin(t * 4 - i) > 0; x.fillStyle = on ? "#5ce07a" : "#2a5a3a"; x.fillRect(ax - 8 + i * 6, ay, 4, 3); }
+  }
+  /* les wagonnets : un par fouille en réserve, pleins quand une fouille attend */
+  const cap = wallCap();
+  for(let i = 0; i < cap; i++){
+    const cx = 22 + i * 22, cy = top - 13, full = i < f.walls;
+    x.fillStyle = "#4a3a2a"; x.fillRect(cx, cy, 18, 9);
+    x.fillStyle = "#6a5440"; x.fillRect(cx, cy, 18, 2);
+    x.fillStyle = "#20160e"; x.fillRect(cx + 3, cy + 9, 4, 3); x.fillRect(cx + 11, cy + 9, 4, 3);
+    if(full){ const o = oreDef(oreOf(f.depth)); x.fillStyle = o.pal[1]; x.fillRect(cx + 2, cy - 4, 14, 5); x.fillStyle = o.pal[0]; x.fillRect(cx + 4, cy - 5, 4, 2); }
+  }
+}
+/* la pioche que chaque Pokémon tient, à côté de lui */
+function forCrewTool(x, cx, cy, size, ph){
+  const pc = toolCanvas("pick", toolTier("pick"));
+  if(!pc) return;
+  const a = -0.9 + Math.abs(Math.sin(ph * Math.PI)) * 1.3;
+  x.save(); x.translate(cx + size * 0.32, cy - size * 0.1); x.rotate(a);
+  x.drawImage(pc, -4, -16, 20, 20);
+  x.restore();
 }
 
 /* ===== 39-daily.js ===== */
@@ -11907,7 +12420,7 @@ function showOfflineReport(){
       <div class="baglist" style="text-align:left">
         ${dig.m >= 1 ? `<div class="bagrow"><div class="bag-ic">${ic("bolt")}</div>
           <div class="grow"><div class="bag-n">Forage : +${fmt(Math.floor(dig.m))} m</div>
-            <div class="bag-d">${fmt(r.energy)} Énergie${dig.w ? ` · ${dig.w} fouille${dig.w > 1 ? "s" : ""} trouvée${dig.w > 1 ? "s" : ""}` : ""}${dig.strata.length ? ` · ${esc(STRATA[dig.strata[dig.strata.length - 1]].n)} atteinte` : ""}</div></div>
+            <div class="bag-d">${fmt(r.energy)} Énergie${dig.w ? ` · ${dig.w} fouille${dig.w > 1 ? "s" : ""} trouvée${dig.w > 1 ? "s" : ""}` : ""}${dig.strata.length ? ` · ${esc(STRATA[dig.strata[dig.strata.length - 1]].n)} atteinte` : ""}${dig.ore ? " · " + Object.keys(dig.ore).map(o=>dig.ore[o] + " " + (typeof oreDef === "function" ? oreDef(o).n.toLowerCase() : o)).join(", ") : ""}</div></div>
           <b class="rp-d">${forage().walls ? forage().walls + " ⛏" : ""}</b></div>` : ""}
         <div class="bagrow"><div class="bag-ic">${ic("coin")}</div>
           <div class="grow"><div class="bag-n">PokéCoins des archives</div>
@@ -13662,7 +14175,8 @@ const NODE_TYPES = {
   rest:    {n:"Repos",      i:"heart",  c:"var(--green)"},
   treasure:{n:"Trésor",     i:"chest",  c:"var(--amber)"},
   boss:    {n:"Noyau",      i:"boss",   c:"var(--magenta)"},
-  champ:   {n:"Champion",   i:"boss",   c:"var(--amber)"}
+  champ:   {n:"Champion",   i:"boss",   c:"var(--amber)"},
+  legend:  {n:"Sanctuaire", i:"star",   c:"var(--gold)"}
 };
 
 /* ============================================================
@@ -13975,6 +14489,7 @@ function openSector(run, mapIdx){
   run.leader = mapIdx < run.maps - 1 ? pickLeader(run) : null;
   run.row = -1; run.col = -1;
   run.avail = run.map[0].map((_, i) => i);
+  if(typeof sanctPlace === "function") sanctPlace(run, mapIdx);
 }
 
 function nodeTypeFor(y, r){
@@ -14009,7 +14524,7 @@ function expMods(){
    de combats, plus d'usure) et se préparer (soins, objets).
    ============================================================ */
 const EXP_START_LV = 5;
-const EXP_GAIN = {fight:1, trainer:2, elite:2, champ:3, boss:0};
+const EXP_GAIN = {fight:1, trainer:2, elite:2, champ:3, boss:0, legend:2};
 function expStartLevel(id){
   /* l'archive donne un leger elan, jamais une avance decisive */
   return EXP_START_LV + Math.min(3, Math.floor(((S.dex[id] && S.dex[id].lvl) || 0) / 15));
@@ -14231,7 +14746,7 @@ SCREENS.expedition = {
           <div class="nm">${esc(POKE[m.id].name)}</div>
           <div class="bar hp ${m.hp/m.maxHp>.5?"":m.hp/m.maxHp>.2?"mid":"low"}">
             <i style="width:${Math.max(0,m.hp/m.maxHp*100)}%"></i></div>
-          ${it ? `<span class="titem">${itemIcon("exp:" + m.item, 14) || ""}</span>` : ""}
+          ${it ? `<span class="titem">${itemIcon("exp:" + m.item, 14) || (it.card ? sprBox(it.spr, false, 14) : "")}</span>` : ""}
         </div>`; }).join("")}</div>
 
       <div class="btn-grid c4" style="margin-top:9px">
@@ -14714,10 +15229,10 @@ function expFight(run, kind, spec){
   if(!allies.length){ endExpedition(false); return; }
   const foes = enemyTeamFor(run, kind, spec);
   const titles = {champ:"CHAMPION " + ((run.leader && run.leader.n) || "").toUpperCase(), fight:"RENCONTRE SAUVAGE", trainer:"ARCHIVISTE " + (TYPE_NAMES[trainerFor(run).t] || "").toUpperCase(),
-                  elite:"SIGNATURE ÉLITE", boss:"NOYAU DE COUCHE"};
+                  elite:"SIGNATURE ÉLITE", boss:"NOYAU DE COUCHE", legend:"SANCTUAIRE LÉGENDAIRE"};
   createBattle(allies, foes, {
     ai: true, speed: S.settings.battleSpeed || 1,
-    title: titles[kind], stage: kind === "boss" || kind === "champ" ? "boss" : kind === "elite" ? "elite" : null,
+    title: titles[kind], stage: kind === "boss" || kind === "champ" || kind === "legend" ? "boss" : kind === "elite" ? "elite" : null,
     intro: kind === "boss" ? `Le noyau de la couche se manifeste.`
                            : `Des entités hostiles bloquent le passage.`,
     onEnd: win => {
@@ -14761,6 +15276,8 @@ function afterFightRewards(run, kind, beaten){
 
   if(kind === "boss"){ save(); endExpedition(true); return; }
   const lv = run.maps ? expGainLevels(run, EXP_GAIN[kind] || 0) : {ups:[], evos:[]};
+  /* le Sanctuaire : le légendaire vaincu rejoint l'équipe */
+  if(kind === "legend" && beaten && beaten[0] && typeof sanctJoin === "function"){ sanctJoin(run, beaten[0]); return; }
   /* un champion tombe : badge, l'equipe grandit, une relique a choisir, puis le secteur suivant */
   if(kind === "champ"){
     const L = run.leader || {k:"?", t:1, n:"Champion"};
@@ -14979,6 +15496,7 @@ function enterNode(run, node){
     case "rest":     run.pend = {k:"rest"}; break;
     case "shop":     run.shopStock = null; run.pend = {k:"shop"}; break;
     case "treasure": run.pend = {k:"items", list:rollExpItem(run.floor, 3)}; break;
+    case "legend":   run.pend = {k:"legend", id:node.leg || 150, lv:sanctLevel(run)}; break;
     case "event":    run.pend = {k:"event", e:Math.floor(rng() * EXP_EVENTS.length), cid:randomWildId()}; break;
     default: run.pend = null;
   }
@@ -15136,7 +15654,11 @@ const XS_SCENES = {
       return;
     }
     const stage = `<div class="xs-light"></div><div class="xs-cards">${p.list.map((c, i)=>xsMonCard(c, i, "xsdraft", p.seen ? 0 : 500 + i * 380)).join("")}</div>`;
-    const panel = `<div class="xs-kicker" style="color:#5ce07a">RECRUTEMENT</div>
+    const panel = p.legend ? `<div class="xs-kicker" style="color:#ffd24a">SANCTUAIRE</div>
+      <div class="xs-title">${esc(POKE[p.list[0].id].name)} accepte de te suivre</div>
+      <div class="xs-say">Ton équipe est complète. Touche sa carte, puis choisis qui lui laisse sa place.</div>
+      <button class="btn ghost wide" data-act="xsdraftskip">Le laisser au sanctuaire · +${80 + run.floor * 8} Bits</button>`
+      : `<div class="xs-kicker" style="color:#5ce07a">RECRUTEMENT</div>
       <div class="xs-title">${p.list.length} signatures détectées</div>
       <div class="xs-say">${full ? "Votre équipe est complète : en prendre un, c'est en laisser partir un autre." : "Une seule rejoint l'expédition. Touchez une carte."}</div>
       <button class="btn ghost wide" data-act="xsdraftskip">Passer · +${80 + run.floor * 8} Bits</button>`;
@@ -15197,7 +15719,16 @@ const XS_SCENES = {
       {k:"relic", n:"Relique inconnue", d:"Une relique au hasard.", p:130, ic:"held:h_relic"},
       {k:"hp", n:"Bloc de PV", d:"+18% de PV max à toute l'équipe.", p:110, ic:"berry:sitrus"},
       {k:"full", n:"Purge complète", d:"Soigne entièrement l'équipe.", p:90, ic:"revive"}
-    ];
+    ].concat(typeof cardShopWares === "function" ? cardShopWares() : []);
+    if(p.give && EXP_ITEMS[p.give]){
+      const it = EXP_ITEMS[p.give];
+      if(!xsOpenNow()){ const g = p.give; p.give = null; XS_SCENES.shop(run, p); p.give = g; }
+      xsPanel(`<div class="xs-kicker" style="color:#ffd24a">${esc(it.n.toUpperCase())}</div>
+        <div class="xs-title">Qui le porte ?</div>
+        <div class="xs-say">${esc(it.d)}</div>
+        ${xsTeamPick(run, "xsshopgive", true)}`);
+      return;
+    }
     const stage = `<div class="xs-shopbg"></div>
       <div class="xs-keeper">${pmdCanvas(352, 0, 120)}</div>
       <div class="xs-counter"></div>
@@ -15205,8 +15736,8 @@ const XS_SCENES = {
     const panel = `<div class="row between"><div class="xs-kicker" style="color:#ffc857">BOUTIQUE KECLEON</div>
         <span class="pill">${ic("coin")} <b id="xs-purse">${run.bits}</b></span></div>
       <div class="xs-shelf">${run.shopStock.map((it, i)=>`
-        <button class="xs-ware ${run.bits >= it.p ? "" : "poor"}" data-act="xsbuy" data-i="${i}">
-          ${itemIcon(it.ic, 30) || ic("star")}<span class="grow"><b>${esc(it.n)}</b><small>${esc(it.d)}</small></span>
+        <button class="xs-ware ${run.bits >= it.p ? "" : "poor"} ${it.card ? "card" : ""}" data-act="xsbuy" data-i="${i}">
+          ${itemIcon(it.ic, 30) || (it.spr ? sprBox(it.spr, false, 30) : ic("star"))}<span class="grow"><b>${esc(it.n)}</b><small>${esc(it.d)}</small></span>
           <span class="xs-price">${it.p}</span></button>`).join("") || `<div class="tiny muted">Étagères vides.</div>`}</div>
       <button class="btn pri wide" data-act="xsok">Repartir</button>`;
     xsOpen("shop", "#ffc857", p.keepStage && xsOpenNow() ? null : stage, panel, true);
@@ -15520,6 +16051,8 @@ ACTIONS.xsbuy = d => {
   if(it.k === "relic"){ const r = grantRelic(run); run.pend.relic = r ? r.id : null; if(!r) toast("Plus rien à acheter", "warn", "shard2"); }
   if(it.k === "hp") for(const m of run.team){ m.maxHp = Math.floor(m.maxHp * 1.18); if(m.hp > 0) m.hp += Math.floor(m.maxHp * 0.18); }
   run.shopStock.splice(+d.i, 1);
+  /* un objet de carte : on choisit son porteur, puis on revient au comptoir */
+  if(it.k === "citem"){ run.pend.give = it.id; save(); if(typeof Sfx !== "undefined") Sfx.coin(); expResume(run); return; }
   save();
   /* l'achat se voit : l'objet passe du comptoir a l'equipe */
   if(it.k !== "relic"){
@@ -15545,6 +16078,16 @@ ACTIONS.xsitemgive = d => {
   save();
   xsGain(`<span class="xg-give">${itemIcon("exp:" + id, 40) || ""}${pmdCanvas(m.id, 0, 80)}</span>`, POKE[m.id].name + " porte " + EXP_ITEMS[id].n,
     old && EXP_ITEMS[old] ? EXP_ITEMS[old].n + " est abandonné" : EXP_ITEMS[id].d, ()=>xsDone(run));
+};
+ACTIONS.xsshopgive = d => {
+  const run = xsRun(); if(!run || !run.pend || run.pend.k !== "shop") return;
+  const id = run.pend.give, m = run.team[+d.i];
+  if(!m || !EXP_ITEMS[id]) return;
+  const old = m.item;
+  m.item = id; run.pend.give = null; run.pend.keepStage = true;
+  save();
+  xsGain(`<span class="xg-give">${sprBox(EXP_ITEMS[id].spr, false, 40)}${pmdCanvas(m.id, 0, 80)}</span>`, POKE[m.id].name + " porte " + EXP_ITEMS[id].n,
+    old && EXP_ITEMS[old] ? EXP_ITEMS[old].n + " est abandonné" : EXP_ITEMS[id].d, ()=>expResume(run));
 };
 ACTIONS.xsev = d => {
   const run = xsRun(); if(!run || !run.pend || run.pend.k !== "event" || run.pend.res) return;
@@ -15806,6 +16349,7 @@ function xnodeArt(run, n){
     case "shop": return xpxIcon("mart", 2);
     case "swap": return itemIcon("stone:link", 30) || xpxIcon("ask", 2);
     case "event": return xpxIcon("ask", 2);
+    case "legend": return `<span class="xleg">${n.leg ? sprite(n.leg, false, "") : ""}</span>`;
   }
   return "";
 }
@@ -22420,6 +22964,10 @@ function handBase(id){
 }
 /* on evalue toutes les combinaisons possibles et on garde la plus rentable */
 function evalHand(cards){
+  if(typeof evalHandRainbow === "function" && cards.some(c=>c.rb)) return evalHandRainbow(cards, evalHandRaw);
+  return evalHandRaw(cards);
+}
+function evalHandRaw(cards){
   let best = null, bestVal = -1;
   for(const h of HANDS){
     let cs = null;
@@ -22623,27 +23171,30 @@ function badgeRow(){
 
 /* ---------- construction du deck ---------- */
 const BASE_FAMS = [1,4,7,10,13,16,19,21,23,25,27,29,32,41,43,46,50,54,58,60,63,66,69,74,92,129,133];
-function newDeck(){
+function newDeck(o){
+  o = o || {};
   const out = [];
   let u = 0;
   const push = (id, shiny) => out.push({u:u++, id, shiny:!!shiny, ed:""});
   /* chaque famille retenue apporte sa lignee complete : les combos evolutifs sont atteignables */
-  const fams = shuffle(BASE_FAMS).slice(0, 14);
+  const fams = o.fams || shuffle(BASE_FAMS).slice(0, o.famCount || 14);
+  const size = o.size || 52;
   for(const root of fams) for(const m of (FAM_MEMBERS[root]||[root])) push(m);
   /* on complete a 52 par des doublons, ce qui rend paires et brelans possibles */
   const pool = out.map(c=>c.id);
-  while(out.length < 52) push(pick(pool));
-  return out.slice(0, 52);
+  while(out.length < size) push(pick(pool));
+  return out.slice(0, size);
 }
 
 /* ---------- etat de partie ---------- */
-function startPoker(){
+function startPoker(deckId){
+  deckId = deckId && typeof pkDeckOpen === "function" && pkDeckOpen(deckId) ? deckId : "std";
   S.poker = {
     ante:1, blind:0, state:"blind",
     score:0, target:anteTarget(1,0),
     hands:4, discards:3, handsLeft:4, discardsLeft:3,
     handSize:8, slots:5, econ:0,
-    deck:newDeck(), draw:[], hand:[], sel:[],
+    deckId, deck:(typeof pkBuildDeck === "function" ? pkBuildDeck(deckId) : newDeck()), draw:[], hand:[], sel:[],
     jokers:[], licences:[], levels:{},
     boss:null, playedTypes:{}, discardedThisRound:0, roundHands:0, noDiscard:true,
     stage:"ante", eliteIdx:0, badges:[],
@@ -22663,12 +23214,13 @@ function pkStartRound(){
   if(st === "elite")         base = Math.round(anteTarget(9, 2) * (1 + (P.eliteIdx||0) * 0.45));
   else if(st === "champion") base = Math.round(anteTarget(9, 2) * 3.4);
   else                       base = anteTarget(P.ante, P.blind, P.boss);
-  P.target = Math.round(base * (P.discount || 1));
+  P.target = Math.round(base * (P.discount || 1) * (typeof pkDeckTargetMul === "function" ? pkDeckTargetMul(P) : 1));
   P.discount = 1;
   P.score = 0;
   P.handsLeft = f.oneHand ? 1 : P.hands - (f.lessHand||0);
   P.discardsLeft = Math.max(0, P.discards - (f.lessDiscard||0));
   P.draw = shuffle(P.deck.map(c=>Object.assign({}, c)));
+  if(typeof pkDeckOnRound === "function") pkDeckOnRound(P);
   P.hand = []; P.sel = [];
   P.roundHands = 0; P.discardedThisRound = 0;
   P.state = "play";
@@ -22738,6 +23290,7 @@ function pkScore(preview){
     if(c.ed === "glass") x.mult *= 2;
     if(c.ed === "gold" && !preview) P.octets += 3;
     x.scored.push(c);
+    if(P.deckId === "psy" && POKE[c.id].types.includes(14)) x.mult *= tierVal(150, [1.1, 1.15, 1.2]);
     for(const j of P.jokers){
       const def = jokerDef(j);
       if(def && def.onCard) def.onCard(c, x, j);
@@ -22756,6 +23309,11 @@ function pkScore(preview){
   if(f.firstZero && P.roundHands === 0){
     const commit = step("boss", P.boss.n);
     x.chips = 0; x.mult = 0; commit();
+  }
+  if(P.deckId === "balance" && !x.cancel){
+    const commit = step("deck", "Équilibre");
+    const avg = (x.chips + x.mult) / 2;
+    x.chips = avg; x.mult = avg; commit();
   }
   if(x.cancel){
     const commit = step("boss", "Main annulée");
@@ -22941,6 +23499,7 @@ function pkWinBlind(){
   const P = S.poker;
   let reward = 3 + P.blind + P.handsLeft + P.econ;
   for(const j of P.jokers) if(jokerDef(j)?.passive === "econ") reward += 2;
+  if(typeof pkWishBonus === "function") reward += pkWishBonus(P);
   const interest = Math.min(5, Math.floor(P.octets/5));
   reward += interest;
   P.octets += reward;
@@ -23063,7 +23622,7 @@ ACTIONS.pkshop = () => { closeSheet(); const P = S.poker; P.state = "shop"; pkRo
 function pkRollShop(){
   const P = S.poker;
   const owned = P.jokers.map(j=>j.id);
-  const pool = JOKERS.filter(j=>!owned.includes(j.id));
+  const pool = JOKERS.filter(j=>!owned.includes(j.id) && (typeof jokerAvail !== "function" || jokerAvail(j)));
   const weighted = [];
   for(const j of pool){ const w = [10,6,3,1][j.rar]; for(let i=0;i<w;i++) weighted.push(j); }
   const offer = [];
@@ -23189,7 +23748,7 @@ function applySpectral(id){
   }
   if(id === "sp_forge"){
     const owned = P.jokers.map(j=>j.id);
-    const pool = JOKERS.filter(j=>j.rar === 3 && !owned.includes(j.id));
+    const pool = JOKERS.filter(j=>j.rar === 3 && !owned.includes(j.id) && (typeof jokerAvail !== "function" || jokerAvail(j)));
     if(!pool.length || P.jokers.length >= jokerSlots()){
       P.octets += 8; toast("Aucun emplacement libre — 8 Octets rendus", "bad", "coin"); return;
     }
@@ -23282,7 +23841,28 @@ ACTIONS.pkmenu = () => {
         <div class="d">La progression de la partie est perdue.</div></div></div>
     </div>`, true);
 };
-ACTIONS.pkstart = () => startPoker();
+ACTIONS.pkstart = () => startPoker(S.pokerMeta.deck);
+ACTIONS.pkdecksel = d => {
+  if(typeof pkDeckOpen === "function" && !pkDeckOpen(d.id)){
+    const dd = pkDeckDef(d.id);
+    toast(`Il faut une carte de ${POKE[dd.card] && monFound(dd.card) ? POKE[dd.card].name : "ce légendaire"} pour ouvrir ce deck`, "warn", "cards");
+    return;
+  }
+  S.pokerMeta.deck = d.id; save(); refresh();
+};
+/* le choix du deck, sous le bouton de lancement : on voit aussi les decks fermés */
+function pkDeckPicker(){
+  if(typeof PK_DECKS === "undefined") return "";
+  const cur = pkDeckOpen(S.pokerMeta.deck || "std") ? (S.pokerMeta.deck || "std") : "std";
+  return `<div class="h sm" style="margin-top:4px">DECK</div>
+    <div class="pk-decks">${PK_DECKS.map(d=>{
+      const open = pkDeckOpen(d.id), t = d.card ? cardTier(d.card) : 0;
+      return `<button class="pk-deck ${cur === d.id ? "on" : ""} ${open ? "" : "locked"}" data-act="pkdecksel" data-id="${d.id}">
+        <span class="pkd-art">${d.card ? (open ? sprite(d.card, false, "") : `<span class="monunknown">?</span>`) : ic("cards")}</span>
+        <span class="grow"><b>${esc(d.n)}</b>${t ? ` <i class="cpw-t t${t}">${TIER_NAMES[t]}</i>` : ""}
+          <small>${open ? esc(pkDeckDesc(d)) : "Fermé · s'ouvre avec une carte de " + esc(d.card && monFound(d.card) ? POKE[d.card].name : "légendaire") + "."}</small></span>
+      </button>`;}).join("")}</div>`;
+}
 ACTIONS.pkabandon = () => {
   sheet(`${sheetHead("Abandonner la partie ?")}<div class="tiny muted">La progression de la partie est perdue.</div>
     <div class="btn-grid c2" style="margin-top:10px">
@@ -23363,7 +23943,7 @@ function pkCardHtml(c, selected, attrs, big, extraCls){
   const p = POKE[c.id];
   const t = p.types[0];
   const ed = c.ed || "";
-  return `<div class="pcard ${selected?"sel":""} ${ed} ${c.shiny?"shy":""} ${big?"big":""} ${extraCls||""} t${t}bg" ${attrs||""}>
+  return `<div class="pcard ${selected?"sel":""} ${ed} ${c.shiny?"shy":""} ${c.rb?"rb":""} ${big?"big":""} ${extraCls||""} t${t}bg" ${attrs||""}>
     <div class="pc-top">
       <span class="pc-nm">${esc(p.name)}</span>
       ${c.shiny?'<span class="pc-sh">◆</span>':""}
@@ -23374,6 +23954,7 @@ function pkCardHtml(c, selected, attrs, big, extraCls){
       <span class="pc-ch">${cardChips(c)}</span>
     </div>
     ${stageOf(c.id)?`<span class="pc-st">${"·".repeat(stageOf(c.id))}</span>`:""}
+    ${c.rb?`<span class="pc-rb" title="Arc-en-ciel : copie l'espèce qui complète la main">◇</span>`:""}
   </div>`;
 }
 /* le tapis : le nom de la main, puis jetons x multiplicateur, en grand */
@@ -23434,6 +24015,7 @@ SCREENS.poker = {
         <div class="tile"><div class="k">Meilleur score</div><div class="v">${fmt(S.stats.pokerBest||0)}</div></div>
         <div class="tile"><div class="k">Archive</div><div class="v">${dexTotal()}</div></div>
       </div>
+      ${ok ? pkDeckPicker() : ""}
       <button class="btn pri wide" data-act="pkstart" ${ok?"":"disabled"}>Lancer une partie</button>
       <button class="btn ghost wide" style="margin-top:7px" data-act="pkinfo">Voir les combinaisons</button>
       <button class="btn ghost wide" style="margin-top:7px" data-act="goto" data-to="modules">Retour aux modules</button>`;
@@ -23445,7 +24027,7 @@ SCREENS.poker = {
     return `<div class="pk-table">
       <div class="pk-head">
         <div class="grow"><div class="pk-stage">${esc(pkStageLabel())}</div>
-          <div class="pk-blind">Prochain verrou</div></div>
+          <div class="pk-blind">Prochain verrou${P.deckId && P.deckId !== "std" && typeof pkDeckDef === "function" ? ` · <span class="gold-t">${esc(pkDeckDef(P.deckId).n)}</span>` : ""}</div></div>
         <span class="pill">${ic("coin")} ${P.octets}</span>
         <button class="pk-menu" data-act="pkmenu" aria-label="Menu">${ic("grid")}</button>
       </div>
@@ -24988,6 +25570,7 @@ SCREENS.cards = {
                   title="${esc(seriesName(s))}"></span>`).join("")}
               </div>
               <div class="tiny dim">${best ? "meilleure : " + esc(seriesName(best)) : "signature non répertoriée"}</div>
+              ${typeof CARD_POWERS !== "undefined" && CARD_POWERS[id] ? `<div class="tiny ${got.length ? "gold-t" : "dim"}">${ic("star")} ${esc(CARD_POWERS[id].n)}${got.length ? " · " + TIER_NAMES[Math.min(3, got.length)] : ""}</div>` : ""}
             </div>
             ${ic("arrow")}
           </div>`;}).join("")}
@@ -25000,6 +25583,8 @@ SCREENS.cards = {
           ? "Elle n'appartient à aucune série. Le système n'a jamais émis cette carte : elle s'est inscrite toute seule."
           : "Une carte existe qui n'appartient à aucune génération. On ne l'obtient pas en jouant : on la rencontre."}</div>
       </div>
+
+      ${typeof cardPowersPanel === "function" ? cardPowersPanel() : ""}
 
       <div class="panel" style="margin-top:12px">
         <div class="h sm">OÙ LES OBTENIR</div>
@@ -25020,6 +25605,14 @@ ACTIONS.cardseries = d => {
   sheet(`${sheetHead(known ? POKE[id].name : "Signature non répertoriée")}
     <div class="tiny muted" style="margin-bottom:10px">${known ? esc(cardTitleOf(id)) + " — " : ""}
       ${v.filter(s=>cardHas(s,id)).length} illustration(s) sur ${v.length}.</div>
+    ${typeof CARD_POWERS !== "undefined" && CARD_POWERS[id] ? `<div class="panel tight cpw-sheet" style="margin-bottom:10px">
+      <div class="row between"><b class="tiny gold-t">${ic("star")} ${esc(CARD_POWERS[id].n)}</b>
+        <span class="cpw-t t${cardTier(id)}">${cardTier(id) ? TIER_NAMES[cardTier(id)] : "verrouillé"}</span></div>
+      <div class="tiny dim">${esc(cardPowerWhere(id))}</div>
+      <div class="tiny">${esc(cardPowerDesc(id))}</div>
+      <div class="tiny dim" style="margin-top:4px">${cardTier(id) >= 3 ? "Pouvoir au maximum." : "Prochaine illustration : " + TIER_NAMES[cardTier(id) + 1] + " — " + esc(cardPowerDesc(id, cardTier(id) + 1))}</div>
+      <div class="tiny dim">Possédé en carte, ${known ? esc(POKE[id].name) : "ce légendaire"} peut aussi t'attendre au Sanctuaire de l'Expédition.</div>
+    </div>` : ""}
     <div class="cardgrid">
       ${v.map(s=>tcardHtml(s, id, {attrs:`data-act="cardzoom" data-s="${s}" data-id="${id}"`})).join("")}
     </div>
@@ -25207,6 +25800,394 @@ function boNext(){
   else { Sfx.shiny(); buzz([18,34]); }
 }
 ACTIONS.bonext = () => boNext();
+
+/* ===== 73b-cardpowers.js ===== */
+/* ============================================================
+   73b — POUVOIRS DES CARTES
+   Une carte de légendaire n'est plus seulement une image : elle
+   ouvre quelque chose ailleurs dans le jeu.
+
+   Deux règles, pas une de plus :
+   1. Toute carte d'un légendaire le fait apparaître au SANCTUAIRE
+      de l'Expédition. Vaincu, il rejoint l'équipe pour le parcours.
+   2. Chaque légendaire a, en plus, UN pouvoir propre : un deck au
+      Poké-Poker, un programme au Poké-Poker, ou un objet vendu par
+      Kecleon en Expédition.
+
+   La force du pouvoir suit le nombre d'illustrations possédées
+   de ce légendaire : 1 = Éclat I, 2 = Éclat II, 3 ou plus = Éclat III.
+   Collectionner les anciens rendus a donc un sens en jeu, pas
+   seulement dans l'album.
+   ============================================================ */
+
+/* trois paliers, lus partout avec la même fonction */
+function cardTier(id){
+  if(typeof cardVariants !== "function") return 0;
+  let n = 0;
+  for(const s of cardVariants(id)) if(cardHas(s, id)) n++;
+  return Math.min(3, n);
+}
+function tierVal(id, arr){ const t = cardTier(id); return arr[Math.max(0, t - 1)]; }
+const TIER_NAMES = ["", "Éclat I", "Éclat II", "Éclat III"];
+
+/* m : poker | exp ; k : deck | joker | item */
+const CARD_POWERS = {
+  150: {m:"poker", k:"deck", n:"Deck Psychique", ic:"cards",
+        d:t=>`Un deck bâti sur les familles Psy. Chaque carte Psy marquée : ×${[1.1, 1.15, 1.2][t - 1]} Mult.`},
+  250: {m:"poker", k:"deck", n:"Deck Arc-en-ciel", ic:"cards",
+        d:t=>`À chaque manche, chaque carte a ${[8, 11, 15][t - 1]} % de chances d'être arc-en-ciel : elle copie l'espèce qui complète le mieux ta main.`},
+  386: {m:"poker", k:"deck", n:"Deck Équilibre", ic:"cards",
+        d:t=>`Avant chaque calcul, Jetons et Mult s'équilibrent (on prend leur moyenne). En échange, chaque verrou demande ×${[2, 1.8, 1.6][t - 1]} de score.`},
+  384: {m:"poker", k:"deck", n:"Deck Céleste", ic:"cards",
+        d:t=>`${[2, 3, 4][t - 1]} légendaires rejoignent le deck dès le départ.`},
+  249: {m:"poker", k:"deck", n:"Deck des Profondeurs", ic:"cards",
+        d:t=>`Un deck resserré à ${[44, 40, 36][t - 1]} cartes : moins de familles, plus de doublons, donc plus de paires et de brelans.`},
+
+  144: {m:"poker", k:"joker", n:"Plume de Givre", ic:"cards",
+        d:t=>`Programme : +${[4, 6, 8][t - 1]} Mult par carte Eau, Glace ou Vol marquée.`},
+  145: {m:"poker", k:"joker", n:"Plume d'Orage", ic:"cards",
+        d:t=>`Programme : +${[30, 45, 60][t - 1]} Jetons par carte Électrik ou Vol marquée.`},
+  146: {m:"poker", k:"joker", n:"Plume Ardente", ic:"cards",
+        d:t=>`Programme : ×${[1.1, 1.15, 1.2][t - 1]} Mult par carte Feu ou Vol marquée.`},
+  151: {m:"poker", k:"joker", n:"Gène Ancestral", ic:"cards",
+        d:t=>`Programme : après chaque main jouée, ${[25, 40, 60][t - 1]} % de chances que la combinaison gagne un niveau.`},
+  251: {m:"poker", k:"joker", n:"Voyage Temporel", ic:"cards",
+        d:t=>`Programme : la première main de chaque manche reçoit ×${[1.5, 1.75, 2][t - 1]} Mult.`},
+  385: {m:"poker", k:"joker", n:"Vœu Exaucé", ic:"cards",
+        d:t=>`Programme : +${[2, 3, 4][t - 1]} Octets par manche remportée.`},
+
+  243: {m:"exp", k:"item", n:"Crinière d'Orage", ic:"map",
+        d:()=>"+40% de Vitesse et 30% de chances d'agir en premier.", fx:{spe:1.40, quick:0.30}},
+  244: {m:"exp", k:"item", n:"Flamme Sacrée", ic:"map",
+        d:()=>"+25% de dégâts et +10% de PV maximum.", fx:{atk:1.25, hp:1.10}},
+  245: {m:"exp", k:"item", n:"Onde Pure", ic:"map",
+        d:()=>"Rend 12% des PV max du porteur à la fin de chaque tour.", fx:{regen:0.12}},
+  377: {m:"exp", k:"item", n:"Noyau de Roche", ic:"map",
+        d:()=>"+50% de Défense et +10% de PV maximum.", fx:{def:1.50, hp:1.10}},
+  378: {m:"exp", k:"item", n:"Noyau de Glace", ic:"map",
+        d:()=>"+50% de Défense Spéciale. L'assaillant perd 6% de ses PV à chaque coup.", fx:{spd:1.50, thorns:0.06}},
+  379: {m:"exp", k:"item", n:"Noyau d'Acier", ic:"map",
+        d:()=>"+25% dans les deux Défenses. Survit une fois à un coup fatal si ses PV étaient pleins.", fx:{def:1.25, spd:1.25, sash:1}},
+  380: {m:"exp", k:"item", n:"Rosée d'Âme", ic:"map",
+        d:()=>"Rend 22% des dégâts infligés, et 4% des PV max à chaque tour.", fx:{drain:0.22, regen:0.04}},
+  381: {m:"exp", k:"item", n:"Prisme Éon", ic:"map",
+        d:()=>"Coups critiques à 25% et +12% de dégâts.", fx:{crit:0.25, atk:1.12}},
+  382: {m:"exp", k:"item", n:"Orbe Bleu", ic:"map",
+        d:()=>"Dégâts ×2.3 sur une attaque super efficace, et +10% de PV maximum.", fx:{superx:2.30, hp:1.10}},
+  383: {m:"exp", k:"item", n:"Orbe Rouge", ic:"map",
+        d:()=>"+40% de dégâts. Le porteur perd 5% de ses PV max à chaque attaque.", fx:{atk:1.40, recoil:0.05}}
+};
+function cardPower(id){ return CARD_POWERS[id] || null; }
+function cardPowerDesc(id, t){ const P = CARD_POWERS[id]; return P ? P.d(Math.max(1, t || cardTier(id) || 1)) : ""; }
+function cardPowerWhere(id){
+  const P = CARD_POWERS[id]; if(!P) return "";
+  return P.k === "deck" ? "Poké-Poker · deck" : P.k === "joker" ? "Poké-Poker · programme" : "Expédition · boutique Kecleon";
+}
+
+/* ============================================================
+   POKÉ-POKER : les programmes de cartes
+   Ils rejoignent la réserve de la boutique quand la carte est
+   possédée ; leur effet suit l'Éclat au moment où ils marquent.
+   ============================================================ */
+const CARD_JOKERS = [
+  {id:"jc_144", card:144, n:"Plume de Givre", rar:2, cost:8, spr:144,
+   onCard:(c, x)=>{ if(POKE[c.id].types.some(t=>t === 11 || t === 15 || t === 3)) x.mult += tierVal(144, [4, 6, 8]); }},
+  {id:"jc_145", card:145, n:"Plume d'Orage", rar:2, cost:8, spr:145,
+   onCard:(c, x)=>{ if(POKE[c.id].types.some(t=>t === 13 || t === 3)) x.chips += tierVal(145, [30, 45, 60]); }},
+  {id:"jc_146", card:146, n:"Plume Ardente", rar:2, cost:9, spr:146,
+   onCard:(c, x)=>{ if(POKE[c.id].types.some(t=>t === 10 || t === 3)) x.mult *= tierVal(146, [1.1, 1.15, 1.2]); }},
+  {id:"jc_151", card:151, n:"Gène Ancestral", rar:2, cost:9, spr:151,
+   onAfter:(x)=>{
+     const P = S.poker; if(!P || !x || !x.handKey) return;
+     if(rng() < tierVal(151, [0.25, 0.4, 0.6])){
+       P.levels[x.handKey] = (P.levels[x.handKey] || 0) + 1;
+       toast(`Gène Ancestral : ${HANDS_BY_ID[x.handKey].n} niveau ${P.levels[x.handKey] + 1}`, "warn", "bolt");
+     }
+   }},
+  {id:"jc_251", card:251, n:"Voyage Temporel", rar:2, cost:9, spr:251,
+   onHand:x=>{ if((x.st.roundHands || 0) === 0) x.mult *= tierVal(251, [1.5, 1.75, 2]); }},
+  {id:"jc_385", card:385, n:"Vœu Exaucé", rar:1, cost:7, spr:385, passive:"wish"}
+];
+for(const j of CARD_JOKERS){
+  Object.defineProperty(j, "d", {get(){ return cardPowerDesc(j.card).replace(/^Programme : /, "") + ` (${TIER_NAMES[Math.max(1, cardTier(j.card))]})`; }, enumerable:true});
+  JOKERS.push(j);
+}
+/* un programme de carte n'existe que si la carte est possédée */
+function jokerAvail(j){ return !j.card || cardTier(j.card) > 0; }
+/* les Octets du Vœu : lus par la fin de manche */
+function pkWishBonus(P){
+  let b = 0;
+  for(const j of (P.jokers || [])) if(jokerDef(j)?.passive === "wish") b += tierVal(385, [2, 3, 4]);
+  return b;
+}
+
+/* ============================================================
+   POKÉ-POKER : les decks
+   ============================================================ */
+const PK_DECKS = [
+  {id:"std", n:"Deck Standard", card:0, d:"52 cartes, quatorze familles au hasard."},
+  {id:"psy", n:"Deck Psychique", card:150},
+  {id:"rainbow", n:"Deck Arc-en-ciel", card:250},
+  {id:"balance", n:"Deck Équilibre", card:386},
+  {id:"sky", n:"Deck Céleste", card:384},
+  {id:"deep", n:"Deck des Profondeurs", card:249}
+];
+function pkDeckDef(id){ return PK_DECKS.find(d=>d.id === id) || PK_DECKS[0]; }
+function pkDeckOpen(id){ const d = pkDeckDef(id); return !d.card || cardTier(d.card) > 0; }
+function pkDeckDesc(d){ return d.card ? cardPowerDesc(d.card) : d.d; }
+function pkDeckId(){ return (S.poker && S.poker.deckId) || "std"; }
+function pkDeckTier(){ const d = pkDeckDef(pkDeckId()); return d.card ? Math.max(1, cardTier(d.card)) : 0; }
+
+/* les familles qui contiennent au moins un Pokémon Psy */
+function psyFamilies(){
+  const out = [];
+  for(const k in FAM_MEMBERS){
+    const r = +k, mem = FAM_MEMBERS[k] || [];
+    if(r > 386 || !POKE[r] || POKE[r].leg) continue;
+    if(mem.some(id=>POKE[id] && POKE[id].types.includes(14))) out.push(r);
+  }
+  return out;
+}
+/* construit le deck de départ selon le deck choisi */
+function pkBuildDeck(deckId){
+  const d = pkDeckDef(deckId), t = d.card ? Math.max(1, cardTier(d.card)) : 0;
+  if(d.id === "psy"){
+    const psy = shuffle(psyFamilies()).slice(0, 7);
+    const rest = shuffle(BASE_FAMS.filter(r=>!psy.includes(r))).slice(0, Math.max(0, 14 - psy.length));
+    return newDeck({fams:psy.concat(rest)});
+  }
+  if(d.id === "deep") return newDeck({famCount:10, size:[44, 40, 36][t - 1]});
+  const deck = newDeck();
+  if(d.id === "sky"){
+    const legs = shuffle(CARD_MONS.slice()).slice(0, [2, 3, 4][t - 1]);
+    /* les légendaires remplacent les derniers doublons : le deck garde sa taille */
+    legs.forEach((id, i)=>{ deck[deck.length - 1 - i] = {u:deck[deck.length - 1 - i].u, id, shiny:false, ed:""}; });
+  }
+  return deck;
+}
+/* à chaque manche : l'arc-en-ciel se redistribue */
+function pkDeckOnRound(P){
+  if(P.deckId !== "rainbow") return;
+  const p = tierVal(250, [0.08, 0.11, 0.15]);
+  for(const c of P.draw) c.rb = rng() < p;
+}
+function pkDeckTargetMul(P){ return P.deckId === "balance" ? tierVal(386, [2, 1.8, 1.6]) : 1; }
+
+/* une carte arc-en-ciel copie l'espèce d'une autre carte jouée :
+   on essaie chaque possibilité et on garde la meilleure combinaison */
+function evalHandRainbow(cards, raw){
+  const rbs = cards.filter(c=>c.rb);
+  const opts = [...new Set(cards.filter(c=>!c.rb).map(c=>c.id))];
+  if(!rbs.length || !opts.length) return raw(cards);
+  let best = null, bv = -1;
+  const sub = new Map();
+  const rec = i => {
+    if(i === rbs.length){
+      const clone = cards.map(c=>sub.has(c.u) ? Object.assign({}, c, {id:sub.get(c.u)}) : c);
+      const ev = raw(clone), b = handBase(ev.key), v = b.chips * b.mult;
+      if(v > bv){ bv = v; best = {key:ev.key, n:ev.n, scoring:ev.scoring.map(sc=>cards.find(c=>c.u === sc.u) || sc)}; }
+      return;
+    }
+    for(const id of opts.concat([rbs[i].id])){ sub.set(rbs[i].u, id); rec(i + 1); }
+    sub.delete(rbs[i].u);
+  };
+  rec(0);
+  return best || raw(cards);
+}
+
+/* ============================================================
+   EXPÉDITION : les objets de Kecleon
+   Ils ne tombent jamais des coffres : seule la boutique les vend,
+   et seulement si la carte est possédée. Éclat III : moins cher,
+   et toujours en rayon.
+   ============================================================ */
+const CARD_ITEM_IDS = [];
+for(const k in CARD_POWERS){
+  const P = CARD_POWERS[k];
+  if(P.k !== "item") continue;
+  const id = "c_" + k;
+  EXP_ITEMS[id] = Object.assign({n:P.n, rar:3, spr:+k, card:+k, d:P.d(1)}, P.fx);
+  CARD_ITEM_IDS.push(id);
+}
+function cardShopWares(){
+  const own = CARD_ITEM_IDS.filter(id=>cardTier(EXP_ITEMS[id].card) > 0);
+  if(!own.length) return [];
+  const sure = own.filter(id=>cardTier(EXP_ITEMS[id].card) >= 3);
+  const rest = shuffle(own.filter(id=>!sure.includes(id)));
+  const pickN = sure.concat(rest).slice(0, Math.max(2, Math.min(3, sure.length)));
+  return pickN.map(id=>{
+    const it = EXP_ITEMS[id], t = cardTier(it.card);
+    return {k:"citem", id, n:it.n, d:it.d, p:[150, 120, 90][t - 1], ic:"", spr:it.spr, card:it.card};
+  });
+}
+
+/* ============================================================
+   EXPÉDITION : le Sanctuaire
+   Une fois par parcours au plus, dans le deuxième secteur. Plus
+   la collection est large, plus il a de chances d'exister.
+   ============================================================ */
+function cardSpeciesOwned(){ return CARD_MONS.filter(id=>cardTier(id) > 0); }
+function sanctChance(){
+  const n = cardSpeciesOwned().length;
+  return n ? Math.min(0.75, 0.30 + n * 0.04) : 0;
+}
+/* tirage pondéré par l'Éclat : les légendaires qu'on a le plus collectionnés viennent plus souvent */
+function sanctPick(){
+  const pool = [];
+  for(const id of cardSpeciesOwned()) for(let i = 0; i < cardTier(id); i++) pool.push(id);
+  return pool.length ? pick(pool) : 0;
+}
+/* appelé à l'ouverture de chaque secteur */
+function sanctPlace(run, mapIdx){
+  if(!run || !run.map) return;
+  /* décidé une fois, à l'ouverture du premier secteur */
+  if(run.sanctAt === undefined) run.sanctAt = rng() < sanctChance() ? Math.min(1, (run.maps || 1) - 1) : -1;
+  if(run.sanctAt !== mapIdx) return;
+  const id = sanctPick(); if(!id) return;
+  const ys = [3, 4].filter(y=>run.map[y]);
+  if(!ys.length) return;
+  const row = run.map[pick(ys)];
+  const n = row[Math.floor(rng() * row.length)];
+  n.t = "legend"; n.leg = id;
+}
+function sanctLevel(run){ return clamp(expEnemyLevel(run, 3), 5, 100); }
+
+/* les deux scènes du Sanctuaire */
+const SANCT_LINES = {
+  144:"Le froid se lève avant lui. Tout ce qui bouge ici ralentit.",
+  145:"L'air crépite. Chaque plume est une décharge en attente.",
+  146:"La salle brûle sans se consumer. Il t'attendait.",
+  150:"Il n'a pas besoin de te regarder pour savoir ce que tu penses.",
+  151:"Il rit, quelque part. Il veut jouer — à sa manière.",
+  243:"Un éclair traverse la salle et s'arrête net devant toi.",
+  244:"Le sol tremble sous ses pas. Un volcan qui marche.",
+  245:"L'eau du sanctuaire est parfaitement claire. Lui aussi.",
+  249:"Une pression immense, venue d'en dessous. Les profondeurs t'observent.",
+  250:"Sept couleurs se posent sur les murs. Il juge ceux qui viennent.",
+  251:"Le temps hésite. Tu as déjà vécu cet instant, ou tu vas le vivre.",
+  377:"Des points s'allument sur une paroi de pierre. Elle respire.",
+  378:"Une glace plus ancienne que la couche elle-même. Elle se lève.",
+  379:"Du métal qui pense. Il ne recule pas, jamais.",
+  380:"Elle apparaît, disparaît, réapparaît. Elle veut savoir si tu es gentil.",
+  381:"Il te montre une image : ton équipe, perdue. Il veut voir si tu y crois.",
+  382:"Une marée monte depuis les murs. La salle devient océan.",
+  383:"La terre s'ouvre. La chaleur te repousse d'un pas.",
+  384:"Il descend du plafond comme si le plafond n'existait pas.",
+  385:"Il dort. Une étoile sur son front s'allume quand tu approches.",
+  386:"Sa forme change à chaque battement. Il t'analyse."
+};
+if(typeof XS_SCENES !== "undefined"){
+  XS_SCENES.legend = function(run, p){
+    const nm = POKE[p.id].name, t = cardTier(p.id);
+    const stage = `<div class="xs-rays sanct"></div><div class="xs-sanct"></div>
+      <div class="xs-legend">${sprBox(p.id, false, 150)}</div>
+      <div class="xs-warn gold">SANCTUAIRE</div>`;
+    const panel = `<div class="xs-kicker" style="color:#ffd24a">SANCTUAIRE LÉGENDAIRE · ${TIER_NAMES[Math.max(1, t)]}</div>
+      <div class="xs-title">${esc(nm)}</div>
+      <div class="xs-say">${esc(SANCT_LINES[p.id] || "Il t'attendait.")}</div>
+      <div class="tiny dim" style="margin:6px 0">N.${p.lv} · seul, mais redoutable. Vaincu, il rejoint ton équipe pour ce parcours${t >= 2 ? `, avec ${t === 3 ? 4 : 2} niveaux d'avance` : ""}. Perdre ici met fin à l'expédition.</div>
+      <button class="btn pri wide xs-go" data-act="xslegendgo">Affronter ${esc(nm)}</button>
+      <button class="btn ghost wide" data-act="xslegendskip">Passer son chemin · +${40 + run.floor * 5} Bits</button>`;
+    xsOpen("legend", "#ffd24a", stage, panel);
+    try { arTone && arTone(196, .5, "triangle", .05, 392); } catch(e){}
+  };
+  XS_SCENES.sanctdone = function(run, p){
+    const nm = POKE[p.id].name;
+    const stage = `<div class="xs-sun"></div>${xsTeam(run, {walk:true, size:54})}`;
+    const panel = `<div class="xs-kicker" style="color:#ffd24a">SANCTUAIRE</div>
+      <div class="xs-title">${esc(nm)} rejoint l'équipe</div>
+      <div class="xs-say">Niveau ${p.lvl}. Pour ce parcours, il marche avec toi.</div>
+      <button class="btn pri wide" data-act="xsok">Continuer</button>`;
+    xsOpen("sanctdone", "#ffd24a", stage, panel);
+    try { Sfx.shiny(); } catch(e){}
+  };
+}
+ACTIONS.xslegendgo = () => {
+  const run = xsRun(); if(!run || !run.pend || run.pend.k !== "legend") return;
+  const p = run.pend;
+  xsClose();
+  expFight(run, "legend", [{id:p.id, lv:p.lv, boost:1.12}]);
+};
+ACTIONS.xslegendskip = () => {
+  const run = xsRun(); if(!run || !run.pend || run.pend.k !== "legend") return;
+  run.bits += 40 + run.floor * 5;
+  toast(`+${40 + run.floor * 5} Bits`, "", "coin");
+  xsDone(run);
+};
+/* après la victoire : il rejoint l'équipe (ou on choisit qui lui laisse sa place) */
+function sanctJoin(run, id){
+  const t = cardTier(id);
+  const lvl = clamp(teamAvgLevel(run) + [0, 0, 2, 4][t], 2, 100);
+  S.stats.sanctWins = (S.stats.sanctWins || 0) + 1;
+  if(run.team.length < 6){
+    run.team.push(newRunMon(run, id, lvl));
+    run.pend = {k:"sanctdone", id, lvl};
+  } else {
+    run.pend = {k:"draft", list:[{id, lvl}], legend:1, seen:false};
+  }
+  save();
+  if(typeof closeSheet === "function") closeSheet();
+  expResume(run);
+}
+
+/* ============================================================
+   LA RÉVÉLATION
+   Quand une carte ouvre (ou renforce) un pouvoir, on le dit — et
+   on dit où s'en servir. Sinon le pouvoir dort dans un menu.
+   ============================================================ */
+function cardPowerAnnounce(id, before, after){
+  if(after <= before) return;
+  const P = CARD_POWERS[id];
+  const nm = POKE[id] ? POKE[id].name : "?";
+  S.cardPowerLog = S.cardPowerLog || [];
+  S.cardPowerLog.push({id, t:after, at:Date.now()});
+  if(S.cardPowerLog.length > 30) S.cardPowerLog.shift();
+  const sanct = before === 0 ? ` ${nm} peut désormais t'attendre au Sanctuaire de l'Expédition.` : "";
+  if(typeof moment !== "function") return;
+  moment({kind:"release", c:"#ffd24a", spr:id,
+    kicker: before === 0 ? "POUVOIR DE CARTE" : "POUVOIR RENFORCÉ",
+    title: (P ? P.n : nm) + " · " + TIER_NAMES[after],
+    sub: (P ? cardPowerDesc(id, after) : "") + sanct,
+    line: before === 0 ? "{nom}, cette carte n'est pas qu'une image. Elle ouvre quelque chose. Regarde dans " + (P ? cardPowerWhere(id) : "l'Expédition") + "."
+                       : "Une illustration plus ancienne. Le pouvoir de " + nm + " grandit."});
+}
+/* on enveloppe l'obtention : avant/après, sans toucher aux appelants */
+if(typeof grantCardV === "function"){
+  const _grantCardV = grantCardV;
+  grantCardV = function(series, id){
+    const before = series === "mn" ? 0 : cardTier(id);
+    const r = _grantCardV(series, id);
+    if(r && series !== "mn") try { cardPowerAnnounce(id, before, cardTier(id)); } catch(e){}
+    return r;
+  };
+}
+
+/* ---------- le panneau des pouvoirs, dans la collection ---------- */
+function cardPowersPanel(){
+  const own = cardSpeciesOwned().length;
+  const row = id=>{
+    const P = CARD_POWERS[id], t = cardTier(id), known = t > 0 || monFound(id);
+    return `<div class="cpw ${t ? "on" : ""}" data-act="cardseries" data-id="${id}">
+      <span class="sprbox" style="width:34px;height:34px">${t ? sprite(id, false, "") : `<span class="monunknown">?</span>`}</span>
+      <div class="grow">
+        <div class="row between"><b class="tiny">${esc(P.n)}</b>
+          <span class="cpw-t t${t}">${t ? TIER_NAMES[t] : "verrouillé"}</span></div>
+        <div class="tiny dim">${esc(cardPowerWhere(id))}${known ? " · " + esc(POKE[id].name) : ""}</div>
+        <div class="tiny ${t ? "" : "dim"}">${esc(cardPowerDesc(id, Math.max(1, t)))}</div>
+      </div></div>`;
+  };
+  const group = (title, f) => `<div class="h sm" style="margin-top:8px">${title}</div>${CARD_MONS.filter(f).map(row).join("")}`;
+  return `<div class="panel" style="margin-top:12px">
+    <div class="h sm">POUVOIRS DES CARTES</div>
+    <div class="tiny">Chaque légendaire possédé en carte <b>apparaît au Sanctuaire</b> de l'Expédition
+      (${own ? `<b class="gold-t">${Math.round(sanctChance() * 100)} %</b> de chances par parcours` : "aucun pour l'instant"}) :
+      bats-le, il rejoint ton équipe. Il ouvre aussi <b>un pouvoir propre</b>. Plus tu as d'illustrations
+      de lui, plus le pouvoir est fort : 1 = Éclat I, 2 = Éclat II, 3 = Éclat III.</div>
+    ${group("POKÉ-POKER · DECKS", id=>CARD_POWERS[id].k === "deck")}
+    ${group("POKÉ-POKER · PROGRAMMES", id=>CARD_POWERS[id].k === "joker")}
+    ${group("EXPÉDITION · BOUTIQUE KECLEON", id=>CARD_POWERS[id].k === "item")}
+  </div>`;
+}
 
 /* ===== 74-eggs.js ===== */
 /* ============================================================
@@ -27488,7 +28469,10 @@ const INFOS = {
     <p>Les <b>reliques</b> modifient toute l'équipe pour le reste du run. Les <b>Bits</b> ne
     servent qu'à l'intérieur du parcours.</p>
     <p>La <b>corruption</b> monte quand vous prenez des risques : meilleur butin, ennemis plus forts.
-    Elle ne redescend jamais.</p>`},
+    Elle ne redescend jamais.</p>
+    <p>Si tu possèdes des <b>cartes de légendaires</b>, un <b>Sanctuaire</b> doré peut se cacher dans le
+    deuxième secteur : un légendaire de ta collection t'y attend. Bats-le, il rejoint ton équipe.
+    Certaines cartes font aussi vendre à Kecleon un objet unique.</p>`},
 
   poker:{n:"Le Poké-Poker", d:`
     <p>Un deck de 52 cartes, mais les cartes sont des <b>Pokémon</b>. Il n'y a ni couleur ni rang :
@@ -27499,7 +28483,9 @@ const INFOS = {
     · <b>Chromatiques</b> et <b>légendaires</b> — les combinaisons les plus riches.</p>
     <p>Le score est <b class="cy">Jetons</b> × <b class="bad">Multiplicateur</b>. Les
     <b>programmes</b> s'empilent et transforment complètement une partie. Les <b>boosters</b>
-    ajoutent à votre deck des espèces tirées de votre propre archive.</p>`},
+    ajoutent à votre deck des espèces tirées de votre propre archive.</p>
+    <p>Certaines <b>cartes de légendaires</b> ouvrent un <b>deck spécial</b> (à choisir avant la partie)
+    ou un <b>programme</b> qui rejoint la boutique. Plus tu as d'illustrations du légendaire, plus l'effet est fort.</p>`},
 
   idle:{n:"Le Forage", d:`
     <p><b>Ton équipe creuse toute seule</b>, même quand le jeu est fermé (jusqu'à 8 h, plus avec les améliorations).
@@ -27512,7 +28498,12 @@ const INFOS = {
     Un objet est à toi quand il est entièrement dégagé. Si la solidité tombe à zéro, tout s'effondre : tu gardes
     ce qui était déjà sorti.</p>
     <p>En creusant, tu gagnes aussi de l'<b>Énergie</b>. Elle sert à améliorer le Forage, à lancer des captures
-    automatiques, ou s'échange contre des PokéCoins.</p>`},
+    automatiques, ou s'échange contre des PokéCoins.</p>
+    <p>Ton équipe remonte aussi du <b>minerai</b> : cuivre, fer, argent, or, puis la rêvite tout au fond. Les fouilles
+    en cachent en petites <b>pépites</b>. À <b>la Forge</b>, le minerai et l'Énergie donnent de meilleurs outils —
+    pioche, marteau, foreuse, étais — du bois jusqu'à l'onirique. Chaque matière se voit à l'écran.</p>
+    <p>Quand le puits principal est assez profond, d'autres <b>chantiers</b> s'ouvrent : une grotte, un cratère,
+    des ruines, un pic. Chacun repart de zéro, plus dur, avec ses propres trésors et son minerai favori.</p>`},
 
   fishing:{n:"La pêche", d:`
     <p>La pêche est un mode de l'écran de capture : on bascule d'un geste entre Capture et Pêche.
@@ -27538,11 +28529,12 @@ const INFOS = {
     et rend un gros bloc d'intégrité.</p>`},
 
   cards:{n:"Les cartes légendaires", d:`
-    <p>Une carte est émise à la première victoire sur un verrou, ou tirée d'une Archive du Vide.</p>
-    <p>Quatre qualités : Standard, Holographique, Corrompue, Originelle. Seule la meilleure
-    obtenue est conservée ; les suivantes comptent comme exemplaires supplémentaires.</p>
-    <p>L'échange entre joueurs demandera un serveur. En attendant, un code exportable est
-    disponible depuis la collection.</p>`},
+    <p>Une carte s'obtient en battant un Data Guardian pour la première fois, au bout d'une
+    expédition réussie, dans les Archives du Vide ou avec les objectifs de la semaine.</p>
+    <p>Chaque légendaire existe en plusieurs <b>illustrations</b>, d'autant plus rares qu'elles sont anciennes.</p>
+    <p><b>Chaque carte a un pouvoir.</b> Le légendaire peut t'attendre au <b>Sanctuaire</b> de
+    l'Expédition, et il ouvre en plus un deck ou un programme au Poké-Poker, ou un objet chez Kecleon.
+    1 illustration = <b>Éclat I</b>, 2 = <b>Éclat II</b>, 3 ou plus = <b>Éclat III</b>.</p>`},
 
   combat:{n:"Le combat", d:`
     <p>Chaque tour, les deux camps agissent dans l'ordre de leur <b>Vitesse</b>. Le tableau des types
@@ -27714,7 +28706,7 @@ const TUTOS = {
   intro:{steps:[
     {sel:"#enc-stage", t:"Voici un Pokémon désindexé. Sa définition existe encore quelque part, mais plus rien ne pointe vers elle. Il a l'air perdu. Je connais ce sentiment, enfin, j'ai lu des choses dessus."},
     {sel:".ballrow", t:"Une Ball le raccroche au Pokédex. Choisis-en une : le pourcentage affiché est ta vraie probabilité de réussite."},
-    {sel:".throwbtn", t:"Puis lance. Si la Ball tient, le Pokémon reprend sa place au Pokédex et le monde redevient un peu plus solide."},
+    {sel:".throwbtn", t:"Touche LANCER : un curseur part sur une barre. Touche encore pour l'arrêter : au centre jaune, +25 % de chances ; plus à côté, un peu moins. Plus le Pokémon est rare, plus le curseur file."},
     {sel:".integrity", t:"Cette jauge, c'est l'état du monde. Elle mesure ce que tu as réparé. Je la regarde à peu près quatre mille fois par seconde."},
     {sel:"#dock", t:"Le reste s'ouvrira au fil de ta progression. Je te préviendrai à chaque fois. Probablement avec trop d'enthousiasme. Allez, {nom} : lance !"}
   ]},

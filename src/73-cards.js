@@ -354,6 +354,7 @@ SCREENS.cards = {
                   title="${esc(seriesName(s))}"></span>`).join("")}
               </div>
               <div class="tiny dim">${best ? "meilleure : " + esc(seriesName(best)) : "signature non répertoriée"}</div>
+              ${typeof CARD_POWERS !== "undefined" && CARD_POWERS[id] ? `<div class="tiny ${got.length ? "gold-t" : "dim"}">${ic("star")} ${esc(CARD_POWERS[id].n)}${got.length ? " · " + TIER_NAMES[Math.min(3, got.length)] : ""}</div>` : ""}
             </div>
             ${ic("arrow")}
           </div>`;}).join("")}
@@ -366,6 +367,8 @@ SCREENS.cards = {
           ? "Elle n'appartient à aucune série. Le système n'a jamais émis cette carte : elle s'est inscrite toute seule."
           : "Une carte existe qui n'appartient à aucune génération. On ne l'obtient pas en jouant : on la rencontre."}</div>
       </div>
+
+      ${typeof cardPowersPanel === "function" ? cardPowersPanel() : ""}
 
       <div class="panel" style="margin-top:12px">
         <div class="h sm">OÙ LES OBTENIR</div>
@@ -386,6 +389,14 @@ ACTIONS.cardseries = d => {
   sheet(`${sheetHead(known ? POKE[id].name : "Signature non répertoriée")}
     <div class="tiny muted" style="margin-bottom:10px">${known ? esc(cardTitleOf(id)) + " — " : ""}
       ${v.filter(s=>cardHas(s,id)).length} illustration(s) sur ${v.length}.</div>
+    ${typeof CARD_POWERS !== "undefined" && CARD_POWERS[id] ? `<div class="panel tight cpw-sheet" style="margin-bottom:10px">
+      <div class="row between"><b class="tiny gold-t">${ic("star")} ${esc(CARD_POWERS[id].n)}</b>
+        <span class="cpw-t t${cardTier(id)}">${cardTier(id) ? TIER_NAMES[cardTier(id)] : "verrouillé"}</span></div>
+      <div class="tiny dim">${esc(cardPowerWhere(id))}</div>
+      <div class="tiny">${esc(cardPowerDesc(id))}</div>
+      <div class="tiny dim" style="margin-top:4px">${cardTier(id) >= 3 ? "Pouvoir au maximum." : "Prochaine illustration : " + TIER_NAMES[cardTier(id) + 1] + " — " + esc(cardPowerDesc(id, cardTier(id) + 1))}</div>
+      <div class="tiny dim">Possédé en carte, ${known ? esc(POKE[id].name) : "ce légendaire"} peut aussi t'attendre au Sanctuaire de l'Expédition.</div>
+    </div>` : ""}
     <div class="cardgrid">
       ${v.map(s=>tcardHtml(s, id, {attrs:`data-act="cardzoom" data-s="${s}" data-id="${id}"`})).join("")}
     </div>

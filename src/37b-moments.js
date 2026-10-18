@@ -42,7 +42,7 @@ function momentShow(m){
   if(!box || !box.style) return;
   MOMENT_ON = m;
   const c = m.c || "#35f0d6";
-  const art = m.spr ? `<span class="mo-spr">${sprite(m.spr, !!m.shiny, "", {anim:true, eager:true})}</span>`
+  const art = m.html ? `<span class="mo-item mo-html">${m.html}</span>` : m.spr ? `<span class="mo-spr">${sprite(m.spr, !!m.shiny, "", {anim:true, eager:true})}</span>`
     : m.item ? `<span class="mo-item">${itemIcon(m.item, 64) || ic(m.icon || "star")}</span>`
     : m.icon ? `<span class="mo-ic">${ic(m.icon)}</span>` : "";
   const band = m.kind === "depth" ? `<div class="mo-bands">${(m.band || [c, c, c]).concat(m.band || []).map((b, i)=>`<i style="background:${b};--i:${i}"></i>`).join("")}</div>` : "";

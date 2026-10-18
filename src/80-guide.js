@@ -91,7 +91,10 @@ const INFOS = {
     <p>Les <b>reliques</b> modifient toute l'équipe pour le reste du run. Les <b>Bits</b> ne
     servent qu'à l'intérieur du parcours.</p>
     <p>La <b>corruption</b> monte quand vous prenez des risques : meilleur butin, ennemis plus forts.
-    Elle ne redescend jamais.</p>`},
+    Elle ne redescend jamais.</p>
+    <p>Si tu possèdes des <b>cartes de légendaires</b>, un <b>Sanctuaire</b> doré peut se cacher dans le
+    deuxième secteur : un légendaire de ta collection t'y attend. Bats-le, il rejoint ton équipe.
+    Certaines cartes font aussi vendre à Kecleon un objet unique.</p>`},
 
   poker:{n:"Le Poké-Poker", d:`
     <p>Un deck de 52 cartes, mais les cartes sont des <b>Pokémon</b>. Il n'y a ni couleur ni rang :
@@ -102,7 +105,9 @@ const INFOS = {
     · <b>Chromatiques</b> et <b>légendaires</b> — les combinaisons les plus riches.</p>
     <p>Le score est <b class="cy">Jetons</b> × <b class="bad">Multiplicateur</b>. Les
     <b>programmes</b> s'empilent et transforment complètement une partie. Les <b>boosters</b>
-    ajoutent à votre deck des espèces tirées de votre propre archive.</p>`},
+    ajoutent à votre deck des espèces tirées de votre propre archive.</p>
+    <p>Certaines <b>cartes de légendaires</b> ouvrent un <b>deck spécial</b> (à choisir avant la partie)
+    ou un <b>programme</b> qui rejoint la boutique. Plus tu as d'illustrations du légendaire, plus l'effet est fort.</p>`},
 
   idle:{n:"Le Forage", d:`
     <p><b>Ton équipe creuse toute seule</b>, même quand le jeu est fermé (jusqu'à 8 h, plus avec les améliorations).
@@ -115,7 +120,12 @@ const INFOS = {
     Un objet est à toi quand il est entièrement dégagé. Si la solidité tombe à zéro, tout s'effondre : tu gardes
     ce qui était déjà sorti.</p>
     <p>En creusant, tu gagnes aussi de l'<b>Énergie</b>. Elle sert à améliorer le Forage, à lancer des captures
-    automatiques, ou s'échange contre des PokéCoins.</p>`},
+    automatiques, ou s'échange contre des PokéCoins.</p>
+    <p>Ton équipe remonte aussi du <b>minerai</b> : cuivre, fer, argent, or, puis la rêvite tout au fond. Les fouilles
+    en cachent en petites <b>pépites</b>. À <b>la Forge</b>, le minerai et l'Énergie donnent de meilleurs outils —
+    pioche, marteau, foreuse, étais — du bois jusqu'à l'onirique. Chaque matière se voit à l'écran.</p>
+    <p>Quand le puits principal est assez profond, d'autres <b>chantiers</b> s'ouvrent : une grotte, un cratère,
+    des ruines, un pic. Chacun repart de zéro, plus dur, avec ses propres trésors et son minerai favori.</p>`},
 
   fishing:{n:"La pêche", d:`
     <p>La pêche est un mode de l'écran de capture : on bascule d'un geste entre Capture et Pêche.
@@ -141,11 +151,12 @@ const INFOS = {
     et rend un gros bloc d'intégrité.</p>`},
 
   cards:{n:"Les cartes légendaires", d:`
-    <p>Une carte est émise à la première victoire sur un verrou, ou tirée d'une Archive du Vide.</p>
-    <p>Quatre qualités : Standard, Holographique, Corrompue, Originelle. Seule la meilleure
-    obtenue est conservée ; les suivantes comptent comme exemplaires supplémentaires.</p>
-    <p>L'échange entre joueurs demandera un serveur. En attendant, un code exportable est
-    disponible depuis la collection.</p>`},
+    <p>Une carte s'obtient en battant un Data Guardian pour la première fois, au bout d'une
+    expédition réussie, dans les Archives du Vide ou avec les objectifs de la semaine.</p>
+    <p>Chaque légendaire existe en plusieurs <b>illustrations</b>, d'autant plus rares qu'elles sont anciennes.</p>
+    <p><b>Chaque carte a un pouvoir.</b> Le légendaire peut t'attendre au <b>Sanctuaire</b> de
+    l'Expédition, et il ouvre en plus un deck ou un programme au Poké-Poker, ou un objet chez Kecleon.
+    1 illustration = <b>Éclat I</b>, 2 = <b>Éclat II</b>, 3 ou plus = <b>Éclat III</b>.</p>`},
 
   combat:{n:"Le combat", d:`
     <p>Chaque tour, les deux camps agissent dans l'ordre de leur <b>Vitesse</b>. Le tableau des types
@@ -317,7 +328,7 @@ const TUTOS = {
   intro:{steps:[
     {sel:"#enc-stage", t:"Voici un Pokémon désindexé. Sa définition existe encore quelque part, mais plus rien ne pointe vers elle. Il a l'air perdu. Je connais ce sentiment, enfin, j'ai lu des choses dessus."},
     {sel:".ballrow", t:"Une Ball le raccroche au Pokédex. Choisis-en une : le pourcentage affiché est ta vraie probabilité de réussite."},
-    {sel:".throwbtn", t:"Puis lance. Si la Ball tient, le Pokémon reprend sa place au Pokédex et le monde redevient un peu plus solide."},
+    {sel:".throwbtn", t:"Touche LANCER : un curseur part sur une barre. Touche encore pour l'arrêter : au centre jaune, +25 % de chances ; plus à côté, un peu moins. Plus le Pokémon est rare, plus le curseur file."},
     {sel:".integrity", t:"Cette jauge, c'est l'état du monde. Elle mesure ce que tu as réparé. Je la regarde à peu près quatre mille fois par seconde."},
     {sel:"#dock", t:"Le reste s'ouvrira au fil de ta progression. Je te préviendrai à chaque fois. Probablement avec trop d'enthousiasme. Allez, {nom} : lance !"}
   ]},
