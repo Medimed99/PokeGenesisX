@@ -300,6 +300,8 @@ hr.sep{border:0;border-top:1px dashed var(--line);margin:10px 0}
    Avant, deux regles se marchaient dessus et il ne restait que la lueur sur le sprite normal. */
 .spr.shiny{background-image:var(--atlas-shiny,var(--atlas));filter:drop-shadow(0 0 6px var(--amber))}
 .spr.shinyglow{filter:drop-shadow(0 0 7px var(--amber))}
+/* le GIF chargé remplace l'atlas, chromatique compris (la règle .spr.shiny ci-dessus le remettait derrière) */
+.spr.animon,.spr.shiny.animon{background-image:none}
 .spr.ghosted{filter:brightness(0) invert(.20)}
 .spr.sm{width:44px;height:44px}
 .spr.xs{width:30px;height:30px}
@@ -4850,3 +4852,50 @@ details.fo-more[open]>summary::before{content:"▾ "}
 .sw-rbtn .btn.wide{grid-column:1/-1;width:100%}
 .crv-all{margin-top:2px;opacity:.8}
 body.crv-on #toasts,body.crv-on #pztalk{visibility:hidden}
+
+/* ============================================================
+   POKÉDEX · CASE CHROMATIQUE
+   Un hologramme qui tourne, un balayage de lecture, des étincelles :
+   un chromatique se repère d'un coup d'œil dans toute la grille.
+   Les décalages (--dl) désynchronisent les cases voisines.
+   ============================================================ */
+.dexcell.shinycell{border:1px solid transparent;isolation:isolate;
+  background:linear-gradient(#0b0f1d,#0b0f1d) padding-box,
+    conic-gradient(from var(--dxa,0deg),#ffd24a,#ff5fa2,#b06bff,#35f0d6,#9dff6b,#ffd24a) border-box;
+  border-width:2px;box-shadow:0 0 14px rgba(255,210,74,.6),inset 0 0 14px rgba(255,210,74,.25);
+  animation:dxBorder 4s linear infinite,dxPulse 2.4s ease-in-out infinite;animation-delay:var(--dl,0s),var(--dl,0s)}
+@property --dxa{syntax:"<angle>";initial-value:0deg;inherits:false}
+@keyframes dxBorder{to{--dxa:360deg}}
+@keyframes dxPulse{50%{box-shadow:0 0 20px rgba(255,210,74,.75),0 0 34px rgba(255,95,162,.35),inset 0 0 18px rgba(255,210,74,.3)}}
+.dexcell.shinycell::before{display:none}
+.dx-holo{position:absolute;left:50%;top:50%;width:170%;aspect-ratio:1;z-index:0;pointer-events:none;
+  transform:translate(-50%,-50%);opacity:.7;mix-blend-mode:screen;
+  background:conic-gradient(from 0deg,rgba(255,210,74,.9),rgba(255,95,162,.75),rgba(176,107,255,.8),rgba(53,240,214,.8),rgba(157,255,107,.7),rgba(255,210,74,.9));
+  filter:blur(6px);animation:dxSpin 6s linear infinite;animation-delay:var(--dl,0s)}
+@keyframes dxSpin{to{transform:translate(-50%,-50%) rotate(360deg)}}
+.dexcell.shinycell::after{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(closest-side at 50% 46%,rgba(10,14,28,.55),rgba(10,14,28,.2) 70%,rgba(10,14,28,.05)),
+    repeating-linear-gradient(0deg,rgba(255,255,255,.05) 0 1px,transparent 1px 3px)}
+.dx-scan{position:absolute;left:-30%;right:-30%;height:40%;top:-40%;z-index:1;pointer-events:none;
+  background:linear-gradient(180deg,transparent,rgba(255,255,255,.0) 20%,rgba(255,240,200,.55) 50%,transparent 80%);
+  transform:rotate(-18deg);mix-blend-mode:screen;animation:dxScan 3.2s ease-in-out infinite;animation-delay:var(--dl,0s)}
+@keyframes dxScan{0%{top:-45%}55%,100%{top:115%}}
+.dx-sp{position:absolute;z-index:3;width:7px;height:7px;pointer-events:none;
+  background:radial-gradient(circle,#fff 0 18%,transparent 22%),
+    linear-gradient(90deg,transparent 42%,#fff6c8 50%,transparent 58%),linear-gradient(0deg,transparent 42%,#fff6c8 50%,transparent 58%);
+  filter:drop-shadow(0 0 3px #ffd24a);opacity:0;animation:dxTwinkle 2.2s ease-in-out infinite}
+.dx-sp.a{top:16%;left:16%;animation-delay:calc(var(--dl,0s) * -1)}
+.dx-sp.b{top:30%;right:12%;width:9px;height:9px;animation-delay:calc(var(--dl,0s) * -1 - .75s)}
+.dx-sp.c{bottom:26%;left:22%;width:6px;height:6px;animation-delay:calc(var(--dl,0s) * -1 - 1.5s)}
+@keyframes dxTwinkle{0%,100%{opacity:0;transform:scale(.3) rotate(0)}35%{opacity:1;transform:scale(1.15) rotate(45deg)}60%{opacity:0;transform:scale(.4) rotate(90deg)}}
+.dexcell.shinycell .spr{z-index:2;filter:drop-shadow(0 0 6px rgba(255,210,74,.85)) drop-shadow(0 0 1px #fff);animation:dxFloat 2.4s ease-in-out infinite;animation-delay:var(--dl,0s)}
+@keyframes dxFloat{50%{transform:translateY(-2px)}}
+.dexcell.shinycell .nm{color:#ffe9a8;text-shadow:0 0 6px rgba(255,210,74,.7)}
+.dexcell.shinycell .no{color:#ffd24a}
+.dexcell.shinycell .cnt{color:#fff}
+.dexcell.shinycell .shi{left:0;right:0;bottom:auto;top:auto;position:absolute;display:none}
+.dexcell.shinycell .shi{display:block;top:3px;left:50%;right:auto;transform:translateX(-50%);font-family:var(--font-px);font-size:5.5px;letter-spacing:.5px;
+  color:#1a1206;background:linear-gradient(90deg,#ffd24a,#ffe9a8,#ffd24a);background-size:200% 100%;padding:1.5px 3px;border-radius:2px;
+  box-shadow:0 0 6px rgba(255,210,74,.8);animation:dxTag 2s linear infinite;white-space:nowrap;z-index:3}
+@keyframes dxTag{to{background-position:-200% 0}}
+@media (prefers-reduced-motion:reduce){.dexcell.shinycell,.dx-holo,.dx-scan,.dx-sp,.dexcell.shinycell .spr,.dexcell.shinycell .shi{animation:none!important}.dx-sp{opacity:.8}}

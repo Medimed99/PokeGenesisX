@@ -91,11 +91,13 @@ SCREENS.dex = {
       <div class="dexgrid">
         ${ids.map(i=>{
           const e = S.dex[i];
-          return `<div class="dexcell ${e?"owned":""} r${POKE[i].rar}" data-act="dexopen" data-id="${i}">
+          const sh = e && e.shiny;
+          return `<div class="dexcell ${e?"owned":""} ${sh?"shinycell":""} r${POKE[i].rar}" data-act="dexopen" data-id="${i}" ${sh?`style="--dl:${-(i * 0.37 % 4).toFixed(2)}s"`:""}>
+            ${sh?'<span class="dx-holo"></span><span class="dx-scan"></span><i class="dx-sp a"></i><i class="dx-sp b"></i><i class="dx-sp c"></i>':""}
             <span class="no">${i}</span>
             ${e?`<span class="cnt">${e.c}</span>`:""}
             ${sprite(i, e&&e.shiny, e?"":"ghosted")}
-            ${e&&e.shiny?'<span class="shi">◆</span>':""}
+            ${sh?'<span class="shi">✦ CHROMA</span>':""}
             <span class="nm">${e?esc(POKE[i].name):"— — —"}</span>
           </div>`;}).join("")}
       </div>

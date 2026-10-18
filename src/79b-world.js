@@ -546,7 +546,7 @@ SCREENS.modules = {
               <span class="wd-lbl">${op ? "" : ic("lock")}${esc(ok || k === "rift" ? name : name.replace(/[a-zA-Zéèêàçôûîœ]/g, (m, i)=>((i + dn) % 3 ? m : "▒")))}</span>${b ? `<i class="wd-b">${esc(b)}</i>` : ""}</button>`; }).join("")}
           ${projDone(region, 9) && core ? `<span class="wd-statue" style="left:${WORLD_SPOTS.heart.x}%;top:${WORLD_SPOTS.heart.y}%">${sprite(core, false, "")}</span>` : ""}
           ${dn < WORLD_PROJECTS.length ? `<span class="wd-lurk" id="wd-lurk" style="opacity:${(0.25 + 0.55 * (1 - dn / WORLD_PROJECTS.length)).toFixed(2)}"><img src="${MISSING_SPRITE}" alt=""></span>` : ""}
-          ${lead ? `<span class="wd-partner" id="wd-partner" style="left:${WORLD_SPOTS.pc.x + 4}%;top:${WORLD_SPOTS.pc.y + 6}%">${typeof pmdCanvas === "function" ? pmdCanvas(lead, 0, 40, {shiny:S.dex[lead] && S.dex[lead].shiny}) : sprite(lead, false, "")}</span>` : ""}
+          ${lead ? `<span class="wd-partner" id="wd-partner" style="left:${WORLD_SPOTS.pc.x + 4}%;top:${WORLD_SPOTS.pc.y + 6}%">${typeof pmdCanvas === "function" ? pmdCanvas(lead, 0, 40, {shiny:S.dex[lead] && S.dex[lead].shiny}) : sprite(lead, !!(S.dex[lead] && S.dex[lead].shiny), "")}</span>` : ""}
           <i class="wd-scan"></i>
         </div>
         <div class="wd-hud bot"><span>INDEX ${Math.round(dn / WORLD_PROJECTS.length * 100)} %</span><span>${WORLD_PROJECTS.length - dn ? `${WORLD_PROJECTS.length - dn} ZONE${WORLD_PROJECTS.length - dn > 1 ? "S" : ""} ILLISIBLE${WORLD_PROJECTS.length - dn > 1 ? "S" : ""}` : "SECTEUR SAIN"}</span></div>

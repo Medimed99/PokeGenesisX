@@ -64,14 +64,15 @@ function brShareCanvas(R){
     const id = brShownId(w), sx = x0 + i * (slot + gap), sy = 905;
     x.fillStyle = "rgba(255,255,255,.05)"; x.fillRect(sx, sy, slot, slot);
     x.strokeStyle = w.stage >= 2 ? "#ffd24a" : "rgba(255,255,255,.18)"; x.lineWidth = 3; x.strokeRect(sx, sy, slot, slot);
-    const sheet = typeof brPmdVariant === "function" ? brPmdVariant(id, "n") : null;
+    const sv = brIsShiny(w) ? "s" : "n";
+    const sheet = typeof brPmdVariant === "function" ? (brPmdVariant(id, sv) || brPmdVariant(id, "n")) : null;
     if(sheet && PMD_META[id]){
       /* on recadre sur la silhouette reelle : les images de marche ont beaucoup de marge */
       const m = PMD_META[id], b = brShareBBox(sheet, m[0], m[1]);
       const k = Math.min(slot * 0.86 / b.w, slot * 0.86 / b.h);
       x.drawImage(sheet, b.x, b.y, b.w, b.h, sx + slot / 2 - b.w * k / 2, sy + slot / 2 - b.h * k / 2, b.w * k, b.h * k);
     } else {
-      const sp = brSprite(id, "n");
+      const sp = brSprite(id, sv);
       if(sp) x.drawImage(sp, sx + 5, sy + 5, slot - 10, slot - 10);
     }
     x.fillStyle = "#e8eef5"; x.font = `22px ${mono}`;

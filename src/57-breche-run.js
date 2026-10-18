@@ -789,11 +789,12 @@ function brRender(R, cv){
     const bob = Math.sin(R.t * 8 + f.phase) * 1.5;
     const jit = (f.elite || f.boss) && R.rng() < 0.06 ? (R.rng() - .5) * 6 : 0;
     /* sprite de marche PMD : l'ennemi fait face a l'Archiviste ; etourdi, il s'immobilise.
-       Les chromatiques (sans planche PMD) et les planches pas encore chargees : sprite fixe. */
+       Les chromatiques prennent une planche recolorée (59p) ; tant qu'elle n'est pas prête : sprite fixe. */
     f.dir = brDir8(R.x - f.x, R.y - f.y, f.dir);
     const ft = f.stun > 0 ? null : R.t + f.phase;
-    const pmd = !f.shiny && ((f.hurtT > 0 && brAnimDraw(x, f.id, "hurt", "c", f.dir, 0.28 - f.hurtT, fx + jit, fy, s * 0.95))
-                             || brPmdDraw(x, f.id, "c", f.dir, ft, fx + jit, fy, s * 0.95));
+    const FV = f.shiny ? "s" : "c";
+    const pmd = (f.hurtT > 0 && brAnimDraw(x, f.id, "hurt", FV, f.dir, 0.28 - f.hurtT, fx + jit, fy, s * 0.95))
+             || brPmdDraw(x, f.id, FV, f.dir, ft, fx + jit, fy, s * 0.95);
     if(pmd && f.flash > 0) brPmdDraw(x, f.id, "w", f.dir, ft, fx + jit, fy, s * 0.95, 0.85);
     if(!pmd && spr){
       x.save(); x.translate(fx + jit, fy + bob);
@@ -835,7 +836,9 @@ function brRender(R, cv){
   /* equipe : la file suit le chef, chacun a sa place */
   for(let i = R.team.length - 1; i >= 0; i--){
     const w = R.team[i], p = brMemberPos(R, i), s = i === 0 ? 58 : 44;
-    const spr = brSprite(brShownId(w), "n");
+    /* éveillé : il prend ses couleurs chromatiques */
+    const V = brIsShiny(w) ? "s" : "n";
+    const spr = brSprite(brShownId(w), V);
     x.fillStyle = "rgba(0,0,0,.4)"; x.beginPath(); x.ellipse(X(p.x), Y(p.y) + s * 0.34, s * 0.28, s * 0.09, 0, 0, 7); x.fill();
     if(w.stage >= 2){
       const gl = x.createRadialGradient(X(p.x), Y(p.y), 0, X(p.x), Y(p.y), s * 0.7);
@@ -851,8 +854,8 @@ function brRender(R, cv){
     const blink = i === 0 && R.inv > 0 && Math.floor(R.t * 20) % 2 ? 0.45 : undefined;
     const pmdT = moving ? R.t + i * 0.13 : null;
     const pose = w.pose && w.pose.t < w.pose.len ? w.pose : null;
-    const pmd = (pose && brAnimDraw(x, brShownId(w), pose.anim, "n", pose.dir, pose.t, X(p.x), Y(p.y), s, blink))
-             || brPmdDraw(x, brShownId(w), "n", w.dir || 0, pmdT, X(p.x), Y(p.y), s, blink);
+    const pmd = (pose && brAnimDraw(x, brShownId(w), pose.anim, V, pose.dir, pose.t, X(p.x), Y(p.y), s, blink))
+             || brPmdDraw(x, brShownId(w), V, w.dir || 0, pmdT, X(p.x), Y(p.y), s, blink);
     if(pmd && R.evoFlash && R.evoFlash.w === w) brPmdDraw(x, brShownId(w), "w", w.dir || 0, pmdT, X(p.x), Y(p.y), s, R.evoFlash.a);
     if(!pmd && spr){
       x.save(); x.translate(X(p.x), Y(p.y) + Math.sin(R.t * 10 + i) * (R.vx || R.vy ? 2 : 0.6));
@@ -946,6 +949,8 @@ function brRender(R, cv){
 }
 /* le sprite affiche suit les evolutions de la run */
 function brShownId(w){ return w.show || w.id; }
+/* chromatique dans la Brèche : l'espèce possédée en chromatique, ou un Pokémon éveillé */
+function brIsShiny(w){ return !!w && (w.stage >= 2 || !!(S.dex && S.dex[w.id] && S.dex[w.id].shiny)); }
 
 /* MissingNo : son propre sprite, jamais stable, un halo qui ronge l'ecran */
 let BR_MISSING_IMG = null;

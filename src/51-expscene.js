@@ -32,7 +32,7 @@ function pmdLoop(now){
     x.imageSmoothingEnabled = false;
     /* au repos, un Pokemon respire ; en route, il marche */
     const t = walk ? now / 1000 : null;
-    const ok = pmdFitDraw(x, id, dir, t, W);
+    const ok = pmdFitDraw(x, id, dir, t, W, !!c.dataset.shiny);
     if(!ok && typeof brSprite === "function"){
       const s = brSprite(id, c.dataset.shiny ? "s" : "n");
       if(s) x.drawImage(s, W * 0.1, W * 0.05, W * 0.8, W * 0.8);
@@ -61,8 +61,11 @@ function pmdFit(id){
   } catch(e){}
   return PMD_FIT[id] = {sheet, fw, fh, box};
 }
-function pmdFitDraw(x, id, dir, t, W){
+function pmdFitDraw(x, id, dir, t, W, shiny){
   const F = pmdFit(id); if(!F) return false;
+  /* chromatique : la planche recolorée (59p) ; pas encore prête → sprite fixe chromatique */
+  const sheet = shiny ? brPmdVariant(id, "s") : F.sheet;
+  if(!sheet) return false;
   const cw = F.box.x1 - F.box.x0, ch = F.box.y1 - F.box.y0;
   /* entier quand c'est possible : le pixel art reste net */
   let sc = Math.min(W * 0.84 / cw, W * 0.86 / ch);
@@ -70,7 +73,7 @@ function pmdFitDraw(x, id, dir, t, W){
   const f = t === null ? 0 : brPmdFrame(id, t);
   const cx = (F.box.x0 + F.box.x1) / 2;
   const dx = W / 2 - cx * sc, dy = W * 0.95 - F.box.y1 * sc;
-  x.drawImage(F.sheet, f * F.fw, dir * F.fh, F.fw, F.fh, Math.round(dx), Math.round(dy), F.fw * sc, F.fh * sc);
+  x.drawImage(sheet, f * F.fw, dir * F.fh, F.fw, F.fh, Math.round(dx), Math.round(dy), F.fw * sc, F.fh * sc);
   return true;
 }
 

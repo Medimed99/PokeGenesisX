@@ -319,6 +319,8 @@ hr.sep{border:0;border-top:1px dashed var(--line);margin:10px 0}
    Avant, deux regles se marchaient dessus et il ne restait que la lueur sur le sprite normal. */
 .spr.shiny{background-image:var(--atlas-shiny,var(--atlas));filter:drop-shadow(0 0 6px var(--amber))}
 .spr.shinyglow{filter:drop-shadow(0 0 7px var(--amber))}
+/* le GIF chargé remplace l'atlas, chromatique compris (la règle .spr.shiny ci-dessus le remettait derrière) */
+.spr.animon,.spr.shiny.animon{background-image:none}
 .spr.ghosted{filter:brightness(0) invert(.20)}
 .spr.sm{width:44px;height:44px}
 .spr.xs{width:30px;height:30px}
@@ -4869,6 +4871,53 @@ details.fo-more[open]>summary::before{content:"▾ "}
 .sw-rbtn .btn.wide{grid-column:1/-1;width:100%}
 .crv-all{margin-top:2px;opacity:.8}
 body.crv-on #toasts,body.crv-on #pztalk{visibility:hidden}
+
+/* ============================================================
+   POKÉDEX · CASE CHROMATIQUE
+   Un hologramme qui tourne, un balayage de lecture, des étincelles :
+   un chromatique se repère d'un coup d'œil dans toute la grille.
+   Les décalages (--dl) désynchronisent les cases voisines.
+   ============================================================ */
+.dexcell.shinycell{border:1px solid transparent;isolation:isolate;
+  background:linear-gradient(#0b0f1d,#0b0f1d) padding-box,
+    conic-gradient(from var(--dxa,0deg),#ffd24a,#ff5fa2,#b06bff,#35f0d6,#9dff6b,#ffd24a) border-box;
+  border-width:2px;box-shadow:0 0 14px rgba(255,210,74,.6),inset 0 0 14px rgba(255,210,74,.25);
+  animation:dxBorder 4s linear infinite,dxPulse 2.4s ease-in-out infinite;animation-delay:var(--dl,0s),var(--dl,0s)}
+@property --dxa{syntax:"<angle>";initial-value:0deg;inherits:false}
+@keyframes dxBorder{to{--dxa:360deg}}
+@keyframes dxPulse{50%{box-shadow:0 0 20px rgba(255,210,74,.75),0 0 34px rgba(255,95,162,.35),inset 0 0 18px rgba(255,210,74,.3)}}
+.dexcell.shinycell::before{display:none}
+.dx-holo{position:absolute;left:50%;top:50%;width:170%;aspect-ratio:1;z-index:0;pointer-events:none;
+  transform:translate(-50%,-50%);opacity:.7;mix-blend-mode:screen;
+  background:conic-gradient(from 0deg,rgba(255,210,74,.9),rgba(255,95,162,.75),rgba(176,107,255,.8),rgba(53,240,214,.8),rgba(157,255,107,.7),rgba(255,210,74,.9));
+  filter:blur(6px);animation:dxSpin 6s linear infinite;animation-delay:var(--dl,0s)}
+@keyframes dxSpin{to{transform:translate(-50%,-50%) rotate(360deg)}}
+.dexcell.shinycell::after{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(closest-side at 50% 46%,rgba(10,14,28,.55),rgba(10,14,28,.2) 70%,rgba(10,14,28,.05)),
+    repeating-linear-gradient(0deg,rgba(255,255,255,.05) 0 1px,transparent 1px 3px)}
+.dx-scan{position:absolute;left:-30%;right:-30%;height:40%;top:-40%;z-index:1;pointer-events:none;
+  background:linear-gradient(180deg,transparent,rgba(255,255,255,.0) 20%,rgba(255,240,200,.55) 50%,transparent 80%);
+  transform:rotate(-18deg);mix-blend-mode:screen;animation:dxScan 3.2s ease-in-out infinite;animation-delay:var(--dl,0s)}
+@keyframes dxScan{0%{top:-45%}55%,100%{top:115%}}
+.dx-sp{position:absolute;z-index:3;width:7px;height:7px;pointer-events:none;
+  background:radial-gradient(circle,#fff 0 18%,transparent 22%),
+    linear-gradient(90deg,transparent 42%,#fff6c8 50%,transparent 58%),linear-gradient(0deg,transparent 42%,#fff6c8 50%,transparent 58%);
+  filter:drop-shadow(0 0 3px #ffd24a);opacity:0;animation:dxTwinkle 2.2s ease-in-out infinite}
+.dx-sp.a{top:16%;left:16%;animation-delay:calc(var(--dl,0s) * -1)}
+.dx-sp.b{top:30%;right:12%;width:9px;height:9px;animation-delay:calc(var(--dl,0s) * -1 - .75s)}
+.dx-sp.c{bottom:26%;left:22%;width:6px;height:6px;animation-delay:calc(var(--dl,0s) * -1 - 1.5s)}
+@keyframes dxTwinkle{0%,100%{opacity:0;transform:scale(.3) rotate(0)}35%{opacity:1;transform:scale(1.15) rotate(45deg)}60%{opacity:0;transform:scale(.4) rotate(90deg)}}
+.dexcell.shinycell .spr{z-index:2;filter:drop-shadow(0 0 6px rgba(255,210,74,.85)) drop-shadow(0 0 1px #fff);animation:dxFloat 2.4s ease-in-out infinite;animation-delay:var(--dl,0s)}
+@keyframes dxFloat{50%{transform:translateY(-2px)}}
+.dexcell.shinycell .nm{color:#ffe9a8;text-shadow:0 0 6px rgba(255,210,74,.7)}
+.dexcell.shinycell .no{color:#ffd24a}
+.dexcell.shinycell .cnt{color:#fff}
+.dexcell.shinycell .shi{left:0;right:0;bottom:auto;top:auto;position:absolute;display:none}
+.dexcell.shinycell .shi{display:block;top:3px;left:50%;right:auto;transform:translateX(-50%);font-family:var(--font-px);font-size:5.5px;letter-spacing:.5px;
+  color:#1a1206;background:linear-gradient(90deg,#ffd24a,#ffe9a8,#ffd24a);background-size:200% 100%;padding:1.5px 3px;border-radius:2px;
+  box-shadow:0 0 6px rgba(255,210,74,.8);animation:dxTag 2s linear infinite;white-space:nowrap;z-index:3}
+@keyframes dxTag{to{background-position:-200% 0}}
+@media (prefers-reduced-motion:reduce){.dexcell.shinycell,.dx-holo,.dx-scan,.dx-sp,.dexcell.shinycell .spr,.dexcell.shinycell .shi{animation:none!important}.dx-sp{opacity:.8}}
 
 </style>
 <link rel="manifest" href="manifest.webmanifest">
@@ -15374,7 +15423,7 @@ function arDrawActor(x, a){
       x.fillStyle = g; x.beginPath(); x.arc(p.x, p.y - size * 0.2, size * 0.6, 0, 7); x.fill(); }
   }
   const white = t - a.flashT < 75;
-  const variant = white ? "w" : "n";
+  const variant = white ? "w" : f.shiny ? "s" : "n";
   const moving = a.mv || a.dash || (a.enter && t < a.enter.t0 + a.enter.dur);
   const draw = (cx, cy, alpha) => {
     if(a.pose){
@@ -17003,7 +17052,7 @@ function pmdLoop(now){
     x.imageSmoothingEnabled = false;
     /* au repos, un Pokemon respire ; en route, il marche */
     const t = walk ? now / 1000 : null;
-    const ok = pmdFitDraw(x, id, dir, t, W);
+    const ok = pmdFitDraw(x, id, dir, t, W, !!c.dataset.shiny);
     if(!ok && typeof brSprite === "function"){
       const s = brSprite(id, c.dataset.shiny ? "s" : "n");
       if(s) x.drawImage(s, W * 0.1, W * 0.05, W * 0.8, W * 0.8);
@@ -17032,8 +17081,11 @@ function pmdFit(id){
   } catch(e){}
   return PMD_FIT[id] = {sheet, fw, fh, box};
 }
-function pmdFitDraw(x, id, dir, t, W){
+function pmdFitDraw(x, id, dir, t, W, shiny){
   const F = pmdFit(id); if(!F) return false;
+  /* chromatique : la planche recolorée (59p) ; pas encore prête → sprite fixe chromatique */
+  const sheet = shiny ? brPmdVariant(id, "s") : F.sheet;
+  if(!sheet) return false;
   const cw = F.box.x1 - F.box.x0, ch = F.box.y1 - F.box.y0;
   /* entier quand c'est possible : le pixel art reste net */
   let sc = Math.min(W * 0.84 / cw, W * 0.86 / ch);
@@ -17041,7 +17093,7 @@ function pmdFitDraw(x, id, dir, t, W){
   const f = t === null ? 0 : brPmdFrame(id, t);
   const cx = (F.box.x0 + F.box.x1) / 2;
   const dx = W / 2 - cx * sc, dy = W * 0.95 - F.box.y1 * sc;
-  x.drawImage(F.sheet, f * F.fw, dir * F.fh, F.fw, F.fh, Math.round(dx), Math.round(dy), F.fw * sc, F.fh * sc);
+  x.drawImage(sheet, f * F.fw, dir * F.fh, F.fw, F.fh, Math.round(dx), Math.round(dy), F.fw * sc, F.fh * sc);
   return true;
 }
 
@@ -19954,12 +20006,13 @@ function sqDrawUnit(x, u, t){
   if(v.glow && t - v.glow.t0 < 500){ const k = (t - v.glow.t0) / 500, gr = x.createRadialGradient(cx, cy - size * 0.35, 0, cx, cy - size * 0.35, size * 0.6);
     gr.addColorStop(0, sqRgba(v.glow.c, 0.5 * (1 - k))); gr.addColorStop(1, sqRgba(v.glow.c, 0)); x.fillStyle = gr; x.beginPath(); x.arc(cx, cy - size * 0.35, size * 0.6, 0, 7); x.fill(); }
   const white = v.flash && t - v.flash < 90;
+  const V = white ? "w" : u.shiny ? "s" : "n";
   x.globalAlpha = a;
   let ok = false;
-  if(v.pose && t >= v.pose.t0 && t - v.pose.t0 < 460 && typeof brAnimDraw === "function") ok = brAnimDraw(x, u.id, v.pose.anim, white ? "w" : "n", dir, (t - v.pose.t0) / 1000, cx, cy, size);
-  if(!ok && v.hurt && t - v.hurt < 260 && typeof brAnimDraw === "function") ok = brAnimDraw(x, u.id, "hurt", white ? "w" : "n", dir, (t - v.hurt) / 2000, cx, cy, size);
-  if(!ok && typeof brPmdDraw === "function") ok = brPmdDraw(x, u.id, white ? "w" : "n", dir, (t / 1000) * 0.5, cx, cy, size);
-  if(!ok && typeof brSprite === "function"){ const s = brSprite(u.id, "n"); if(s) x.drawImage(s, cx - size / 2, cy - size * 0.8, size, size); }
+  if(v.pose && t >= v.pose.t0 && t - v.pose.t0 < 460 && typeof brAnimDraw === "function") ok = brAnimDraw(x, u.id, v.pose.anim, V, dir, (t - v.pose.t0) / 1000, cx, cy, size);
+  if(!ok && v.hurt && t - v.hurt < 260 && typeof brAnimDraw === "function") ok = brAnimDraw(x, u.id, "hurt", V, dir, (t - v.hurt) / 2000, cx, cy, size);
+  if(!ok && typeof brPmdDraw === "function") ok = brPmdDraw(x, u.id, V, dir, (t / 1000) * 0.5, cx, cy, size);
+  if(!ok && typeof brSprite === "function"){ const s = brSprite(u.id, u.shiny ? "s" : "n"); if(s) x.drawImage(s, cx - size / 2, cy - size * 0.8, size, size); }
   x.globalAlpha = 1;
   if(u.hp <= 0) return;
   /* la fiche, a la Summoners War : type, PV, jauge, effets avec leur duree */
@@ -21276,11 +21329,12 @@ function brRender(R, cv){
     const bob = Math.sin(R.t * 8 + f.phase) * 1.5;
     const jit = (f.elite || f.boss) && R.rng() < 0.06 ? (R.rng() - .5) * 6 : 0;
     /* sprite de marche PMD : l'ennemi fait face a l'Archiviste ; etourdi, il s'immobilise.
-       Les chromatiques (sans planche PMD) et les planches pas encore chargees : sprite fixe. */
+       Les chromatiques prennent une planche recolorée (59p) ; tant qu'elle n'est pas prête : sprite fixe. */
     f.dir = brDir8(R.x - f.x, R.y - f.y, f.dir);
     const ft = f.stun > 0 ? null : R.t + f.phase;
-    const pmd = !f.shiny && ((f.hurtT > 0 && brAnimDraw(x, f.id, "hurt", "c", f.dir, 0.28 - f.hurtT, fx + jit, fy, s * 0.95))
-                             || brPmdDraw(x, f.id, "c", f.dir, ft, fx + jit, fy, s * 0.95));
+    const FV = f.shiny ? "s" : "c";
+    const pmd = (f.hurtT > 0 && brAnimDraw(x, f.id, "hurt", FV, f.dir, 0.28 - f.hurtT, fx + jit, fy, s * 0.95))
+             || brPmdDraw(x, f.id, FV, f.dir, ft, fx + jit, fy, s * 0.95);
     if(pmd && f.flash > 0) brPmdDraw(x, f.id, "w", f.dir, ft, fx + jit, fy, s * 0.95, 0.85);
     if(!pmd && spr){
       x.save(); x.translate(fx + jit, fy + bob);
@@ -21322,7 +21376,9 @@ function brRender(R, cv){
   /* equipe : la file suit le chef, chacun a sa place */
   for(let i = R.team.length - 1; i >= 0; i--){
     const w = R.team[i], p = brMemberPos(R, i), s = i === 0 ? 58 : 44;
-    const spr = brSprite(brShownId(w), "n");
+    /* éveillé : il prend ses couleurs chromatiques */
+    const V = brIsShiny(w) ? "s" : "n";
+    const spr = brSprite(brShownId(w), V);
     x.fillStyle = "rgba(0,0,0,.4)"; x.beginPath(); x.ellipse(X(p.x), Y(p.y) + s * 0.34, s * 0.28, s * 0.09, 0, 0, 7); x.fill();
     if(w.stage >= 2){
       const gl = x.createRadialGradient(X(p.x), Y(p.y), 0, X(p.x), Y(p.y), s * 0.7);
@@ -21338,8 +21394,8 @@ function brRender(R, cv){
     const blink = i === 0 && R.inv > 0 && Math.floor(R.t * 20) % 2 ? 0.45 : undefined;
     const pmdT = moving ? R.t + i * 0.13 : null;
     const pose = w.pose && w.pose.t < w.pose.len ? w.pose : null;
-    const pmd = (pose && brAnimDraw(x, brShownId(w), pose.anim, "n", pose.dir, pose.t, X(p.x), Y(p.y), s, blink))
-             || brPmdDraw(x, brShownId(w), "n", w.dir || 0, pmdT, X(p.x), Y(p.y), s, blink);
+    const pmd = (pose && brAnimDraw(x, brShownId(w), pose.anim, V, pose.dir, pose.t, X(p.x), Y(p.y), s, blink))
+             || brPmdDraw(x, brShownId(w), V, w.dir || 0, pmdT, X(p.x), Y(p.y), s, blink);
     if(pmd && R.evoFlash && R.evoFlash.w === w) brPmdDraw(x, brShownId(w), "w", w.dir || 0, pmdT, X(p.x), Y(p.y), s, R.evoFlash.a);
     if(!pmd && spr){
       x.save(); x.translate(X(p.x), Y(p.y) + Math.sin(R.t * 10 + i) * (R.vx || R.vy ? 2 : 0.6));
@@ -21433,6 +21489,8 @@ function brRender(R, cv){
 }
 /* le sprite affiche suit les evolutions de la run */
 function brShownId(w){ return w.show || w.id; }
+/* chromatique dans la Brèche : l'espèce possédée en chromatique, ou un Pokémon éveillé */
+function brIsShiny(w){ return !!w && (w.stage >= 2 || !!(S.dex && S.dex[w.id] && S.dex[w.id].shiny)); }
 
 /* MissingNo : son propre sprite, jamais stable, un halo qui ronge l'ecran */
 let BR_MISSING_IMG = null;
@@ -21512,7 +21570,7 @@ function brHudTeam(R){
       if(!w){ h += `<span class="br-slot vide">+</span>`; continue; }
       const A = brArch(brShownId(w));
       h += `<span class="br-slot ${w.stage >= 2 ? "evo" : ""}" style="--sc:${A.c}">
-        <span class="sprbox" style="width:26px;height:26px">${sprite(brShownId(w), false, "")}</span>
+        <span class="sprbox" style="width:26px;height:26px">${sprite(brShownId(w), brIsShiny(w), "")}</span>
         ${w.stage >= 2 ? `<b class="br-star">★</b>` : ""}
         <span class="br-mini">${Array.from({length:BR_MAXLV},(_,k)=>`<i class="${k < w.lv ? "on" : ""}"></i>`).join("")}</span></span>`;
     }
@@ -21647,7 +21705,7 @@ ACTIONS.brquit = () => { if(BR){ BR.paused = false; brFinish(BR, false, true); }
 function brBuildHtml(R){
   return `<div class="br-build">
     ${R.team.map(w=>{ const st = brWeaponStats(w, R), A = brArch(brShownId(w));
-      return `<div class="br-bw"><span class="sprbox" style="width:34px;height:34px">${sprite(brShownId(w), false, "")}</span>
+      return `<div class="br-bw"><span class="sprbox" style="width:34px;height:34px">${sprite(brShownId(w), brIsShiny(w), "")}</span>
         <div class="grow"><div class="tiny">${esc(POKE[brShownId(w)].name)} <span class="dim">niv. ${w.lv}${w.stage >= 2 ? " · éveillé" : ""}</span></div>
           <div class="tiny" style="color:${A.c}">${esc(brAttackName(w))} · ${Math.round(st.dmg)} dégâts${brSecOf(w) ? ` · ${esc(BR_SEC[brSecOf(w)].n)}` : ""}</div></div></div>`; }).join("")}
   </div>`;
@@ -21714,7 +21772,7 @@ function brChoiceHtml(R, o, idx){
     const note = next === 5 && w.stage === 0 && brNextEvo(brShownId(w)) ? "Il évoluera"
                : next === BR_MAXLV ? "Niveau maximal" : `Niveau ${w.lv} → ${next}`;
     return `<div class="br-opt" data-act="brpick" data-i="${idx}" style="--oc:${A.c}">
-      <span class="sprbox" style="width:56px;height:56px">${sprite(brShownId(w), false, "")}</span>
+      <span class="sprbox" style="width:56px;height:56px">${sprite(brShownId(w), brIsShiny(w), "")}</span>
       <div class="grow"><div class="br-on">${esc(POKE[brShownId(w)].name)}</div>
         <div class="br-od">${esc(An)} · <b>${note}</b></div>
         <div class="br-pips">${Array.from({length:BR_MAXLV},(_,k)=>`<i class="${k < w.lv ? "on" : k === w.lv ? "nx" : ""}"></i>`).join("")}</div></div></div>`;
@@ -21830,6 +21888,7 @@ function brEvolve(R, w, to, stage){
   R.modal = true;
   const from = brShownId(w);
   const awaken = !to || to === from;
+  const wasShiny = brIsShiny(w);
   const key = from + ">" + (to || "awake");
   const st = brState();
   const fresh = !st.evos.includes(key);
@@ -21842,8 +21901,8 @@ function brEvolve(R, w, to, stage){
   m.innerHTML = `<div class="br-evo">
     <div class="br-evt">${awaken ? "ÉVEIL" : "QUOI ?"}</div>
     <div class="br-evs">
-      <span class="br-e a">${sprite(from, false, "")}</span>
-      ${awaken ? "" : `<span class="br-e b">${sprite(to, false, "")}</span>`}
+      <span class="br-e a" id="br-ea">${sprite(from, brIsShiny(w), "")}</span>
+      ${awaken ? "" : `<span class="br-e b">${sprite(to, brIsShiny(w), "")}</span>`}
     </div>
     <div class="br-evn" id="br-evn">${esc(POKE[from].name)} ${awaken ? "s'éveille…" : "évolue…"}</div>
     <button class="btn pri wide" id="br-evok" data-act="brclose" style="visibility:hidden">Continuer</button>
@@ -21856,9 +21915,11 @@ function brEvolve(R, w, to, stage){
     brRecomputeMods(R);
     const n = document.getElementById("br-evn");
     if(n) n.innerHTML = awaken
-      ? `<b>${esc(POKE[from].name)}</b> s'est éveillé !<div class="tiny cy">${esc(brArch(from).n)} prend toute sa puissance.</div>`
+      ? `<b>${esc(POKE[from].name)}</b> s'est éveillé !<div class="tiny cy">${esc(brArch(from).n)} prend toute sa puissance${wasShiny ? "" : " — et ses couleurs chromatiques"}.</div>`
       : `<b>${esc(POKE[from].name)}</b> a évolué en <b>${esc(POKE[to].name)}</b> !${fresh && stage >= 2 ? `<div class="tiny" style="color:#ffd24a">Nouvelle évolution découverte</div>` : ""}`;
     m.classList.add("done");
+    /* l'éveil : ses couleurs basculent en chromatique, sous les yeux du joueur */
+    if(awaken){ const ea = document.getElementById("br-ea"); if(ea){ ea.innerHTML = sprite(from, true, "", {anim:true, eager:true}); ea.classList.add("shinyon"); } }
     const ok = document.getElementById("br-evok"); if(ok) ok.style.visibility = "visible";
     try { Sfx.win(); buzz([30, 40, 80]); } catch(e){}
     brBurst(R, R.x, R.y, "#ffffff", 40, 260, 0.8);
@@ -22002,7 +22063,7 @@ function brShowResults(R, o){
     </div>
     ${!R.won && !o.quit && R.t < R.bossAt ? `<div class="tiny" style="color:#ffb35c;margin:4px 0 8px">Il manquait ${Math.ceil((R.bossAt - R.t) / 60)} min avant le gardien de la Brèche.</div>` : ""}
     <div class="br-dmg">${R.team.map((w, i)=>{ const d = R.dmgBy[i] || 0;
-      return `<div class="br-dr"><span class="sprbox" style="width:26px;height:26px">${sprite(brShownId(w), false, "")}</span>
+      return `<div class="br-dr"><span class="sprbox" style="width:26px;height:26px">${sprite(brShownId(w), brIsShiny(w), "")}</span>
         <div class="grow"><div class="br-db"><i style="width:${(d / tot * 100).toFixed(0)}%;background:${brArch(brShownId(w)).c}"></i></div></div>
         <b class="mono-num">${fmt(d)}</b></div>`; }).join("")}</div>
     ${R.missions ? `<div class="br-mislist res">${R.missions.map(m=>`<div class="${m.done ? "ok" : ""}">
@@ -23559,10 +23620,113 @@ function brPmdEntry(id){
   if(e.bad || !e.img.complete || !e.img.naturalWidth) return null;
   return e;
 }
+/* ============================================================
+   CHROMATIQUE — les planches PMD n'existent qu'en couleurs normales.
+   On apprend la palette chromatique de l'espèce en comparant, pixel
+   à pixel, son sprite normal et son sprite chromatique de l'atlas
+   (même dessin, autres couleurs), puis on décale chaque pixel de la
+   planche du même écart que la couleur la plus proche : les ombres
+   et les reflets propres à la planche sont conservés.
+   ============================================================ */
+const BR_SHINY_MAP = {};
+function brHsl(r, g, b){
+  r /= 255; g /= 255; b /= 255;
+  const mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 2;
+  if(mx === mn) return [0, 0, l];
+  const d = mx - mn, s = l > 0.5 ? d / (2 - mx - mn) : d / (mx + mn);
+  const h = mx === r ? ((g - b) / d + (g < b ? 6 : 0)) : mx === g ? (b - r) / d + 2 : (r - g) / d + 4;
+  return [h / 6, s, l];
+}
+function brRgb(h, s, l){
+  if(!s){ const v = Math.round(l * 255); return [v, v, v]; }
+  const q = l < 0.5 ? l * (1 + s) : l + s - l * s, p = 2 * l - q;
+  const f = t => { t = (t % 1 + 1) % 1; return t < 1/6 ? p + (q - p) * 6 * t : t < 1/2 ? q : t < 2/3 ? p + (q - p) * (2/3 - t) * 6 : p; };
+  return [Math.round(f(h + 1/3) * 255), Math.round(f(h) * 255), Math.round(f(h - 1/3) * 255)];
+}
+function brShinyMap(id){
+  if(BR_SHINY_MAP[id] !== undefined) return BR_SHINY_MAP[id];
+  if(typeof brAtlasReady !== "function" || !brAtlasReady() || !brShinyAtlasReady()) return null;   /* pas encore : on réessaiera */
+  const A = brAtlas(), B = brShinyAtlas(), idx = atlasIndex(id, false);
+  if(idx < 0 || A.src === B.src) return BR_SHINY_MAP[id] = false;
+  const cell = Math.round(A.naturalWidth / ATLAS_COLS);
+  const grab = img => { const c = document.createElement("canvas"); c.width = c.height = cell;
+    const x = c.getContext("2d"); x.imageSmoothingEnabled = false;
+    x.drawImage(img, (idx % ATLAS_COLS) * cell, Math.floor(idx / ATLAS_COLS) * cell, cell, cell, 0, 0, cell, cell);
+    return x.getImageData(0, 0, cell, cell).data; };
+  let a, b;
+  try { a = grab(A); b = grab(B); } catch(e){ return BR_SHINY_MAP[id] = false; }
+  const tally = new Map();
+  for(let i = 0; i < a.length; i += 4){
+    if(a[i+3] < 60 || b[i+3] < 60) continue;
+    const kn = (a[i] << 16) | (a[i+1] << 8) | a[i+2], ks = (b[i] << 16) | (b[i+1] << 8) | b[i+2];
+    let t = tally.get(kn); if(!t){ t = new Map(); tally.set(kn, t); }
+    t.set(ks, (t.get(ks) || 0) + 1);
+  }
+  let pairs = [], changed = 0;
+  for(const [kn, t] of tally){
+    let best = 0, bn = 0, tot = 0;
+    for(const [ks, n] of t){ tot += n; if(n > bn){ bn = n; best = ks; } }
+    const N = [kn >> 16, (kn >> 8) & 255, kn & 255], Sh = [best >> 16, (best >> 8) & 255, best & 255];
+    if(Math.abs(N[0] - Sh[0]) + Math.abs(N[1] - Sh[1]) + Math.abs(N[2] - Sh[2]) > 24) changed += tot;
+    pairs.push({n:brHsl(N[0], N[1], N[2]), s:brHsl(Sh[0], Sh[1], Sh[2]), w:tot});
+  }
+  /* les couleurs de bord (quelques pixels) brouillent la correspondance */
+  const solid = pairs.filter(p=>p.w >= 3);
+  if(solid.length >= 3) pairs = solid;
+  return BR_SHINY_MAP[id] = changed > 0 && pairs.length ? pairs : false;
+}
+/* recolore des pixels RGBA en place ; faux si l'espèce n'a pas de palette chromatique connue.
+   La correspondance se fait par teinte (les planches PMD n'ont pas la même palette que
+   l'atlas), et la transformation est relative : décalage de teinte, rapport de saturation,
+   lumière rapprochée du noir ou du blanc dans la même proportion. */
+function brShinyRecolor(d, id){
+  const P = brShinyMap(id); if(!P) return false;
+  const memo = new Map();
+  for(let i = 0; i < d.length; i += 4){
+    if(d[i+3] < 20) continue;
+    const k = (d[i] << 16) | (d[i+1] << 8) | d[i+2];
+    let o = memo.get(k);
+    if(o === undefined){
+      const [h, sa, l] = brHsl(d[i], d[i+1], d[i+2]);
+      let best = P[0], bd = 1e12;
+      for(const p of P){
+        let dh = Math.abs(h - p.n[0]); if(dh > 0.5) dh = 1 - dh;
+        const dist = dh * dh * 16 * Math.min(sa, p.n[1]) + (sa - p.n[1]) * (sa - p.n[1]) + (l - p.n[2]) * (l - p.n[2]) * 2.2 - Math.log(1 + p.w) * 0.002;
+        if(dist < bd){ bd = dist; best = p; }
+      }
+      const n = best.n, t = best.s;
+      const grey = n[1] < 0.1;
+      const h2 = grey ? t[0] : h + (t[0] - n[0]);
+      const s2 = Math.max(0, Math.min(1, grey ? t[1] : sa * t[1] / n[1]));
+      const l2 = Math.max(0, Math.min(1, t[2] <= n[2] ? (n[2] > 0.01 ? l * t[2] / n[2] : t[2])
+                                                    : l + (t[2] - n[2]) * (1 - l) / Math.max(0.01, 1 - n[2])));
+      const c = brRgb(h2, s2, l2);
+      o = (c[0] << 16) | (c[1] << 8) | c[2];
+      memo.set(k, o);
+    }
+    d[i] = o >> 16; d[i+1] = (o >> 8) & 255; d[i+2] = o & 255;
+  }
+  return true;
+}
+/* une planche entière en chromatique : null tant que la palette n'est pas prête (on dessine alors le sprite fixe) */
+function brShinySheet(img, id, cache){
+  if(cache.s) return cache.s === "none" ? null : cache.s;
+  const P = brShinyMap(id);
+  if(P === null) return null;
+  if(P === false){ cache.s = "none"; return null; }
+  const c = document.createElement("canvas");
+  c.width = img.naturalWidth; c.height = img.naturalHeight;
+  const x = c.getContext("2d"); x.imageSmoothingEnabled = false; x.drawImage(img, 0, 0);
+  try { const im = x.getImageData(0, 0, c.width, c.height); brShinyRecolor(im.data, id); x.putImageData(im, 0, 0); }
+  catch(e){ cache.s = "none"; return null; }
+  return cache.s = c;
+}
+
 /* meme traitement que les sprites fixes : palette de la faille et contour, ou silhouette blanche */
 function brPmdVariant(id, variant){
   const e = brPmdEntry(id);
   if(!e) return null;
+  if(variant === "s") return brShinySheet(e.img, id, e.v);
   if(e.v[variant]) return e.v[variant];
   const c = document.createElement("canvas");
   c.width = e.img.naturalWidth; c.height = e.img.naturalHeight;
@@ -23649,6 +23813,7 @@ function brAnimSheet(id, anim, variant){
     e.img.src = (typeof PMD_BASE !== "undefined" ? PMD_BASE : "assets/pmd/") + id + "-" + anim + ".png";
   }
   if(e.bad || !e.img.complete || !e.img.naturalWidth) return null;
+  if(variant === "s") return typeof brShinySheet === "function" ? brShinySheet(e.img, id, e.v) : null;
   if(e.v[variant]) return e.v[variant];
   const c = document.createElement("canvas");
   c.width = e.img.naturalWidth; c.height = e.img.naturalHeight;
@@ -24408,14 +24573,15 @@ function brShareCanvas(R){
     const id = brShownId(w), sx = x0 + i * (slot + gap), sy = 905;
     x.fillStyle = "rgba(255,255,255,.05)"; x.fillRect(sx, sy, slot, slot);
     x.strokeStyle = w.stage >= 2 ? "#ffd24a" : "rgba(255,255,255,.18)"; x.lineWidth = 3; x.strokeRect(sx, sy, slot, slot);
-    const sheet = typeof brPmdVariant === "function" ? brPmdVariant(id, "n") : null;
+    const sv = brIsShiny(w) ? "s" : "n";
+    const sheet = typeof brPmdVariant === "function" ? (brPmdVariant(id, sv) || brPmdVariant(id, "n")) : null;
     if(sheet && PMD_META[id]){
       /* on recadre sur la silhouette reelle : les images de marche ont beaucoup de marge */
       const m = PMD_META[id], b = brShareBBox(sheet, m[0], m[1]);
       const k = Math.min(slot * 0.86 / b.w, slot * 0.86 / b.h);
       x.drawImage(sheet, b.x, b.y, b.w, b.h, sx + slot / 2 - b.w * k / 2, sy + slot / 2 - b.h * k / 2, b.w * k, b.h * k);
     } else {
-      const sp = brSprite(id, "n");
+      const sp = brSprite(id, sv);
       if(sp) x.drawImage(sp, sx + 5, sy + 5, slot - 10, slot - 10);
     }
     x.fillStyle = "#e8eef5"; x.font = `22px ${mono}`;
@@ -25959,11 +26125,13 @@ SCREENS.dex = {
       <div class="dexgrid">
         ${ids.map(i=>{
           const e = S.dex[i];
-          return `<div class="dexcell ${e?"owned":""} r${POKE[i].rar}" data-act="dexopen" data-id="${i}">
+          const sh = e && e.shiny;
+          return `<div class="dexcell ${e?"owned":""} ${sh?"shinycell":""} r${POKE[i].rar}" data-act="dexopen" data-id="${i}" ${sh?`style="--dl:${-(i * 0.37 % 4).toFixed(2)}s"`:""}>
+            ${sh?'<span class="dx-holo"></span><span class="dx-scan"></span><i class="dx-sp a"></i><i class="dx-sp b"></i><i class="dx-sp c"></i>':""}
             <span class="no">${i}</span>
             ${e?`<span class="cnt">${e.c}</span>`:""}
             ${sprite(i, e&&e.shiny, e?"":"ghosted")}
-            ${e&&e.shiny?'<span class="shi">◆</span>':""}
+            ${sh?'<span class="shi">✦ CHROMA</span>':""}
             <span class="nm">${e?esc(POKE[i].name):"— — —"}</span>
           </div>`;}).join("")}
       </div>
@@ -30815,7 +30983,7 @@ SCREENS.modules = {
               <span class="wd-lbl">${op ? "" : ic("lock")}${esc(ok || k === "rift" ? name : name.replace(/[a-zA-Zéèêàçôûîœ]/g, (m, i)=>((i + dn) % 3 ? m : "▒")))}</span>${b ? `<i class="wd-b">${esc(b)}</i>` : ""}</button>`; }).join("")}
           ${projDone(region, 9) && core ? `<span class="wd-statue" style="left:${WORLD_SPOTS.heart.x}%;top:${WORLD_SPOTS.heart.y}%">${sprite(core, false, "")}</span>` : ""}
           ${dn < WORLD_PROJECTS.length ? `<span class="wd-lurk" id="wd-lurk" style="opacity:${(0.25 + 0.55 * (1 - dn / WORLD_PROJECTS.length)).toFixed(2)}"><img src="${MISSING_SPRITE}" alt=""></span>` : ""}
-          ${lead ? `<span class="wd-partner" id="wd-partner" style="left:${WORLD_SPOTS.pc.x + 4}%;top:${WORLD_SPOTS.pc.y + 6}%">${typeof pmdCanvas === "function" ? pmdCanvas(lead, 0, 40, {shiny:S.dex[lead] && S.dex[lead].shiny}) : sprite(lead, false, "")}</span>` : ""}
+          ${lead ? `<span class="wd-partner" id="wd-partner" style="left:${WORLD_SPOTS.pc.x + 4}%;top:${WORLD_SPOTS.pc.y + 6}%">${typeof pmdCanvas === "function" ? pmdCanvas(lead, 0, 40, {shiny:S.dex[lead] && S.dex[lead].shiny}) : sprite(lead, !!(S.dex[lead] && S.dex[lead].shiny), "")}</span>` : ""}
           <i class="wd-scan"></i>
         </div>
         <div class="wd-hud bot"><span>INDEX ${Math.round(dn / WORLD_PROJECTS.length * 100)} %</span><span>${WORLD_PROJECTS.length - dn ? `${WORLD_PROJECTS.length - dn} ZONE${WORLD_PROJECTS.length - dn > 1 ? "S" : ""} ILLISIBLE${WORLD_PROJECTS.length - dn > 1 ? "S" : ""}` : "SECTEUR SAIN"}</span></div>

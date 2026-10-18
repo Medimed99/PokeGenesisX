@@ -24,10 +24,113 @@ function brPmdEntry(id){
   if(e.bad || !e.img.complete || !e.img.naturalWidth) return null;
   return e;
 }
+/* ============================================================
+   CHROMATIQUE — les planches PMD n'existent qu'en couleurs normales.
+   On apprend la palette chromatique de l'espèce en comparant, pixel
+   à pixel, son sprite normal et son sprite chromatique de l'atlas
+   (même dessin, autres couleurs), puis on décale chaque pixel de la
+   planche du même écart que la couleur la plus proche : les ombres
+   et les reflets propres à la planche sont conservés.
+   ============================================================ */
+const BR_SHINY_MAP = {};
+function brHsl(r, g, b){
+  r /= 255; g /= 255; b /= 255;
+  const mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 2;
+  if(mx === mn) return [0, 0, l];
+  const d = mx - mn, s = l > 0.5 ? d / (2 - mx - mn) : d / (mx + mn);
+  const h = mx === r ? ((g - b) / d + (g < b ? 6 : 0)) : mx === g ? (b - r) / d + 2 : (r - g) / d + 4;
+  return [h / 6, s, l];
+}
+function brRgb(h, s, l){
+  if(!s){ const v = Math.round(l * 255); return [v, v, v]; }
+  const q = l < 0.5 ? l * (1 + s) : l + s - l * s, p = 2 * l - q;
+  const f = t => { t = (t % 1 + 1) % 1; return t < 1/6 ? p + (q - p) * 6 * t : t < 1/2 ? q : t < 2/3 ? p + (q - p) * (2/3 - t) * 6 : p; };
+  return [Math.round(f(h + 1/3) * 255), Math.round(f(h) * 255), Math.round(f(h - 1/3) * 255)];
+}
+function brShinyMap(id){
+  if(BR_SHINY_MAP[id] !== undefined) return BR_SHINY_MAP[id];
+  if(typeof brAtlasReady !== "function" || !brAtlasReady() || !brShinyAtlasReady()) return null;   /* pas encore : on réessaiera */
+  const A = brAtlas(), B = brShinyAtlas(), idx = atlasIndex(id, false);
+  if(idx < 0 || A.src === B.src) return BR_SHINY_MAP[id] = false;
+  const cell = Math.round(A.naturalWidth / ATLAS_COLS);
+  const grab = img => { const c = document.createElement("canvas"); c.width = c.height = cell;
+    const x = c.getContext("2d"); x.imageSmoothingEnabled = false;
+    x.drawImage(img, (idx % ATLAS_COLS) * cell, Math.floor(idx / ATLAS_COLS) * cell, cell, cell, 0, 0, cell, cell);
+    return x.getImageData(0, 0, cell, cell).data; };
+  let a, b;
+  try { a = grab(A); b = grab(B); } catch(e){ return BR_SHINY_MAP[id] = false; }
+  const tally = new Map();
+  for(let i = 0; i < a.length; i += 4){
+    if(a[i+3] < 60 || b[i+3] < 60) continue;
+    const kn = (a[i] << 16) | (a[i+1] << 8) | a[i+2], ks = (b[i] << 16) | (b[i+1] << 8) | b[i+2];
+    let t = tally.get(kn); if(!t){ t = new Map(); tally.set(kn, t); }
+    t.set(ks, (t.get(ks) || 0) + 1);
+  }
+  let pairs = [], changed = 0;
+  for(const [kn, t] of tally){
+    let best = 0, bn = 0, tot = 0;
+    for(const [ks, n] of t){ tot += n; if(n > bn){ bn = n; best = ks; } }
+    const N = [kn >> 16, (kn >> 8) & 255, kn & 255], Sh = [best >> 16, (best >> 8) & 255, best & 255];
+    if(Math.abs(N[0] - Sh[0]) + Math.abs(N[1] - Sh[1]) + Math.abs(N[2] - Sh[2]) > 24) changed += tot;
+    pairs.push({n:brHsl(N[0], N[1], N[2]), s:brHsl(Sh[0], Sh[1], Sh[2]), w:tot});
+  }
+  /* les couleurs de bord (quelques pixels) brouillent la correspondance */
+  const solid = pairs.filter(p=>p.w >= 3);
+  if(solid.length >= 3) pairs = solid;
+  return BR_SHINY_MAP[id] = changed > 0 && pairs.length ? pairs : false;
+}
+/* recolore des pixels RGBA en place ; faux si l'espèce n'a pas de palette chromatique connue.
+   La correspondance se fait par teinte (les planches PMD n'ont pas la même palette que
+   l'atlas), et la transformation est relative : décalage de teinte, rapport de saturation,
+   lumière rapprochée du noir ou du blanc dans la même proportion. */
+function brShinyRecolor(d, id){
+  const P = brShinyMap(id); if(!P) return false;
+  const memo = new Map();
+  for(let i = 0; i < d.length; i += 4){
+    if(d[i+3] < 20) continue;
+    const k = (d[i] << 16) | (d[i+1] << 8) | d[i+2];
+    let o = memo.get(k);
+    if(o === undefined){
+      const [h, sa, l] = brHsl(d[i], d[i+1], d[i+2]);
+      let best = P[0], bd = 1e12;
+      for(const p of P){
+        let dh = Math.abs(h - p.n[0]); if(dh > 0.5) dh = 1 - dh;
+        const dist = dh * dh * 16 * Math.min(sa, p.n[1]) + (sa - p.n[1]) * (sa - p.n[1]) + (l - p.n[2]) * (l - p.n[2]) * 2.2 - Math.log(1 + p.w) * 0.002;
+        if(dist < bd){ bd = dist; best = p; }
+      }
+      const n = best.n, t = best.s;
+      const grey = n[1] < 0.1;
+      const h2 = grey ? t[0] : h + (t[0] - n[0]);
+      const s2 = Math.max(0, Math.min(1, grey ? t[1] : sa * t[1] / n[1]));
+      const l2 = Math.max(0, Math.min(1, t[2] <= n[2] ? (n[2] > 0.01 ? l * t[2] / n[2] : t[2])
+                                                    : l + (t[2] - n[2]) * (1 - l) / Math.max(0.01, 1 - n[2])));
+      const c = brRgb(h2, s2, l2);
+      o = (c[0] << 16) | (c[1] << 8) | c[2];
+      memo.set(k, o);
+    }
+    d[i] = o >> 16; d[i+1] = (o >> 8) & 255; d[i+2] = o & 255;
+  }
+  return true;
+}
+/* une planche entière en chromatique : null tant que la palette n'est pas prête (on dessine alors le sprite fixe) */
+function brShinySheet(img, id, cache){
+  if(cache.s) return cache.s === "none" ? null : cache.s;
+  const P = brShinyMap(id);
+  if(P === null) return null;
+  if(P === false){ cache.s = "none"; return null; }
+  const c = document.createElement("canvas");
+  c.width = img.naturalWidth; c.height = img.naturalHeight;
+  const x = c.getContext("2d"); x.imageSmoothingEnabled = false; x.drawImage(img, 0, 0);
+  try { const im = x.getImageData(0, 0, c.width, c.height); brShinyRecolor(im.data, id); x.putImageData(im, 0, 0); }
+  catch(e){ cache.s = "none"; return null; }
+  return cache.s = c;
+}
+
 /* meme traitement que les sprites fixes : palette de la faille et contour, ou silhouette blanche */
 function brPmdVariant(id, variant){
   const e = brPmdEntry(id);
   if(!e) return null;
+  if(variant === "s") return brShinySheet(e.img, id, e.v);
   if(e.v[variant]) return e.v[variant];
   const c = document.createElement("canvas");
   c.width = e.img.naturalWidth; c.height = e.img.naturalHeight;

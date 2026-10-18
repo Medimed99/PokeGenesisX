@@ -615,12 +615,13 @@ function sqDrawUnit(x, u, t){
   if(v.glow && t - v.glow.t0 < 500){ const k = (t - v.glow.t0) / 500, gr = x.createRadialGradient(cx, cy - size * 0.35, 0, cx, cy - size * 0.35, size * 0.6);
     gr.addColorStop(0, sqRgba(v.glow.c, 0.5 * (1 - k))); gr.addColorStop(1, sqRgba(v.glow.c, 0)); x.fillStyle = gr; x.beginPath(); x.arc(cx, cy - size * 0.35, size * 0.6, 0, 7); x.fill(); }
   const white = v.flash && t - v.flash < 90;
+  const V = white ? "w" : u.shiny ? "s" : "n";
   x.globalAlpha = a;
   let ok = false;
-  if(v.pose && t >= v.pose.t0 && t - v.pose.t0 < 460 && typeof brAnimDraw === "function") ok = brAnimDraw(x, u.id, v.pose.anim, white ? "w" : "n", dir, (t - v.pose.t0) / 1000, cx, cy, size);
-  if(!ok && v.hurt && t - v.hurt < 260 && typeof brAnimDraw === "function") ok = brAnimDraw(x, u.id, "hurt", white ? "w" : "n", dir, (t - v.hurt) / 2000, cx, cy, size);
-  if(!ok && typeof brPmdDraw === "function") ok = brPmdDraw(x, u.id, white ? "w" : "n", dir, (t / 1000) * 0.5, cx, cy, size);
-  if(!ok && typeof brSprite === "function"){ const s = brSprite(u.id, "n"); if(s) x.drawImage(s, cx - size / 2, cy - size * 0.8, size, size); }
+  if(v.pose && t >= v.pose.t0 && t - v.pose.t0 < 460 && typeof brAnimDraw === "function") ok = brAnimDraw(x, u.id, v.pose.anim, V, dir, (t - v.pose.t0) / 1000, cx, cy, size);
+  if(!ok && v.hurt && t - v.hurt < 260 && typeof brAnimDraw === "function") ok = brAnimDraw(x, u.id, "hurt", V, dir, (t - v.hurt) / 2000, cx, cy, size);
+  if(!ok && typeof brPmdDraw === "function") ok = brPmdDraw(x, u.id, V, dir, (t / 1000) * 0.5, cx, cy, size);
+  if(!ok && typeof brSprite === "function"){ const s = brSprite(u.id, u.shiny ? "s" : "n"); if(s) x.drawImage(s, cx - size / 2, cy - size * 0.8, size, size); }
   x.globalAlpha = 1;
   if(u.hp <= 0) return;
   /* la fiche, a la Summoners War : type, PV, jauge, effets avec leur duree */

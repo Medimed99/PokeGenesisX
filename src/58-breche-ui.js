@@ -56,7 +56,7 @@ function brHudTeam(R){
       if(!w){ h += `<span class="br-slot vide">+</span>`; continue; }
       const A = brArch(brShownId(w));
       h += `<span class="br-slot ${w.stage >= 2 ? "evo" : ""}" style="--sc:${A.c}">
-        <span class="sprbox" style="width:26px;height:26px">${sprite(brShownId(w), false, "")}</span>
+        <span class="sprbox" style="width:26px;height:26px">${sprite(brShownId(w), brIsShiny(w), "")}</span>
         ${w.stage >= 2 ? `<b class="br-star">★</b>` : ""}
         <span class="br-mini">${Array.from({length:BR_MAXLV},(_,k)=>`<i class="${k < w.lv ? "on" : ""}"></i>`).join("")}</span></span>`;
     }
@@ -191,7 +191,7 @@ ACTIONS.brquit = () => { if(BR){ BR.paused = false; brFinish(BR, false, true); }
 function brBuildHtml(R){
   return `<div class="br-build">
     ${R.team.map(w=>{ const st = brWeaponStats(w, R), A = brArch(brShownId(w));
-      return `<div class="br-bw"><span class="sprbox" style="width:34px;height:34px">${sprite(brShownId(w), false, "")}</span>
+      return `<div class="br-bw"><span class="sprbox" style="width:34px;height:34px">${sprite(brShownId(w), brIsShiny(w), "")}</span>
         <div class="grow"><div class="tiny">${esc(POKE[brShownId(w)].name)} <span class="dim">niv. ${w.lv}${w.stage >= 2 ? " · éveillé" : ""}</span></div>
           <div class="tiny" style="color:${A.c}">${esc(brAttackName(w))} · ${Math.round(st.dmg)} dégâts${brSecOf(w) ? ` · ${esc(BR_SEC[brSecOf(w)].n)}` : ""}</div></div></div>`; }).join("")}
   </div>`;
@@ -258,7 +258,7 @@ function brChoiceHtml(R, o, idx){
     const note = next === 5 && w.stage === 0 && brNextEvo(brShownId(w)) ? "Il évoluera"
                : next === BR_MAXLV ? "Niveau maximal" : `Niveau ${w.lv} → ${next}`;
     return `<div class="br-opt" data-act="brpick" data-i="${idx}" style="--oc:${A.c}">
-      <span class="sprbox" style="width:56px;height:56px">${sprite(brShownId(w), false, "")}</span>
+      <span class="sprbox" style="width:56px;height:56px">${sprite(brShownId(w), brIsShiny(w), "")}</span>
       <div class="grow"><div class="br-on">${esc(POKE[brShownId(w)].name)}</div>
         <div class="br-od">${esc(An)} · <b>${note}</b></div>
         <div class="br-pips">${Array.from({length:BR_MAXLV},(_,k)=>`<i class="${k < w.lv ? "on" : k === w.lv ? "nx" : ""}"></i>`).join("")}</div></div></div>`;
@@ -374,6 +374,7 @@ function brEvolve(R, w, to, stage){
   R.modal = true;
   const from = brShownId(w);
   const awaken = !to || to === from;
+  const wasShiny = brIsShiny(w);
   const key = from + ">" + (to || "awake");
   const st = brState();
   const fresh = !st.evos.includes(key);
@@ -386,8 +387,8 @@ function brEvolve(R, w, to, stage){
   m.innerHTML = `<div class="br-evo">
     <div class="br-evt">${awaken ? "ÉVEIL" : "QUOI ?"}</div>
     <div class="br-evs">
-      <span class="br-e a">${sprite(from, false, "")}</span>
-      ${awaken ? "" : `<span class="br-e b">${sprite(to, false, "")}</span>`}
+      <span class="br-e a" id="br-ea">${sprite(from, brIsShiny(w), "")}</span>
+      ${awaken ? "" : `<span class="br-e b">${sprite(to, brIsShiny(w), "")}</span>`}
     </div>
     <div class="br-evn" id="br-evn">${esc(POKE[from].name)} ${awaken ? "s'éveille…" : "évolue…"}</div>
     <button class="btn pri wide" id="br-evok" data-act="brclose" style="visibility:hidden">Continuer</button>
@@ -400,9 +401,11 @@ function brEvolve(R, w, to, stage){
     brRecomputeMods(R);
     const n = document.getElementById("br-evn");
     if(n) n.innerHTML = awaken
-      ? `<b>${esc(POKE[from].name)}</b> s'est éveillé !<div class="tiny cy">${esc(brArch(from).n)} prend toute sa puissance.</div>`
+      ? `<b>${esc(POKE[from].name)}</b> s'est éveillé !<div class="tiny cy">${esc(brArch(from).n)} prend toute sa puissance${wasShiny ? "" : " — et ses couleurs chromatiques"}.</div>`
       : `<b>${esc(POKE[from].name)}</b> a évolué en <b>${esc(POKE[to].name)}</b> !${fresh && stage >= 2 ? `<div class="tiny" style="color:#ffd24a">Nouvelle évolution découverte</div>` : ""}`;
     m.classList.add("done");
+    /* l'éveil : ses couleurs basculent en chromatique, sous les yeux du joueur */
+    if(awaken){ const ea = document.getElementById("br-ea"); if(ea){ ea.innerHTML = sprite(from, true, "", {anim:true, eager:true}); ea.classList.add("shinyon"); } }
     const ok = document.getElementById("br-evok"); if(ok) ok.style.visibility = "visible";
     try { Sfx.win(); buzz([30, 40, 80]); } catch(e){}
     brBurst(R, R.x, R.y, "#ffffff", 40, 260, 0.8);
@@ -546,7 +549,7 @@ function brShowResults(R, o){
     </div>
     ${!R.won && !o.quit && R.t < R.bossAt ? `<div class="tiny" style="color:#ffb35c;margin:4px 0 8px">Il manquait ${Math.ceil((R.bossAt - R.t) / 60)} min avant le gardien de la Brèche.</div>` : ""}
     <div class="br-dmg">${R.team.map((w, i)=>{ const d = R.dmgBy[i] || 0;
-      return `<div class="br-dr"><span class="sprbox" style="width:26px;height:26px">${sprite(brShownId(w), false, "")}</span>
+      return `<div class="br-dr"><span class="sprbox" style="width:26px;height:26px">${sprite(brShownId(w), brIsShiny(w), "")}</span>
         <div class="grow"><div class="br-db"><i style="width:${(d / tot * 100).toFixed(0)}%;background:${brArch(brShownId(w)).c}"></i></div></div>
         <b class="mono-num">${fmt(d)}</b></div>`; }).join("")}</div>
     ${R.missions ? `<div class="br-mislist res">${R.missions.map(m=>`<div class="${m.done ? "ok" : ""}">

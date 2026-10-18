@@ -622,7 +622,7 @@ function arDrawActor(x, a){
       x.fillStyle = g; x.beginPath(); x.arc(p.x, p.y - size * 0.2, size * 0.6, 0, 7); x.fill(); }
   }
   const white = t - a.flashT < 75;
-  const variant = white ? "w" : "n";
+  const variant = white ? "w" : f.shiny ? "s" : "n";
   const moving = a.mv || a.dash || (a.enter && t < a.enter.t0 + a.enter.dur);
   const draw = (cx, cy, alpha) => {
     if(a.pose){

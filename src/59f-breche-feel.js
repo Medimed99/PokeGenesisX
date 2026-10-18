@@ -20,6 +20,7 @@ function brAnimSheet(id, anim, variant){
     e.img.src = (typeof PMD_BASE !== "undefined" ? PMD_BASE : "assets/pmd/") + id + "-" + anim + ".png";
   }
   if(e.bad || !e.img.complete || !e.img.naturalWidth) return null;
+  if(variant === "s") return typeof brShinySheet === "function" ? brShinySheet(e.img, id, e.v) : null;
   if(e.v[variant]) return e.v[variant];
   const c = document.createElement("canvas");
   c.width = e.img.naturalWidth; c.height = e.img.naturalHeight;
