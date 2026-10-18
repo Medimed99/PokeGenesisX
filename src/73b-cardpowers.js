@@ -333,11 +333,15 @@ function sanctJoin(run, id){
    ============================================================ */
 function cardPowerAnnounce(id, before, after){
   if(after <= before) return;
-  const P = CARD_POWERS[id];
-  const nm = POKE[id] ? POKE[id].name : "?";
   S.cardPowerLog = S.cardPowerLog || [];
   S.cardPowerLog.push({id, t:after, at:Date.now()});
   if(S.cardPowerLog.length > 30) S.cardPowerLog.shift();
+  cardPowerMoment(id, before, after);
+}
+/* l'annonce à l'écran, à part : la révélation d'une carte (73c) la montre dans sa propre scène */
+function cardPowerMoment(id, before, after){
+  const P = CARD_POWERS[id];
+  const nm = POKE[id] ? POKE[id].name : "?";
   const sanct = before === 0 ? ` ${nm} peut désormais t'attendre au Sanctuaire de l'Expédition.` : "";
   if(typeof moment !== "function") return;
   moment({kind:"release", c:"#ffd24a", spr:id,

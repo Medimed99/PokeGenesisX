@@ -462,7 +462,8 @@ function brGuardianWin(g){
     addToDex(g.id, Math.max(guardianLevel(r, i), typeof sqLockLevel === "function" ? sqLockLevel(r, i) - 4 : 0), false);
     addIntegrity(g.core ? 5 : 2.5);
     const cs = rollCardSeries(g.id, g.core ? 3.2 : 1.8);
-    grantCardV(cs, g.id); out.card = cs;
+    if(typeof cardRevealExpect === "function") cardRevealExpect();
+    const fresh = grantCardV(cs, g.id); out.card = cs; out.cardObj = {s:cs, id:g.id, fresh};
     gain("cores", g.core ? 4 : 2);
   }
   S.stats.bossWins = (S.stats.bossWins || 0) + 1;
@@ -528,6 +529,7 @@ function brFinish(R, won, quit){
 function brScore(R){ return Math.round(R.kills + R.t * 2 + R.lv * 10 + (R.won ? 500 : 0) + (R.endless ? (R.t - R.bossAt) * 4 : 0)); }
 function brShowResults(R, o){
   R.over = true;
+  if(o.gw && o.gw.cardObj && typeof cardReveal === "function"){ const c = o.gw.cardObj; o.gw.cardObj = null; setTimeout(()=>cardReveal([c], {kicker:"VERROU LEVÉ", onDone:()=>{}}), 1500); }
   R.lastResults = o;
   const m = document.getElementById("br-modal");
   if(!m) return;

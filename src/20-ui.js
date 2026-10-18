@@ -261,6 +261,7 @@ let screenArg = null;
 function go(name, arg){
   if(!SCREENS[name]) return;
   if(typeof stopAim === "function") stopAim();
+  try { if(typeof ppGhostsClear === "function"){ if(PP && PP.drag) ppEnd(); ppGhostsClear(); } } catch(e){}
   const changed = currentScreen !== name;
   currentScreen = name; screenArg = arg||null;
   render(changed);
@@ -368,6 +369,7 @@ function sheet(html, mid){
   root.innerHTML = `<div class="scrim" data-act="closesheet"></div><div class="sheet ${mid?"mid":""}">${html}</div>`;
 }
 function closeSheet(){ SHEET_OPEN = false;
+  try { if(typeof ppGhostsClear === "function"){ if(PP && PP.drag) ppEnd(); ppGhostsClear(); } } catch(e){}
   const r = document.getElementById("sheet-root"); if(r){ r.className=""; r.innerHTML=""; }
   /* un parcours peut reprendre a la fermeture (installation de l'app) */
   if(typeof pwaSheetClosed === "function") pwaSheetClosed(); }

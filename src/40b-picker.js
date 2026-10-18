@@ -217,6 +217,10 @@ function ppMove(e){
   ppAutoScroll(D);
 }
 function ppStartDrag(D){
+  /* l'appui long et le mouvement peuvent tous deux lancer la prise : une seule fois */
+  if(D.on || D.dead) return;
+  clearTimeout(D.timer);
+  ppGhostsClear();
   D.on = true;
   const g = document.createElement("div");
   g.className = "pp-ghost";
@@ -260,6 +264,7 @@ function ppEnd(){
   const D = PP && PP.drag; if(!D) return null;
   clearTimeout(D.timer); cancelAnimationFrame(D.raf);
   if(D.ghost) D.ghost.remove();
+  ppGhostsClear();
   D.src.el && D.src.el.classList.remove("lifted");
   if(PP.host){ PP.host.classList.remove("dragging"); PP.host.querySelectorAll(".pp-slot.over").forEach(s=>s.classList.remove("over")); }
   const box = document.getElementById("pp-box"); if(box) box.classList.remove("over");
@@ -271,6 +276,8 @@ function ppEnd(){
   return D;
 }
 function ppCancel(){ ppEnd(); }
+/* aucun fantôme ne doit survivre à la prise, ni à un changement d'écran */
+function ppGhostsClear(){ try { document.querySelectorAll(".pp-ghost").forEach(g=>g.remove()); } catch(e){} }
 function ppUp(e){
   const D = PP && PP.drag; if(!D || e.pointerId !== D.pid) return;
   D.x = e.clientX; D.y = e.clientY;

@@ -624,6 +624,8 @@ function checkPzEvents(){
 }
 /* bandeau de dialogue court, non bloquant */
 function pzTalk(text){
+  /* jamais par-dessus une révélation ou un grand moment : il attend son tour */
+  if(typeof stageHold === "function" && stageHold()){ stageDefer(()=>pzTalk(text)); return; }
   text = typeof pzFmt === "function" ? pzFmt(text) : text;
   const box = document.getElementById("pztalk");
   if(!box) return;

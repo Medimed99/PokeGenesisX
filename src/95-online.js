@@ -726,6 +726,7 @@ ACTIONS.netclaim = () => {
     const row = Array.isArray(r) ? r[0] : r;
     if(!row || !row.series || !row.species){ throw new Error("Code inconnu ou déjà utilisé"); }
     const srz = row.series;
+    if(typeof cardRevealExpect === "function") cardRevealExpect();
     const fresh = grantCardV(srz, row.species);
     save();
     closeSheet();

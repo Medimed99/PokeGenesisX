@@ -658,6 +658,12 @@ function sqEnd(){
   if(R.lock && R.first && typeof momentRelease === "function") setTimeout(()=>momentRelease(R.lock.g), 1200 / sqSp());
   const last = B.s === SQ_STAGES - 1;
   const nextOk = B.result && !last && !B.lock;
+  /* la carte émise par le verrou se révèle quand le joueur a fini de lire */
+  B.cardObj = R.gw && R.gw.cardObj && typeof cardReveal === "function" ? R.gw.cardObj : null;
+  B.rbtn = ()=>B.cardObj ? `<button class="btn pri wide" data-act="sqcard">Révéler la carte</button>` : `
+        <button class="btn" data-act="sqagain">${B.result ? "Rejouer" : "Réessayer"}</button>
+        <button class="btn" data-act="sqprepagain">Préparation</button>
+        ${nextOk ? `<button class="btn pri" data-act="sqnext">Suivant</button>` : `<button class="btn pri" data-act="sqzoneend">${B.lock ? "Verrous" : last && B.result ? "Aile" : "Retour"}</button>`}`;
   setTimeout(()=>{
     if(SQB !== B) return;
     const el = document.getElementById("sqres"); if(!el) return;
@@ -679,11 +685,7 @@ function sqEnd(){
       : B.lock ? `<div class="tiny" style="line-height:1.6">Le verrou tient. Types : <b>${POKE[R.lock.g.id].types.map(t=>TYPE_NAMES[t]).join(", ")}</b>.
           Le tableau des types pèse plus lourd que dix niveaux : composez une équipe qui le prend à revers, et gardez un soin pour sa reconfiguration.</div>`
       : `<div class="tiny" style="line-height:1.6">Types du secteur : <b>${Z.types.map(t=>TYPE_NAMES[t]).join(", ")}</b>. Un meneur adapté, des compétences montées, ou quelques niveaux de plus font la différence.</div>`}
-      <div class="sw-rbtn">
-        <button class="btn" data-act="sqagain">${B.result ? "Rejouer" : "Réessayer"}</button>
-        <button class="btn" data-act="sqprepagain">Préparation</button>
-        ${nextOk ? `<button class="btn pri" data-act="sqnext">Suivant</button>` : `<button class="btn pri" data-act="sqzoneend">${B.lock ? "Verrous" : last && B.result ? "Aile" : "Retour"}</button>`}
-      </div>`;
+      <div class="sw-rbtn" id="sw-rbtn">${B.rbtn()}</div>`;
     el.classList.add("on");
     pmdWake();
   }, 1300 / sqSp());
@@ -694,6 +696,12 @@ function sqRestart(z, s, d){
   SQ_ZSEL = z; SQ_DSEL = d;
   SQ_PREP = {z, s, d, team:sqDefaultTeam(), waves:sqWaves(z, s, null, d), sort:"lvl"};
 }
+ACTIONS.sqcard = () => {
+  const B = SQB; if(!B || !B.cardObj) return;
+  const c = B.cardObj; B.cardObj = null;
+  const done = ()=>{ const el = document.getElementById("sw-rbtn"); if(el && SQB === B) el.innerHTML = B.rbtn(); };
+  if(!cardReveal([c], {kicker:"VERROU LEVÉ", onDone:done})) done();
+};
 ACTIONS.sqagain = () => { const B = SQB; if(!B) return; sqWingFlush(); sqRestart(B.z, B.s, B.d); ACTIONS.sqfight(); };
 ACTIONS.sqprepagain = () => { const B = SQB; if(!B) return; sqWingFlush(); sqRestart(B.z, B.s, B.d); SQB = null; SQV = null; go("tower", "prep"); };
 ACTIONS.sqnext = () => { const B = SQB; if(!B) return; sqRestart(B.z, B.s + 1, B.d); SQB = null; SQV = null; go("tower", "prep"); if(typeof checkStoryTriggers === "function") checkStoryTriggers(); };

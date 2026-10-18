@@ -96,9 +96,16 @@ ACTIONS.raidclaim = d => {
   if(rw.shards) gain("shards", rw.shards);
   if(rw.cores) gain("cores", rw.cores);
   if(rw.candy && typeof teamCandyGain === "function") teamCandyGain(rw.candy);
-  let cardTxt = "";
-  if(rw.card && typeof grantCardV === "function"){ const s = rollCardSeries(raidBoss(), 2); grantCardV(s, raidBoss()); cardTxt = " · une carte de " + POKE[raidBoss()].name; }
+  let cardTxt = "", card = null;
+  if(rw.card && typeof grantCardV === "function"){
+    const s = rollCardSeries(raidBoss(), 2);
+    if(typeof cardRevealExpect === "function") cardRevealExpect();
+    card = {s, id:raidBoss(), fresh:grantCardV(s, raidBoss())};
+    cardTxt = " · une carte de " + POKE[raidBoss()].name;
+  }
   save();
+  if(card && typeof cardReveal === "function" && cardReveal([card], {kicker:"RAID · " + T.n,
+      intro:{spr:raidBoss(), title:"Récompense commune", text:"Tous les archivistes ont frappé ensemble. Le boss laisse une carte à chacun.", rewards:raidRwText(rw)}})) return;
   if(typeof banner === "function") banner({kicker:"RAID · " + T.n, title:"Récompense commune", sub:raidRwText(rw) + cardTxt, spr:raidBoss(), c:"#ff8a3d", sfx:"coin"});
   refresh();
 };

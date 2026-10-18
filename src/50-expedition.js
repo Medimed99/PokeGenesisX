@@ -466,6 +466,7 @@ function endExpedition(win){
     pendingEgg = tier;
     /* le noyau emet une carte : la corruption prise en chemin ameliore la serie */
     const cw = randomCard(1 + run.corruption * 0.55);
+    if(typeof cardRevealExpect === "function") cardRevealExpect();
     const cwNew = grantCardV(cw.s, cw.id);
     pendingBooster = [{s:cw.s, id:cw.id, fresh:cwNew}];
     if(rng() < 0.5){
@@ -546,7 +547,8 @@ function expLootChain(){
   }
   if(pendingBooster){
     const cards = pendingBooster; pendingBooster = null;
-    if(showBooster(cards, {title:"BUTIN DU NOYAU",
+    if(typeof cardReveal === "function"){ if(cardReveal(cards, {kicker:"BUTIN DU NOYAU", onDone:expLootChain})) return; }
+    else if(showBooster(cards, {title:"BUTIN DU NOYAU",
         sub:"Scellé au fond de la couche. Le système n'a jamais su ce qu'il contenait.",
         onDone:expLootChain})) return;
   }

@@ -331,14 +331,13 @@ ACTIONS.claimwk = d => {
   const chest = CHESTS[rw.chest];
   const items = openChest(rw.chest, true);
   const wc = randomCard(1 + S.weekly.tier * 0.6);
+  if(typeof cardRevealExpect === "function") cardRevealExpect();
   const wcNew = grantCardV(wc.s, wc.id);
+  chestBooster.unshift({s:wc.s, id:wc.id, fresh:wcNew});
   Sfx.win();
   save();
   revealSheet("OBJECTIF HEBDOMADAIRE", [
     {icon:"core", label:`${rw.cores} Noyaux`, color:"var(--violet)"},
-    {icon:"cards", label:POKE[wc.id].name,
-     sub:"carte " + seriesName(wc.s) + (wcNew ? "" : " · doublon"),
-     color:CARD_SERIES_DEF[wc.s].c, big:true},
     ...items
   ], {sub:`${esc(q.n)} — ${esc(chest.name)} ouverte`});
 };
@@ -380,7 +379,8 @@ function revealDone(){
   if(chestBooster.length){
     const cards = chestBooster;
     chestBooster = [];
-    if(showBooster(cards, {title:"SACHET TROUVÉ DANS L'ARCHIVE",
+    if(typeof cardReveal === "function"){ if(cardReveal(cards, {onDone:()=>refresh()})) return; }
+    else if(showBooster(cards, {title:"SACHET TROUVÉ DANS L'ARCHIVE",
         sub:"Scellé avec le reste. Personne ne l'a jamais ouvert.",
         onDone:()=>refresh()})) return;
   }
@@ -408,6 +408,9 @@ function rewardItems(rw){
 
 function revealSheet(title, items, opts){
   opts = opts || {};
+  const sealed = (typeof chestBooster !== "undefined" && chestBooster.length) ? chestBooster.length : 0;
+  if(sealed) items = items.concat([{icon:"cards", html:cardBackHtml("rv-sealed"),
+    label:sealed > 1 ? sealed + " cartes scellées" : "Une carte scellée", sub:"à révéler", color:"var(--cyan)", big:true}]);
   sheet(`<div class="center reveal">
     <div class="h" style="justify-content:center">${esc(title)}</div>
     ${opts.sub?`<div class="tiny muted" style="margin:-4px 0 8px">${opts.sub}</div>`:""}
@@ -417,8 +420,10 @@ function revealSheet(title, items, opts){
     </div>
     <div class="rv-list" id="rv-list"></div>
     <button class="btn pri wide" id="rv-ok" style="opacity:0;pointer-events:none"
-      data-act="revealdone">Récupérer</button>
+      data-act="revealdone">${sealed ? (sealed > 1 ? "Révéler les cartes" : "Révéler la carte") : "Récupérer"}</button>
   </div>`, true);
+  /* toucher à côté ne doit pas faire perdre une carte scellée */
+  if(sealed){ try { const sc = document.querySelector("#sheet-root .scrim"); if(sc) sc.dataset.act = "revealdone"; } catch(e){} }
   runReveal(items);
 }
 function runReveal(items){
@@ -507,6 +512,7 @@ function openChest(key, silent){
     }
     if(loot.card){
       const c2 = randomCard(c.tier >= 4 ? 2.2 : 1.4);
+      if(typeof cardRevealExpect === "function") cardRevealExpect();
       const fresh = grantCardV(c2.s, c2.id);
       chestBooster.push({s:c2.s, id:c2.id, fresh});
       delete loot.card;

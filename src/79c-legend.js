@@ -66,15 +66,22 @@ function legEnd(L, win){
     st.won[L.b] = true;
     S.stats.legWins = (S.stats.legWins || 0) + 1;
     const s = typeof rollCardSeries === "function" ? rollCardSeries(L.id, 1.6) : "art";
+    if(typeof cardRevealExpect === "function") cardRevealExpect();
     const fresh = typeof grantCardV === "function" ? grantCardV(s, L.id) : false;
-    gain("shards", 25); gain("coins", 1500 + S.level * 80);
+    const coins = 1500 + S.level * 80;
+    gain("shards", 25); gain("coins", coins);
     if(typeof teamCandyGain === "function") teamCandyGain(5);
     addXp(600 + S.level * 20);
     save();
+    /* la carte a sa scène : d'abord le légendaire qui s'incline, puis, quand on est prêt, la carte */
     setTimeout(()=>{
-      if(typeof moment === "function") moment({kind:"release", c:"#ffd24a", spr:L.id, kicker:"PASSAGE LÉGENDAIRE",
-        title:`${POKE[L.id].name} s'incline`, sub:`Une carte « ${typeof seriesName === "function" ? seriesName(s) : s} »${fresh ? " — nouvelle !" : " (en double)"} · +25 Fragments · +5 Bonbons d'équipe`,
-        line:"Il te laisse une trace de lui. Je l'ai rangée dans ta collection, {nom}. Avec soin.", dur:5200});
+      const intro = {spr:L.id, title:`${POKE[L.id].name} s'incline`,
+        text:"Il te laisse une trace de lui avant de repartir. Une carte, scellée dans sa signature.",
+        rewards:`+25 Fragments · +${fmt(coins)} PokéCoins · +5 Bonbons d'équipe`};
+      const shown = typeof cardReveal === "function" && cardReveal([{s, id:L.id, fresh}], {kicker:"PASSAGE LÉGENDAIRE", intro,
+        onDone:()=>{ BATTLE = null; go("modules"); }});
+      if(!shown && typeof moment === "function") moment({kind:"release", c:"#ffd24a", spr:L.id, kicker:"PASSAGE LÉGENDAIRE",
+        title:`${POKE[L.id].name} s'incline`, sub:`Une carte « ${typeof seriesName === "function" ? seriesName(s) : s} »${fresh ? " — nouvelle !" : " (en double)"} · +25 Fragments · +5 Bonbons d'équipe`, dur:5200});
     }, 900);
   } else if(!win){
     if(typeof teamCandyGain === "function") teamCandyGain(1);

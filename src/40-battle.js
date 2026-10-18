@@ -630,8 +630,10 @@ function onGuardianEnd(r, i, win){
       addToDex(g.id, lvl, false);
       addIntegrity(g.core ? 5 : 2.5);
       /* un noyau emet une illustration ancienne : c'est la recompense de prestige */
-      const cs = rollCardSeries(g.id, g.core ? 3.2 : 1.8);
-      const cNew = grantCardV(cs, g.id);
+      var cs = rollCardSeries(g.id, g.core ? 3.2 : 1.8);
+      if(typeof cardRevealExpect === "function") cardRevealExpect();
+      var cNew = grantCardV(cs, g.id);
+      GUARD_CARD = {s:cs, id:g.id, fresh:cNew};
       gain("cores", g.core ? 4 : 2);
     } else addIntegrity(0.4);
     const fw = consumeFirstWin("boss");
@@ -650,7 +652,8 @@ function onGuardianEnd(r, i, win){
           ${cNew?"":' <span class="dim">(doublon)</span>'}</div>
         <div class="tiny">Intégrité : <b class="ok">+${g.core?5:2.5}%</b></div>
       </div>`:`<div class="tiny muted">Verrou déjà levé — récompenses réduites.</div>`}
-      <button class="btn pri wide" data-act="bossdone">Continuer</button></div>`, true);
+      <button class="btn pri wide" data-act="${first && typeof cardReveal === "function" ? "bossreveal" : "bossdone"}">${first && typeof cardReveal === "function" ? "Révéler la carte" : "Continuer"}</button></div>`, true);
+    if(first && typeof cardReveal === "function"){ try { const sc = document.querySelector("#sheet-root .scrim"); if(sc) sc.dataset.act = "bossreveal"; } catch(e){} }
     checkAchievements();
     guideTick();
   } else {
@@ -662,6 +665,13 @@ function onGuardianEnd(r, i, win){
       <button class="btn wide" style="margin-top:9px" data-act="bossdone">Retour</button></div>`, true);
   }
 }
+/* la carte émise par un gardien a sa scène, après la lecture de la fiche */
+let GUARD_CARD = null;
+ACTIONS.bossreveal = () => {
+  const c = GUARD_CARD; GUARD_CARD = null;
+  closeSheet();
+  if(!c || !cardReveal([c], {kicker:"VERROU LEVÉ", onDone:()=>ACTIONS.bossdone()})) ACTIONS.bossdone();
+};
 ACTIONS.bossdone = () => { closeSheet(); BATTLE = null; if(!checkStoryTriggers()) go("boss"); };
 
 /* ecran de combat generique */

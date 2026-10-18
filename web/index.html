@@ -4764,6 +4764,112 @@ details.fo-more[open]>summary::before{content:"▾ "}
 .tp-row.lifted{z-index:5;position:relative;box-shadow:0 8px 20px #000a;border-color:var(--cyan)!important;transition:none}
 .tp-sel .tp-row{transition:transform .15s}
 
+/* ============================================================
+   RÉVÉLATION D'UNE CARTE (73c)
+   Une colonne : terminal · scène · fiche. Rien ne se superpose.
+   ============================================================ */
+#discover.crv{display:block;overflow:hidden;background:#02040a}
+.crv-bg{position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(60% 45% at 50% 42%,color-mix(in srgb,var(--ac) 22%,transparent),transparent 70%),
+    linear-gradient(rgba(53,240,214,.06) 1px,transparent 1px) 0 0/100% 4px,
+    radial-gradient(closest-side,#0a1426,#02040a);
+  animation:crvBg 6s ease-in-out infinite}
+@keyframes crvBg{50%{filter:brightness(1.18)}}
+.crv-rays{position:absolute;left:50%;top:40%;width:170vmax;height:170vmax;margin:-85vmax 0 0 -85vmax;pointer-events:none;opacity:0;
+  background:conic-gradient(from 0deg,transparent 0deg,color-mix(in srgb,var(--ac) 45%,transparent) 6deg,transparent 14deg,
+    transparent 36deg,color-mix(in srgb,var(--ac) 30%,transparent) 42deg,transparent 50deg,transparent 72deg);
+  transition:opacity .8s;animation:beamSpin 20s linear infinite}
+#discover.crv.flash .crv-rays{opacity:.55}
+#discover.crv.r3.flash .crv-rays,#discover.crv.r4.flash .crv-rays,#discover.crv.mn.flash .crv-rays{opacity:.85;animation-duration:12s}
+.crv-col{position:relative;z-index:2;height:100%;max-width:420px;margin:0 auto;overflow-y:auto;overscroll-behavior:contain;
+  display:flex;flex-direction:column;align-items:center;padding:16px 16px 18px;gap:10px;box-sizing:border-box}
+.crv.intro .crv-col{justify-content:center}
+.crv-btn{flex:none;margin-top:4px}
+
+/* 1 · le contexte */
+.crv-kick{font-family:var(--font-px);font-size:8px;letter-spacing:2px;color:var(--ac);text-shadow:0 0 14px var(--ac)}
+.crv-introart{filter:drop-shadow(0 0 22px color-mix(in srgb,var(--ac) 55%,transparent));animation:fadeIn .5s}
+.crv-title{font-family:var(--font-px);font-size:13px;line-height:1.5;text-align:center;color:var(--ink)}
+.crv-text{font-size:13px;line-height:1.5;color:var(--ink2);text-align:center;max-width:330px}
+.crv-rw{font-size:12px;color:var(--amber);text-align:center;border:1px solid var(--line);border-radius:6px;padding:7px 10px;background:rgba(255,255,255,.03)}
+.crv-sealed{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--cyan);margin-top:4px}
+.crv-sealed .cardback{width:38px;height:54px;flex:none;animation:crvSealed 1.6s ease-in-out infinite}
+.crv-sealed .cardback .cb-mark{font-size:14px}.crv-sealed .cardback .cb-word{display:none}
+@keyframes crvSealed{50%{transform:translateY(-3px) rotate(-3deg);box-shadow:0 0 16px rgba(53,240,214,.6)}}
+
+/* 2 · le décodage */
+.crv-term{flex:none;width:100%;height:50px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:10.5px;line-height:16px;
+  color:#35f0d6;text-shadow:0 0 6px rgba(53,240,214,.6);overflow:hidden}
+.crv-term div{white-space:nowrap;overflow:hidden;animation:crvType .35s steps(24) both}
+@keyframes crvType{from{max-width:0}to{max-width:100%}}
+.crv-stage{--cw:clamp(150px,min(62vw,calc((100dvh - 380px) * .706)),230px);
+  position:relative;flex:none;width:var(--cw);height:calc(var(--cw) / .706);perspective:1100px}
+.crv-ring{position:absolute;left:50%;top:50%;width:150%;aspect-ratio:1;transform:translate(-50%,-50%) scale(.4);border-radius:50%;
+  border:2px solid var(--ac);opacity:0;pointer-events:none}
+.crv-stage.burst .crv-ring{animation:crvRing .9s ease-out}
+@keyframes crvRing{0%{opacity:.95;transform:translate(-50%,-50%) scale(.35)}100%{opacity:0;transform:translate(-50%,-50%) scale(1.25);border-width:1px}}
+.crv-card{position:absolute;inset:0;animation:crvArrive .6s cubic-bezier(.2,1.3,.4,1) backwards}
+@keyframes crvArrive{from{transform:translateY(40px) scale(.6);opacity:0}}
+.crv-face{position:absolute;inset:0}
+.crv-face.front,.crv-card.flipped .crv-face.back{visibility:hidden}
+.crv-card.flipped .crv-face.front{visibility:visible}
+.crv-face .tcard.hero-card{width:100%;margin:0}
+.crv-face.back .cardback{border-radius:12px;border-color:color-mix(in srgb,var(--ac) 50%,#22314c)}
+.crv-face.back .cb-mark{font-size:52px}.crv-face.back .cb-word{font-size:7px}
+/* brouillage du dos : décalage RVB et tranches */
+.crv.play .crv-card:not(.flipped) .crv-face.back{animation:crvGlitch 1.1s steps(1) infinite}
+@keyframes crvGlitch{
+  0%,100%{filter:none;transform:none;clip-path:none}
+  12%{filter:drop-shadow(3px 0 0 #ff3d7f) drop-shadow(-3px 0 0 #35f0d6);transform:translateX(2px)}
+  14%{filter:none;transform:none}
+  41%{clip-path:inset(30% 0 52% 0);transform:translateX(-6px)}
+  43%{clip-path:none;transform:none}
+  67%{filter:drop-shadow(-2px 0 0 #ff3d7f) drop-shadow(2px 0 0 #35f0d6) brightness(1.4)}
+  70%{filter:none}}
+.crv-stage.charge .crv-card:not(.flipped){animation:crvShake .07s linear infinite}
+.crv-stage.charge .crv-face.back .cardback{box-shadow:0 0 30px var(--ac),0 0 70px color-mix(in srgb,var(--ac) 50%,transparent)}
+@keyframes crvShake{0%{transform:translate(1px,0)}50%{transform:translate(-1px,1px)}100%{transform:translate(0,-1px)}}
+.crv-stage.burst .crv-face.front{animation:crvHalo 2.4s ease-in-out .5s infinite}
+@keyframes crvHalo{50%{filter:drop-shadow(0 0 18px color-mix(in srgb,var(--ac) 80%,transparent))}}
+/* le faisceau qui lit la carte */
+.crv-beam{position:absolute;left:-8%;right:-8%;height:3px;top:0;opacity:0;pointer-events:none;
+  background:linear-gradient(90deg,transparent,var(--ac),#fff,var(--ac),transparent);
+  box-shadow:0 0 14px var(--ac),0 0 34px var(--ac)}
+.crv-beam.on{opacity:1;animation:crvScan .55s ease-in-out infinite alternate}
+@keyframes crvScan{from{top:0}to{top:calc(100% - 3px)}}
+/* les octets qui convergent */
+.crv-bytes{position:absolute;inset:-30px -20px;pointer-events:none;overflow:visible}
+.crv-bytes i{position:absolute;left:var(--x);bottom:-10px;font:9px ui-monospace,monospace;font-style:normal;color:var(--ac);
+  opacity:0;text-shadow:0 0 6px var(--ac);animation:crvByte 1.25s ease-in var(--d) both}
+@keyframes crvByte{0%{opacity:0;transform:translate(0,30px)}20%{opacity:1}100%{opacity:0;left:50%;transform:translate(-50%,-180px) scale(.6)}}
+.crv.flash .crv-bytes{display:none}
+.crv.flash .crv-term{opacity:.35;transition:opacity .6s}
+
+/* 3 · la fiche */
+.crv-info{flex:none;width:100%;display:flex;flex-direction:column;align-items:center;gap:5px;text-align:center;
+  opacity:0;transform:translateY(10px);transition:opacity .45s,transform .45s;pointer-events:none}
+.crv-info.on{opacity:1;transform:none;pointer-events:auto}
+.crv-tag{font-family:var(--font-px);font-size:7.5px;letter-spacing:1.5px;color:var(--ac);text-shadow:0 0 12px var(--ac)}
+.crv-name{font-family:var(--font-px);font-size:14px;color:var(--ink)}
+.crv-series{font-size:12px;font-weight:700}
+.crv-desc{font-size:11.5px;line-height:1.45;color:var(--ink2);max-width:340px}
+.crv-power{width:100%;box-sizing:border-box;margin-top:2px;padding:8px 10px;border-radius:8px;text-align:left;
+  border:1px solid color-mix(in srgb,#ffd24a 50%,var(--line));background:linear-gradient(180deg,rgba(255,210,74,.10),rgba(255,210,74,.03));
+  display:flex;flex-direction:column;gap:2px}
+.crv-power small{font-family:var(--font-px);font-size:6.5px;letter-spacing:1px;color:#ffd24a}
+.crv-power b{font-size:13px;color:var(--ink)}
+.crv-power span{font-size:11.5px;color:var(--ink2);line-height:1.4}
+.crv-power em{font-style:normal;font-size:10.5px;color:var(--cyan)}
+.crv-info .crv-btn{margin-top:8px}
+@media (prefers-reduced-motion:reduce){.crv-card,.crv-beam.on,.crv-bytes i,.crv.play .crv-face.back{animation:none!important}}
+.cardback.rv-sealed{width:22px;height:31px;border-radius:3px;gap:0}
+.cardback.rv-sealed .cb-word,.cardback.rv-sealed .cb-ring{display:none}
+.cardback.rv-sealed .cb-mark{font-size:12px}
+.sw-rbtn .btn.wide{grid-column:1/-1;width:100%}
+.crv-all{margin-top:2px;opacity:.8}
+body.crv-on #toasts,body.crv-on #pztalk{visibility:hidden}
+
 </style>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
@@ -7278,6 +7384,7 @@ let screenArg = null;
 function go(name, arg){
   if(!SCREENS[name]) return;
   if(typeof stopAim === "function") stopAim();
+  try { if(typeof ppGhostsClear === "function"){ if(PP && PP.drag) ppEnd(); ppGhostsClear(); } } catch(e){}
   const changed = currentScreen !== name;
   currentScreen = name; screenArg = arg||null;
   render(changed);
@@ -7385,6 +7492,7 @@ function sheet(html, mid){
   root.innerHTML = `<div class="scrim" data-act="closesheet"></div><div class="sheet ${mid?"mid":""}">${html}</div>`;
 }
 function closeSheet(){ SHEET_OPEN = false;
+  try { if(typeof ppGhostsClear === "function"){ if(PP && PP.drag) ppEnd(); ppGhostsClear(); } } catch(e){}
   const r = document.getElementById("sheet-root"); if(r){ r.className=""; r.innerHTML=""; }
   /* un parcours peut reprendre a la fermeture (installation de l'app) */
   if(typeof pwaSheetClosed === "function") pwaSheetClosed(); }
@@ -8090,7 +8198,7 @@ function resolveMissing(ballKey){
     /* la piece sans index ne se gagne pas : elle s'inscrit d'elle-meme */
     if(grantSecretCard()){
       save();
-      setTimeout(()=>showCardWin("mn", 0, true), 700);
+      setTimeout(()=>{ if(typeof cardReveal === "function") cardReveal([{s:"mn", id:0, fresh:true}], {kicker:"ENTRÉE SANS INDEX", onDone:()=>ACTIONS.dcdone()}); else showCardWin("mn", 0, true); }, 700);
       return;
     }
     save();
@@ -12209,16 +12317,31 @@ function crateRoll(tier, si){
     if(typeof teamCandyGain === "function") add("8 Bonbons d'équipe", ()=>teamCandyGain(8));
     add("une Baie Micle", ()=>{ S.berries.micle = (S.berries.micle || 0) + 1; });
     const r = rng();
-    if(r < 0.3 && typeof randomCard === "function"){ const c = randomCard(1.5); grantCardV(c.s, c.id); out.push("une carte de " + POKE[c.id].name + " !"); }
+    if(r < 0.3 && typeof randomCard === "function"){
+      const c = randomCard(1.5);
+      if(typeof cardRevealExpect === "function") cardRevealExpect();
+      CRATE_CARDS.push({s:c.s, id:c.id, fresh:grantCardV(c.s, c.id)});
+      out.push("une carte de " + POKE[c.id].name + " !");
+    }
     else if(r < 0.4) add("une Master Ball !", ()=>{ S.balls.master = (S.balls.master || 0) + 1; });
   }
   S.stats.crates = (S.stats.crates || 0) + 1;
   return out;
 }
+/* une carte trouvée dans une caisse : la caisse s'ouvre, puis la carte a sa scène */
+const CRATE_CARDS = [];
+function crateCardsReveal(){
+  const cs = CRATE_CARDS.splice(0);
+  if(!cs.length) return;
+  if(!(typeof cardReveal === "function" && cardReveal(cs, {kicker:"CAISSE D'ARCHIVISTE", onDone:()=>{}})) && typeof cardPowersFlush === "function") cardPowersFlush();
+}
 function crateShow(tier, list){
-  if(typeof moment !== "function") return;
+  if(typeof moment !== "function"){ crateCardsReveal(); return; }
+  const withCard = tier === 2 && CRATE_CARDS.length;
   moment({kind:"release", c:CRATE_COLORS[tier], html:digArtSvg(digArtOf("crate" + tier), 84),
-    kicker:"FOUILLE · CAISSE", title:CRATE_NAMES[tier], sub:list.join(" · "), dur:4600});
+    kicker:"FOUILLE · CAISSE", title:CRATE_NAMES[tier], sub:list.join(" · "), dur:withCard ? 6000 : 4600,
+    tapText: withCard ? "toucher pour révéler la carte" : "",
+    then: withCard ? ()=>setTimeout(crateCardsReveal, 420) : null});
 }
 
 /* ===== 39-daily.js ===== */
@@ -14131,8 +14254,10 @@ function onGuardianEnd(r, i, win){
       addToDex(g.id, lvl, false);
       addIntegrity(g.core ? 5 : 2.5);
       /* un noyau emet une illustration ancienne : c'est la recompense de prestige */
-      const cs = rollCardSeries(g.id, g.core ? 3.2 : 1.8);
-      const cNew = grantCardV(cs, g.id);
+      var cs = rollCardSeries(g.id, g.core ? 3.2 : 1.8);
+      if(typeof cardRevealExpect === "function") cardRevealExpect();
+      var cNew = grantCardV(cs, g.id);
+      GUARD_CARD = {s:cs, id:g.id, fresh:cNew};
       gain("cores", g.core ? 4 : 2);
     } else addIntegrity(0.4);
     const fw = consumeFirstWin("boss");
@@ -14151,7 +14276,8 @@ function onGuardianEnd(r, i, win){
           ${cNew?"":' <span class="dim">(doublon)</span>'}</div>
         <div class="tiny">Intégrité : <b class="ok">+${g.core?5:2.5}%</b></div>
       </div>`:`<div class="tiny muted">Verrou déjà levé — récompenses réduites.</div>`}
-      <button class="btn pri wide" data-act="bossdone">Continuer</button></div>`, true);
+      <button class="btn pri wide" data-act="${first && typeof cardReveal === "function" ? "bossreveal" : "bossdone"}">${first && typeof cardReveal === "function" ? "Révéler la carte" : "Continuer"}</button></div>`, true);
+    if(first && typeof cardReveal === "function"){ try { const sc = document.querySelector("#sheet-root .scrim"); if(sc) sc.dataset.act = "bossreveal"; } catch(e){} }
     checkAchievements();
     guideTick();
   } else {
@@ -14163,6 +14289,13 @@ function onGuardianEnd(r, i, win){
       <button class="btn wide" style="margin-top:9px" data-act="bossdone">Retour</button></div>`, true);
   }
 }
+/* la carte émise par un gardien a sa scène, après la lecture de la fiche */
+let GUARD_CARD = null;
+ACTIONS.bossreveal = () => {
+  const c = GUARD_CARD; GUARD_CARD = null;
+  closeSheet();
+  if(!c || !cardReveal([c], {kicker:"VERROU LEVÉ", onDone:()=>ACTIONS.bossdone()})) ACTIONS.bossdone();
+};
 ACTIONS.bossdone = () => { closeSheet(); BATTLE = null; if(!checkStoryTriggers()) go("boss"); };
 
 /* ecran de combat generique */
@@ -14469,6 +14602,10 @@ function ppMove(e){
   ppAutoScroll(D);
 }
 function ppStartDrag(D){
+  /* l'appui long et le mouvement peuvent tous deux lancer la prise : une seule fois */
+  if(D.on || D.dead) return;
+  clearTimeout(D.timer);
+  ppGhostsClear();
   D.on = true;
   const g = document.createElement("div");
   g.className = "pp-ghost";
@@ -14512,6 +14649,7 @@ function ppEnd(){
   const D = PP && PP.drag; if(!D) return null;
   clearTimeout(D.timer); cancelAnimationFrame(D.raf);
   if(D.ghost) D.ghost.remove();
+  ppGhostsClear();
   D.src.el && D.src.el.classList.remove("lifted");
   if(PP.host){ PP.host.classList.remove("dragging"); PP.host.querySelectorAll(".pp-slot.over").forEach(s=>s.classList.remove("over")); }
   const box = document.getElementById("pp-box"); if(box) box.classList.remove("over");
@@ -14523,6 +14661,8 @@ function ppEnd(){
   return D;
 }
 function ppCancel(){ ppEnd(); }
+/* aucun fantôme ne doit survivre à la prise, ni à un changement d'écran */
+function ppGhostsClear(){ try { document.querySelectorAll(".pp-ghost").forEach(g=>g.remove()); } catch(e){} }
 function ppUp(e){
   const D = PP && PP.drag; if(!D || e.pointerId !== D.pid) return;
   D.x = e.clientX; D.y = e.clientY;
@@ -16138,6 +16278,7 @@ function endExpedition(win){
     pendingEgg = tier;
     /* le noyau emet une carte : la corruption prise en chemin ameliore la serie */
     const cw = randomCard(1 + run.corruption * 0.55);
+    if(typeof cardRevealExpect === "function") cardRevealExpect();
     const cwNew = grantCardV(cw.s, cw.id);
     pendingBooster = [{s:cw.s, id:cw.id, fresh:cwNew}];
     if(rng() < 0.5){
@@ -16218,7 +16359,8 @@ function expLootChain(){
   }
   if(pendingBooster){
     const cards = pendingBooster; pendingBooster = null;
-    if(showBooster(cards, {title:"BUTIN DU NOYAU",
+    if(typeof cardReveal === "function"){ if(cardReveal(cards, {kicker:"BUTIN DU NOYAU", onDone:expLootChain})) return; }
+    else if(showBooster(cards, {title:"BUTIN DU NOYAU",
         sub:"Scellé au fond de la couche. Le système n'a jamais su ce qu'il contenait.",
         onDone:expLootChain})) return;
   }
@@ -19855,6 +19997,12 @@ function sqEnd(){
   if(R.lock && R.first && typeof momentRelease === "function") setTimeout(()=>momentRelease(R.lock.g), 1200 / sqSp());
   const last = B.s === SQ_STAGES - 1;
   const nextOk = B.result && !last && !B.lock;
+  /* la carte émise par le verrou se révèle quand le joueur a fini de lire */
+  B.cardObj = R.gw && R.gw.cardObj && typeof cardReveal === "function" ? R.gw.cardObj : null;
+  B.rbtn = ()=>B.cardObj ? `<button class="btn pri wide" data-act="sqcard">Révéler la carte</button>` : `
+        <button class="btn" data-act="sqagain">${B.result ? "Rejouer" : "Réessayer"}</button>
+        <button class="btn" data-act="sqprepagain">Préparation</button>
+        ${nextOk ? `<button class="btn pri" data-act="sqnext">Suivant</button>` : `<button class="btn pri" data-act="sqzoneend">${B.lock ? "Verrous" : last && B.result ? "Aile" : "Retour"}</button>`}`;
   setTimeout(()=>{
     if(SQB !== B) return;
     const el = document.getElementById("sqres"); if(!el) return;
@@ -19876,11 +20024,7 @@ function sqEnd(){
       : B.lock ? `<div class="tiny" style="line-height:1.6">Le verrou tient. Types : <b>${POKE[R.lock.g.id].types.map(t=>TYPE_NAMES[t]).join(", ")}</b>.
           Le tableau des types pèse plus lourd que dix niveaux : composez une équipe qui le prend à revers, et gardez un soin pour sa reconfiguration.</div>`
       : `<div class="tiny" style="line-height:1.6">Types du secteur : <b>${Z.types.map(t=>TYPE_NAMES[t]).join(", ")}</b>. Un meneur adapté, des compétences montées, ou quelques niveaux de plus font la différence.</div>`}
-      <div class="sw-rbtn">
-        <button class="btn" data-act="sqagain">${B.result ? "Rejouer" : "Réessayer"}</button>
-        <button class="btn" data-act="sqprepagain">Préparation</button>
-        ${nextOk ? `<button class="btn pri" data-act="sqnext">Suivant</button>` : `<button class="btn pri" data-act="sqzoneend">${B.lock ? "Verrous" : last && B.result ? "Aile" : "Retour"}</button>`}
-      </div>`;
+      <div class="sw-rbtn" id="sw-rbtn">${B.rbtn()}</div>`;
     el.classList.add("on");
     pmdWake();
   }, 1300 / sqSp());
@@ -19891,6 +20035,12 @@ function sqRestart(z, s, d){
   SQ_ZSEL = z; SQ_DSEL = d;
   SQ_PREP = {z, s, d, team:sqDefaultTeam(), waves:sqWaves(z, s, null, d), sort:"lvl"};
 }
+ACTIONS.sqcard = () => {
+  const B = SQB; if(!B || !B.cardObj) return;
+  const c = B.cardObj; B.cardObj = null;
+  const done = ()=>{ const el = document.getElementById("sw-rbtn"); if(el && SQB === B) el.innerHTML = B.rbtn(); };
+  if(!cardReveal([c], {kicker:"VERROU LEVÉ", onDone:done})) done();
+};
 ACTIONS.sqagain = () => { const B = SQB; if(!B) return; sqWingFlush(); sqRestart(B.z, B.s, B.d); ACTIONS.sqfight(); };
 ACTIONS.sqprepagain = () => { const B = SQB; if(!B) return; sqWingFlush(); sqRestart(B.z, B.s, B.d); SQB = null; SQV = null; go("tower", "prep"); };
 ACTIONS.sqnext = () => { const B = SQB; if(!B) return; sqRestart(B.z, B.s + 1, B.d); SQB = null; SQV = null; go("tower", "prep"); if(typeof checkStoryTriggers === "function") checkStoryTriggers(); };
@@ -21768,7 +21918,8 @@ function brGuardianWin(g){
     addToDex(g.id, Math.max(guardianLevel(r, i), typeof sqLockLevel === "function" ? sqLockLevel(r, i) - 4 : 0), false);
     addIntegrity(g.core ? 5 : 2.5);
     const cs = rollCardSeries(g.id, g.core ? 3.2 : 1.8);
-    grantCardV(cs, g.id); out.card = cs;
+    if(typeof cardRevealExpect === "function") cardRevealExpect();
+    const fresh = grantCardV(cs, g.id); out.card = cs; out.cardObj = {s:cs, id:g.id, fresh};
     gain("cores", g.core ? 4 : 2);
   }
   S.stats.bossWins = (S.stats.bossWins || 0) + 1;
@@ -21834,6 +21985,7 @@ function brFinish(R, won, quit){
 function brScore(R){ return Math.round(R.kills + R.t * 2 + R.lv * 10 + (R.won ? 500 : 0) + (R.endless ? (R.t - R.bossAt) * 4 : 0)); }
 function brShowResults(R, o){
   R.over = true;
+  if(o.gw && o.gw.cardObj && typeof cardReveal === "function"){ const c = o.gw.cardObj; o.gw.cardObj = null; setTimeout(()=>cardReveal([c], {kicker:"VERROU LEVÉ", onDone:()=>{}}), 1500); }
   R.lastResults = o;
   const m = document.getElementById("br-modal");
   if(!m) return;
@@ -27662,11 +27814,15 @@ function sanctJoin(run, id){
    ============================================================ */
 function cardPowerAnnounce(id, before, after){
   if(after <= before) return;
-  const P = CARD_POWERS[id];
-  const nm = POKE[id] ? POKE[id].name : "?";
   S.cardPowerLog = S.cardPowerLog || [];
   S.cardPowerLog.push({id, t:after, at:Date.now()});
   if(S.cardPowerLog.length > 30) S.cardPowerLog.shift();
+  cardPowerMoment(id, before, after);
+}
+/* l'annonce à l'écran, à part : la révélation d'une carte (73c) la montre dans sa propre scène */
+function cardPowerMoment(id, before, after){
+  const P = CARD_POWERS[id];
+  const nm = POKE[id] ? POKE[id].name : "?";
   const sanct = before === 0 ? ` ${nm} peut désormais t'attendre au Sanctuaire de l'Expédition.` : "";
   if(typeof moment !== "function") return;
   moment({kind:"release", c:"#ffd24a", spr:id,
@@ -27712,6 +27868,211 @@ function cardPowersPanel(){
     ${group("POKÉ-POKER · PROGRAMMES", id=>CARD_POWERS[id].k === "joker")}
     ${group("EXPÉDITION · BOUTIQUE KECLEON", id=>CARD_POWERS[id].k === "item")}
   </div>`;
+}
+
+/* ===== 73c-cardreveal.js ===== */
+/* ============================================================
+   73c — LA RÉVÉLATION D'UNE CARTE
+   Une carte légendaire est la récompense la plus rare du jeu. Elle
+   arrivait par une ligne de liste, ou pas du tout. Elle a désormais
+   sa scène, dans le style de l'archive :
+
+   1. LE CONTEXTE (facultatif) — d'où vient la carte : le légendaire
+      vaincu, l'archive ouverte. Le joueur lit, puis touche
+      « Révéler la carte » quand il est prêt.
+   2. LE DÉCODAGE — un terminal lit la signature, la carte arrive
+      de dos, brouillée ; un faisceau la balaie, des octets s'y
+      rassemblent, puis elle se retourne dans un éclair à la
+      couleur de sa série, avec rayons et reflet holographique.
+   3. LA CARTE — nom, série, rareté, et le pouvoir qu'elle ouvre
+      ou renforce. Un bouton pour la ranger (ou passer à la
+      suivante).
+
+   Tout est disposé en colonne : rien ne se superpose. Un toucher
+   pendant le décodage le termine aussitôt.
+   ============================================================ */
+
+let CRV = null;
+/* les pouvoirs annoncés pendant qu'une révélation est prévue sont montrés dans la scène, pas par-dessus */
+let CARD_REVEAL_EXPECT = 0;
+const CARD_POWER_PENDING = {};
+
+/* cards : [{s, id, fresh}] ; opts : {kicker, intro:{spr, title, text, rewards}, onDone} */
+function cardReveal(cards, opts){
+  opts = opts || {};
+  const box = document.getElementById("discover");
+  cards = (cards || []).filter(c=>c && c.s);
+  if(!box || !box.style || !cards.length){ cardPowersFlush(); if(opts.onDone) opts.onDone(); return false; }
+  if(typeof closeSheet === "function" && sheetOpen && sheetOpen()) closeSheet();
+  CRV = {cards, i:0, opts, timers:[]};
+  /* bandeaux et bulles se taisent pendant la scène : rien ne passe par-dessus */
+  try { document.body.classList.add("crv-on"); } catch(e){}
+  if(opts.intro) crvIntro(); else crvPlay();
+  return true;
+}
+function crvClear(){ if(CRV){ CRV.timers.forEach(t=>{ clearTimeout(t); clearInterval(t); }); CRV.timers = []; } }
+function crvAt(ms, fn){ CRV.timers.push(setTimeout(()=>{ try { fn(); } catch(e){} }, ms)); }
+
+/* ---------- 1. le contexte ---------- */
+function crvIntro(){
+  const box = document.getElementById("discover"), I = CRV.opts.intro;
+  box.className = "on crv intro";
+  box.style.setProperty("--ac", "#ffd24a");
+  box.onclick = null;
+  box.innerHTML = `<div class="crv-bg"></div>
+    <div class="crv-col">
+      <div class="crv-kick">${esc(CRV.opts.kicker || "SIGNATURE MAJEURE")}</div>
+      <div class="crv-introart">${I.spr ? `<span class="sprbox" style="width:128px;height:128px">${sprite(I.spr, false, "", {anim:true, eager:true})}</span>` : ""}</div>
+      <div class="crv-title">${esc(I.title || "")}</div>
+      ${I.text ? `<div class="crv-text">${esc(I.text)}</div>` : ""}
+      ${I.rewards ? `<div class="crv-rw">${esc(I.rewards)}</div>` : ""}
+      <div class="crv-sealed">${cardBackHtml("crv-mini")}<span>${CRV.cards.length > 1 ? CRV.cards.length + " cartes scellées" : "Une carte scellée"} t'attend${CRV.cards.length > 1 ? "ent" : ""}</span></div>
+      <button class="btn pri wide crv-btn" data-act="crvgo">Révéler la carte</button>
+    </div>`;
+}
+ACTIONS.crvgo = () => { if(CRV) crvPlay(); };
+
+/* ---------- 2. le décodage ---------- */
+function crvPlay(){
+  crvClear();
+  const c = CRV.cards[CRV.i], def = CARD_SERIES_DEF[c.s] || CARD_SERIES_DEF.art;
+  const rank = Math.max(0, CARD_ORDER.indexOf(c.s));
+  const box = document.getElementById("discover");
+  box.className = `on crv play r${rank} ${c.s === "mn" ? "mn" : ""}`;
+  box.style.setProperty("--ac", def.c);
+  box.innerHTML = `<div class="crv-bg"></div><div class="crv-rays"></div>
+    <div class="crv-col">
+      <div class="crv-term" id="crv-term"></div>
+      <div class="crv-stage" id="crv-stage">
+        <div class="crv-ring"></div>
+        <div class="crv-card" id="crv-card">
+          <div class="crv-face back">${cardBackHtml()}</div>
+          <div class="crv-face front">${tcardHtml(c.s, c.id, {hero:true, owned:true})}</div>
+        </div>
+        <div class="crv-beam" id="crv-beam"></div>
+        <div class="crv-bytes" id="crv-bytes"></div>
+      </div>
+      <div class="crv-info" id="crv-info"></div>
+    </div>`;
+  /* le terminal lit la signature, ligne par ligne */
+  const term = document.getElementById("crv-term");
+  const lines = [
+    `> signature détectée · N°${c.s === "mn" ? "000" : String(c.id).padStart(3, "0")}`,
+    `> série · ${"◈".repeat(rank + 1)} ${seriesFound(c.s) ? def.n.toUpperCase() : "·····"}`,
+    "> décodage de l'illustration…"
+  ];
+  CRV.lines = lines;
+  lines.forEach((l, k)=>crvAt(120 + k * 420, ()=>{ if(term){ const d = document.createElement("div"); d.textContent = l; term.appendChild(d); try { Sfx.click(); } catch(e){} } }));
+  /* des octets montent vers la carte */
+  crvAt(300, ()=>{
+    const by = document.getElementById("crv-bytes"); if(!by) return;
+    by.innerHTML = Array.from({length:22}, (_, k)=>`<i style="--x:${(Math.random() * 100).toFixed(0)}%;--d:${(Math.random() * 1.1).toFixed(2)}s">${Math.floor(Math.random() * 256).toString(16).toUpperCase().padStart(2, "0")}</i>`).join("");
+    try { Sfx.glitch(); } catch(e){}
+  });
+  crvAt(400, ()=>{ const b = document.getElementById("crv-beam"); if(b) b.classList.add("on"); });
+  crvAt(1500, ()=>{ const st = document.getElementById("crv-stage"); if(st) st.classList.add("charge"); buzz && buzz([10, 30, 10]); });
+  /* l'éclair, et la carte se retourne */
+  crvAt(1950, ()=>crvFlip());
+  crvAt(2800, ()=>crvInfo());
+  box.onclick = e => { if(e.target.closest("button")) return; if(CRV && !CRV.done) crvSkip(); };
+  try { if(typeof Music !== "undefined") Music.jingle(rank >= 2 || c.s === "mn" ? "j_rare" : "j_decouverte"); } catch(e){}
+}
+function crvFlip(){
+  if(!CRV || CRV.flipped) return;
+  CRV.flipped = true;
+  const box = document.getElementById("discover"), card = document.getElementById("crv-card"), st = document.getElementById("crv-stage");
+  const c = CRV.cards[CRV.i], def = CARD_SERIES_DEF[c.s] || CARD_SERIES_DEF.art;
+  const b = document.getElementById("crv-beam"); if(b) b.classList.remove("on");
+  if(st) st.classList.remove("charge");
+  /* le retournement en deux temps : le dos pivote jusqu'à la tranche, la face en repart */
+  if(card){ card.style.transition = "transform .2s ease-in"; card.style.transform = "rotateY(90deg) scale(1.04)"; }
+  setTimeout(()=>{
+    if(card){
+      card.classList.add("flipped");
+      card.style.transition = "none"; card.style.transform = "rotateY(-90deg) scale(1.04)";
+      void card.offsetWidth;
+      card.style.transition = "transform .75s cubic-bezier(.2,1.45,.35,1)"; card.style.transform = "none";
+    }
+    if(box) box.classList.add("flash");
+    if(st){ st.classList.add("burst"); if(typeof burstEl === "function") burstEl(st, {n:34, spread:170, colors:[def.c, "#ffffff", "#35f0d6", "#ffd24a"], dur:1100}); }
+    try { Sfx.shiny(); } catch(e){}
+    if(typeof buzz === "function") buzz([20, 40, 80]);
+  }, 200);
+}
+function crvSkip(){
+  crvClear();
+  const term = document.getElementById("crv-term");
+  if(term && CRV.lines) term.innerHTML = CRV.lines.map(l=>`<div style="animation:none">${esc(l)}</div>`).join("");
+  crvFlip(); crvInfo();
+}
+
+/* ---------- 3. la carte ---------- */
+function crvInfo(){
+  if(!CRV || CRV.done) return;
+  CRV.done = true;
+  const c = CRV.cards[CRV.i], def = CARD_SERIES_DEF[c.s] || CARD_SERIES_DEF.art;
+  const el = document.getElementById("crv-info"); if(!el) return;
+  const pw = c.s === "mn" ? null : CARD_POWER_PENDING[c.id];
+  if(pw) delete CARD_POWER_PENDING[c.id];
+  const P = typeof CARD_POWERS !== "undefined" ? CARD_POWERS[c.id] : null;
+  const last = CRV.i >= CRV.cards.length - 1;
+  const e = typeof cardEntry === "function" ? cardEntry(c.s, c.id) : null;
+  el.innerHTML = `
+    <div class="crv-tag">${c.fresh ? "NOUVELLE CARTE" : `EXEMPLAIRE SUPPLÉMENTAIRE${e && e.dup ? " · ×" + (e.dup + 1) : ""}`}</div>
+    <div class="crv-name">${esc(c.s === "mn" ? "Sans index" : POKE[c.id].name)}</div>
+    <div class="crv-series" style="color:${def.c}">${esc(seriesName(c.s))}</div>
+    <div class="crv-desc">${esc(seriesDesc(c.s))}</div>
+    ${P && pw ? `<div class="crv-power"><small>${pw.before ? "POUVOIR RENFORCÉ" : "POUVOIR DÉBLOQUÉ"} · ${esc(TIER_NAMES[pw.after])}</small><b>${esc(P.n)}</b><span>${esc(cardPowerDesc(c.id, pw.after))}</span>${typeof cardPowerWhere === "function" ? `<em>À utiliser : ${esc(cardPowerWhere(c.id))}</em>` : ""}</div>` : ""}
+    <button class="btn pri wide crv-btn" data-act="crvnext">${last ? "Ranger dans la collection" : `Carte suivante (${CRV.i + 2}/${CRV.cards.length})`}</button>
+    ${CRV.cards.length - CRV.i > 2 ? `<button class="btn ghost sm crv-all" data-act="crvall">Tout ranger sans les révéler</button>` : ""}`;
+  el.classList.add("on");
+  if(typeof installCardTilt === "function") setTimeout(installCardTilt, 50);
+}
+ACTIONS.crvall = () => { if(!CRV) return; CRV.i = CRV.cards.length - 1; ACTIONS.crvnext(true); };
+ACTIONS.crvnext = (d, all) => {
+  if(!CRV) return;
+  if(d === true) all = true;
+  if(!all && CRV.i < CRV.cards.length - 1){ CRV.i++; CRV.done = false; CRV.flipped = false; crvPlay(); return; }
+  crvClear();
+  const done = CRV.opts.onDone;
+  CRV = null;
+  const box = document.getElementById("discover");
+  if(box){ box.className = ""; box.innerHTML = ""; box.onclick = null; }
+  try { document.body.classList.remove("crv-on"); } catch(e){}
+  /* un pouvoir resté en attente (carte obtenue sans scène) passe maintenant */
+  cardPowersFlush();
+  if(done) done(); else { try { refresh(); } catch(e){} }
+};
+
+/* le pouvoir d'une carte : montré dans sa scène quand elle en a une, sinon en moment.
+   cardRevealExpect() vaut pour la prochaine obtention seulement. */
+let CARD_EXPECT_NOW = 0;
+function cardRevealExpect(){ CARD_REVEAL_EXPECT = 1; }
+if(typeof grantCardV === "function"){
+  const _grantCardV2 = grantCardV;
+  grantCardV = function(series, id){
+    CARD_EXPECT_NOW = CARD_REVEAL_EXPECT; CARD_REVEAL_EXPECT = 0;
+    try { return _grantCardV2(series, id); } finally { CARD_EXPECT_NOW = 0; }
+  };
+}
+const _cardPowerMoment = cardPowerMoment;
+cardPowerMoment = function(id, before, after){
+  if(CRV || CARD_EXPECT_NOW){
+    const p = CARD_POWER_PENDING[id];
+    CARD_POWER_PENDING[id] = {before: p ? p.before : before, after};
+    return;
+  }
+  _cardPowerMoment(id, before, after);
+};
+/* ce qui n'a pas trouvé sa scène passe en moment */
+function cardPowersFlush(){
+  CARD_REVEAL_EXPECT = 0;
+  for(const id in CARD_POWER_PENDING){ const p = CARD_POWER_PENDING[id]; delete CARD_POWER_PENDING[id]; _cardPowerMoment(+id, p.before, p.after); }
+}
+
+/* l'ancienne révélation passe par la nouvelle scène */
+if(typeof showCardWin === "function"){
+  showCardWin = function(series, id, isNew){ cardReveal([{s:series, id, fresh:isNew}], {}); };
 }
 
 /* ===== 74-eggs.js ===== */
@@ -28496,14 +28857,13 @@ ACTIONS.claimwk = d => {
   const chest = CHESTS[rw.chest];
   const items = openChest(rw.chest, true);
   const wc = randomCard(1 + S.weekly.tier * 0.6);
+  if(typeof cardRevealExpect === "function") cardRevealExpect();
   const wcNew = grantCardV(wc.s, wc.id);
+  chestBooster.unshift({s:wc.s, id:wc.id, fresh:wcNew});
   Sfx.win();
   save();
   revealSheet("OBJECTIF HEBDOMADAIRE", [
     {icon:"core", label:`${rw.cores} Noyaux`, color:"var(--violet)"},
-    {icon:"cards", label:POKE[wc.id].name,
-     sub:"carte " + seriesName(wc.s) + (wcNew ? "" : " · doublon"),
-     color:CARD_SERIES_DEF[wc.s].c, big:true},
     ...items
   ], {sub:`${esc(q.n)} — ${esc(chest.name)} ouverte`});
 };
@@ -28545,7 +28905,8 @@ function revealDone(){
   if(chestBooster.length){
     const cards = chestBooster;
     chestBooster = [];
-    if(showBooster(cards, {title:"SACHET TROUVÉ DANS L'ARCHIVE",
+    if(typeof cardReveal === "function"){ if(cardReveal(cards, {onDone:()=>refresh()})) return; }
+    else if(showBooster(cards, {title:"SACHET TROUVÉ DANS L'ARCHIVE",
         sub:"Scellé avec le reste. Personne ne l'a jamais ouvert.",
         onDone:()=>refresh()})) return;
   }
@@ -28573,6 +28934,9 @@ function rewardItems(rw){
 
 function revealSheet(title, items, opts){
   opts = opts || {};
+  const sealed = (typeof chestBooster !== "undefined" && chestBooster.length) ? chestBooster.length : 0;
+  if(sealed) items = items.concat([{icon:"cards", html:cardBackHtml("rv-sealed"),
+    label:sealed > 1 ? sealed + " cartes scellées" : "Une carte scellée", sub:"à révéler", color:"var(--cyan)", big:true}]);
   sheet(`<div class="center reveal">
     <div class="h" style="justify-content:center">${esc(title)}</div>
     ${opts.sub?`<div class="tiny muted" style="margin:-4px 0 8px">${opts.sub}</div>`:""}
@@ -28582,8 +28946,10 @@ function revealSheet(title, items, opts){
     </div>
     <div class="rv-list" id="rv-list"></div>
     <button class="btn pri wide" id="rv-ok" style="opacity:0;pointer-events:none"
-      data-act="revealdone">Récupérer</button>
+      data-act="revealdone">${sealed ? (sealed > 1 ? "Révéler les cartes" : "Révéler la carte") : "Récupérer"}</button>
   </div>`, true);
+  /* toucher à côté ne doit pas faire perdre une carte scellée */
+  if(sealed){ try { const sc = document.querySelector("#sheet-root .scrim"); if(sc) sc.dataset.act = "revealdone"; } catch(e){} }
   runReveal(items);
 }
 function runReveal(items){
@@ -28672,6 +29038,7 @@ function openChest(key, silent){
     }
     if(loot.card){
       const c2 = randomCard(c.tier >= 4 ? 2.2 : 1.4);
+      if(typeof cardRevealExpect === "function") cardRevealExpect();
       const fresh = grantCardV(c2.s, c2.id);
       chestBooster.push({s:c2.s, id:c2.id, fresh});
       delete loot.card;
@@ -30027,12 +30394,13 @@ ACTIONS.worldbuild = d => {
   if(c.ore) for(const o in c.ore) forage().ore[o] -= c.ore[o];
   worldReg(region).done.push(i);
   const heart = p.spot === "heart";
+  let heartCard = null;
   addIntegrity(heart ? 3 : 0.8);
   addXp(Math.round((heart ? 3000 : 400) * Math.sqrt(WORLD_REGIONS[region].mult)));
   if(typeof teamCandyGain === "function") teamCandyGain(heart ? 15 : 3);
   if(heart && typeof grantCardV === "function"){
     const core = (regionDef(region).guardians.find(g=>g.core) || {}).id;
-    if(core){ const s = rollCardSeries(core, 3); grantCardV(s, core); }
+    if(core){ const s = rollCardSeries(core, 3); if(typeof cardRevealExpect === "function") cardRevealExpect(); heartCard = {s, id:core, fresh:grantCardV(s, core)}; }
     gain("cores", 3);
   }
   S.stats.restored = (S.stats.restored || 0) + 1;
@@ -30045,7 +30413,9 @@ ACTIONS.worldbuild = d => {
   setTimeout(()=>{
     if(typeof moment === "function") moment(heart ? {kind:"release", c:"#ffd24a", spr:(regionDef(region).guardians.find(g=>g.core) || {}).id,
         kicker:"RÉGION RÉINDEXÉE", title:R.names.heart + " bat à nouveau", sub:`${regionDef(region).name} est entièrement réindexée. +3 Noyaux, une carte de son gardien, et 15 Bonbons d'équipe.`,
-        line:"Plus une ligne illisible dans tout le secteur. Ce qui le rongeait a reculé, {nom}. Pas disparu. Reculé.", dur:7000}
+        line:"Plus une ligne illisible dans tout le secteur. Ce qui le rongeait a reculé, {nom}. Pas disparu. Reculé.", dur:7000,
+        tapText: heartCard ? "toucher pour révéler la carte du gardien" : "",
+        then: heartCard ? ()=>setTimeout(()=>{ if(!(typeof cardReveal === "function" && cardReveal([heartCard], {kicker:"CŒUR DE RÉGION", onDone:()=>refresh()}))) cardPowersFlush && cardPowersFlush(); }, 420) : null}
       : {kind:"door", c:"#5ce07a", icon:"check", kicker:"SECTEUR RÉINDEXÉ · " + worldReg(region).done.length + " / " + WORLD_PROJECTS.length,
         title:R.names[p.spot], sub:WORLD_RESTORED_LINES[p.spot] || "La zone est réindexée.", dur:3600}, true);
     worldChapterCheck();
@@ -30544,15 +30914,22 @@ function legEnd(L, win){
     st.won[L.b] = true;
     S.stats.legWins = (S.stats.legWins || 0) + 1;
     const s = typeof rollCardSeries === "function" ? rollCardSeries(L.id, 1.6) : "art";
+    if(typeof cardRevealExpect === "function") cardRevealExpect();
     const fresh = typeof grantCardV === "function" ? grantCardV(s, L.id) : false;
-    gain("shards", 25); gain("coins", 1500 + S.level * 80);
+    const coins = 1500 + S.level * 80;
+    gain("shards", 25); gain("coins", coins);
     if(typeof teamCandyGain === "function") teamCandyGain(5);
     addXp(600 + S.level * 20);
     save();
+    /* la carte a sa scène : d'abord le légendaire qui s'incline, puis, quand on est prêt, la carte */
     setTimeout(()=>{
-      if(typeof moment === "function") moment({kind:"release", c:"#ffd24a", spr:L.id, kicker:"PASSAGE LÉGENDAIRE",
-        title:`${POKE[L.id].name} s'incline`, sub:`Une carte « ${typeof seriesName === "function" ? seriesName(s) : s} »${fresh ? " — nouvelle !" : " (en double)"} · +25 Fragments · +5 Bonbons d'équipe`,
-        line:"Il te laisse une trace de lui. Je l'ai rangée dans ta collection, {nom}. Avec soin.", dur:5200});
+      const intro = {spr:L.id, title:`${POKE[L.id].name} s'incline`,
+        text:"Il te laisse une trace de lui avant de repartir. Une carte, scellée dans sa signature.",
+        rewards:`+25 Fragments · +${fmt(coins)} PokéCoins · +5 Bonbons d'équipe`};
+      const shown = typeof cardReveal === "function" && cardReveal([{s, id:L.id, fresh}], {kicker:"PASSAGE LÉGENDAIRE", intro,
+        onDone:()=>{ BATTLE = null; go("modules"); }});
+      if(!shown && typeof moment === "function") moment({kind:"release", c:"#ffd24a", spr:L.id, kicker:"PASSAGE LÉGENDAIRE",
+        title:`${POKE[L.id].name} s'incline`, sub:`Une carte « ${typeof seriesName === "function" ? seriesName(s) : s} »${fresh ? " — nouvelle !" : " (en double)"} · +25 Fragments · +5 Bonbons d'équipe`, dur:5200});
     }, 900);
   } else if(!win){
     if(typeof teamCandyGain === "function") teamCandyGain(1);
@@ -31241,6 +31618,8 @@ function checkPzEvents(){
 }
 /* bandeau de dialogue court, non bloquant */
 function pzTalk(text){
+  /* jamais par-dessus une révélation ou un grand moment : il attend son tour */
+  if(typeof stageHold === "function" && stageHold()){ stageDefer(()=>pzTalk(text)); return; }
   text = typeof pzFmt === "function" ? pzFmt(text) : text;
   const box = document.getElementById("pztalk");
   if(!box) return;
@@ -32803,6 +33182,7 @@ ACTIONS.netclaim = () => {
     const row = Array.isArray(r) ? r[0] : r;
     if(!row || !row.series || !row.species){ throw new Error("Code inconnu ou déjà utilisé"); }
     const srz = row.series;
+    if(typeof cardRevealExpect === "function") cardRevealExpect();
     const fresh = grantCardV(srz, row.species);
     save();
     closeSheet();
@@ -32942,9 +33322,16 @@ ACTIONS.raidclaim = d => {
   if(rw.shards) gain("shards", rw.shards);
   if(rw.cores) gain("cores", rw.cores);
   if(rw.candy && typeof teamCandyGain === "function") teamCandyGain(rw.candy);
-  let cardTxt = "";
-  if(rw.card && typeof grantCardV === "function"){ const s = rollCardSeries(raidBoss(), 2); grantCardV(s, raidBoss()); cardTxt = " · une carte de " + POKE[raidBoss()].name; }
+  let cardTxt = "", card = null;
+  if(rw.card && typeof grantCardV === "function"){
+    const s = rollCardSeries(raidBoss(), 2);
+    if(typeof cardRevealExpect === "function") cardRevealExpect();
+    card = {s, id:raidBoss(), fresh:grantCardV(s, raidBoss())};
+    cardTxt = " · une carte de " + POKE[raidBoss()].name;
+  }
   save();
+  if(card && typeof cardReveal === "function" && cardReveal([card], {kicker:"RAID · " + T.n,
+      intro:{spr:raidBoss(), title:"Récompense commune", text:"Tous les archivistes ont frappé ensemble. Le boss laisse une carte à chacun.", rewards:raidRwText(rw)}})) return;
   if(typeof banner === "function") banner({kicker:"RAID · " + T.n, title:"Récompense commune", sub:raidRwText(rw) + cardTxt, spr:raidBoss(), c:"#ff8a3d", sfx:"coin"});
   refresh();
 };

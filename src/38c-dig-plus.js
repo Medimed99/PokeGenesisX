@@ -99,14 +99,29 @@ function crateRoll(tier, si){
     if(typeof teamCandyGain === "function") add("8 Bonbons d'équipe", ()=>teamCandyGain(8));
     add("une Baie Micle", ()=>{ S.berries.micle = (S.berries.micle || 0) + 1; });
     const r = rng();
-    if(r < 0.3 && typeof randomCard === "function"){ const c = randomCard(1.5); grantCardV(c.s, c.id); out.push("une carte de " + POKE[c.id].name + " !"); }
+    if(r < 0.3 && typeof randomCard === "function"){
+      const c = randomCard(1.5);
+      if(typeof cardRevealExpect === "function") cardRevealExpect();
+      CRATE_CARDS.push({s:c.s, id:c.id, fresh:grantCardV(c.s, c.id)});
+      out.push("une carte de " + POKE[c.id].name + " !");
+    }
     else if(r < 0.4) add("une Master Ball !", ()=>{ S.balls.master = (S.balls.master || 0) + 1; });
   }
   S.stats.crates = (S.stats.crates || 0) + 1;
   return out;
 }
+/* une carte trouvée dans une caisse : la caisse s'ouvre, puis la carte a sa scène */
+const CRATE_CARDS = [];
+function crateCardsReveal(){
+  const cs = CRATE_CARDS.splice(0);
+  if(!cs.length) return;
+  if(!(typeof cardReveal === "function" && cardReveal(cs, {kicker:"CAISSE D'ARCHIVISTE", onDone:()=>{}})) && typeof cardPowersFlush === "function") cardPowersFlush();
+}
 function crateShow(tier, list){
-  if(typeof moment !== "function") return;
+  if(typeof moment !== "function"){ crateCardsReveal(); return; }
+  const withCard = tier === 2 && CRATE_CARDS.length;
   moment({kind:"release", c:CRATE_COLORS[tier], html:digArtSvg(digArtOf("crate" + tier), 84),
-    kicker:"FOUILLE · CAISSE", title:CRATE_NAMES[tier], sub:list.join(" · "), dur:4600});
+    kicker:"FOUILLE · CAISSE", title:CRATE_NAMES[tier], sub:list.join(" · "), dur:withCard ? 6000 : 4600,
+    tapText: withCard ? "toucher pour révéler la carte" : "",
+    then: withCard ? ()=>setTimeout(crateCardsReveal, 420) : null});
 }

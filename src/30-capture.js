@@ -523,7 +523,7 @@ function resolveMissing(ballKey){
     /* la piece sans index ne se gagne pas : elle s'inscrit d'elle-meme */
     if(grantSecretCard()){
       save();
-      setTimeout(()=>showCardWin("mn", 0, true), 700);
+      setTimeout(()=>{ if(typeof cardReveal === "function") cardReveal([{s:"mn", id:0, fresh:true}], {kicker:"ENTRÉE SANS INDEX", onDone:()=>ACTIONS.dcdone()}); else showCardWin("mn", 0, true); }, 700);
       return;
     }
     save();

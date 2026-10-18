@@ -125,12 +125,13 @@ ACTIONS.worldbuild = d => {
   if(c.ore) for(const o in c.ore) forage().ore[o] -= c.ore[o];
   worldReg(region).done.push(i);
   const heart = p.spot === "heart";
+  let heartCard = null;
   addIntegrity(heart ? 3 : 0.8);
   addXp(Math.round((heart ? 3000 : 400) * Math.sqrt(WORLD_REGIONS[region].mult)));
   if(typeof teamCandyGain === "function") teamCandyGain(heart ? 15 : 3);
   if(heart && typeof grantCardV === "function"){
     const core = (regionDef(region).guardians.find(g=>g.core) || {}).id;
-    if(core){ const s = rollCardSeries(core, 3); grantCardV(s, core); }
+    if(core){ const s = rollCardSeries(core, 3); if(typeof cardRevealExpect === "function") cardRevealExpect(); heartCard = {s, id:core, fresh:grantCardV(s, core)}; }
     gain("cores", 3);
   }
   S.stats.restored = (S.stats.restored || 0) + 1;
@@ -143,7 +144,9 @@ ACTIONS.worldbuild = d => {
   setTimeout(()=>{
     if(typeof moment === "function") moment(heart ? {kind:"release", c:"#ffd24a", spr:(regionDef(region).guardians.find(g=>g.core) || {}).id,
         kicker:"RÉGION RÉINDEXÉE", title:R.names.heart + " bat à nouveau", sub:`${regionDef(region).name} est entièrement réindexée. +3 Noyaux, une carte de son gardien, et 15 Bonbons d'équipe.`,
-        line:"Plus une ligne illisible dans tout le secteur. Ce qui le rongeait a reculé, {nom}. Pas disparu. Reculé.", dur:7000}
+        line:"Plus une ligne illisible dans tout le secteur. Ce qui le rongeait a reculé, {nom}. Pas disparu. Reculé.", dur:7000,
+        tapText: heartCard ? "toucher pour révéler la carte du gardien" : "",
+        then: heartCard ? ()=>setTimeout(()=>{ if(!(typeof cardReveal === "function" && cardReveal([heartCard], {kicker:"CŒUR DE RÉGION", onDone:()=>refresh()}))) cardPowersFlush && cardPowersFlush(); }, 420) : null}
       : {kind:"door", c:"#5ce07a", icon:"check", kicker:"SECTEUR RÉINDEXÉ · " + worldReg(region).done.length + " / " + WORLD_PROJECTS.length,
         title:R.names[p.spot], sub:WORLD_RESTORED_LINES[p.spot] || "La zone est réindexée.", dur:3600}, true);
     worldChapterCheck();
