@@ -174,7 +174,7 @@ function fragRead(id){
       <div class="fr-sign">— ${esc(f.who)}</div>
       <div class="fr-where">${ic("map")} ${esc(where)} · page ${f.id} sur ${FRAGMENTS.length}</div>
     </div>
-    <div class="fr-pz" id="fr-pz">${pzFace(f.mood || "Normal", 34)}<span>${esc(pzFmt(f.react || ""))}</span></div>
+    <!-- aucune remarque de Porygon-Z : la page parle seule, et il en sait peut-être plus qu'il ne le dit -->
     <button class="btn pri fr-close" id="fr-close" data-act="fragclose">Ranger dans le dossier</button>`;
   /* le dechiffrage : le texte arrive brouille et se resout de gauche a droite */
   const body = document.getElementById("fr-body"), txt = f.t;
@@ -191,7 +191,6 @@ function fragRead(id){
     body.textContent = out;
     if(k >= txt.length){
       clearInterval(fragRead._iv); body.textContent = txt;
-      const pz = document.getElementById("fr-pz"); if(pz) pz.classList.add("on");
       const c = document.getElementById("fr-close"); if(c) c.classList.add("on");
     }
   }, 30);

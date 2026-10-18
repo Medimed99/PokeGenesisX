@@ -266,6 +266,9 @@ Mr. Mine (la profondeur comme récit, des trouvailles qui t'attendent).
 - Ancienne partie : la strate devient une profondeur en mètres, les Échos restent (+3 % de forage chacun).
 - Rythme : `node forsim.js`.
 
+### Trouvailles des fouilles (`38c-dig-plus.js`)
+- Filon (5 à 9 minerais), géode, sachet de Bonbons, Poké Balls enfouies, baies fossilisées, cartouche fêlée (Intégrité), météorite (Rêvite), et trois caisses rares (bois, fer, archiviste) ouvertes en grand moment à la sortie. Dessins en pixels (`DIG_ART`). Pépites : 5 à 8 par fouille, 1 à 3 minerais chacune ; l'équipe remonte un minerai toutes les 90 s.
+
 ### Forge, minerais et chantiers (`38b-forge.js`)
 - **Minerais** (`ORES`) : cuivre, fer, argent, or, rêvite — un par paire de couches (`ORE_BY_STRATUM`). L'équipe en
   remonte un toutes les 2 minutes de forage (`ORE_SECS`), et chaque fouille cache 3 à 5 **pépites** (une case,

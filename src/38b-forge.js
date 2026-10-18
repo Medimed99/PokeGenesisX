@@ -26,7 +26,7 @@ const ORES = [
 ];
 const ORE_IDS = ORES.map(o=>o.id);
 const ORE_BY_STRATUM = ["cu", "cu", "fe", "fe", "ag", "ag", "au", "au", "dr"];
-const ORE_SECS = 120;          /* l'équipe remonte un minerai toutes les deux minutes de forage */
+const ORE_SECS = 90;           /* l'équipe remonte un minerai toutes les minutes et demie de forage */
 function oreDef(id){ return ORES.find(o=>o.id === id); }
 function oreOf(si){ return ORE_BY_STRATUM[Math.min(si, ORE_BY_STRATUM.length - 1)]; }
 function oreHave(id){ return (forage().ore || {})[id] || 0; }

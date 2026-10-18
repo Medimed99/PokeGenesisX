@@ -308,7 +308,10 @@ function wTile(px, X, Y, c, pal, v, done){
   }
 }
 /* ---------- une tuile désindexée ---------- */
-const GLITCH = ["#05040a", "#c8c8e0", "#ff3d7f", "#35f0d6", "#5a3a9a", "#1c1830", "#2a2440"];
+const GLITCH = ["#08070f", "#7e7a9a", "#b8346a", "#2a9a8c", "#4a3480", "#1c1830", "#2a2440"];
+/* une zone désindexée garde sa forme, mais plus ses couleurs : les données sont là, illisibles */
+const GHOST4 = ["#4a4560", "#38334c", "#26223a", "#171424"];
+const GHOST_PAL = {grass:GHOST4, path:GHOST4, water:GHOST4, tree:GHOST4, rock:GHOST4, roof:GHOST4, wall:GHOST4, wood:GHOST4, gold:GHOST4};
 function wGlitch(px, X, Y, v, t, pal){
   const R = mulberry32(Math.floor(v * 1e6) + t * 7919);
   const kind = Math.floor(R() * 5);
@@ -365,7 +368,7 @@ function worldFrame(cv){
   const anim = WORLD_ANIM && WORLD_ANIM.region === M.region ? WORLD_ANIM : null;
   const wave = anim ? (Date.now() - anim.t) / 1800 * 6 : 99;
   const rnd = mulberry32(M.t * 131 + 7);
-  const noise = (1 - pct) * 0.16;
+  const noise = (1 - pct) * 0.05;
   for(let y = 0; y < rows; y++) for(let xx = 0; xx < cols; xx++){
     const c = grid[y][xx], o = owner[y][xx], X = xx * WT, Y = y * WT;
     const spot = c.spot || o.k;
@@ -375,15 +378,19 @@ function worldFrame(cv){
     else if(spot && anim && anim.spot === spot && o.d > wave) bad = true;
     else if(c.v > 1 - noise) bad = true;                                  /* un peu de bruit partout, tant que la région n'est pas finie */
     if(bad){
-      /* toutes les tuiles ne bougent pas à chaque image : la corruption palpite */
-      if(c._g === undefined || rnd() < 0.07) c._g = Math.floor(rnd() * 1e6);
-      wGlitch(px, X, Y, c.v, c._g, pal);
+      /* la plupart des tuiles sont seulement éteintes ; une sur quatre est franchement illisible,
+         et seules quelques-unes changent d'une image à l'autre : ça respire, ça ne clignote pas */
+      const loud = (c.v * 7.3) % 1 < 0.24 || o.k === "rift";
+      if(loud){
+        if(c._g === undefined || rnd() < 0.025) c._g = Math.floor(rnd() * 1e6);
+        wGlitch(px, X, Y, c.v, c._g, pal);
+      } else wTile(px, X, Y, c, GHOST_PAL, c.v, false);
     } else wTile(px, X, Y, c, pal, c.v, !spot || doneSet.has(spot));
   }
   /* des lignes déchirées dans les zones abîmées */
-  const tears = Math.round((1 - pct) * 10);
+  const tears = rnd() < 0.35 ? Math.round((1 - pct) * 2) : 0;
   for(let i = 0; i < tears; i++){
-    const y = Math.floor(rnd() * rows * WT), sh = Math.round((rnd() - 0.5) * 10);
+    const y = Math.floor(rnd() * rows * WT), sh = rnd() < 0.5 ? -2 : 2;
     if(!sh) continue;
     try { const img = x.getImageData(0, y, cols * WT, 1); x.putImageData(img, sh, y); } catch(e){}
   }
@@ -396,7 +403,7 @@ function worldAnimStart(){
     if(!cv || !cv.isConnected){ clearInterval(WORLD_FRAME_T); return; }
     if(document.hidden) return;
     worldFrame(cv);
-  }, 220);
+  }, 380);
 }
 
 /* ---------- ce qui rôde : jamais nommé, toujours dans une zone illisible ---------- */

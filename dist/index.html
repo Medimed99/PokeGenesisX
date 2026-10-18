@@ -9691,7 +9691,7 @@ function fragRead(id){
       <div class="fr-sign">— ${esc(f.who)}</div>
       <div class="fr-where">${ic("map")} ${esc(where)} · page ${f.id} sur ${FRAGMENTS.length}</div>
     </div>
-    <div class="fr-pz" id="fr-pz">${pzFace(f.mood || "Normal", 34)}<span>${esc(pzFmt(f.react || ""))}</span></div>
+    <!-- aucune remarque de Porygon-Z : la page parle seule, et il en sait peut-être plus qu'il ne le dit -->
     <button class="btn pri fr-close" id="fr-close" data-act="fragclose">Ranger dans le dossier</button>`;
   /* le dechiffrage : le texte arrive brouille et se resout de gauche a droite */
   const body = document.getElementById("fr-body"), txt = f.t;
@@ -9708,7 +9708,6 @@ function fragRead(id){
     body.textContent = out;
     if(k >= txt.length){
       clearInterval(fragRead._iv); body.textContent = txt;
-      const pz = document.getElementById("fr-pz"); if(pz) pz.classList.add("on");
       const c = document.getElementById("fr-close"); if(c) c.classList.add("on");
     }
   }, 30);
@@ -11018,7 +11017,7 @@ function genWall(si, rnd){
   const sl = typeof forSite === "function" ? forSite().loot : {};
   const table = DIG_LOOT.map(l=>[l, l.wt(si) * (l.rare ? lamp : 1) * (sl[l.k] || 1)]).filter(x=>x[1] > 0);
   const tot = table.reduce((a, x)=>a + x[1], 0);
-  const n = 2 + Math.floor(rnd() * 3) + (si >= 5 && rnd() < 0.4 ? 1 : 0);
+  const n = 3 + Math.floor(rnd() * 2) + (si >= 4 && rnd() < 0.45 ? 1 : 0);
   let tries = 0;
   /* une page des onze attend dans le Forage : elle est dans cette paroi, une fois sur deux */
   const pg = typeof fragPending === "function" ? fragPending("forage") : null;
@@ -11045,13 +11044,13 @@ function genWall(si, rnd){
      surtout, parfois une plus ancienne. Elles ne comptent pas pour « tout degager ». */
   if(typeof oreOf === "function"){
     const oi = ORE_IDS.indexOf(oreOf(si)), so = forSite().ore;
-    const nOre = 3 + Math.floor(rnd() * 3);
+    const nOre = 5 + Math.floor(rnd() * 4);
     for(let k = 0, t = 0; k < nOre && t < 80; t++){
       const x0 = Math.floor(rnd() * W), y0 = Math.floor(rnd() * H), c = y0 * W + x0;
       if(occ[c] !== -1) continue;
       const r = rnd();
       const ore = so && r < 0.25 ? so : r < 0.75 ? ORE_IDS[oi] : ORE_IDS[Math.floor(rnd() * (oi + 1))];
-      const it = {k:"ore", ore, x:x0, y:y0, w:1, h:1, found:false, small:true, n:1 + (rnd() < 0.3 ? 1 : 0), cells:[c]};
+      const it = {k:"ore", ore, x:x0, y:y0, w:1, h:1, found:false, small:true, n:(()=>{ const r = rnd(); return r < 0.1 ? 3 : r < 0.4 ? 2 : 1; })(), cells:[c]};
       occ[c] = items.length; items.push(it); k++;
     }
   }
@@ -11124,6 +11123,12 @@ function digClaim(wall){
       if(fr && !(S.fragments || []).includes(fr.id)) fragFound(fr, `Dans une fouille, couche « ${STRATA[wall.si].n} », à ${fmt(Math.floor(forage().m))} m`);
       row.label = fr ? `Page de journal — ${fr.who}` : "Page de journal";
     }
+    if(g.ores) for(const o in g.ores) oreGain(o, g.ores[o]);
+    if(g.candy && typeof teamCandyGain === "function") teamCandyGain(g.candy);
+    if(g.balls) for(const b in g.balls) if(g.balls[b]) S.balls[b] = (S.balls[b] || 0) + g.balls[b];
+    if(g.berries) for(const b in g.berries) S.berries[b] = (S.berries[b] || 0) + g.berries[b];
+    if(g.integ && typeof addIntegrity === "function") addIntegrity(g.integ);
+    if(g.crate !== undefined && typeof crateRoll === "function"){ row.crate = crateRoll(g.crate, wall.si); row.crateTier = g.crate; }
     if(g.mon){
       const lv = Math.max(5, Math.round(10 + wall.si * 7 + rng() * 6));
       row.isNew = addToDex(g.mon, lv, rng() < 1 / 400);
@@ -11524,6 +11529,8 @@ function digDraw(dt){
       let ok = false; const sz = w * 1.05;
       if(typeof brSprite === "function"){ const s = brSprite(it.mon, "n"); if(s){ x.drawImage(s, X + w / 2 - sz / 2, Y + h / 2 - sz / 2, sz, sz); ok = true; } }
       if(!ok){ x.fillStyle = "#5c6a7e"; x.fillRect(X + 4, Y + 4, w - 8, h - 8); }
+    } else if(DIG_LOOT.find(l=>l.k === it.k).art && typeof digArtOf === "function"){
+      digArtDraw(x, digArtOf(it.k, DIG.si), X + 2, Y + 2, w - 4, h - 4);
     } else {
       const def = DIG_LOOT.find(l=>l.k === it.k), idx = typeof ITEM_IDX !== "undefined" ? ITEM_IDX[def.ic] : undefined;
       if(img && idx !== undefined){
@@ -11586,7 +11593,7 @@ function digEnd(left){
   el.innerHTML = `<div class="dg-rt ${DIG.collapsed ? "bad" : ""}">${title}</div>
     <div class="tiny muted" style="margin-bottom:8px">${rows.filter(r=>!r.ore).length ? `${rows.filter(r=>!r.ore).length} objet${rows.filter(r=>!r.ore).length > 1 ? "s" : ""} sur ${digBig().length}` : "Aucun objet dégagé à temps."}</div>
     <div class="dg-loot">${rows.map((r, i)=>`<div class="dg-li" style="--d:${i * 140}ms">
-      ${r.ore ? oreSvg(r.ore, 30) : r.it.k === "mon" ? sprite(r.it.mon, false, "") : itemIcon(r.def.ic, 34)}
+      ${r.ore ? oreSvg(r.ore, 30) : r.it.k === "mon" ? sprite(r.it.mon, false, "") : r.def.art && typeof digArtOf === "function" ? digArtSvg(digArtOf(r.it.k, DIG.si), 32) : itemIcon(r.def.ic, 34)}
       <div class="grow"><b>${esc(r.label)}</b><small>${esc(digGainText(r.g))}</small></div></div>`).join("")}</div>
     <div class="dg-rb">
       <button class="btn" data-act="fowallback">Retour au Forage</button>
@@ -11594,6 +11601,8 @@ function digEnd(left){
     </div>`;
   el.classList.add("on");
   if(rows.length) try { Sfx.win(); } catch(e){}
+  /* les caisses s'ouvrent après le bilan, une par une */
+  for(const r of rows) if(r.crate && typeof crateShow === "function") crateShow(r.crateTier, r.crate);
   /* un minerai jamais vu : on dit a quoi il sert */
   for(const r of rows) if(r.ore && r.fresh && typeof moment === "function"){
     const o = oreDef(r.ore), i = ORE_IDS.indexOf(r.ore);
@@ -11604,6 +11613,12 @@ function digEnd(left){
 }
 function digGainText(g){
   if(g.ore) return "Minerai, pour la forge";
+  if(g.crate !== undefined) return "Une caisse : elle s'ouvre à la sortie";
+  if(g.ores){ const o = Object.keys(g.ores)[0]; return `+${g.ores[o]} ${oreDef(o).n.toLowerCase()}` + (g.shards ? ` · +${g.shards} Fragments` : ""); }
+  if(g.candy) return `+${g.candy} Bonbons d'équipe`;
+  if(g.balls) return Object.keys(g.balls).filter(b=>g.balls[b]).map(b=>`+${g.balls[b]} ${BALLS[b] ? BALLS[b].name : b}`).join(" · ");
+  if(g.berries) return Object.keys(g.berries).map(b=>`Baie ${b.charAt(0).toUpperCase() + b.slice(1)}`).join(" · ");
+  if(g.integ) return `+${String(g.integ).replace(".", ",")} % d'Intégrité · +${g.shards} Fragments`;
   if(g.shards) return `+${g.shards} Fragments`;
   if(g.cores) return `+${g.cores} Noyau${g.cores > 1 ? "x" : ""}`;
   if(g.coins) return `+${fmt(g.coins)} PokéCoins`;
@@ -11782,7 +11797,7 @@ const ORES = [
 ];
 const ORE_IDS = ORES.map(o=>o.id);
 const ORE_BY_STRATUM = ["cu", "cu", "fe", "fe", "ag", "ag", "au", "au", "dr"];
-const ORE_SECS = 120;          /* l'équipe remonte un minerai toutes les deux minutes de forage */
+const ORE_SECS = 90;           /* l'équipe remonte un minerai toutes les minutes et demie de forage */
 function oreDef(id){ return ORES.find(o=>o.id === id); }
 function oreOf(si){ return ORE_BY_STRATUM[Math.min(si, ORE_BY_STRATUM.length - 1)]; }
 function oreHave(id){ return (forage().ore || {})[id] || 0; }
@@ -12109,6 +12124,120 @@ function forCrewTool(x, cx, cy, size, ph){
   x.save(); x.translate(cx + size * 0.32, cy - size * 0.1); x.rotate(a);
   x.drawImage(pc, -4, -16, 20, 20);
   x.restore();
+}
+
+/* ===== 38c-dig-plus.js ===== */
+/* ============================================================
+   38c — CE QUE CACHENT LES FOUILLES
+   Plus de matériaux, et plus de surprises. Inspirations : le
+   Souterrain de Diamant et Perle (la variété des trouvailles),
+   Terraria et Deep Rock Galactic (les caisses, les filons),
+   Mr. Mine (les géodes et les météorites).
+
+   · FILON — une veine de minerai : 5 à 9 du minerai de la couche.
+   · GÉODE — des cristaux : des Fragments, parfois un minerai rare.
+   · SACHET DE BONBONS, POKÉ BALLS ENFOUIES, BAIES FOSSILISÉES —
+     de quoi nourrir l'équipe, capturer, préparer un lancer.
+   · CARTOUCHE FÊLÉE — un morceau d'archive : de l'Intégrité.
+   · MÉTÉORITE — dans les couches profondes et au Pic Météore :
+     de la Rêvite.
+   · TROIS CAISSES, rares, qui s'ouvrent en grand : en bois, en
+     fer, et la caisse d'archiviste — Noyaux, Bonbons, et parfois
+     une carte légendaire ou une Master Ball.
+   ============================================================ */
+
+/* ---------- les dessins, en pixels ---------- */
+const DIG_ART = {
+  vein:{g:["RRRRRRRRRRRR", "RRHRRRRRRHRR", "ROOHRRRRROHR", "RROOOHRROORR", "RRRROOOOORRR", "RHRRRROOHRRR", "RRRRRRRHRRRR", "RRRRRRRRRRRR"]},
+  geode:{g:["..RRRR..", ".RPPPPR.", "RPLQQLPR", "RPQLLQPR", "RPQLLQPR", "RPLQQLPR", ".RPPPPR.", "..RRRR.."],
+         p:{R:"#5a4a40", P:"#8a5ad0", L:"#f0d8ff", Q:"#b06bff"}},
+  candy:{g:["........", "PP....PP", "PPPCCPPP", "PPCWCCPP", "PPCCCCPP", "PPPCCPPP", "PP....PP", "........"],
+         p:{P:"#ff9ad8", C:"#ff4fa8", W:"#ffffff"}},
+  balls:{g:["............", ".KKKK..KKKK.", "KRRRRKKBBBBK", "KRWRRKKBWBBK", "KKKWKKKKKWKK", "KWWWWKKWWWWK", ".KKKK..KKKK.", "............"],
+         p:{K:"#1a1a22", R:"#e04040", B:"#3a78e0", W:"#f4f4f4"}},
+  berries:{g:["...G....", "..GG..G.", ".BBB.GG.", "BBWBBBB.", "BBBBBBWB", ".BB.BBBB", "....BBB.", "........"],
+         p:{B:"#5a6ad8", W:"#c8d0ff", G:"#3a8a3a"}},
+  cartridge:{g:["..KKKKKKKK..", ".KGGGGGGGGK.", ".KGWWWWWWGK.", ".KGWCCCCWGK.", ".KGWWWWWWGK.", ".KGGGGGGGGK.", ".KGKGKGKGGK.", "..KKKKKKKK.."],
+         p:{K:"#2a2a32", G:"#a8a8b0", W:"#e8e8e0", C:"#ff3d7f"}},
+  meteor:{g:["..KKKK..", ".KDDVDK.", "KDVLVDDK", "KDDVDDVK", "KVDDDVDK", "KDDLVDDK", ".KDDDDK.", "..KKKK.."],
+         p:{K:"#120c1c", D:"#2a2038", V:"#b06bff", L:"#f0d0ff"}},
+  crate:{g:["KKKKKKKKKKKK", "KLLLLLLLLLLK", "KMDMMMMMMDMK", "KLLDLLLLDLLK", "KMMMDMMDMMMK", "KLLLLDDLLLLK",
+            "KMMMMDDMMMMK", "KLLLDLLDLLLK", "KMMDMMMMDMMK", "KLDLLLLLLDLK", "KMMMMMMMMMMK", "KKKKKKKKKKKK"]}
+};
+const CRATE_PAL = [
+  {K:"#3a2210", L:"#c8884a", M:"#a86a34", D:"#6a4020"},
+  {K:"#22262e", L:"#b8c0ca", M:"#8a939e", D:"#4a525c"},
+  {K:"#0a0614", L:"#3a1f66", M:"#2b1650", D:"#35f0d6"}
+];
+const CRATE_NAMES = ["Caisse en bois", "Caisse de fer", "Caisse d'archiviste"];
+const CRATE_COLORS = ["#c8884a", "#b8c0ca", "#35f0d6"];
+function digArtOf(k, si){
+  if(k === "vein"){ const o = oreDef(oreOf(si)); return {g:DIG_ART.vein.g, p:{R:"#6a5a48", O:o.pal[1], H:o.pal[0]}}; }
+  if(k === "crate0" || k === "crate1" || k === "crate2") return {g:DIG_ART.crate.g, p:CRATE_PAL[+k.slice(5)]};
+  return DIG_ART[k] || null;
+}
+/* le même dessin, sur le canvas de la fouille ou en image dans les résultats */
+function digArtDraw(x, art, X, Y, w, h){
+  const rows = art.g, H = rows.length, W = rows[0].length, cw = w / W, ch = h / H;
+  for(let r = 0; r < H; r++) for(let c = 0; c < W; c++){
+    const col = art.p[rows[r][c]]; if(!col) continue;
+    x.fillStyle = col; x.fillRect(Math.floor(X + c * cw), Math.floor(Y + r * ch), Math.ceil(cw), Math.ceil(ch));
+  }
+}
+function digArtSvg(art, size){ return typeof pixSvg === "function" ? pixSvg(art.g, art.p, size) : ""; }
+
+/* ---------- les nouvelles trouvailles ---------- */
+const DIG_PLUS = [
+  {k:"vein",      w:3, h:2, n:"Filon",                  wt:si=>9,  give:si=>({ores:{[oreOf(si)]:5 + Math.floor(rng() * 5)}})},
+  {k:"geode",     w:2, h:2, n:"Géode",                  wt:si=>3.5, give:si=>{ const g = {shards:12 + si * 4}; if(rng() < 0.3){ const i = Math.min(4, ORE_IDS.indexOf(oreOf(si)) + 1); g.ores = {[ORE_IDS[i]]:2}; } return g; }},
+  {k:"candy",     w:2, h:2, n:"Sachet de Bonbons",      wt:si=>3,  give:si=>({candy:2 + Math.floor(rng() * 3)})},
+  {k:"balls",     w:3, h:2, n:"Poké Balls enfouies",    wt:si=>3,  give:si=>({balls:si >= 3 ? {super:2 + Math.floor(rng() * 2), hyper:1 + Math.floor(rng() * 2)} : {poke:3, super:1 + Math.floor(rng() * 2)}})},
+  {k:"berries",   w:2, h:2, n:"Baies fossilisées",      wt:si=>3,  give:si=>({berries:{[pick(["framby", "nanab", "sitrus", "nigma"])]:1, [pick(["framby", "nanab", "sitrus"])]:1}})},
+  {k:"cartridge", w:3, h:2, n:"Cartouche fêlée",        wt:si=>1.2, rare:1, give:si=>({integ:0.25, shards:25})},
+  {k:"meteor",    w:2, h:2, n:"Météorite",              wt:si=>si >= 6 ? 1.5 : 0.25, rare:1, give:si=>({ores:{dr:2 + Math.floor(rng() * 3)}, shards:20})},
+  {k:"crate0",    w:3, h:3, n:CRATE_NAMES[0],           wt:si=>1.4, rare:1, give:()=>({crate:0})},
+  {k:"crate1",    w:3, h:3, n:CRATE_NAMES[1],           wt:si=>si >= 2 ? 0.5 : 0.1, rare:1, give:()=>({crate:1})},
+  {k:"crate2",    w:3, h:3, n:CRATE_NAMES[2],           wt:si=>si >= 4 ? 0.14 : 0.05, rare:1, give:()=>({crate:2})}
+];
+for(const d of DIG_PLUS){ d.ic = null; d.art = 1; DIG_LOOT.push(d); }
+/* le Pic Météore en cache davantage, le Cratère a ses filons */
+try {
+  const pic = FOR_SITES.find(s=>s.id === "pic"); if(pic) pic.loot.meteor = 5;
+  const ar = FOR_SITES.find(s=>s.id === "ardent"); if(ar) ar.loot.vein = 1.6;
+  const ru = FOR_SITES.find(s=>s.id === "ruines"); if(ru){ ru.loot.cartridge = 3; ru.loot.crate1 = 2; }
+} catch(e){}
+
+/* ---------- ouvrir une caisse ---------- */
+function crateRoll(tier, si){
+  const out = [];
+  const add = (txt, fn) => { fn(); out.push(txt); };
+  if(tier === 0){
+    const c = 800 + si * 300; add(`${fmt(c)} PokéCoins`, ()=>gain("coins", c));
+    add("3 Super Ball", ()=>{ S.balls.super = (S.balls.super || 0) + 3; });
+    const b = pick(["framby", "nanab", "sitrus"]); add("une Baie " + b.charAt(0).toUpperCase() + b.slice(1), ()=>{ S.berries[b] = (S.berries[b] || 0) + 1; });
+    if(rng() < 0.5 && typeof teamCandyGain === "function") add("2 Bonbons d'équipe", ()=>teamCandyGain(2));
+  } else if(tier === 1){
+    const c = 2500 + si * 600; add(`${fmt(c)} PokéCoins`, ()=>gain("coins", c));
+    const hy = 2 + Math.floor(rng() * 2); add(`${hy} Hyper Ball`, ()=>{ S.balls.hyper = (S.balls.hyper || 0) + hy; });
+    if(typeof teamCandyGain === "function") add("4 Bonbons d'équipe", ()=>teamCandyGain(4));
+    const o = oreOf(si); add(`6 ${oreDef(o).n.toLowerCase()}`, ()=>oreGain(o, 6));
+    if(rng() < 0.4 && typeof randomHeld === "function"){ const h = randomHeld(); if(h && grantHeld(h)) out.push("objet tenu : " + HELD_ITEMS[h].n); }
+  } else {
+    add("2 Noyaux", ()=>gain("cores", 2));
+    add("60 Fragments", ()=>gain("shards", 60));
+    if(typeof teamCandyGain === "function") add("8 Bonbons d'équipe", ()=>teamCandyGain(8));
+    add("une Baie Micle", ()=>{ S.berries.micle = (S.berries.micle || 0) + 1; });
+    const r = rng();
+    if(r < 0.3 && typeof randomCard === "function"){ const c = randomCard(1.5); grantCardV(c.s, c.id); out.push("une carte de " + POKE[c.id].name + " !"); }
+    else if(r < 0.4) add("une Master Ball !", ()=>{ S.balls.master = (S.balls.master || 0) + 1; });
+  }
+  S.stats.crates = (S.stats.crates || 0) + 1;
+  return out;
+}
+function crateShow(tier, list){
+  if(typeof moment !== "function") return;
+  moment({kind:"release", c:CRATE_COLORS[tier], html:digArtSvg(digArtOf("crate" + tier), 84),
+    kicker:"FOUILLE · CAISSE", title:CRATE_NAMES[tier], sub:list.join(" · "), dur:4600});
 }
 
 /* ===== 39-daily.js ===== */
@@ -30100,7 +30229,10 @@ function wTile(px, X, Y, c, pal, v, done){
   }
 }
 /* ---------- une tuile désindexée ---------- */
-const GLITCH = ["#05040a", "#c8c8e0", "#ff3d7f", "#35f0d6", "#5a3a9a", "#1c1830", "#2a2440"];
+const GLITCH = ["#08070f", "#7e7a9a", "#b8346a", "#2a9a8c", "#4a3480", "#1c1830", "#2a2440"];
+/* une zone désindexée garde sa forme, mais plus ses couleurs : les données sont là, illisibles */
+const GHOST4 = ["#4a4560", "#38334c", "#26223a", "#171424"];
+const GHOST_PAL = {grass:GHOST4, path:GHOST4, water:GHOST4, tree:GHOST4, rock:GHOST4, roof:GHOST4, wall:GHOST4, wood:GHOST4, gold:GHOST4};
 function wGlitch(px, X, Y, v, t, pal){
   const R = mulberry32(Math.floor(v * 1e6) + t * 7919);
   const kind = Math.floor(R() * 5);
@@ -30157,7 +30289,7 @@ function worldFrame(cv){
   const anim = WORLD_ANIM && WORLD_ANIM.region === M.region ? WORLD_ANIM : null;
   const wave = anim ? (Date.now() - anim.t) / 1800 * 6 : 99;
   const rnd = mulberry32(M.t * 131 + 7);
-  const noise = (1 - pct) * 0.16;
+  const noise = (1 - pct) * 0.05;
   for(let y = 0; y < rows; y++) for(let xx = 0; xx < cols; xx++){
     const c = grid[y][xx], o = owner[y][xx], X = xx * WT, Y = y * WT;
     const spot = c.spot || o.k;
@@ -30167,15 +30299,19 @@ function worldFrame(cv){
     else if(spot && anim && anim.spot === spot && o.d > wave) bad = true;
     else if(c.v > 1 - noise) bad = true;                                  /* un peu de bruit partout, tant que la région n'est pas finie */
     if(bad){
-      /* toutes les tuiles ne bougent pas à chaque image : la corruption palpite */
-      if(c._g === undefined || rnd() < 0.07) c._g = Math.floor(rnd() * 1e6);
-      wGlitch(px, X, Y, c.v, c._g, pal);
+      /* la plupart des tuiles sont seulement éteintes ; une sur quatre est franchement illisible,
+         et seules quelques-unes changent d'une image à l'autre : ça respire, ça ne clignote pas */
+      const loud = (c.v * 7.3) % 1 < 0.24 || o.k === "rift";
+      if(loud){
+        if(c._g === undefined || rnd() < 0.025) c._g = Math.floor(rnd() * 1e6);
+        wGlitch(px, X, Y, c.v, c._g, pal);
+      } else wTile(px, X, Y, c, GHOST_PAL, c.v, false);
     } else wTile(px, X, Y, c, pal, c.v, !spot || doneSet.has(spot));
   }
   /* des lignes déchirées dans les zones abîmées */
-  const tears = Math.round((1 - pct) * 10);
+  const tears = rnd() < 0.35 ? Math.round((1 - pct) * 2) : 0;
   for(let i = 0; i < tears; i++){
-    const y = Math.floor(rnd() * rows * WT), sh = Math.round((rnd() - 0.5) * 10);
+    const y = Math.floor(rnd() * rows * WT), sh = rnd() < 0.5 ? -2 : 2;
     if(!sh) continue;
     try { const img = x.getImageData(0, y, cols * WT, 1); x.putImageData(img, sh, y); } catch(e){}
   }
@@ -30188,7 +30324,7 @@ function worldAnimStart(){
     if(!cv || !cv.isConnected){ clearInterval(WORLD_FRAME_T); return; }
     if(document.hidden) return;
     worldFrame(cv);
-  }, 220);
+  }, 380);
 }
 
 /* ---------- ce qui rôde : jamais nommé, toujours dans une zone illisible ---------- */
@@ -30624,6 +30760,9 @@ const INFOS = {
     <p>Ton équipe remonte aussi du <b>minerai</b> : cuivre, fer, argent, or, puis la rêvite tout au fond. Les fouilles
     en cachent en petites <b>pépites</b>. À <b>la Forge</b>, le minerai et l'Énergie donnent de meilleurs outils —
     pioche, marteau, foreuse, étais — du bois jusqu'à l'onirique. Chaque matière se voit à l'écran.</p>
+    <p>Les fouilles cachent aussi des <b>filons</b> (beaucoup de minerai), des <b>géodes</b>, des Bonbons d'équipe,
+    des Poké Balls, des baies, de vieilles cartouches — et, plus rarement, des <b>caisses</b> en bois, en fer, ou
+    d'archiviste, qui s'ouvrent à la sortie.</p>
     <p>Quand le puits principal est assez profond, d'autres <b>chantiers</b> s'ouvrent : une grotte, un cratère,
     des ruines, un pic. Chacun repart de zéro, plus dur, avec ses propres trésors et son minerai favori.</p>`},
 

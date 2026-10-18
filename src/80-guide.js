@@ -124,6 +124,9 @@ const INFOS = {
     <p>Ton équipe remonte aussi du <b>minerai</b> : cuivre, fer, argent, or, puis la rêvite tout au fond. Les fouilles
     en cachent en petites <b>pépites</b>. À <b>la Forge</b>, le minerai et l'Énergie donnent de meilleurs outils —
     pioche, marteau, foreuse, étais — du bois jusqu'à l'onirique. Chaque matière se voit à l'écran.</p>
+    <p>Les fouilles cachent aussi des <b>filons</b> (beaucoup de minerai), des <b>géodes</b>, des Bonbons d'équipe,
+    des Poké Balls, des baies, de vieilles cartouches — et, plus rarement, des <b>caisses</b> en bois, en fer, ou
+    d'archiviste, qui s'ouvrent à la sortie.</p>
     <p>Quand le puits principal est assez profond, d'autres <b>chantiers</b> s'ouvrent : une grotte, un cratère,
     des ruines, un pic. Chacun repart de zéro, plus dur, avec ses propres trésors et son minerai favori.</p>`},
 

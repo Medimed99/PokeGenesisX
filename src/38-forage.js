@@ -294,7 +294,7 @@ function genWall(si, rnd){
   const sl = typeof forSite === "function" ? forSite().loot : {};
   const table = DIG_LOOT.map(l=>[l, l.wt(si) * (l.rare ? lamp : 1) * (sl[l.k] || 1)]).filter(x=>x[1] > 0);
   const tot = table.reduce((a, x)=>a + x[1], 0);
-  const n = 2 + Math.floor(rnd() * 3) + (si >= 5 && rnd() < 0.4 ? 1 : 0);
+  const n = 3 + Math.floor(rnd() * 2) + (si >= 4 && rnd() < 0.45 ? 1 : 0);
   let tries = 0;
   /* une page des onze attend dans le Forage : elle est dans cette paroi, une fois sur deux */
   const pg = typeof fragPending === "function" ? fragPending("forage") : null;
@@ -321,13 +321,13 @@ function genWall(si, rnd){
      surtout, parfois une plus ancienne. Elles ne comptent pas pour « tout degager ». */
   if(typeof oreOf === "function"){
     const oi = ORE_IDS.indexOf(oreOf(si)), so = forSite().ore;
-    const nOre = 3 + Math.floor(rnd() * 3);
+    const nOre = 5 + Math.floor(rnd() * 4);
     for(let k = 0, t = 0; k < nOre && t < 80; t++){
       const x0 = Math.floor(rnd() * W), y0 = Math.floor(rnd() * H), c = y0 * W + x0;
       if(occ[c] !== -1) continue;
       const r = rnd();
       const ore = so && r < 0.25 ? so : r < 0.75 ? ORE_IDS[oi] : ORE_IDS[Math.floor(rnd() * (oi + 1))];
-      const it = {k:"ore", ore, x:x0, y:y0, w:1, h:1, found:false, small:true, n:1 + (rnd() < 0.3 ? 1 : 0), cells:[c]};
+      const it = {k:"ore", ore, x:x0, y:y0, w:1, h:1, found:false, small:true, n:(()=>{ const r = rnd(); return r < 0.1 ? 3 : r < 0.4 ? 2 : 1; })(), cells:[c]};
       occ[c] = items.length; items.push(it); k++;
     }
   }
@@ -400,6 +400,12 @@ function digClaim(wall){
       if(fr && !(S.fragments || []).includes(fr.id)) fragFound(fr, `Dans une fouille, couche « ${STRATA[wall.si].n} », à ${fmt(Math.floor(forage().m))} m`);
       row.label = fr ? `Page de journal — ${fr.who}` : "Page de journal";
     }
+    if(g.ores) for(const o in g.ores) oreGain(o, g.ores[o]);
+    if(g.candy && typeof teamCandyGain === "function") teamCandyGain(g.candy);
+    if(g.balls) for(const b in g.balls) if(g.balls[b]) S.balls[b] = (S.balls[b] || 0) + g.balls[b];
+    if(g.berries) for(const b in g.berries) S.berries[b] = (S.berries[b] || 0) + g.berries[b];
+    if(g.integ && typeof addIntegrity === "function") addIntegrity(g.integ);
+    if(g.crate !== undefined && typeof crateRoll === "function"){ row.crate = crateRoll(g.crate, wall.si); row.crateTier = g.crate; }
     if(g.mon){
       const lv = Math.max(5, Math.round(10 + wall.si * 7 + rng() * 6));
       row.isNew = addToDex(g.mon, lv, rng() < 1 / 400);
@@ -800,6 +806,8 @@ function digDraw(dt){
       let ok = false; const sz = w * 1.05;
       if(typeof brSprite === "function"){ const s = brSprite(it.mon, "n"); if(s){ x.drawImage(s, X + w / 2 - sz / 2, Y + h / 2 - sz / 2, sz, sz); ok = true; } }
       if(!ok){ x.fillStyle = "#5c6a7e"; x.fillRect(X + 4, Y + 4, w - 8, h - 8); }
+    } else if(DIG_LOOT.find(l=>l.k === it.k).art && typeof digArtOf === "function"){
+      digArtDraw(x, digArtOf(it.k, DIG.si), X + 2, Y + 2, w - 4, h - 4);
     } else {
       const def = DIG_LOOT.find(l=>l.k === it.k), idx = typeof ITEM_IDX !== "undefined" ? ITEM_IDX[def.ic] : undefined;
       if(img && idx !== undefined){
@@ -862,7 +870,7 @@ function digEnd(left){
   el.innerHTML = `<div class="dg-rt ${DIG.collapsed ? "bad" : ""}">${title}</div>
     <div class="tiny muted" style="margin-bottom:8px">${rows.filter(r=>!r.ore).length ? `${rows.filter(r=>!r.ore).length} objet${rows.filter(r=>!r.ore).length > 1 ? "s" : ""} sur ${digBig().length}` : "Aucun objet dégagé à temps."}</div>
     <div class="dg-loot">${rows.map((r, i)=>`<div class="dg-li" style="--d:${i * 140}ms">
-      ${r.ore ? oreSvg(r.ore, 30) : r.it.k === "mon" ? sprite(r.it.mon, false, "") : itemIcon(r.def.ic, 34)}
+      ${r.ore ? oreSvg(r.ore, 30) : r.it.k === "mon" ? sprite(r.it.mon, false, "") : r.def.art && typeof digArtOf === "function" ? digArtSvg(digArtOf(r.it.k, DIG.si), 32) : itemIcon(r.def.ic, 34)}
       <div class="grow"><b>${esc(r.label)}</b><small>${esc(digGainText(r.g))}</small></div></div>`).join("")}</div>
     <div class="dg-rb">
       <button class="btn" data-act="fowallback">Retour au Forage</button>
@@ -870,6 +878,8 @@ function digEnd(left){
     </div>`;
   el.classList.add("on");
   if(rows.length) try { Sfx.win(); } catch(e){}
+  /* les caisses s'ouvrent après le bilan, une par une */
+  for(const r of rows) if(r.crate && typeof crateShow === "function") crateShow(r.crateTier, r.crate);
   /* un minerai jamais vu : on dit a quoi il sert */
   for(const r of rows) if(r.ore && r.fresh && typeof moment === "function"){
     const o = oreDef(r.ore), i = ORE_IDS.indexOf(r.ore);
@@ -880,6 +890,12 @@ function digEnd(left){
 }
 function digGainText(g){
   if(g.ore) return "Minerai, pour la forge";
+  if(g.crate !== undefined) return "Une caisse : elle s'ouvre à la sortie";
+  if(g.ores){ const o = Object.keys(g.ores)[0]; return `+${g.ores[o]} ${oreDef(o).n.toLowerCase()}` + (g.shards ? ` · +${g.shards} Fragments` : ""); }
+  if(g.candy) return `+${g.candy} Bonbons d'équipe`;
+  if(g.balls) return Object.keys(g.balls).filter(b=>g.balls[b]).map(b=>`+${g.balls[b]} ${BALLS[b] ? BALLS[b].name : b}`).join(" · ");
+  if(g.berries) return Object.keys(g.berries).map(b=>`Baie ${b.charAt(0).toUpperCase() + b.slice(1)}`).join(" · ");
+  if(g.integ) return `+${String(g.integ).replace(".", ",")} % d'Intégrité · +${g.shards} Fragments`;
   if(g.shards) return `+${g.shards} Fragments`;
   if(g.cores) return `+${g.cores} Noyau${g.cores > 1 ? "x" : ""}`;
   if(g.coins) return `+${fmt(g.coins)} PokéCoins`;
