@@ -287,6 +287,26 @@ Mr. Mine (la profondeur comme récit, des trouvailles qui t'attendent).
   Équilibre, Céleste, Profondeurs), 6 **programmes** qui rejoignent la boutique, 10 **objets Kecleon** en Expédition.
 - Force selon l'**Éclat** : 1, 2, 3 illustrations possédées (`cardTier`). Annonce par un moment à chaque palier.
 
+## Grandeur et envie de revenir (octobre 2026)
+Analyse complète dans le projet claude.ai (« Feuille de route — grandeur et envie de revenir »). Ce qui a été construit :
+- **Moments en trois tailles** (`37c-stage.js`) : bandeau, bannière (`banner()`), plein écran (`moment()`). Pendant
+  une révélation, les annonces attendent (`stageHold`, file `STAGE_Q`). Le niveau d'Archiviste est un grand moment.
+- **Musique** (`96b-music.js`) : `MUSIC_TRACKS` (ambiances en boucle + jingles), fichiers `assets/music/<clé>.mp3`,
+  liste dressée par `build_web.py` (`MUSIC_AVAILABLE`). Silencieux tant qu'un morceau manque ; liste dans
+  `assets/music/LISEZMOI.txt`. Réglage Musique + volume dans Profil › Réglages.
+- **Fil conducteur** (`39c-session.js`) : bandeau « Prochaine étape » (priorités + `NEXTSTEP_HOOKS`), coffres de
+  session (3 objectifs, 5 coffres par jour, de bronze à onirique), `srcHint()` dit où trouver ce qui manque.
+- **Mon équipe** (`42-team.js`) : 6 Pokémon, 60 % de toute l'expérience gagnée, Bonbons d'équipe, étoiles par
+  exemplaires (1/4/10/25/60, +6 % par étoile, `makeFighter(..., {owned:true})`), puissance d'équipe. Au dock.
+- **Le Monde** (`79b-world.js`) : l'accueil est la carte de l'archive, tuile par tuile : zones réindexées dans le rendu de leur couche (Kanto 4 teintes, Johto couleur, Hoenn étendu), zones désindexées en données corrompues animées, une présence jamais nommée qui rôde ; 10 chantiers par région (Johto ×3,
+  Hoenn ×9), dessin qui change, cœur restauré = carte du gardien ; chapitres (`CHAPTERS`).
+- **Passages légendaires** (`79c-legend.js`) : toutes les 3 h, 45 min, calculés depuis l'heure (mêmes pour tous).
+- **Capture avec enjeu** (`30b-stakes.js`) : cagnotte de chaîne (×1,5/×2/×3, perdue à la fuite), hordes,
+  traque hebdomadaire d'un légendaire errant (jamais un gardien). Bonus lisibles (`30c-bonus.js`).
+- **Raid et classements** (`95b-social.js`) : raid hebdomadaire (PV partagés, paliers par joueur × nombre de
+  joueurs, 3 attaques par jour), classements Poker/Brèche/Tour, défis de Brèche par code (`PCG1-…`).
+  SQL : sections 7 et 8 de `sql/schema.sql`. Sans compte, tout se joue seul.
+
 ## Porygon-Z et le nom du joueur
 
 - **Le nom** : dans l'ouverture, Porygon-Z demande le nom dans sa bulle (temps `ask` des cinématiques,

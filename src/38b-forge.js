@@ -289,7 +289,8 @@ function forForgeHtml(){
           <div class="d">${esc(TOOLS[k].d(t))}</div>
           ${max ? `<div class="d gold-t">Matière la plus haute.</div>` : `<div class="d">Ensuite : <b>${esc(TOOL_TIERS[t + 1].n)}</b> — ${esc(TOOLS[k].d(t + 1))}</div>
           <div class="fo-cost">${Object.keys(c.ore).map(o=>`<span class="${oreHave(o) >= c.ore[o] ? "" : "miss"}">${oreSvg(o, 14)} ${fmt(oreHave(o))}/${fmt(c.ore[o])}</span>`).join("")}
-            <span class="${f.energy >= c.energy ? "" : "miss"}">${ic("bolt")} ${fmt(c.energy)}</span></div>`}
+            <span class="${f.energy >= c.energy ? "" : "miss"}">${ic("bolt")} ${fmt(c.energy)}</span></div>
+          ${Object.keys(c.ore).filter(o=>oreHave(o) < c.ore[o]).slice(0, 1).map(o=>`<div class="d dim">${esc(oreDef(o).n)} : ${esc(typeof srcHint === "function" ? srcHint("ore", o) : "")}</div>`).join("")}`}
         </div>
         ${max ? "" : `<button class="fo-fbtn ${ok ? "ok" : ""}" data-act="foforge" data-k="${k}" ${ok ? "" : "disabled"}>
           <span class="fo-next">${toolSvg(k, t + 1, 26)}</span>Forger</button>`}

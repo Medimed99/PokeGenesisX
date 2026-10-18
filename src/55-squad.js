@@ -173,7 +173,7 @@ function sqGiveXp(id, xp){
    ============================================================ */
 function sqUnit(id, level, side, opts){
   opts = opts || {};
-  const f = makeFighter(id, level, {shiny:opts.shiny});
+  const f = makeFighter(id, level, {shiny:opts.shiny, owned:side === "ally"});
   if(side === "ally" && typeof applyTowerBuffs === "function") applyTowerBuffs(lineRoot(id), f);
   /* les monstres d'une carte sont moins solides qu'un Pokemon d'archive ; le boss compense */
   const foeK = side === "foe" ? (opts.boss ? 1 : 0.72) : 1;

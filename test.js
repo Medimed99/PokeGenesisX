@@ -14,10 +14,10 @@ global.AudioContext = undefined;
 global.setInterval = () => 0;   /* pas de boucles pendant les tests */
 
 const fs = require("fs");
-const ORDER = ['_dexblob.js','_atlas.js','_atlas_shiny.js','_pmd.js','_items.js','_lore.js','_pzportrait.js','_chars.js','_trainers.js','_cardart.js','00-slugs.js','01-data.js','02-story.js','10-core.js','15-fx.js','20-ui.js','30-capture.js','32-world.js','33-fishing.js','34-research.js','36-lore.js','37-cine.js','37b-moments.js','38-forage.js','38b-forge.js','39-daily.js','39b-events.js',
-  '35-modules.js','40-battle.js','41-arena.js','50-expedition.js','51-expscene.js','51m-expmap.js','52-expgear.js','54-tower.js','55-squad.js','55b-squad-ui.js','56-breche.js','57-breche-run.js','58-breche-ui.js','59-breche-plus.js','59m-breche-map.js','59a-breche-attacks.js','59p-breche-pmd.js','59f-breche-feel.js','59g-breche-bossfight.js','59s-breche-share.js','60-poker.js','70-collection.js','72-bag.js','73-cards.js','73b-cardpowers.js','74-eggs.js','75-extras.js','76-items.js','77-secrets.js','78-milestones.js','79-ux.js','80-guide.js','81-cosmetics.js','85-journal.js','90-admin.js','95-online.js','96-pwa.js','99-boot.js'];
+const ORDER = ['_dexblob.js','_atlas.js','_atlas_shiny.js','_pmd.js','_items.js','_lore.js','_pzportrait.js','_chars.js','_trainers.js','_cardart.js','00-slugs.js','01-data.js','02-story.js','10-core.js','15-fx.js','20-ui.js','30-capture.js','30b-stakes.js','30c-bonus.js','32-world.js','33-fishing.js','34-research.js','36-lore.js','37-cine.js','37b-moments.js','37c-stage.js','38-forage.js','38b-forge.js','39-daily.js','39b-events.js','39c-session.js',
+  '35-modules.js','40-battle.js','41-arena.js','42-team.js','50-expedition.js','51-expscene.js','51m-expmap.js','52-expgear.js','54-tower.js','55-squad.js','55b-squad-ui.js','56-breche.js','57-breche-run.js','58-breche-ui.js','59-breche-plus.js','59m-breche-map.js','59a-breche-attacks.js','59p-breche-pmd.js','59f-breche-feel.js','59g-breche-bossfight.js','59s-breche-share.js','60-poker.js','70-collection.js','72-bag.js','73-cards.js','73b-cardpowers.js','74-eggs.js','75-extras.js','76-items.js','77-secrets.js','78-milestones.js','79-ux.js','79b-world.js','79c-legend.js','80-guide.js','81-cosmetics.js','85-journal.js','90-admin.js','95-online.js','95b-social.js','96-pwa.js','96b-music.js','99-boot.js'];
 const code = ORDER.map(f=>fs.readFileSync("src/"+f,"utf8")).join("\n");
-eval(code + "\n;" + 'global.__api={POKE,POKE_IDS,evalHand,genMap,EXP_ROWS,deepFill,newState,catchChance,typeMult,RARITY,ACHIEVEMENTS,JOKERS,STORY,anteTarget,makeFighter,damageCalc,xpForLevel,handBase,HANDS,newDeck,movesFor,dexTotal,famOf,stageOf,DIRECTIVES,INFOS,TUTOS,PZ_EVENTS,atlasIndex,ATLAS_N,ATLAS_BACK0,SLUGS,cardChips,grantCardV,grantSecretCard,cardVariants,cardHas,cardOwnedCount,cardTotal,CARD_MONS,CARD_SERIES_DEF,CARD_ORDER,rollCardSeries,randomCard,migrateCards,CARD_INDEX,cardChecksum,cardBytes,tcardHtml,cardBackHtml,GEN_TAG,boosterRank,seriesName,seriesFound,monFound,cardEnvOf,CARD_ENV,resolveName,KNOWN_NAMES,sixthItem,glitchSixthItem,GEN_MARKS,checkChainMark,specialDay,isNightWindow,PZ_POKE_LINES,SIXTH_SLOTS,KONAMI,karpDealDay,karpDealAvailable,BST_BANDS,bstBand,wildIdFor,NODE_W,nodeTypeFor,EXP_ITEMS,rollExpItem,itemMinFloor,EXP_MODES,expRunModes,genMap,traitLevels,traitBonus,TOWER_TRAITS,HABITATS,HABITAT_IDS,habitatWeight,isNight,WEATHER,WEATHER_IDS,weatherDef,speciesInHabitat,FRAGMENTS,RIFT_ARC,checkFragments,riftTick,riftStage,fragmentsFound,fragNext,fragPending,fragOn,fragOnCatch,fragFound,FRAG_SRC,signatureMove,moveTierName,STRATA,forage,forageRate,forageAdvance,digPower,digAff,digRate,crewIds,wallEvery,wallCap,genWall,digHit,digClaim,DIG_LOOT,FOR_UPS,offlineHours,forageTick,EGG_TIERS,EXCLUSIVES,EXCL_SOURCE,isExclusive,RODS,fishPool,newFishEncounter,speciesForRarity,eggPool,repelRarity,lureMul,rstreak,rstreakCatch,rstreakBreak,RSTREAK_MILES,PERMANENTS,charmMul,runeMul,shinyOdds,friendCheck,friendEvo,canEvolve,codeHash,CODES,isSafariDay,SAFARI_POOL,botSpecies,botRate,botHours,FACTIONS,FACTION_RANKS,factionRank,factionMul,factionPts,todayRows,todayPending,REGIONS,unlockedRegions,nextEncounter,newEncounter,rollRarity,fleeChance,RARITY,CINEMAS,CINE_WHO,CINE_T,corruptText,CINE_POS,moduleUnlocked,checkAchievements,sqSkillsOf,sqLeaderOf,sqNewBattle,sqNext,sqTurnStart,sqAct,sqSkip,sqAI,sqFinish,sqUpgrade,sqState,sqStars,sqZoneOpen,SQ_ZONES,SQ_STAGES,sqWaves,sqSkillLv,MAP_ROWS,MAP_SHAPE,EXP_MAPS,expGainLevels,expExpected,EXP_GAIN,startExpedition,openSector,afterFightRewards,lineRoot,createBattle,bStep,bSpeed,arOn,arNeed,AR_KIND,AR_BIOME,towerState,SCREENS,brSummonBoss,brBossDown,BR_PATTERNS,BR_KIT_BY_TYPE,brBossKit,brTerrainReact,brTerrainUnder,brDecal,brHit,brAddZone,brMapNear,brMapPre,brUpdate,ACTIONS,ITEM_IDX,TREASURE_KEYS,BALLS,BERRIES,STONES,CHESTS,PERMANENTS,TREASURES,EXP_ITEMS,REPELS,ringGrade,RING_GRADES,evSeason,evSeasonKey,evWeeklyLegend,evWeekIndex,evState,evTier,evRunPoints,EV_TRACK,EV_SEASONS,brShareText,BR_KIND,BR_ATK,BR_LEGEND,brArchFor,brFire,brWeaponStats,brSpawnFoe,pwaAfterIntro,pwaInstallable,pwaEnv,brChunkAt,brPushOut,brMastery,BR_TERRAIN,brMissionsFor,brNewRun,brUpdate,brXpNeed,brChoices,brWeaponStats,brDaily,brGuardianWin,brGuardianFor,ROOM_MOMENTS,roomMomentsTick,sqLockOpen,sqLockWaves,sqLockGate,sqLockLevel,sqLockAt,sqLockFinish,brNextEvo,brState,BR_ARCH,BR_ITEMS,ACTIVITIES,COSMETICS,FX_LAYERS,badgeCine,secretCine,BADGES,HANDS,MODULE_REQ,SCREENS,adminHash,ADMIN_HASH,ATELIER_TABS,STORY,RIFT_ARC,directStory,cineFor,RESEARCH_TASKS,researchOf,researchLevel,researchMax,researchTick,taskGoal,RESEARCH_TIERS,TALENTS,talentOf,PERFECT_ODDS,rollPerfect,weekStamp,REPORT_ROWS,lineRoot,towerLevel,towerBand,BUFF_STATS,TRAINERS,expEnemyLevel,setBuddy,buddyTick,buddyTier,buddyBonus,buddy,rollWeekly,weeklyTick,weeklyRollover,openChest,WEEKLY_POOL,BUDDY_FINDS,BUDDY_MAX_TIER,BUDDY_TIER_AFF,CHESTS,addToDex,weekKey,aimBonus,BOOSTS,startBoost,boostActive,LUCKY_DAYS,rollLuckyDay,luckyF,TREASURES,rollTreasure,treasureValue,REGION_TIERS,checkRegionTiers,regionTiersDone,rollContract,contractTick,CONTRACTS,CYCLE_MODS,PERKS,cycleReward,perkLv,loreOf,LORE,PZ_EMOS,pzMood,HELD_ITEMS,grantHeld,heldActive,PLANETS,SPECTRALS,QUEST_POOLS,questMix,rollQuests,cardTier,CARD_POWERS,ORES,ORE_IDS,oreOf,oreHave,oreGain,TOOLS,toolTier,toolCost,toolCanForge,PICK_T,HAMMER_T,DRILL_T,FOR_SITES,siteOpen,siteReachable,siteSwitch,siteDepth,mainMaxM,stratumHard,toolSvg,PK_DECKS,pkBuildDeck,startPoker,pkScore,pkStartRound,pkRollShop,jokerAvail,evalHandRainbow,sanctPlace,sanctChance,sanctJoin,cardShopWares,CARD_ITEM_IDS,MOMENT_Q,pkWishBonus,pkDeckTargetMul,psyFamilies,setS:function(v){S=v},getS:function(){return S},setENC:function(v){ENC=v},getENC:function(){return ENC},getCINE:function(){return CINE},getCineLast:function(){return CINE_LAST},playStory:playStory};');
+eval(code + "\n;" + 'global.__api={POKE,POKE_IDS,evalHand,genMap,EXP_ROWS,deepFill,newState,catchChance,typeMult,RARITY,ACHIEVEMENTS,JOKERS,STORY,anteTarget,makeFighter,damageCalc,xpForLevel,handBase,HANDS,newDeck,movesFor,dexTotal,famOf,stageOf,DIRECTIVES,INFOS,TUTOS,PZ_EVENTS,atlasIndex,ATLAS_N,ATLAS_BACK0,SLUGS,cardChips,grantCardV,grantSecretCard,cardVariants,cardHas,cardOwnedCount,cardTotal,CARD_MONS,CARD_SERIES_DEF,CARD_ORDER,rollCardSeries,randomCard,migrateCards,CARD_INDEX,cardChecksum,cardBytes,tcardHtml,cardBackHtml,GEN_TAG,boosterRank,seriesName,seriesFound,monFound,cardEnvOf,CARD_ENV,resolveName,KNOWN_NAMES,sixthItem,glitchSixthItem,GEN_MARKS,checkChainMark,specialDay,isNightWindow,PZ_POKE_LINES,SIXTH_SLOTS,KONAMI,karpDealDay,karpDealAvailable,BST_BANDS,bstBand,wildIdFor,NODE_W,nodeTypeFor,EXP_ITEMS,rollExpItem,itemMinFloor,EXP_MODES,expRunModes,genMap,traitLevels,traitBonus,TOWER_TRAITS,HABITATS,HABITAT_IDS,habitatWeight,isNight,WEATHER,WEATHER_IDS,weatherDef,speciesInHabitat,FRAGMENTS,RIFT_ARC,checkFragments,riftTick,riftStage,fragmentsFound,fragNext,fragPending,fragOn,fragOnCatch,fragFound,FRAG_SRC,signatureMove,moveTierName,STRATA,forage,forageRate,forageAdvance,digPower,digAff,digRate,crewIds,wallEvery,wallCap,genWall,digHit,digClaim,DIG_LOOT,FOR_UPS,offlineHours,forageTick,EGG_TIERS,EXCLUSIVES,EXCL_SOURCE,isExclusive,RODS,fishPool,newFishEncounter,speciesForRarity,eggPool,repelRarity,lureMul,rstreak,rstreakCatch,rstreakBreak,RSTREAK_MILES,PERMANENTS,charmMul,runeMul,shinyOdds,friendCheck,friendEvo,canEvolve,codeHash,CODES,isSafariDay,SAFARI_POOL,botSpecies,botRate,botHours,FACTIONS,FACTION_RANKS,factionRank,factionMul,factionPts,todayRows,todayPending,REGIONS,unlockedRegions,nextEncounter,newEncounter,rollRarity,fleeChance,RARITY,CINEMAS,CINE_WHO,CINE_T,corruptText,CINE_POS,moduleUnlocked,checkAchievements,sqSkillsOf,sqLeaderOf,sqNewBattle,sqNext,sqTurnStart,sqAct,sqSkip,sqAI,sqFinish,sqUpgrade,sqState,sqStars,sqZoneOpen,SQ_ZONES,SQ_STAGES,sqWaves,sqSkillLv,MAP_ROWS,MAP_SHAPE,EXP_MAPS,expGainLevels,expExpected,EXP_GAIN,startExpedition,openSector,afterFightRewards,lineRoot,createBattle,bStep,bSpeed,arOn,arNeed,AR_KIND,AR_BIOME,towerState,SCREENS,brSummonBoss,brBossDown,BR_PATTERNS,BR_KIT_BY_TYPE,brBossKit,brTerrainReact,brTerrainUnder,brDecal,brHit,brAddZone,brMapNear,brMapPre,brUpdate,ACTIONS,ITEM_IDX,TREASURE_KEYS,BALLS,BERRIES,STONES,CHESTS,PERMANENTS,TREASURES,EXP_ITEMS,REPELS,ringGrade,RING_GRADES,evSeason,evSeasonKey,evWeeklyLegend,evWeekIndex,evState,evTier,evRunPoints,EV_TRACK,EV_SEASONS,brShareText,BR_KIND,BR_ATK,BR_LEGEND,brArchFor,brFire,brWeaponStats,brSpawnFoe,pwaAfterIntro,pwaInstallable,pwaEnv,brChunkAt,brPushOut,brMastery,BR_TERRAIN,brMissionsFor,brNewRun,brUpdate,brXpNeed,brChoices,brWeaponStats,brDaily,brGuardianWin,brGuardianFor,ROOM_MOMENTS,roomMomentsTick,sqLockOpen,sqLockWaves,sqLockGate,sqLockLevel,sqLockAt,sqLockFinish,brNextEvo,brState,BR_ARCH,BR_ITEMS,ACTIVITIES,COSMETICS,FX_LAYERS,badgeCine,secretCine,BADGES,HANDS,MODULE_REQ,SCREENS,adminHash,ADMIN_HASH,ATELIER_TABS,STORY,RIFT_ARC,directStory,cineFor,RESEARCH_TASKS,researchOf,researchLevel,researchMax,researchTick,taskGoal,RESEARCH_TIERS,TALENTS,talentOf,PERFECT_ODDS,rollPerfect,weekStamp,REPORT_ROWS,lineRoot,towerLevel,towerBand,BUFF_STATS,TRAINERS,expEnemyLevel,setBuddy,buddyTick,buddyTier,buddyBonus,buddy,rollWeekly,weeklyTick,weeklyRollover,openChest,WEEKLY_POOL,BUDDY_FINDS,BUDDY_MAX_TIER,BUDDY_TIER_AFF,CHESTS,addToDex,weekKey,aimBonus,BOOSTS,startBoost,boostActive,LUCKY_DAYS,rollLuckyDay,luckyF,TREASURES,rollTreasure,treasureValue,REGION_TIERS,checkRegionTiers,regionTiersDone,rollContract,contractTick,CONTRACTS,CYCLE_MODS,PERKS,cycleReward,perkLv,loreOf,LORE,PZ_EMOS,pzMood,HELD_ITEMS,grantHeld,heldActive,PLANETS,SPECTRALS,QUEST_POOLS,questMix,rollQuests,bonusSources,bonusTotals,raidState,raidEnd,raidTierReached,raidTotal,RAID_TIERS,wkSubmit,wkState,chalEncode,chalDecode,potState,potAdd,potLose,potMul,roamState,ROAMERS,srcHint,newEncounter,catchChance,fleeChance,getHorde:()=>HORDE,setHorde:v=>{HORDE=v},worldState,worldReg,projOf,projNeedOk,projCanPay,worldNextProj,CHAPTERS,chapterIdx,WORLD_PROJECTS,WORLD_SPOTS,legendOfBlock,legendNow,legendNext,LEG_IDS,legEnd,legState,starsOf,starMul,teamGiveXp,teamXpNeed,teamPower,monPower,candyCost,teamCandyGain,teamIds,teamOnEvolve,STAR_STEPS,addXp,sqUnit,sessState,sessRoll,sessProg,sessDone,sessReward,SESSION_OBJ,nextStep,levelUnlocks,stageHold,banner,Music,MUSIC_TRACKS,musicResolve,cardTier,CARD_POWERS,ORES,ORE_IDS,oreOf,oreHave,oreGain,TOOLS,toolTier,toolCost,toolCanForge,PICK_T,HAMMER_T,DRILL_T,FOR_SITES,siteOpen,siteReachable,siteSwitch,siteDepth,mainMaxM,stratumHard,toolSvg,PK_DECKS,pkBuildDeck,startPoker,pkScore,pkStartRound,pkRollShop,jokerAvail,evalHandRainbow,sanctPlace,sanctChance,sanctJoin,cardShopWares,CARD_ITEM_IDS,MOMENT_Q,pkWishBonus,pkDeckTargetMul,psyFamilies,setS:function(v){S=v},getS:function(){return S},setENC:function(v){ENC=v},getENC:function(){return ENC},getCINE:function(){return CINE},getCineLast:function(){return CINE_LAST},playStory:playStory};');
 const A = global.__api;
 let pass=0, fail=0;
 const t = (n, cond, extra) => { cond?pass++:(fail++,console.log("  ECHEC:",n,extra||"")); };
@@ -2001,6 +2001,198 @@ t("chantiers : la Grotte Azurée cache plus de Pierres Eau que le puits principa
   const water = () => { let n = 0; for(let i = 0; i < 500; i++) n += A.genWall(2).items.filter(it=>it.k === "water").length; return n; };
   const a = water(); A.siteSwitch("azur"); const b = water();
   return b > a * 1.5;
+})());
+
+/* --- moments, musique, fil conducteur --- */
+t("musique : chaque piste de secours existe, et sans fichier on ne joue rien", (()=>{
+  for(const k in A.MUSIC_TRACKS){ const fb = A.MUSIC_TRACKS[k].fb; if(fb && !A.MUSIC_TRACKS[fb]) return false; }
+  return A.musicResolve("capture_kanto") === null || typeof A.musicResolve("capture_kanto") === "string";
+})());
+t("niveau : on annonce ce qui s'ouvre exactement à ce niveau", (()=>{
+  A.setS(A.newState()); const S0 = A.getS(); S0.level = 8; S0.team = [1, 4, 7];
+  return A.levelUnlocks(8).length === 1 && A.levelUnlocks(9).length === 0;
+})());
+t("session : trois objectifs différents, dont un de capture, au plus un long", (()=>{
+  A.setS(A.newState()); const S0 = A.getS(); S0.level = 30; S0.flags.intro = true; S0.team = [1, 4, 7];
+  for(let i = 1; i <= 30; i++) A.addToDex(i, 20, false);
+  S0.bosses = ["kanto:144"];
+  for(let k = 0; k < 30; k++){
+    S0.sess = null; const s = A.sessState();
+    const ks = s.obj.map(o=>o.k);
+    if(ks.length !== 3 || new Set(ks).size !== 3) return false;
+    if(!s.obj.some(o=>A.SESSION_OBJ.find(d=>d.k === o.k).go === "capture")) return false;
+    if(s.obj.filter(o=>A.SESSION_OBJ.find(d=>d.k === o.k).heavy).length > 1) return false;
+  }
+  return true;
+})());
+t("session : la progression part de zéro, les trois remplis ouvrent un coffre plus riche", (()=>{
+  A.setS(A.newState()); const S0 = A.getS(); S0.level = 5; S0.flags.intro = true;
+  const s = A.sessState();
+  s.obj = [{k:"capt", goal:3, base:S0.stats.catches}, {k:"streak", goal:2, base:0}, {k:"newsp", goal:1, base:A.dexTotal()}];
+  if(s.obj.some(A.sessDone)) return false;
+  S0.stats.catches += 3; S0.streak = 2; A.addToDex(25, 5, false);
+  const c0 = S0.coins;
+  if(!s.obj.every(A.sessDone)) return false;
+  s.ready = true;
+  try { A.ACTIONS.sessopen(); } catch(e){}
+  return S0.sess.tier === 1 && S0.coins > c0 && A.sessReward(4).coins > A.sessReward(0).coins && !!S0.sess.obj;
+})());
+t("prochaine étape : un coffre prêt passe avant tout, sinon on part capturer", (()=>{
+  A.setS(A.newState()); const S0 = A.getS(); S0.flags.intro = true; S0.dirDone = [];
+  const a = A.nextStep();
+  A.sessState().ready = true;
+  const b = A.nextStep();
+  return !!a && a.t && b.go === "@sess";
+})());
+
+/* --- mon équipe --- */
+t("équipe : les étoiles suivent les exemplaires capturés, et ne baissent pas à l'évolution", (()=>{
+  A.setS(A.newState()); const S0 = A.getS();
+  A.addToDex(1, 10, false);
+  if(A.starsOf(1) !== 1 || A.starMul(1) !== 1) return false;
+  for(let i = 0; i < 3; i++) A.addToDex(1, 10, false);
+  const a = A.starsOf(1);
+  S0.dex[1].c -= 3;                       /* une évolution consomme des exemplaires */
+  return a === 2 && A.starsOf(1) === 2 && A.starMul(1) > 1;
+})());
+t("équipe : toute expérience gagnée fait grandir les six", (()=>{
+  A.setS(A.newState()); const S0 = A.getS();
+  for(const id of [1, 4, 7]) A.addToDex(id, 10, false);
+  S0.team = [1, 4, 7];
+  A.addXp(5000);
+  return S0.dex[1].lvl > 10 && S0.dex[4].lvl > 10 && S0.dex[7].lvl === S0.dex[1].lvl;
+})());
+t("équipe : les bonbons font monter d'un niveau, plus cher en haut", (()=>{
+  A.setS(A.newState()); const S0 = A.getS();
+  A.addToDex(25, 10, false); S0.team = [25];
+  A.teamCandyGain(3);
+  try { A.ACTIONS.teamfeed({id:"25"}); } catch(e){}
+  return S0.dex[25].lvl === 11 && S0.candy === 2 && A.candyCost(80) > A.candyCost(10);
+})());
+t("équipe : la puissance monte avec le niveau et les étoiles ; les étoiles renforcent seulement mes Pokémon", (()=>{
+  A.setS(A.newState()); const S0 = A.getS();
+  for(let i = 0; i < 12; i++) A.addToDex(6, 30, false);
+  S0.team = [6];
+  const p0 = A.teamPower(); S0.dex[6].lvl = 50; const p1 = A.teamPower();
+  const mine = A.makeFighter(6, 50, {owned:true}), foe = A.makeFighter(6, 50, {});
+  const u = A.sqUnit(6, 50, "ally"), v = A.sqUnit(6, 50, "foe");
+  return p1 > p0 && mine.atk > foe.atk && u.maxHp > 0 && v.maxHp > 0;
+})());
+t("équipe : un membre qui évolue garde sa place, sous sa nouvelle forme", (()=>{
+  A.setS(A.newState()); const S0 = A.getS(); S0.team = [1, 4, 7];
+  A.teamOnEvolve(4, 5);
+  return S0.team.join() === "1,5,7";
+})());
+
+/* --- le monde, les chapitres, les passages --- */
+t("monde : dix chantiers par région, chacun sur un lieu de la carte, plus chers en Johto et Hoenn", (()=>{
+  A.setS(A.newState());
+  if(A.WORLD_PROJECTS.length !== 10 || !A.WORLD_PROJECTS.every(p=>A.WORLD_SPOTS[p.spot])) return false;
+  const k = A.projOf("kanto", 3), j = A.projOf("johto", 3), h = A.projOf("hoenn", 3);
+  return j.cost.coins === k.cost.coins * 3 && h.cost.coins === k.cost.coins * 9 && A.WORLD_PROJECTS[9].spot === "heart";
+})());
+t("monde : un chantier se paie, demande d'avoir avancé ailleurs, et change l'état de la région", (()=>{
+  A.setS(A.newState()); const S0 = A.getS(); S0.flags.intro = true;
+  const p1 = A.projOf("kanto", 1);
+  if(A.projNeedOk(p1)) return false;                         /* 10 espèces de Kanto requises */
+  S0.coins = 100000; S0.shards = 500;
+  try { A.ACTIONS.worldbuild({r:"kanto", i:"0"}); } catch(e){}
+  if(!A.worldReg("kanto").done.includes(0) || S0.coins >= 100000) return false;
+  for(let i = 1; i <= 12; i++) A.addToDex(i, 10, false);
+  return A.projNeedOk(p1) && A.worldNextProj("kanto").i === 1;
+})());
+t("chapitres : ils avancent avec la restauration", (()=>{
+  A.setS(A.newState()); const S0 = A.getS(); S0.level = 6;
+  const a = A.chapterIdx();
+  A.worldReg("kanto").done = [0, 1, 2, 3, 4];
+  const b = A.chapterIdx();
+  return a === 1 && b === 2 && A.CHAPTERS.length >= 8;
+})());
+t("passages : un toutes les trois heures, 45 minutes, le même pour tous, un légendaire en carte", (()=>{
+  A.setS(A.newState());
+  for(let b = 1000; b < 1040; b++){
+    const L = A.legendOfBlock(b), M = A.legendOfBlock(b);
+    if(L.id !== M.id || L.start !== M.start) return false;
+    if(L.end - L.start !== 45 * 60e3 || L.start < b * 3 * 3600e3 || L.end > (b + 1) * 3 * 3600e3) return false;
+    if(!A.LEG_IDS.includes(L.id) || L.region !== "kanto") return false;   /* seule Kanto est ouverte */
+    if(A.legendNow(L.start + 1000).b !== b || A.legendNow(L.start - 1000)) return false;
+  }
+  return A.legendNext().start > Date.now();
+})());
+t("passages : la première victoire donne une carte, une seule fois par passage", (()=>{
+  A.setS(A.newState()); const S0 = A.getS();
+  const L = A.legendOfBlock(4242);
+  const n0 = Object.keys(S0.cards || {}).length;
+  A.legEnd(L, true); const n1 = Object.keys(S0.cards || {}).length, sh = S0.shards;
+  A.legEnd(L, true);
+  return n1 === n0 + 1 && S0.shards === sh && A.legState().won[4242];
+})());
+
+/* --- capture avec enjeu --- */
+t("cagnotte : elle grossit avec la série, se multiplie, et se perd à la fuite", (()=>{
+  A.setS(A.newState()); const S0 = A.getS(); S0.level = 5;
+  for(let i = 0; i < 26; i++) A.potAdd(100);
+  const P = A.potState();
+  if(P.n !== 26 || P.v !== 26 * 35 || A.potMul(26) !== 2 || A.potMul(9) !== 1 || A.potMul(60) !== 3) return false;
+  const c0 = S0.coins;
+  try { A.ACTIONS.potcash(); } catch(e){}
+  if(S0.coins !== c0 + 26 * 35 * 2 || A.potState().v !== 0) return false;
+  A.potAdd(100); A.potLose();
+  return A.potState().v === 0 && A.potState().n === 0;
+})());
+t("traque : un légendaire errant par semaine, jamais un gardien, dans une région ouverte", (()=>{
+  A.setS(A.newState());
+  const R = A.roamState();
+  const guard = A.REGIONS.flatMap(r=>r.guardians.map(g=>g.id));
+  for(const k in A.ROAMERS) for(const id of A.ROAMERS[k]) if(guard.includes(id)) return false;
+  return R.region === "kanto" && R.id === 145 && R.traces === 0;
+})());
+t("traque : à cinq traces, la rencontre suivante est lui, et il fuit au premier raté", (()=>{
+  A.setS(A.newState()); const S0 = A.getS(); S0.level = 10; S0.region = "kanto";
+  const R = A.roamState(); R.ready = true; R.traces = 5;
+  const E = A.newEncounter();
+  if(!E || E.id !== 145 || !E.roam) return false;
+  A.setENC(E);
+  return A.fleeChance() === 1;
+})());
+t("hordes : la même espèce revient, plus facile à capturer", (()=>{
+  A.setS(A.newState()); const S0 = A.getS(); S0.level = 10;
+  A.setHorde({id:147, total:3, left:2, got:0});
+  const E = A.newEncounter(); A.setENC(E);
+  const c = A.catchChance("poke");
+  A.setENC(Object.assign({}, E, {horde:null})); const c2 = A.catchChance("poke");
+  return E.id === 147 && E.horde && E.horde.i === 2 && c > c2;
+})());
+t("ressources : le jeu dit où trouver ce qui manque", !!A.srcHint("ore", "au") && !!A.srcHint("stone", "fire") && !!A.srcHint("shards") && A.srcHint("ore", "zz") === A.srcHint("ore"));
+
+/* --- raid, classements, défis --- */
+t("raid : les dégâts s'additionnent, les paliers s'ouvrent, trois attaques par jour", (()=>{
+  A.setS(A.newState()); const S0 = A.getS(); S0.level = 12;
+  const R = A.raidState();
+  if(R.tries !== 0 || A.raidTierReached(0)) return false;
+  A.raidEnd({maxHp:2000000, hp:2000000 - 2000});
+  if(A.raidState().dmg !== 2000 || !A.raidTierReached(0) || A.raidTierReached(1)) return false;
+  const c0 = S0.coins;
+  try { A.ACTIONS.raidclaim({i:"0"}); } catch(e){}
+  try { A.ACTIONS.raidclaim({i:"0"}); } catch(e){}
+  return S0.coins === c0 + A.RAID_TIERS[0].rw.coins && A.raidState().claimed.length === 1;
+})());
+t("classements : on ne garde que le meilleur score de la semaine", (()=>{
+  A.setS(A.newState());
+  return A.wkSubmit("poker", 500) === true && A.wkSubmit("poker", 300) === false && A.wkState().poker === 500;
+})());
+t("défis : un code porte la partie et se relit à l'identique ; un code abîmé est refusé", (()=>{
+  const o = {seed:123456789, region:"kanto", hab:"routes", starter:25, mod:null, score:4321, name:"Mehdi"};
+  const c = A.chalEncode(o), d = A.chalDecode(c);
+  return /^PCG1-/.test(c) && d && d.seed === o.seed && d.starter === 25 && d.score === 4321 && d.name === "Mehdi" && A.chalDecode("PCG1-zzzz") === null;
+})());
+
+/* --- bonus lisibles --- */
+t("bonus : chaque source est nommée, et les totaux sont le produit des sources", (()=>{
+  A.setS(A.newState()); const S0 = A.getS(); S0.level = 20; S0.streak = 50; S0.buffs = {sitrus:true};
+  const src = A.bonusSources(), t = A.bonusTotals();
+  const prod = src.reduce((a, s)=>a * (s.coin || 1), 1);
+  return src.some(s=>/Série/.test(s.n)) && src.some(s=>/Baies/.test(s.n)) && Math.abs(prod - t.coin) < 1e-9 && t.coin > 2;
 })());
 console.log(`\n${pass} tests reussis, ${fail} echecs`);
 process.exit(fail?1:0);

@@ -1,0 +1,34 @@
+Déposez ici les morceaux du jeu, au format mp3, nommés exactement comme ci-dessous
+(par exemple accueil.mp3). Puis reconstruisez (python build_web.py) : le jeu joue
+automatiquement ce qui est présent et reste silencieux pour le reste.
+
+AMBIANCES (jouées en boucle — prévoir une boucle propre)
+  accueil          L'écran d'accueil et les menus. Le thème principal du jeu.
+  monde            La carte du monde à restaurer (sinon : accueil).
+  capture          Thème de capture par défaut.
+  capture_kanto    Capture à Kanto (sinon : capture).
+  capture_johto    Capture à Johto (sinon : capture).
+  capture_hoenn    Capture à Hoenn (sinon : capture).
+  peche            Mode pêche (sinon : capture).
+  collection       Pokédex, cartes, couveuse, sac, profil, équipe (sinon : accueil).
+  forage           Le Forage.
+  expedition       La carte d'Expédition.
+  tour             La Tour.
+  breche           La Brèche.
+  poker            Le Poké-Poker.
+  combat           Combat ordinaire.
+  combat_boss      Champion, élite, noyau, gardien (sinon : combat).
+  legendaire       Légendaire, Sanctuaire, raid mondial (sinon : combat_boss).
+
+JINGLES (joués une fois, l'ambiance baisse pendant ce temps)
+  j_victoire       Combat gagné (3 à 6 s).
+  j_defaite        Combat perdu (2 à 4 s).
+  j_niveau         Niveau d'Archiviste supérieur (3 à 5 s).
+  j_decouverte     Nouvelle espèce capturée (2 à 3 s).
+  j_rare           Capture très rare, chromatique ou légendaire (4 à 6 s).
+  j_evolution      Évolution (5 à 8 s).
+  j_chapitre       Nouveau chapitre de l'histoire (4 à 6 s).
+  j_restauration   Un chantier du monde terminé (3 à 5 s).
+
+Conseils : 128 kbit/s suffisent ; normalisez le volume entre les morceaux ; une
+ambiance de 1 à 3 minutes qui boucle sans coupure fait très bien l'affaire.

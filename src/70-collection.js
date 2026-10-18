@@ -26,9 +26,9 @@ function canEvolve(id, e){
   if(fc) return fc;
   if(!friendEvo(id, e.to) && en.lvl < e.lvl) return {ok:false, why:`Niveau ${e.lvl} requis (actuel ${en.lvl}).`};
   if(en.c < dupCost(id)) return {ok:false, why:`${dupCost(id)} exemplaires requis (${en.c}).`};
-  if(!canPay("coins", evoCoinCost(id))) return {ok:false, why:`${fmt(evoCoinCost(id))} PokéCoins requis.`};
+  if(!canPay("coins", evoCoinCost(id))) return {ok:false, why:`${fmt(evoCoinCost(id))} PokéCoins requis.` + (typeof srcHint === "function" ? " Où en gagner : " + srcHint("coins") + "." : "")};
   if(e.stone && (S.stones[e.stone]||0) <= 0)
-    return {ok:false, why:`${STONES[e.stone]?.name||"Pierre"} requise.`};
+    return {ok:false, why:`${STONES[e.stone]?.name||"Pierre"} requise.` + (typeof srcHint === "function" ? " Où en trouver : " + srcHint("stone", e.stone) + "." : "")};
   return {ok:true};
 }
 
@@ -161,6 +161,7 @@ ACTIONS.evolve = d => {
   const isNew = addToDex(to, lvl, false);
   S.dex[to].lvl = Math.max(S.dex[to].lvl, lvl);
   S.stats.evolutions++; S.daily.dayEvo++; questTick("dayEvo",1);
+  if(typeof teamOnEvolve === "function") teamOnEvolve(id, to);
   researchTick(id, "evolve", 1);
   addIntegrity(RARITY[POKE[to].rar].integ * (isNew?0.85:0.05));
   addXp(80 + POKE[to].bst/4);
@@ -641,6 +642,7 @@ function fxLayerHtml(){
       <div class="panel">
         <div class="h sm">PRÉFÉRENCES</div>
         ${sw("sfx","Effets sonores","Sons de capture, de combat et d'interface")}
+        ${typeof musicSettingsHtml === "function" ? musicSettingsHtml() : ""}
         ${sw("haptics","Vibrations","Retour haptique sur les actions")}
         ${sw("skill","Visée manuelle","Mini-jeu d'adresse avant chaque lancer : bonus jusqu'à ×1.25, jamais de malus")}
       </div>

@@ -4499,6 +4499,205 @@ details.fo-more[open]>summary::before{content:"▾ "}
 .dg-oreh{font-size:11px;color:var(--ink3);font-weight:400}
 .mo-html svg{width:96px;height:96px}
 
+/* ---------- les trois tailles de moments ---------- */
+.stbanner{position:relative;display:flex;align-items:center;gap:10px;margin:0 10px 6px;padding:9px 12px;border-radius:13px;
+  background:linear-gradient(100deg,color-mix(in srgb,var(--bc) 22%,#0b1120),#0b1120 70%);border:1px solid var(--bc);
+  box-shadow:0 8px 26px #0008,0 0 18px color-mix(in srgb,var(--bc) 35%,transparent);overflow:hidden;pointer-events:auto;
+  animation:sbIn .5s cubic-bezier(.2,1.4,.4,1) both}
+.stbanner.out{animation:sbOut .38s ease-in both}
+.stbanner .sb-art{width:42px;height:42px;flex:none;display:grid;place-items:center;border-radius:10px;background:#ffffff0d;color:var(--bc)}
+.stbanner .sb-art svg{width:24px;height:24px}
+.stbanner .sb-art img,.stbanner .sb-art canvas{max-width:40px;max-height:40px}
+.stbanner small{display:block;font-size:9px;letter-spacing:2px;color:var(--bc);font-family:var(--font-px,monospace)}
+.stbanner b{display:block;font-size:14px;color:#fff;line-height:1.25}
+.stbanner em{display:block;font-style:normal;font-size:11px;color:var(--ink2);line-height:1.35;margin-top:1px}
+.stbanner .sb-shine{position:absolute;top:0;bottom:0;width:40%;left:-50%;background:linear-gradient(100deg,transparent,#ffffff33,transparent);animation:sbShine 1.1s .35s ease-out both;pointer-events:none}
+@keyframes sbIn{0%{opacity:0;transform:translateY(-30px) scale(.92)}100%{opacity:1;transform:none}}
+@keyframes sbOut{to{opacity:0;transform:translateY(-16px) scale(.96)}}
+@keyframes sbShine{to{left:120%}}
+#moment.k-levelup .mo-art{min-height:140px}
+.lv-big{display:flex;flex-direction:column;align-items:center;line-height:1}
+.lv-big small{font-family:var(--font-px,monospace);font-size:11px;letter-spacing:4px;color:#35f0d6}
+.lv-big b{font-size:96px;font-weight:900;color:#fff;text-shadow:0 0 24px #35f0d6,0 0 60px #35f0d699;animation:lvPop .9s cubic-bezier(.2,1.6,.4,1) both}
+@keyframes lvPop{0%{transform:scale(.2);opacity:0}60%{transform:scale(1.15);opacity:1}100%{transform:scale(1)}}
+#moment.k-levelup .mo-glow{background:radial-gradient(circle,#35f0d644,transparent 65%)}
+#moment.k-levelup .mo-item{background:none!important;border:none!important;box-shadow:none!important}
+
+/* ---------- prochaine étape et coffre de session ---------- */
+#nextstep{flex:0 0 auto;position:relative;z-index:6;display:flex;gap:6px;padding:5px 8px;background:linear-gradient(180deg,#060b15,#081020);border-top:1px solid var(--line)}
+#nextstep.off{display:none}
+#nextstep button{font:inherit;color:var(--ink);border:1px solid var(--line2);background:#0c1528;border-radius:11px}
+.ns-sess{flex:none;display:flex;align-items:center;gap:4px;padding:3px 8px;border-color:var(--cc)!important}
+.ns-sess b{font-size:12px;color:var(--cc)}
+.ns-sess.ready{animation:nsReady 1.2s ease-in-out infinite;background:color-mix(in srgb,var(--cc) 25%,#0c1528)!important}
+@keyframes nsReady{50%{box-shadow:0 0 14px var(--cc);transform:scale(1.05)}}
+.ns-go{flex:1;min-width:0;display:flex;flex-direction:column;align-items:flex-start;padding:4px 30px 5px 10px;position:relative;text-align:left}
+.ns-go small{font-size:8px;letter-spacing:1.6px;color:var(--cyan);font-family:var(--font-px,monospace)}
+.ns-go span{display:flex;align-items:center;gap:5px;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.ns-go span svg{width:14px;height:14px;flex:none;color:var(--cyan)}
+.ns-go>svg{position:absolute;right:9px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:var(--cyan)}
+#nextstep.hot .ns-go{border-color:var(--amber);box-shadow:0 0 10px #ffc85733}
+#nextstep.hot .ns-go small{color:var(--amber)}
+.ss-chests{display:flex;justify-content:space-between;gap:4px;margin:4px 0 6px}
+.ss-chest{flex:1;display:grid;place-items:center;padding:6px 0;border-radius:10px;border:1px solid var(--line2);opacity:.45;filter:grayscale(.7)}
+.ss-chest.cur{opacity:1;filter:none;border-color:var(--cc);box-shadow:0 0 10px color-mix(in srgb,var(--cc) 45%,transparent)}
+.ss-chest.done{opacity:.8;filter:none;border-color:var(--cc);background:color-mix(in srgb,var(--cc) 18%,transparent)}
+.ss-row{display:flex;align-items:center;gap:9px;padding:8px 4px;border-top:1px dashed var(--line);cursor:pointer}
+.ss-row b{font-size:12px;font-weight:600}
+.ss-row .bar{margin-top:4px}
+.ss-row.ok b{color:var(--green,#5ce07a)}
+.ss-ic{width:30px;height:30px;display:grid;place-items:center;border-radius:8px;background:#ffffff0a}
+
+/* ---------- mon équipe ---------- */
+.stars{color:#ffd24a;font-size:11px;letter-spacing:-1px;text-shadow:0 0 6px #ffd24a66}
+.stars i{font-style:normal;color:#2a3550;text-shadow:none}
+.tm-hero{position:relative;text-align:center;padding:14px 10px 12px;border-radius:16px;border:1px solid var(--line2);
+  background:radial-gradient(120% 90% at 50% 100%,#35f0d622,transparent 60%),linear-gradient(180deg,#0e1830,#08101f);overflow:hidden}
+.tm-pw small{display:block;font-size:9px;letter-spacing:2px;color:var(--cyan);font-family:var(--font-px,monospace)}
+.tm-pw b{display:block;font-size:34px;font-weight:900;color:#fff;text-shadow:0 0 18px #35f0d688;line-height:1.1}
+.tm-pw em{display:block;font-style:normal;font-size:11px;color:var(--green,#5ce07a)}
+.tm-lead{height:120px;display:grid;place-items:end center;margin-top:4px}
+.tm-leadn{font-size:13px;margin-top:2px}
+.tm-candy{display:inline-flex;align-items:center;gap:5px;margin-top:8px;padding:4px 10px;border-radius:20px;border:1px solid #ff9ed655;color:#ffb3e0;font-size:12px}
+.tm-candy svg{width:14px;height:14px}
+.tm-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:10px}
+.tm-card{display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 6px 8px;border-radius:12px;border:1px solid var(--line2);background:var(--panel2,#111a2c);font:inherit;color:var(--ink)}
+.tm-card.lead{border-color:#ffd24a88;box-shadow:0 0 12px #ffd24a22}
+.tm-card.evo{border-color:var(--amber);animation:fbtnPulse 1.8s ease-in-out infinite}
+.tm-card.empty{justify-content:center;min-height:150px;color:var(--ink3);font-size:22px;border-style:dashed}
+.tm-card.empty small{font-size:11px}
+.tm-top{display:flex;justify-content:space-between;width:100%;align-items:center}
+.tm-crown{font-style:normal;color:#ffd24a;font-size:13px}
+.tm-spr{height:64px;display:grid;place-items:end center;cursor:pointer}
+.tm-n{font-size:11px;text-align:center;line-height:1.2;min-height:26px;display:flex;align-items:center}
+.tm-lv{display:flex;justify-content:space-between;width:100%;font-size:10px;color:var(--ink2)}
+.tm-pp{color:var(--cyan)}
+.tm-card .bar{width:100%}
+.tm-card .btn{margin-top:3px;font-size:10px;padding:4px 2px}
+.tm-card .btn svg{width:11px;height:11px}
+
+/* ---------- le monde ---------- */
+.wd-head{display:flex;align-items:flex-end;gap:8px;margin:2px 2px 8px}
+.wd-head small{display:block;font-size:9px;letter-spacing:2px;color:var(--amber);font-family:var(--font-px,monospace)}
+.wd-head b{display:block;font-size:16px;color:#fff;line-height:1.2}
+.wd-regs{display:flex;gap:4px}
+.wd-frame{margin:0 auto;border-radius:10px;border:1px solid #35f0d655;background:#05070c;box-shadow:0 0 0 1px #000,0 10px 30px #000a,0 0 22px #35f0d61a;padding:0 0 2px;overflow:hidden;width:fit-content;max-width:100%}
+.wd-hud{display:flex;justify-content:space-between;gap:8px;padding:4px 8px;font-family:var(--font-px,monospace);font-size:7px;letter-spacing:1px;color:#35f0d6;background:#060b14;border-bottom:1px solid #35f0d633;white-space:nowrap;overflow:hidden}
+.wd-hud.bot{border-bottom:0;border-top:1px solid #35f0d633;color:#ff3d7f}
+.wd-hud span:last-child{color:#7f8aa3}
+.wd-map{position:relative;margin:0 auto;overflow:hidden;background:#05040a}
+.wd-map canvas{display:block;image-rendering:pixelated}
+.wd-scan{position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(to bottom,rgba(0,0,0,.18) 0 1px,transparent 1px 3px);mix-blend-mode:multiply}
+.wd-spot{position:absolute;transform:translate(-50%,-50%);background:none;border:0;padding:0;font:inherit;color:#fff;min-width:56px;min-height:44px;display:flex;align-items:flex-end;justify-content:center;z-index:3}
+.wd-lbl{display:inline-flex;align-items:center;gap:3px;font-family:var(--font-px,monospace);font-size:7px;letter-spacing:.5px;padding:3px 5px 2px;background:#05070cdd;border:1px solid #35f0d6aa;color:#35f0d6;white-space:nowrap;transform:translateY(16px);box-shadow:0 0 6px #35f0d644}
+.wd-spot.bad .wd-lbl{border-color:#ff3d7faa;color:#ff8ab0;box-shadow:0 0 6px #ff3d7f44}
+.wd-lbl svg{width:8px;height:8px}
+.wd-spot.locked .wd-lbl{opacity:.6}
+.wd-spot.heart .wd-lbl{border-color:#ffd24aaa;color:#ffd24a}
+.wd-b{position:absolute;top:0;right:4px;min-width:18px;height:18px;padding:0 4px;border-radius:2px;background:#ff3d7f;color:#fff;font-style:normal;font-size:11px;font-weight:800;display:grid;place-items:center;box-shadow:0 0 10px #ff3d7f;animation:wdBob 1.4s ease-in-out infinite}
+@keyframes wdBob{50%{transform:translateY(-4px)}}
+.wd-spot.just::after{content:"";position:absolute;left:50%;top:50%;width:110px;height:110px;transform:translate(-50%,-50%);background:radial-gradient(circle,#35f0d699,transparent 65%);animation:wdJust 2.4s ease-out both;pointer-events:none}
+@keyframes wdJust{0%{opacity:0;transform:translate(-50%,-50%) scale(.2)}30%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scale(2.2)}}
+.wd-statue{position:absolute;transform:translate(-50%,-78%);width:40px;height:40px;filter:drop-shadow(0 0 8px #ffd24a);pointer-events:none;z-index:2}
+.wd-statue img,.wd-statue canvas{width:40px;height:40px}
+.wd-partner{position:absolute;transform:translate(-50%,-80%);transition:left 3.2s linear,top 3.2s linear;pointer-events:none;filter:drop-shadow(0 2px 0 #0008);z-index:2}
+.wd-lurk{position:absolute;left:60%;top:40%;transform:translate(-50%,-50%);width:34px;height:34px;pointer-events:none;z-index:2;mix-blend-mode:screen;transition:opacity .2s;animation:lurkJit 1.7s steps(2) infinite}
+.wd-lurk img{width:34px;height:34px;image-rendering:pixelated;filter:drop-shadow(2px 0 0 #ff3d7f) drop-shadow(-2px 0 0 #35f0d6)}
+.wd-lurk.blink{opacity:0!important}
+@keyframes lurkJit{0%{transform:translate(-50%,-50%)}50%{transform:translate(calc(-50% + 2px),-50%) skewX(8deg)}100%{transform:translate(-50%,-50%)}}
+.wd-rest{margin-top:9px;padding:10px 11px;border-radius:13px;border:1px solid #ffd24a55;background:linear-gradient(180deg,#1a1608,#0c0f18);cursor:pointer}
+.wd-rest>.row b{font-size:13px}
+.wd-rest .bar{margin-top:5px}
+.wd-rest .bar i{background:linear-gradient(90deg,#c8733a,#ffd24a)}
+.wd-next{display:flex;align-items:center;gap:8px;margin-top:8px}
+.wd-next small{display:block;font-size:8px;letter-spacing:1.6px;color:var(--amber);font-family:var(--font-px,monospace)}
+.wd-next b{display:block;font-size:12px}
+.wd-next em{display:block;font-style:normal;font-size:10px;margin-top:2px}
+.wp-cost{display:flex;flex-wrap:wrap;gap:7px;margin-top:3px}
+.wp-c{display:inline-flex;align-items:center;gap:3px;font-size:11px}
+.wp-c svg{width:12px;height:12px}
+.wp-c.miss{color:var(--bad,#ff5470)}
+.wp-row{display:flex;align-items:center;gap:9px;padding:8px 2px;border-top:1px dashed var(--line)}
+.wp-row b{font-size:12px}
+.wp-row.done{opacity:.6}
+.wp-row.later{opacity:.45}
+.wp-ic{width:26px;height:26px;flex:none;border-radius:50%;display:grid;place-items:center;border:1px solid var(--line2);font-size:11px}
+.wp-row.done .wp-ic{border-color:var(--green,#5ce07a);color:var(--green,#5ce07a)}
+
+/* ---------- passages légendaires ---------- */
+.lg-card{display:flex;align-items:center;gap:10px;margin-top:9px;padding:9px 11px;border-radius:13px;border:1px solid var(--line2);background:linear-gradient(100deg,#141022,#0b0f1a)}
+.lg-card.on{border-color:#ffd24a;background:linear-gradient(100deg,#2a2008,#120f1c);box-shadow:0 0 18px #ffd24a33;animation:lgGlow 2.2s ease-in-out infinite}
+.lg-card.won{animation:none;box-shadow:none;border-color:#5ce07a77}
+@keyframes lgGlow{50%{box-shadow:0 0 26px #ffd24a66}}
+.lg-card small,.lg-strip small{display:block;font-size:8px;letter-spacing:1.6px;color:var(--amber);font-family:var(--font-px,monospace)}
+.lg-card b{display:block;font-size:13px;line-height:1.25}
+.lg-card em{display:block;font-style:normal;font-size:11px;color:var(--ink2);margin-top:2px}
+.lg-spr{width:46px;height:46px;flex:none;display:grid;place-items:center}
+.lg-spr img,.lg-spr canvas{max-width:46px;max-height:46px}
+.lg-spr.sil{filter:brightness(0) drop-shadow(0 0 4px #ffd24a);opacity:.85}
+.lg-strip{display:flex;align-items:center;gap:9px;width:100%;margin-bottom:8px;padding:7px 10px;border-radius:12px;border:1px solid #ffd24a;background:linear-gradient(100deg,#3a2a08,#120f1c);color:#fff;font:inherit;text-align:left;animation:lgGlow 2.2s ease-in-out infinite}
+.lg-strip b{font-size:12px}
+.lg-go{padding:5px 10px;border-radius:9px;background:#ffd24a;color:#1a1200;font-weight:800;font-size:11px}
+
+/* ---------- capture avec enjeu ---------- */
+.potbox{display:flex;align-items:center;gap:9px;margin:-3px 0 9px;padding:7px 10px;border-radius:12px;border:1px solid var(--line2);background:#0c1424}
+.potbox.on{border-color:#ffd24a88;background:linear-gradient(100deg,#2a2008,#0c1424)}
+.potbox.m15{box-shadow:0 0 10px #ffd24a33}.potbox.m2{box-shadow:0 0 14px #ffd24a55}.potbox.m3{box-shadow:0 0 20px #ff8a3d77;border-color:#ff8a3d}
+.pot-ic{width:30px;height:30px;display:grid;place-items:center;border-radius:50%;background:#ffd24a22;color:#ffd24a}
+.potbox small{display:block;font-size:8px;letter-spacing:1.4px;color:var(--amber);font-family:var(--font-px,monospace)}
+.potbox b{display:block;font-size:17px;color:#fff;line-height:1.15}
+.potbox em{display:block;font-style:normal;font-size:10px;color:var(--ink3)}
+.roambox{display:flex;align-items:center;gap:9px;margin:0 0 9px;padding:6px 10px;border-radius:12px;border:1px solid #ff8a3d55;background:linear-gradient(100deg,#2a1408,#0c1424);cursor:pointer}
+.roambox.ready{border-color:#ff8a3d;box-shadow:0 0 16px #ff8a3d66;animation:lgGlow 1.6s ease-in-out infinite}
+.roambox small{display:block;font-size:8px;letter-spacing:1.4px;color:#ff8a3d;font-family:var(--font-px,monospace)}
+.roambox b{display:block;font-size:12px}
+.roam-spr{width:38px;height:38px;display:grid;place-items:center}
+.roam-spr img,.roam-spr canvas{max-width:38px;max-height:38px}
+.roam-spr.sil{filter:brightness(0) drop-shadow(0 0 3px #ff8a3d)}
+.roam-tr{display:flex;gap:4px;margin-top:3px}
+.roam-tr i{width:16px;height:5px;border-radius:3px;background:#3a2a20}
+.roam-tr i.on{background:#ff8a3d;box-shadow:0 0 6px #ff8a3d}
+.stk-tag{position:absolute;bottom:36px;left:50%;transform:translateX(-50%);z-index:4;font-size:9px;letter-spacing:1.4px;font-family:var(--font-px,monospace);padding:3px 9px;border-radius:9px;white-space:nowrap}
+.stk-tag.horde{background:#5ce07a22;border:1px solid #5ce07a;color:#5ce07a}
+.stk-tag.roam{background:#ff8a3d22;border:1px solid #ff8a3d;color:#ff8a3d;animation:lgGlow 1.4s ease-in-out infinite}
+#enc-stage.roaming{box-shadow:inset 0 0 60px #ff8a3d55}
+
+/* ---------- raid et classements ---------- */
+.rd-card{padding:11px;border-radius:14px;border:1px solid #ff8a3d88;background:linear-gradient(160deg,#2a1408,#0c1020 60%)}
+.rd-top{display:flex;align-items:center;gap:10px}
+.rd-spr{width:64px;height:64px;display:grid;place-items:center;filter:drop-shadow(0 0 10px #ff8a3d)}
+.rd-spr img,.rd-spr canvas{max-width:64px;max-height:64px}
+.rd-top small{display:block;font-size:8px;letter-spacing:1.6px;color:#ff8a3d;font-family:var(--font-px,monospace)}
+.rd-top b{display:block;font-size:18px}
+.rd-top em{display:block;font-style:normal;font-size:11px;color:var(--ink2)}
+.rd-bar{position:relative;height:12px;margin:10px 0 4px;border-radius:6px;background:#1a1010;border:1px solid #ff8a3d55;overflow:visible}
+.rd-bar>i{position:absolute;inset:0 auto 0 0;border-radius:6px;background:linear-gradient(90deg,#ff3d7f,#ff8a3d,#ffd24a);box-shadow:0 0 10px #ff8a3d}
+.rd-tick{position:absolute;top:-3px;width:3px;height:18px;margin-left:-2px;border-radius:2px;background:#5a4030}
+.rd-tick.on{background:#ffd24a;box-shadow:0 0 6px #ffd24a}
+.rd-tiers{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-top:8px}
+.rd-tier{display:flex;flex-direction:column;gap:2px;padding:6px 5px;border-radius:9px;border:1px solid var(--line2);font-size:10px;opacity:.7}
+.rd-tier.ok{opacity:1;border-color:#ffd24a}
+.rd-tier.got{border-color:#5ce07a}
+.rd-tier b{font-size:10px}.rd-tier small{color:#ff8a3d}.rd-tier em{font-style:normal;color:var(--ink3);font-size:9px;line-height:1.3}
+.rd-tier .btn{margin-top:3px}
+.wk-row{display:flex;align-items:center;gap:9px;padding:7px 4px;border-top:1px dashed var(--line);font-size:12px}
+.wk-row.me{background:#35f0d612;border-radius:8px}
+.wk-rank{width:22px;text-align:center;color:var(--amber);font-weight:800}
+.rd-home{cursor:pointer}
+
+/* ---------- bonus lisibles ---------- */
+.bonuschip{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;width:100%;margin:0 0 9px;padding:6px 10px;border-radius:11px;border:1px solid var(--line2);background:#0c1424;color:var(--ink2);font:inherit;font-size:11px;text-align:left}
+.bonuschip svg{width:13px;height:13px;color:var(--amber)}
+.bonuschip>span{color:var(--ink3);font-size:10px;letter-spacing:.5px}
+.bonuschip b{font-weight:600;color:var(--ink2)}
+.bonuschip b.up{color:var(--green,#5ce07a)}.bonuschip b.dn{color:var(--bad,#ff5470)}
+.bn-tot{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.bn-tot div{text-align:center;padding:7px 2px;border-radius:10px;border:1px solid var(--line2)}
+.bn-tot small{display:block;font-size:9px;color:var(--ink3)}
+.bn-tot b{font-size:16px}
+.bn-row{display:flex;flex-wrap:wrap;align-items:center;gap:4px 9px;padding:7px 2px;border-top:1px dashed var(--line);font-size:11px}
+.bn-row b{font-size:12px;font-weight:600}
+
 </style>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
@@ -4543,6 +4742,7 @@ const CARD_COLS=9, CARD_ROWS=9, CARD_CELL=96;
 const CARD_SERIES=[{"k": "art", "n": "Standard"}, {"k": "g5", "n": "Holographique"}, {"k": "g3", "n": "Corrompue"}, {"k": "g2", "n": "Originelle"}, {"k": "g1", "n": "Primordiale"}];
 const CARD_INDEX={"art:144": 0, "art:145": 1, "art:146": 2, "art:150": 3, "art:151": 4, "art:243": 5, "art:244": 6, "art:245": 7, "art:249": 8, "art:250": 9, "art:251": 10, "art:377": 11, "art:378": 12, "art:379": 13, "art:380": 14, "art:381": 15, "art:382": 16, "art:383": 17, "art:384": 18, "art:385": 19, "art:386": 20, "g5:144": 21, "g5:145": 22, "g5:146": 23, "g5:150": 24, "g5:151": 25, "g5:243": 26, "g5:244": 27, "g5:245": 28, "g5:249": 29, "g5:250": 30, "g5:251": 31, "g5:377": 32, "g5:378": 33, "g5:379": 34, "g5:380": 35, "g5:381": 36, "g5:382": 37, "g5:383": 38, "g5:384": 39, "g5:385": 40, "g5:386": 41, "g3:144": 42, "g3:145": 43, "g3:146": 44, "g3:150": 45, "g3:151": 46, "g3:243": 47, "g3:244": 48, "g3:245": 49, "g3:249": 50, "g3:250": 51, "g3:251": 52, "g3:377": 53, "g3:378": 54, "g3:379": 55, "g3:380": 56, "g3:381": 57, "g3:382": 58, "g3:383": 59, "g3:384": 60, "g3:385": 61, "g3:386": 62, "g2:144": 63, "g2:145": 64, "g2:146": 65, "g2:150": 66, "g2:243": 67, "g2:244": 68, "g2:245": 69, "g2:249": 70, "g2:250": 71, "g1:144": 72, "g1:145": 73, "g1:146": 74, "g1:150": 75};
 const CARD_ATLAS="assets/cardart.028415fa.png";
+const MUSIC_AVAILABLE=[];
 
 /* ===== _dexblob.js ===== */
 const DEX_BLOB=`
@@ -5697,7 +5897,7 @@ const ACHIEVEMENTS = [
 
 /* ---------- Cosmetiques ---------- */
 const COSMETICS = {
-  title_novice:    {t:"title", n:"Utilisateur non identifié", def:1},
+  title_novice:    {t:"title", n:"Archiviste novice", def:1},
   title_titulaire: {t:"title", n:"Archiviste titulaire"},
   title_chroma:    {t:"title", n:"Chasseur d'anomalies"},
   title_index:     {t:"title", n:"Index vivant"},
@@ -6278,8 +6478,8 @@ function addXp(n){
     gain("coins", 200*S.level);
     if(S.level % 5 === 0) gain("cores", 1);
     Bus.emit("levelup", S.level);
-    toast(`Niveau d'Archiviste ${S.level}`, "warn", "star");
-    pzFlash(pzLine("levelup"));
+    if(typeof stageLevelUp === "function") stageLevelUp(S.level, up);
+    else { toast(`Niveau d'Archiviste ${S.level}`, "warn", "star"); pzFlash(pzLine("levelup")); }
   }
   saveSoon();
 }
@@ -7076,19 +7276,21 @@ function renderTopbar(){
     ${ev?`<div class="tiny gold-t" style="margin-top:4px">${esc(ev.n)} · ${fmtTime(ev.until-Date.now())}</div>`:""}`;
 }
 
+/* le profil s'ouvre en touchant son bandeau, en haut : sa place au dock revient à l'équipe */
 const DOCK = [
+  {k:"modules",  n:"Accueil", i:"grid"},
   {k:"capture",  n:"Capture", i:"capture"},
-  {k:"modules",  n:"Modules", i:"grid"},
+  {k:"team",     n:"Équipe",  i:"user"},
   {k:"dex",      n:"Collection", i:"dex"},
-  {k:"bag",      n:"Sac",     i:"box"},
-  {k:"profile",  n:"Profil",  i:"user"}
+  {k:"bag",      n:"Sac",     i:"box"}
 ];
 function renderDock(){
   const d = document.getElementById("dock");
   const alerts = {
     modules: canOpenBox() || questsReady(),
     dex: moduleUnlocked("eggs") && eggState().inc.some(x=>x.steps >= EGG_TIERS[x.tier].steps),
-    profile: false
+    profile: false,
+    team: typeof teamIds === "function" && teamIds().some(id=>typeof evoReady === "function" && evoReady(id))
   };
   d.innerHTML = DOCK.map(x=>`<button data-act="nav" data-to="${x.k}" class="${currentScreen===x.k?"on":""}">
       ${ic(x.i)}<span>${x.n}</span>${alerts[x.k]?'<i class="badge"></i>':""}</button>`).join("");
@@ -7716,6 +7918,7 @@ function onCatch(ballKey){
   if(ENC.shiny) integ *= 2;
 
   gain("coins", coins);
+  if(typeof potAdd === "function") potAdd(coins);
   addXp(xp);
   addIntegrity(integ);
   if(eventActive("ev_shard") || luckyF("shard")) gain("shards", (luckyF("shardMul")||1));
@@ -8050,7 +8253,9 @@ SCREENS.capture = {
       }).join("")}</span>
       <span class="tiny dim center" style="line-height:1.3">chroma<br><b class="gold-t">${shinyOddsText()}</b></span>
     </div>
-    ${S.capMode === "fish" ? "" : rstreakRow()}
+    ${typeof potHtml === "function" ? potHtml() : ""}
+    ${typeof roamHtml === "function" ? roamHtml() : ""}
+    ${S.capMode === "fish" || typeof bonusChipHtml !== "function" ? (S.capMode === "fish" ? "" : rstreakRow()) : bonusChipHtml()}
 
     <div class="ballrow">
       ${Object.entries(BALLS).filter(([k])=>(k === "safari") === (selBall() === "safari")).map(([k,b])=>{
@@ -8132,7 +8337,8 @@ SCREENS.capture = {
 
     const p = POKE[ENC.id];
     const isNew = !dexHas(ENC.id);
-    return `<div id="enc-stage">${bg}
+    return `<div id="enc-stage" class="${ENC.roam ? "roaming" : ""}">${bg}
+      ${typeof stakesTagHtml === "function" ? stakesTagHtml() : ""}
       ${S.streak>=3?`<div class="combo tier${comboTier()}"><b>×${S.streak}</b>
         <span>${comboLabel()}</span></div>`:""}
       ${ENC.shiny?`<div class="shiny-burst"></div>
@@ -8241,6 +8447,270 @@ ACTIONS.berryinfo = d => {
       ${(S.berries[d.k]||0)>0?"":"disabled"}>Utiliser maintenant</button>`, true);
 };
 ACTIONS.berryuse = d => { useBerry(d.k); closeSheet(); refresh(); };
+
+/* ===== 30b-stakes.js ===== */
+/* ============================================================
+   30b — LA CAPTURE AVEC ENJEU
+   Trois cents captures dans la première demi-heure, toujours le
+   même geste : il manquait une raison de retenir son souffle.
+
+   · LA CAGNOTTE DE CHAÎNE — chaque capture verse une part de ses
+     PokéCoins dans une cagnotte, d'autant plus grosse que la série
+     dure (×1,5 dès 10, ×2 dès 25, ×3 dès 50). Encaisser la vide
+     et remet son multiplicateur à zéro ; une fuite la fait perdre.
+     Continuer, ou encaisser ?
+   · LES HORDES — parfois, une espèce arrive en groupe : trois à
+     cinq à la suite, plus faciles à capturer, et une prime si on
+     les attrape toutes.
+   · LA TRAQUE — chaque semaine, un légendaire erre dans une
+     région. Ses traces apparaissent en capturant ; à cinq traces,
+     il se montre. Une seule balle : s'il s'échappe, il faut
+     retrouver sa piste.
+   ============================================================ */
+
+/* ---------- la cagnotte ---------- */
+const POT_TIERS = [[50, 3], [25, 2], [10, 1.5], [0, 1]];
+function potState(){ S.pot = S.pot || {v:0, n:0}; return S.pot; }
+function potMul(n){ for(const [k, m] of POT_TIERS) if(n >= k) return m; return 1; }
+function potAdd(coins){
+  if(!(coins > 0) || S.capMode === "fish") return;
+  const P = potState();
+  P.n++;
+  P.v += Math.round(coins * 0.35);
+  const m = potMul(P.n), prev = potMul(P.n - 1);
+  if(m > prev && typeof banner === "function") banner({kicker:"CAGNOTTE DE CHAÎNE", title:`Multiplicateur ×${String(m).replace(".", ",")}`, sub:`${fmt(Math.round(P.v * m))} PokéCoins à encaisser — ou continuer, au risque de tout perdre`, icon:"coin", c:"#ffd24a", sfx:"coin", dur:2600});
+}
+function potLose(){
+  const P = potState();
+  if(P.v > 0){
+    const lost = Math.round(P.v * potMul(P.n));
+    S.stats.potLost = (S.stats.potLost || 0) + lost;
+    setTimeout(()=>toast(`Cagnotte perdue : ${fmt(lost)} PokéCoins`, "bad", "coin"), 300);
+  }
+  P.v = 0; P.n = 0;
+}
+ACTIONS.potcash = () => {
+  const P = potState();
+  if(!(P.v > 0)) return;
+  const m = potMul(P.n), total = Math.round(P.v * m);
+  gain("coins", total);
+  S.stats.potCashed = (S.stats.potCashed || 0) + total;
+  S.stats.potBest = Math.max(S.stats.potBest || 0, total);
+  P.v = 0; P.n = 0;
+  try { Sfx.coin(); setTimeout(()=>Sfx.coin(), 120); setTimeout(()=>Sfx.coin(), 240); } catch(e){}
+  buzz([10, 30, 10, 30, 10]);
+  if(total >= 3000 && typeof banner === "function") banner({kicker:"CAGNOTTE ENCAISSÉE", title:`+${fmt(total)} PokéCoins`, sub:m > 1 ? `Multiplicateur ×${String(m).replace(".", ",")}` : "", icon:"coin", c:"#ffd24a", sfx:"coin", dur:2400});
+  else toast(`Cagnotte encaissée : +${fmt(total)} PokéCoins`, "warn", "coin");
+  save(); refresh();
+};
+function potHtml(){
+  if(S.capMode === "fish" || S.level < 3) return "";
+  const P = potState(), m = potMul(P.n), nx = POT_TIERS.slice().reverse().find(([k])=>k > P.n);
+  return `<div class="potbox ${P.v ? "on" : ""} m${String(m).replace(".", "")}">
+    <span class="pot-ic">${ic("coin")}</span>
+    <div class="grow"><small>CAGNOTTE DE CHAÎNE · ×${String(m).replace(".", ",")}</small>
+      <b class="mono-num">${fmt(Math.round(P.v * m))}</b>
+      <em>${nx ? `×${String(nx[1]).replace(".", ",")} dans ${nx[0] - P.n} capture${nx[0] - P.n > 1 ? "s" : ""} · une fuite et tout est perdu` : "Multiplicateur au maximum · une fuite et tout est perdu"}</em></div>
+    <button class="btn sm ${P.v ? "gold" : ""}" data-act="potcash" ${P.v ? "" : "disabled"}>Encaisser</button>
+  </div>`;
+}
+
+/* ---------- les hordes ---------- */
+let HORDE = null;
+const HORDE_CHANCE = 0.05;
+/* ---------- la traque ---------- */
+const ROAMERS = {kanto:[145], johto:[244, 245], hoenn:[380, 381]};
+const ROAM_TRACES = 5;
+function roamWeek(){ return typeof evWeekIndex === "function" ? evWeekIndex() : Math.floor(Date.now() / (7 * 86400e3)); }
+function roamState(){
+  S.roam = S.roam || {};
+  const R = S.roam, wk = roamWeek();
+  if(R.wk !== wk){
+    const pool = [];
+    for(const r of REGIONS) if(regionUnlocked(r.key)) for(const id of ROAMERS[r.key] || []) pool.push({id, region:r.key});
+    const p = pool.length ? pool[((wk % pool.length) + pool.length) % pool.length] : {id:145, region:"kanto"};
+    Object.assign(R, {wk, id:p.id, region:p.region, traces:0, caught:false, ready:false});
+  }
+  return R;
+}
+function roamTrace(){
+  const R = roamState();
+  if(R.caught || R.ready || S.region !== R.region || S.capMode === "fish" || S.level < 8) return;
+  if(rng() >= 0.035) return;
+  R.traces++;
+  if(R.traces >= ROAM_TRACES){ R.ready = true; R.traces = ROAM_TRACES; }
+  saveSoon();
+  if(typeof banner === "function") banner(R.ready
+    ? {kicker:"LA TRAQUE", title:`${POKE[R.id].name} est tout près !`, sub:"La prochaine rencontre de cette région, c'est lui. Une seule balle : vise juste.", spr:R.id, c:"#ff8a3d", dur:4200}
+    : {kicker:"LA TRAQUE", title:`Une trace de ${POKE[R.id].name}`, sub:`${R.traces} / ${ROAM_TRACES} — il erre dans ${regionDef(R.region).name} cette semaine`, icon:"eye", c:"#ff8a3d", dur:2600});
+}
+function roamHtml(){
+  if(S.capMode === "fish" || S.level < 8) return "";
+  const R = roamState();
+  if(R.caught) return "";
+  const known = monFound(R.id);
+  return `<div class="roambox ${R.ready ? "ready" : ""}" data-act="roaminfo">
+    <span class="roam-spr ${R.ready ? "" : "sil"}">${sprite(R.id, false, "")}</span>
+    <div class="grow"><small>LA TRAQUE · CETTE SEMAINE</small>
+      <b>${known || R.ready ? esc(POKE[R.id].name) : "Un légendaire errant"} · ${esc(regionDef(R.region).name)}</b>
+      <span class="roam-tr">${Array.from({length:ROAM_TRACES}, (_, i)=>`<i class="${i < R.traces ? "on" : ""}"></i>`).join("")}</span></div>
+  </div>`;
+}
+ACTIONS.roaminfo = () => {
+  const R = roamState();
+  sheet(`${sheetHead("La traque")}
+    <div class="tiny">Chaque semaine, un légendaire erre dans une région. En capturant dans <b>${esc(regionDef(R.region).name)}</b>, tu trouveras parfois une de ses traces.</div>
+    <div class="tiny" style="margin-top:6px">À ${ROAM_TRACES} traces, il se montre : c'est la rencontre suivante. <b>Une seule balle</b> — s'il s'échappe, il reste deux traces et il faut le retrouver.</div>
+    <div class="tiny dim" style="margin-top:6px">Traces : ${R.traces} / ${ROAM_TRACES}. Un autre légendaire prendra sa place lundi.</div>`);
+};
+
+/* ---------- les crochets dans la capture ---------- */
+if(typeof newEncounter === "function"){
+  const _ne = newEncounter;
+  newEncounter = function(force){
+    /* la traque d'abord : il attend dans sa région */
+    const R = roamState();
+    if(!force && R.ready && !R.caught && S.region === R.region && S.capMode !== "fish"){
+      HORDE = null;
+      ENC = {id:R.id, level:clamp(30 + regionDef(R.region).act * 12, 5, 100), shiny:rng() < shinyOdds(), rar:5, attempts:0, roam:true, featured:false, fleeing:false};
+      saveSoon();
+      return ENC;
+    }
+    if(!force && HORDE && HORDE.left > 0){
+      HORDE.left--;
+      const r = _ne({id:HORDE.id, rar:POKE[HORDE.id].rar});
+      if(ENC) ENC.horde = {i:HORDE.total - HORDE.left, n:HORDE.total};
+      return r;
+    }
+    HORDE = null;
+    const r = _ne.apply(this, arguments);
+    if(!force && ENC && !ENC.missing && !ENC.shiny && ENC.rar <= 2 && S.level >= 6 && S.capMode !== "fish" && rng() < HORDE_CHANCE){
+      const n = 3 + Math.floor(rng() * 3);
+      HORDE = {id:ENC.id, total:n, left:n - 1, got:0};
+      ENC.horde = {i:1, n};
+    }
+    return r;
+  };
+}
+if(typeof catchChance === "function"){
+  const _cc = catchChance;
+  catchChance = function(ballKey){
+    let c = _cc.apply(this, arguments);
+    if(ENC && ENC.horde) c = Math.min(0.98, c * 1.15);
+    /* traqué pendant des jours : il est fatigué, mais une seule balle */
+    if(ENC && ENC.roam) c = Math.min(0.9, c * 2.5);
+    return c;
+  };
+}
+if(typeof fleeChance === "function"){
+  const _fc = fleeChance;
+  fleeChance = function(){ return ENC && ENC.roam ? 1 : _fc.apply(this, arguments); };
+}
+if(typeof onCatch === "function"){
+  const _oc = onCatch;
+  onCatch = function(){
+    const e = ENC, h = e && e.horde, roam = e && e.roam;
+    const r = _oc.apply(this, arguments);
+    if(roam){
+      const R = roamState(); R.caught = true; R.ready = false;
+      S.stats.roamCaught = (S.stats.roamCaught || 0) + 1;
+      if(typeof teamCandyGain === "function") teamCandyGain(5);
+      saveSoon();
+    } else roamTrace();
+    if(h && HORDE && HORDE.id === e.id){
+      HORDE.got++;
+      if(h.i >= h.n){
+        const full = HORDE.got >= h.n;
+        if(full){
+          const bonus = 300 * h.n + S.level * 30;
+          gain("coins", bonus); if(typeof teamCandyGain === "function") teamCandyGain(2);
+          if(typeof banner === "function") banner({kicker:"HORDE COMPLÈTE", title:`${h.n} ${POKE[e.id].name} sur ${h.n} !`, sub:`+${fmt(bonus)} PokéCoins · +2 Bonbons d'équipe`, spr:e.id, c:"#5ce07a", sfx:"coin", dur:2600});
+        }
+        HORDE = null;
+      }
+    }
+    return r;
+  };
+}
+if(typeof onFail === "function"){
+  const _of = onFail;
+  onFail = function(){
+    const e = ENC, roam = e && e.roam;
+    const r = _of.apply(this, arguments);
+    /* il s'est enfui : la horde se disperse, la traque recommence à deux traces */
+    if(!ENC || ENC !== e){
+      if(HORDE && e && HORDE.id === e.id){ HORDE = null; }
+      if(roam){ const R = roamState(); R.ready = false; R.traces = 2; saveSoon(); setTimeout(()=>toast(`${POKE[e.id].name} s'est échappé. Il reste deux traces.`, "bad", "eye"), 500); }
+    }
+    return r;
+  };
+}
+if(typeof breakStreak === "function"){
+  const _bs = breakStreak;
+  breakStreak = function(){ potLose(); return _bs.apply(this, arguments); };
+}
+/* le dessus de la scène : horde, ou légendaire errant */
+function stakesTagHtml(){
+  if(!ENC) return "";
+  if(ENC.roam) return `<div class="stk-tag roam">LÉGENDAIRE ERRANT · UNE SEULE BALLE</div>`;
+  if(ENC.horde) return `<div class="stk-tag horde">HORDE · ${ENC.horde.i} / ${ENC.horde.n} · capture facilitée</div>`;
+  return "";
+}
+
+/* ===== 30c-bonus.js ===== */
+/* ============================================================
+   30c — DES BONUS LISIBLES
+   Une capture était multipliée par une quinzaine de petits bonus
+   que personne ne voyait : série, niveau, compagnon, objet tenu,
+   boost, jour de chance, talents, Pièces Rune, faction, météo,
+   événement, baies… Ils sont désormais regroupés en un seul
+   endroit : quatre totaux (PokéCoins, capture, expérience,
+   chromatique), et le détail de chaque source.
+   ============================================================ */
+
+function bonusSources(){
+  const out = [];
+  const add = (n, o) => { const k = Object.keys(o).filter(x=>Math.abs((o[x] || 1) - 1) > 0.001); if(k.length) out.push(Object.assign({n}, o)); };
+  const st = S.streak || 0;
+  add(`Série de ${st}`, {coin:1 + Math.min(0.6, st * 0.004), catch:1 + Math.min(0.35, st * 0.002)});
+  add(`Niveau d'Archiviste ${S.level}`, {coin:1 + S.level * 0.014});
+  try { const b = buddyBonus(); add("Compagnon", {coin:b.coin, catch:b.catch, xp:b.xp}); } catch(e){}
+  try { add("Objet tenu", {coin:heldActive("coin") ? 1.2 : 1, catch:heldActive("catch") ? 1.12 : 1, xp:heldActive("xp") ? 1.25 : 1, shiny:heldActive("shiny") ? 1.4 : 1}); } catch(e){}
+  try { add("Boost actif", {coin:boostActive("coin") ? 1.8 : 1, xp:boostActive("xp") ? 1.4 : 1, shiny:boostActive("shiny") ? 2 : 1}); } catch(e){}
+  try { add("Jour de chance", {coin:luckyF("coin") || 1, xp:luckyF("xp") || 1, shiny:luckyF("shiny") || 1}); } catch(e){}
+  try { add("Talents", {coin:perkMul("p_coin", 0.15), catch:perkMul("p_catch", 0.04), shiny:perkMul("p_shiny", 0.2)}); } catch(e){}
+  try { add("Pièces Rune", {coin:runeMul()}); } catch(e){}
+  try { add("Faction", {coin:factionMul("coins")}); } catch(e){}
+  try { add("Météo", {coin:weatherDef().gain || 1}); } catch(e){}
+  try { add("Cycle", {coin:cycleMod("m_econ") ? 0.5 : 1}); } catch(e){}
+  try { add("Événement", {coin:eventActive("ev_coin") ? 2 : 1, xp:eventActive("ev_xp") ? 2 : 1}); } catch(e){}
+  const bf = S.buffs || {};
+  add("Baies du prochain lancer", {coin:bf.sitrus ? 2 : 1, catch:bf.framby ? 1.5 : 1, xp:bf.nigma ? 2 : 1});
+  try { add("Charme Chroma", {shiny:charmMul()}); } catch(e){}
+  return out;
+}
+function bonusTotals(){
+  const t = {coin:1, catch:1, xp:1, shiny:1};
+  for(const s of bonusSources()) for(const k in t) if(s[k]) t[k] *= s[k];
+  return t;
+}
+const BONUS_LABELS = {coin:"PokéCoins", catch:"Capture", xp:"Expérience", shiny:"Chromatique"};
+function bonusFmt(v){ return "×" + v.toFixed(2).replace(/\.?0+$/, "").replace(".", ","); }
+function bonusChipHtml(){
+  if(S.level < 3) return "";
+  const t = bonusTotals();
+  return `<button class="bonuschip" data-act="bonusinfo">${ic("star")}<span>Bonus actifs</span>
+    ${["coin", "catch", "xp"].map(k=>`<b class="${t[k] > 1.001 ? "up" : t[k] < 0.999 ? "dn" : ""}">${esc(BONUS_LABELS[k])} ${bonusFmt(t[k])}</b>`).join("")}</button>`;
+}
+ACTIONS.bonusinfo = () => {
+  const src = bonusSources(), t = bonusTotals();
+  sheet(`${sheetHead("Bonus actifs")}
+    <div class="bn-tot">${Object.keys(BONUS_LABELS).map(k=>`<div><small>${esc(BONUS_LABELS[k])}</small><b class="${t[k] > 1.001 ? "ok" : t[k] < 0.999 ? "bad" : ""}">${bonusFmt(t[k])}</b></div>`).join("")}</div>
+    <div class="h sm" style="margin-top:10px">D'OÙ ILS VIENNENT</div>
+    ${src.length ? src.map(s=>`<div class="bn-row"><b class="grow">${esc(s.n)}</b>${Object.keys(BONUS_LABELS).filter(k=>s[k] && Math.abs(s[k] - 1) > 0.001).map(k=>`<span class="${s[k] > 1 ? "ok" : "bad"}">${esc(BONUS_LABELS[k])} ${bonusFmt(s[k])}</span>`).join("")}</div>`).join("")
+      : `<div class="empty">Aucun bonus pour l'instant.</div>`}
+    ${typeof rstreakRow === "function" ? `<div class="h sm" style="margin-top:12px">SÉRIES PAR RARETÉ</div><div class="tiny dim" style="margin-bottom:6px">Captures d'affilée de chaque rareté ; des paliers récompensent les plus longues.</div>${rstreakRow()}` : ""}`);
+};
 
 /* ===== 32-world.js ===== */
 /* ============================================================
@@ -10010,6 +10480,162 @@ function momentAwake(id){
   moment({kind:"awake", kicker:"DANS LA ROCHE", title:`${POKE[id].name} se réveille`, sub:"Il rejoint ton Pokédex.", spr:id, c:"#c9a86a", dur:2600}, true);
 }
 
+/* ===== 37c-stage.js ===== */
+/* ============================================================
+   37c — LA HIÉRARCHIE DES MOMENTS
+   Tout était annoncé de la même façon : un bandeau. Un succès, un
+   cosmétique, une montée de niveau, une remarque de Porygon-Z —
+   et à la capture d'un Dracolosse inédit, quatre bandeaux venaient
+   s'empiler par-dessus la révélation.
+
+   Trois tailles, désormais :
+   · PETIT  — le bandeau habituel (toast) : une information.
+   · MOYEN  — une bannière qui descend, avec son icône et un son :
+              un succès, un cosmétique, un palier.
+   · GRAND  — plein écran (moment, 37b) : un niveau, une capture
+              rare, un chapitre, une restauration.
+
+   Et une règle : pendant un grand moment ou une révélation, rien
+   ne s'affiche par-dessus. Les petites annonces attendent, puis
+   passent une à une.
+   ============================================================ */
+
+function stageHold(){
+  if(typeof MOMENT_ON !== "undefined" && MOMENT_ON) return true;
+  if(typeof CINE !== "undefined" && CINE && !CINE.dead) return true;
+  const d = typeof document !== "undefined" && document.getElementById ? document.getElementById("discover") : null;
+  if(d && /\bon\b/.test(d.className || "")) return true;
+  return false;
+}
+const STAGE_Q = [];
+function stageDefer(fn){ STAGE_Q.push(fn); if(STAGE_Q.length > 12) STAGE_Q.shift(); }
+function stageFlush(){
+  if(!STAGE_Q.length || stageHold()) return;
+  const fn = STAGE_Q.shift();
+  try { fn(); } catch(e){}
+  if(STAGE_Q.length) setTimeout(stageFlush, 650);
+}
+if(typeof setInterval === "function") setInterval(()=>{ try { stageFlush(); } catch(e){} }, 700);
+
+/* ---------- petit : les bandeaux attendent leur tour ---------- */
+if(typeof toast === "function"){
+  const _toast = toast;
+  toast = function(msg, kind, icon){
+    if(stageHold()){ stageDefer(()=>_toast(msg, kind, icon)); return; }
+    return _toast(msg, kind, icon);
+  };
+}
+if(typeof pzFlash === "function"){
+  const _pz = pzFlash;
+  pzFlash = function(txt){
+    if(stageHold()){ stageDefer(()=>_pz(txt)); return; }
+    return _pz(txt);
+  };
+}
+
+/* ---------- moyen : la bannière ---------- */
+const BANNER_Q = [];
+let BANNER_ON = false;
+/* b : {kicker, title, sub, icon, spr, item, html, c, sfx} */
+function banner(b){
+  BANNER_Q.push(b);
+  if(BANNER_Q.length > 6) BANNER_Q.shift();
+  bannerNext();
+}
+function bannerNext(){
+  if(BANNER_ON || !BANNER_Q.length) return;
+  if(stageHold()){ setTimeout(bannerNext, 700); return; }
+  const host = typeof document !== "undefined" && document.getElementById ? document.getElementById("toasts") : null;
+  if(!host || !host.appendChild){ BANNER_Q.length = 0; return; }
+  const b = BANNER_Q.shift();
+  BANNER_ON = true;
+  const d = document.createElement("div");
+  d.className = "stbanner";
+  d.style.setProperty("--bc", b.c || "#ffd24a");
+  const art = b.html ? b.html : b.spr ? sprite(b.spr, !!b.shiny, "") : b.item ? (itemIcon(b.item, 40) || ic(b.icon || "star")) : ic(b.icon || "star");
+  d.innerHTML = `<span class="sb-art">${art}</span>
+    <span class="grow">${b.kicker ? `<small>${esc(b.kicker)}</small>` : ""}<b>${esc(b.title || "")}</b>${b.sub ? `<em>${esc(b.sub)}</em>` : ""}</span>
+    <i class="sb-shine"></i>`;
+  host.insertBefore(d, host.firstChild);
+  try { (b.sfx === "coin" ? Sfx.coin : Sfx.win)(); } catch(e){}
+  if(typeof buzz === "function") buzz([12, 30, 12]);
+  const close = () => {
+    if(d._gone) return; d._gone = true;
+    d.classList.add("out");
+    setTimeout(()=>{ d.remove(); BANNER_ON = false; setTimeout(bannerNext, 180); }, 380);
+  };
+  d.onclick = close;
+  setTimeout(close, b.dur || 3400);
+}
+
+/* les succès deviennent des bannières (le cosmétique qu'ils donnent n'a pas son propre bandeau) */
+let STAGE_MUTE_COS = false;
+if(typeof achToast === "function"){
+  achToast = function(a){
+    banner({kicker:"SUCCÈS", title:a.n, sub:(a.d || "") + (a.rw && Object.keys(a.rw).length ? " · " + rewardText(a.rw) : ""), icon:"trophy", c:"#ffd24a"});
+  };
+}
+if(typeof checkAchievements === "function"){
+  const _ca = checkAchievements;
+  checkAchievements = function(){ STAGE_MUTE_COS = true; try { return _ca.apply(this, arguments); } finally { STAGE_MUTE_COS = false; } };
+}
+if(typeof unlockCosmetic === "function"){
+  unlockCosmetic = function(id){
+    if(!COSMETICS[id] || S.cos.owned.includes(id)) return false;
+    S.cos.owned.push(id);
+    if(!STAGE_MUTE_COS) banner({kicker:"APPARENCE", title:COSMETICS[id].n, sub:"Nouveau cosmétique, à choisir dans Profil › Personnaliser", icon:"star", c:"#9b6bff", dur:2800});
+    return true;
+  };
+}
+
+/* ---------- grand : le niveau d'Archiviste ---------- */
+/* ce qui s'ouvre exactement à ce niveau */
+function levelUnlocks(L){
+  const out = [];
+  if(typeof MODULE_REQ !== "undefined") for(const k in MODULE_REQ){
+    const r = MODULE_REQ[k];
+    if(r.lv === L && !r.hidden && moduleUnlocked(k)) out.push((typeof ROOM_MOMENTS !== "undefined" && ROOM_MOMENTS[k] && ROOM_MOMENTS[k].n) || k);
+  }
+  return out;
+}
+function stageLevelUp(L, up){
+  const coins = 200 * L, cores = L % 5 === 0 ? 1 : 0;
+  const opens = levelUnlocks(L);
+  const next = (()=>{ if(typeof MODULE_REQ === "undefined") return null;
+    let best = null; for(const k in MODULE_REQ){ const r = MODULE_REQ[k]; if(r.lv > L && !r.hidden && (!best || r.lv < best.lv)) best = {k, lv:r.lv}; } return best; })();
+  try { if(typeof Music !== "undefined") Music.jingle("j_niveau"); } catch(e){}
+  if(typeof moment !== "function"){ toast(`Niveau d'Archiviste ${L}`, "warn", "star"); return; }
+  moment({kind:"levelup", c:"#35f0d6",
+    html:`<span class="lv-big"><small>NIVEAU</small><b>${L}</b></span>`,
+    kicker:"ARCHIVISTE", title:up > 1 ? `+${up} niveaux` : "Niveau supérieur",
+    sub:`+${fmt(coins)} PokéCoins${cores ? " · +1 Noyau" : ""}${opens.length ? " · s'ouvre : " + opens.join(", ") : next ? ` · prochaine salle au niveau ${next.lv}` : ""}`,
+    line:typeof pzLine === "function" ? pzLine("levelup") : null, dur:4200,
+    then:()=>{ try { refresh(); } catch(e){} }});
+}
+
+/* ---------- grand : les captures qui comptent ---------- */
+if(typeof showDiscovery === "function"){
+  const _sd = showDiscovery;
+  showDiscovery = function(c, rw){
+    try { if(typeof Music !== "undefined") Music.jingle(c && (c.shiny || c.rar >= 4) ? "j_rare" : "j_decouverte"); } catch(e){}
+    return _sd.apply(this, arguments);
+  };
+}
+if(typeof showCatchResult === "function"){
+  const _sr = showCatchResult;
+  showCatchResult = function(c, rw){
+    try { if(c && (c.shiny || c.rar >= 4) && typeof Music !== "undefined") Music.jingle("j_rare"); } catch(e){}
+    return _sr.apply(this, arguments);
+  };
+}
+if(typeof playEvolution === "function"){
+  const _pe = playEvolution;
+  playEvolution = function(){
+    try { if(typeof Music !== "undefined") Music.jingle("j_evolution"); } catch(e){}
+    return _pe.apply(this, arguments);
+  };
+}
+
 /* ===== 38-forage.js ===== */
 /* ============================================================
    38 — LE FORAGE
@@ -11334,7 +11960,8 @@ function forForgeHtml(){
           <div class="d">${esc(TOOLS[k].d(t))}</div>
           ${max ? `<div class="d gold-t">Matière la plus haute.</div>` : `<div class="d">Ensuite : <b>${esc(TOOL_TIERS[t + 1].n)}</b> — ${esc(TOOLS[k].d(t + 1))}</div>
           <div class="fo-cost">${Object.keys(c.ore).map(o=>`<span class="${oreHave(o) >= c.ore[o] ? "" : "miss"}">${oreSvg(o, 14)} ${fmt(oreHave(o))}/${fmt(c.ore[o])}</span>`).join("")}
-            <span class="${f.energy >= c.energy ? "" : "miss"}">${ic("bolt")} ${fmt(c.energy)}</span></div>`}
+            <span class="${f.energy >= c.energy ? "" : "miss"}">${ic("bolt")} ${fmt(c.energy)}</span></div>
+          ${Object.keys(c.ore).filter(o=>oreHave(o) < c.ore[o]).slice(0, 1).map(o=>`<div class="d dim">${esc(oreDef(o).n)} : ${esc(typeof srcHint === "function" ? srcHint("ore", o) : "")}</div>`).join("")}`}
         </div>
         ${max ? "" : `<button class="fo-fbtn ${ok ? "ok" : ""}" data-act="foforge" data-k="${k}" ${ok ? "" : "disabled"}>
           <span class="fo-next">${toolSvg(k, t + 1, 26)}</span>Forger</button>`}
@@ -12102,6 +12729,248 @@ function evWeeklyPanel(){
       <div class="tiny muted">Il surgit en écho vers la sixième minute de chaque Brèche. Le vaincre rapporte trois coffres et des points de saison.</div></div>
   </div>`;
 }
+
+/* ===== 39c-session.js ===== */
+/* ============================================================
+   39c — LE FIL CONDUCTEUR
+   Deux réponses à la question « et maintenant ? » :
+
+   · PROCHAINE ÉTAPE — un bandeau, au-dessus du dock, qui propose
+     toujours LA meilleure chose à faire, et y emmène d'un toucher.
+   · LE COFFRE DE SESSION — trois petits objectifs de quelques
+     minutes. Les trois remplis, un coffre s'ouvre ; puis trois
+     autres, pour un coffre plus beau. Cinq coffres par jour, de
+     plus en plus riches : c'est la raison de faire « encore un ».
+   ============================================================ */
+
+/* ---------- les objectifs de session ----------
+   v : la valeur suivie (on compare à celle du début de la série) ;
+   abs : on regarde la valeur elle-même, pas la différence. */
+const SESSION_OBJ = [
+  {k:"capt",  i:"capture", go:"capture", g:[6, 10, 14, 18, 24],  n:t=>`Capturer ${t} Pokémon`, v:()=>S.stats.catches || 0},
+  {k:"newsp", i:"dex",     go:"capture", g:[1, 1, 2, 2, 3],      n:t=>t > 1 ? `Découvrir ${t} nouvelles espèces` : "Découvrir une nouvelle espèce", v:()=>dexTotal()},
+  {k:"exc",   i:"star",    go:"capture", g:[1, 2, 2, 3, 4],      n:t=>t > 1 ? `Réussir ${t} lancers Excellent` : "Réussir un lancer Excellent", v:()=>S.stats.excellent || 0,
+   req:()=>typeof skillEnabled === "function" && skillEnabled()},
+  {k:"streak",i:"bolt",    go:"capture", g:[5, 8, 10, 14, 18],   n:t=>`Atteindre une série de ${t} captures`, v:()=>S.streak || 0, abs:1},
+  {k:"fish",  i:"capture", go:"capture", g:[2, 3, 4, 5, 6],      n:t=>`Pêcher ${t} Pokémon`, v:()=>S.stats.fish || 0, req:()=>S.level >= 4, set:()=>{ S.capMode = "fish"; }},
+  {k:"walls", i:"bolt",    go:"idle",    g:[1, 1, 2, 2, 3],      n:t=>t > 1 ? `Faire ${t} fouilles au Forage` : "Faire une fouille au Forage", v:()=>S.stats.walls || 0,
+   req:t=>moduleUnlocked("idle") && forage().walls >= t},
+  {k:"tower", i:"user",    go:"tower",   g:[1, 2, 2, 3, 3],      n:t=>t > 1 ? `Gagner ${t} combats de la Tour` : "Gagner un combat de la Tour", v:()=>(typeof sqState === "function" && sqState().clears) || 0,
+   req:()=>moduleUnlocked("tower")},
+  {k:"exp",   i:"map",     go:"expedition", g:[1, 1, 1, 1, 1],   n:()=>"Terminer une Expédition", v:()=>S.stats.expRuns || 0,
+   req:()=>moduleUnlocked("expedition"), heavy:1},
+  {k:"breche",i:"boss",    go:"breche",  g:[1, 1, 1, 2, 2],      n:t=>t > 1 ? `Jouer ${t} parties de la Brèche` : "Jouer une partie de la Brèche", v:()=>(typeof brState === "function" && brState().runs) || 0,
+   req:()=>moduleUnlocked("breche"), heavy:1},
+  {k:"poker", i:"cards",   go:"poker",   g:[2, 3, 3, 4, 5],      n:t=>`Franchir ${t} verrous au Poké-Poker`, v:()=>S.stats.pokerBlinds || 0,
+   req:()=>moduleUnlocked("poker"), heavy:1},
+  {k:"hatch", i:"box",     go:"eggs",    g:[1, 1, 1, 1, 1],      n:()=>"Faire éclore un œuf", v:()=>S.stats.hatched || 0,
+   req:()=>moduleUnlocked("eggs") && eggState().inc.some(x=>x && EGG_TIERS[x.tier] && (x.steps || 0) >= EGG_TIERS[x.tier].steps * 0.6)}
+];
+const SESSION_CHESTS = 5;
+const SESSION_NAMES = ["Coffre de bronze", "Coffre d'argent", "Coffre d'or", "Coffre de cristal", "Coffre onirique"];
+const SESSION_COLORS = ["#c8733a", "#d3dce7", "#ffd24a", "#7fe6ff", "#b06bff"];
+
+function sessState(){
+  S.sess = S.sess || {};
+  const s = S.sess;
+  if(s.day !== today()){ s.day = today(); s.tier = 0; s.obj = null; s.ready = false; }
+  if(!s.obj && !s.ready && s.tier < SESSION_CHESTS) sessRoll();
+  return s;
+}
+/* trois objectifs différents ; au plus un « long » (une partie entière d'un mode) */
+function sessRoll(){
+  const s = S.sess, t = Math.min(s.tier || 0, 4);
+  const pool = SESSION_OBJ.filter(o=>!o.req || o.req(o.g[t]));
+  const out = [];
+  const cap = shuffle(pool.filter(o=>o.go === "capture"));
+  const other = shuffle(pool.filter(o=>o.go !== "capture"));
+  /* une part de capture, toujours : c'est le geste de base */
+  if(cap.length) out.push(cap.shift());
+  let heavy = 0;
+  for(const o of other.concat(cap)){
+    if(out.length >= 3) break;
+    if(o.heavy && heavy) continue;
+    if(o.heavy) heavy++;
+    out.push(o);
+  }
+  s.obj = out.map(o=>({k:o.k, goal:o.g[t], base:o.abs ? 0 : o.v()}));
+  s.ready = false;
+}
+function sessDef(k){ return SESSION_OBJ.find(o=>o.k === k); }
+function sessProg(o){
+  const d = sessDef(o.k); if(!d) return 0;
+  return Math.max(0, Math.min(o.goal, d.v() - o.base));
+}
+function sessDone(o){ return sessProg(o) >= o.goal; }
+/* surveillée régulièrement : un objectif rempli est salué, les trois ouvrent le coffre */
+function sessTick(){
+  if(!S || !S.flags || !S.flags.intro) return;
+  const s = sessState();
+  if(!s.obj || s.ready) return;
+  s.seen = s.seen || {};
+  for(const o of s.obj){
+    const key = s.tier + ":" + o.k;
+    if(sessDone(o) && !s.seen[key]){
+      s.seen[key] = true;
+      if(typeof banner === "function") banner({kicker:"OBJECTIF DE SESSION", title:sessDef(o.k).n(o.goal), sub:`${s.obj.filter(sessDone).length} / 3 · ${SESSION_NAMES[s.tier]}`, icon:"check", c:SESSION_COLORS[s.tier], sfx:"coin", dur:2400});
+    }
+  }
+  if(s.obj.every(sessDone)){
+    s.ready = true;
+    saveSoon();
+    if(typeof banner === "function") banner({kicker:"COFFRE DE SESSION", title:SESSION_NAMES[s.tier] + " prêt !", sub:"Touche le bandeau du bas pour l'ouvrir.", item:"chest:big", c:SESSION_COLORS[s.tier], dur:3600});
+    renderNextStep();
+  }
+}
+if(typeof setInterval === "function") setInterval(()=>{ try { sessTick(); } catch(e){} }, 1500);
+
+/* ce que contient un coffre : de plus en plus, au fil de la journée */
+function sessReward(t){
+  const L = S.level || 1;
+  const rw = {coins:Math.round(300 * (t + 1) * (1 + L * 0.06)), shards:6 + t * 5};
+  rw.balls = {super:2 + t, hyper:t >= 2 ? t - 1 : 0};
+  if(t >= 3) rw.cores = 1;
+  if(t >= 4) rw.cores = 2;
+  if(typeof teamCandyGain === "function") rw.candy = 2 + t * 2;
+  return rw;
+}
+ACTIONS.sessopen = () => {
+  const s = sessState();
+  if(!s.ready) { ACTIONS.sessinfo(); return; }
+  const t = s.tier, rw = sessReward(t);
+  gain("coins", rw.coins); gain("shards", rw.shards);
+  if(rw.cores) gain("cores", rw.cores);
+  for(const b in rw.balls) if(rw.balls[b]) S.balls[b] = (S.balls[b] || 0) + rw.balls[b];
+  if(rw.candy) teamCandyGain(rw.candy);
+  s.tier = t + 1; s.ready = false; s.obj = null;
+  S.stats.sessChests = (S.stats.sessChests || 0) + 1;
+  if(s.tier < SESSION_CHESTS) sessRoll();
+  save();
+  const parts = [`+${fmt(rw.coins)} PokéCoins`, `+${rw.shards} Fragments`, `+${rw.balls.super} Super Ball`];
+  if(rw.balls.hyper) parts.push(`+${rw.balls.hyper} Hyper Ball`);
+  if(rw.cores) parts.push(`+${rw.cores} Noyau${rw.cores > 1 ? "x" : ""}`);
+  if(rw.candy) parts.push(`+${rw.candy} Bonbons d'équipe`);
+  if(typeof moment === "function") moment({kind:"release", c:SESSION_COLORS[t], item:"chest:big",
+    kicker:"COFFRE DE SESSION · " + (t + 1) + " / " + SESSION_CHESTS, title:SESSION_NAMES[t], sub:parts.join(" · "),
+    line:s.tier < SESSION_CHESTS ? `Trois nouveaux objectifs. Le prochain coffre est un ${SESSION_NAMES[s.tier].toLowerCase()}, {nom}. Je dis ça, je ne dis rien.`
+                                 : "Cinq coffres aujourd'hui. Je n'en ai plus. Reviens demain, j'en aurai fabriqué d'autres.",
+    then:()=>{ try { refresh(); } catch(e){} }}, true);
+  try { Sfx.win(); } catch(e){}
+  renderNextStep();
+};
+ACTIONS.sessinfo = () => {
+  const s = sessState();
+  const rows = (s.obj || []).map(o=>{ const d = sessDef(o.k), p = sessProg(o), ok = p >= o.goal;
+    return `<div class="ss-row ${ok ? "ok" : ""}" data-act="sessgo" data-k="${o.k}">
+      <span class="ss-ic">${ic(ok ? "check" : d.i)}</span>
+      <div class="grow"><b>${esc(d.n(o.goal))}</b><div class="bar thin"><i style="width:${(p / o.goal * 100).toFixed(0)}%"></i></div></div>
+      <span class="mono-num tiny">${p}/${o.goal}</span></div>`; }).join("");
+  sheet(`${sheetHead("Coffres de session")}
+    <div class="ss-chests">${SESSION_NAMES.map((n, i)=>`<span class="ss-chest ${i < s.tier ? "done" : i === s.tier ? "cur" : ""}" style="--cc:${SESSION_COLORS[i]}" title="${esc(n)}">${itemIcon("chest:big", 30) || ic("box")}</span>`).join("")}</div>
+    ${s.tier >= SESSION_CHESTS ? `<div class="empty">Les cinq coffres du jour sont ouverts. Il y en aura cinq autres demain.</div>`
+      : `<div class="tiny muted" style="margin:6px 0 8px">Trois objectifs de quelques minutes. Les trois remplis, le <b style="color:${SESSION_COLORS[s.tier]}">${esc(SESSION_NAMES[s.tier].toLowerCase())}</b> s'ouvre — et le suivant est plus riche.</div>
+         ${rows}
+         ${s.ready ? `<button class="btn pri wide" style="margin-top:10px" data-act="sessopen">Ouvrir le coffre</button>` : `<div class="tiny dim" style="margin-top:8px">Contenu : ${esc(sessRewardText(s.tier))}</div>`}`}`);
+};
+function sessRewardText(t){
+  const rw = sessReward(t);
+  return [`${fmt(rw.coins)} PokéCoins`, `${rw.shards} Fragments`, `${rw.balls.super} Super Ball`].concat(rw.balls.hyper ? [`${rw.balls.hyper} Hyper Ball`] : [], rw.cores ? [`${rw.cores} Noyau${rw.cores > 1 ? "x" : ""}`] : [], rw.candy ? [`${rw.candy} Bonbons d'équipe`] : []).join(" · ");
+}
+ACTIONS.sessgo = d => { const o = sessDef(d.k); if(!o) return; closeSheet(); if(o.set) o.set(); go(o.go); };
+
+/* ============================================================
+   PROCHAINE ÉTAPE
+   Une liste de priorités : ce qui se perd si on attend d'abord,
+   puis ce qui fait avancer, puis ce qui est simplement agréable.
+   ============================================================ */
+const NEXTSTEP_HOOKS = [];   /* d'autres modules y ajoutent leurs propositions : f() -> {p, t, go, ic} */
+function nextStep(){
+  const c = [];
+  const add = (p, t, go, i, arg) => c.push({p, t, go, i, arg});
+  const s = sessState();
+  if(s.ready) add(100, `Ouvrir ton ${SESSION_NAMES[s.tier].toLowerCase()}`, "@sess", "box");
+  if(moduleUnlocked("eggs")){
+    const e = eggState(), ready = (e.inc || []).filter(x=>x && EGG_TIERS[x.tier] && (x.steps || 0) >= EGG_TIERS[x.tier].steps).length;
+    if(ready) add(90, ready > 1 ? `${ready} œufs prêts à éclore` : "Un œuf est prêt à éclore", "eggs", "box");
+  }
+  if(moduleUnlocked("idle")){
+    const f = forage();
+    if(f.walls >= wallCap()) add(85, "Le Forage est plein : fais une fouille", "idle", "bolt");
+    else if(f.walls) add(40, `${f.walls} fouille${f.walls > 1 ? "s" : ""} t'attend${f.walls > 1 ? "ent" : ""} au Forage`, "idle", "bolt");
+    if(typeof botReady === "function" && botReady()) add(80, "Captures automatiques terminées", "idle", "capture");
+  }
+  if(typeof canOpenBox === "function" && moduleUnlocked("pokebox") && canOpenBox()) add(75, "Ton cadeau PokéBox t'attend", "pokebox", "box");
+  if(typeof questsReady === "function" && (S.quests || []).some(q=>q.prog >= q.goal && !q.claimed)) add(70, "Une quête du jour est à réclamer", "daily", "quest");
+  if(S.expedition) add(65, "Reprendre ton Expédition en cours", "expedition", "map");
+  for(const h of NEXTSTEP_HOOKS){ try { const r = h(); if(r) [].concat(r).forEach(x=>c.push(x)); } catch(e){} }
+  const d = typeof currentDirective === "function" ? currentDirective() : null;
+  if(d){ const [cur, goal] = d.goal(); add(55, `${d.n} — ${fmt(Math.min(cur, goal))}/${fmt(goal)}`, d.go || "capture", "flag"); }
+  if(s.obj && !s.ready){
+    const o = s.obj.find(x=>!sessDone(x));
+    if(o){ const def = sessDef(o.k); add(45, `${def.n(o.goal)} (${sessProg(o)}/${o.goal})`, "@obj:" + o.k, def.i); }
+  }
+  for(const k of ["expedition", "tower", "poker"])
+    if(moduleUnlocked(k) && typeof firstWinAvailable === "function" && firstWinAvailable(k))
+      add(30, `Première victoire du jour : ${{expedition:"Expédition", tower:"Tour", poker:"Poké-Poker"}[k]} ×2`, k, "star");
+  add(1, "Partir capturer", "capture", "capture");
+  c.sort((a, b)=>b.p - a.p);
+  return c[0];
+}
+ACTIONS.nextstep = () => {
+  const n = nextStep(); if(!n) return;
+  if(n.go === "@sess") return ACTIONS.sessopen();
+  if(n.go.startsWith("@obj:")) return ACTIONS.sessgo({k:n.go.slice(5)});
+  go(n.go, n.arg);
+};
+/* le bandeau : seulement là où l'on choisit quoi faire, jamais en pleine partie */
+const NEXTSTEP_SCREENS = ["capture", "modules", "dex", "bag", "profile", "today", "world", "team", "cards", "research", "shop", "daily", "pokebox"];
+function renderNextStep(){
+  if(typeof document === "undefined" || !document.getElementById) return;
+  const dock = document.getElementById("dock");
+  if(!dock || !dock.parentElement) return;
+  let el = document.getElementById("nextstep");
+  if(!el){ el = document.createElement("div"); el.id = "nextstep"; dock.parentElement.insertBefore(el, dock); }
+  const show = S && S.flags && S.flags.intro && NEXTSTEP_SCREENS.includes(currentScreen) && !(S.expedition && currentScreen === "expedition");
+  if(!show){ el.className = "off"; el.innerHTML = ""; return; }
+  const n = nextStep(), s = sessState();
+  const done = s.obj ? s.obj.filter(sessDone).length : 0;
+  el.className = "on" + (n.p >= 70 ? " hot" : "");
+  el.innerHTML = `<button class="ns-sess ${s.ready ? "ready" : ""}" data-act="${s.ready ? "sessopen" : "sessinfo"}" style="--cc:${SESSION_COLORS[Math.min(s.tier, 4)]}" aria-label="Coffre de session">
+      ${itemIcon("chest:big", 22) || ic("box")}<b>${s.tier >= SESSION_CHESTS ? "5/5" : s.ready ? "!" : done + "/3"}</b></button>
+    <button class="ns-go" data-act="nextstep"><small>PROCHAINE ÉTAPE</small><span>${ic(n.i || "arrow")} ${esc(n.t)}</span>${ic("arrow")}</button>`;
+}
+if(typeof renderDock === "function"){
+  const _rd = renderDock;
+  renderDock = function(){ const r = _rd.apply(this, arguments); try { renderNextStep(); } catch(e){} return r; };
+}
+/* le bandeau suit l'état du jeu même sans changer d'écran */
+if(typeof setInterval === "function") setInterval(()=>{ try { if(document.getElementById("nextstep")) renderNextStep(); } catch(e){} }, 4000);
+
+/* ============================================================
+   LES RESSOURCES CIRCULENT
+   Quand il manque quelque chose, le jeu dit où le trouver : chaque
+   activité produit ce dont une autre a besoin.
+   ============================================================ */
+const SRC_HINTS = {
+  coins:  "Captures et cagnotte de chaîne, Expédition, coffres de session",
+  shards: "Tour, Brèche, captures rares, fouilles du Forage",
+  cores:  "Coffres de session (cristal, onirique), un niveau d'Archiviste sur cinq, chantiers terminés",
+  candy:  "Coffres de session, fouilles, victoires de la Tour, hordes, passages légendaires",
+  ore:    "Forage : l'équipe en remonte en creusant, et les fouilles en cachent",
+  ore_cu: "Forage : Surface et Couche molle (ou pépites des fouilles)",
+  ore_fe: "Forage : Sédiment et Veine froide (ou les Ruines Oubliées)",
+  ore_ag: "Forage : Socle et Nappe chaude (ou la Grotte Azurée)",
+  ore_au: "Forage : Faille mineure et Substrat (ou le Cratère Ardent)",
+  ore_dr: "Forage : Noyau onirique (ou le Pic Météore)",
+  stone:  "Fouilles du Forage, boutique",
+  stone_fire:   "Fouilles du Forage — surtout la Nappe chaude et le Cratère Ardent",
+  stone_water:  "Fouilles du Forage — surtout la Veine froide et la Grotte Azurée",
+  stone_thunder:"Fouilles du Forage — surtout la Faille mineure",
+  stone_leaf:   "Fouilles du Forage — surtout la Couche molle",
+  stone_moon:   "Fouilles du Forage — surtout le Substrat et le Pic Météore",
+  stone_sun:    "Fouilles du Forage — surtout le Noyau onirique et le Pic Météore"
+};
+function srcHint(kind, key){ return SRC_HINTS[kind + "_" + key] || SRC_HINTS[kind] || ""; }
 
 /* ===== 35-modules.js ===== */
 /* ============================================================
@@ -14150,6 +15019,213 @@ function arSync(){
   });
 }
 
+/* ===== 42-team.js ===== */
+/* ============================================================
+   42 — MON ÉQUIPE
+   On capturait des centaines de Pokémon, mais aucun n'était le
+   sien : des lignes de Pokédex. L'équipe devient le cœur du jeu.
+
+   · SIX POKÉMON, le premier est ton partenaire.
+   · ILS GRANDISSENT AVEC TOI : chaque point d'expérience que tu
+     gagnes, où que ce soit, leur en donne une part. Les Bonbons
+     d'équipe (coffres, fouilles, victoires) les font monter d'un
+     niveau à la demande.
+   · LES ÉTOILES : chaque exemplaire capturé de l'espèce compte.
+     1 à 5 étoiles, +6 % de statistiques par étoile, dans tous les
+     combats où tes Pokémon se battent.
+   · LA PUISSANCE D'ÉQUIPE : un seul nombre qui monte, et que les
+     défis comparent au leur.
+   ============================================================ */
+
+const STAR_STEPS = [1, 4, 10, 25, 60];        /* exemplaires capturés pour chaque étoile */
+const STAR_BONUS = 0.06;
+function dexTotalCaught(id){ const e = S.dex[id]; return e ? Math.max(e.tc || 0, e.c || 0) : 0; }
+function starsOf(id){ const n = dexTotalCaught(id); let s = 0; for(const k of STAR_STEPS) if(n >= k) s++; return s; }
+function starMul(id){ return 1 + STAR_BONUS * Math.max(0, starsOf(id) - 1); }
+function nextStarAt(id){ const n = dexTotalCaught(id); return STAR_STEPS.find(k=>k > n) || null; }
+function starsHtml(id, cls){ const s = starsOf(id); return `<span class="stars ${cls || ""}">${"★".repeat(s)}<i>${"★".repeat(5 - s)}</i></span>`; }
+
+/* les exemplaires capturés ne diminuent plus quand on fait évoluer : on garde le total */
+if(typeof addToDex === "function"){
+  const _ad = addToDex;
+  addToDex = function(id, level, shiny){
+    const before = S.dex[id] ? starsOf(id) : 0;
+    const r = _ad.apply(this, arguments);
+    const e = S.dex[id];
+    if(e){ e.tc = Math.max(e.tc || 0, (e.c || 0) - 1) + 1; }
+    const after = starsOf(id);
+    if(after > before && before > 0 && S.team.includes(id) && typeof banner === "function")
+      banner({kicker:"ÉTOILE", title:`${POKE[id].name} passe à ${after} ★`, sub:`+${Math.round(STAR_BONUS * 100)} % de statistiques dans tous les combats`, spr:id, c:"#ffd24a", dur:2600});
+    return r;
+  };
+}
+
+/* ---------- l'expérience d'équipe ---------- */
+function teamXpNeed(lvl){ return Math.round(30 + 0.9 * lvl * lvl); }
+const TEAM_XP_SHARE = 0.6;
+let TEAM_UPS = {};          /* les montées de niveau récentes, annoncées ensemble */
+function teamGiveXp(id, n){
+  const e = S.dex[id]; if(!e || e.lvl >= 100 || n <= 0) return 0;
+  e.txp = (e.txp || 0) + n;
+  let up = 0;
+  while(e.lvl < 100 && e.txp >= teamXpNeed(e.lvl)){ e.txp -= teamXpNeed(e.lvl); e.lvl++; up++; }
+  if(e.lvl >= 100) e.txp = 0;
+  if(up){ TEAM_UPS[id] = e.lvl; teamUpsSoon(); }
+  return up;
+}
+function teamUpsSoon(){
+  clearTimeout(teamUpsSoon._t);
+  teamUpsSoon._t = setTimeout(()=>{
+    const ids = Object.keys(TEAM_UPS).map(Number);
+    if(!ids.length) return;
+    const txt = ids.slice(0, 3).map(id=>`${POKE[id].name} N.${TEAM_UPS[id]}`).join(" · ") + (ids.length > 3 ? ` et ${ids.length - 3} autre(s)` : "");
+    const evo = ids.filter(id=>typeof evoReady === "function" && evoReady(id));
+    TEAM_UPS = {};
+    if(typeof currentScreen !== "undefined" && currentScreen === "team" && !(typeof sheetOpen === "function" && sheetOpen())) try { refresh(); } catch(e){}
+    if(typeof banner === "function") banner({kicker:"TON ÉQUIPE PROGRESSE", title:txt, sub:evo.length ? `${POKE[evo[0]].name} peut évoluer !` : "Puissance d'équipe : " + fmt(teamPower()), spr:ids[0], c:"#5ce07a", dur:2800});
+  }, 900);
+}
+/* toute expérience gagnée par l'Archiviste nourrit l'équipe */
+if(typeof addXp === "function"){
+  const _ax = addXp;
+  addXp = function(n){
+    const r = _ax.apply(this, arguments);
+    if(n > 0 && S && S.team) for(const id of S.team.slice(0, 6)) teamGiveXp(id, Math.round(n * TEAM_XP_SHARE));
+    return r;
+  };
+}
+
+/* ---------- les Bonbons d'équipe ---------- */
+function candyCost(lvl){ return 1 + Math.floor(lvl / 20); }
+function teamCandyGain(n){ if(!(n > 0)) return; S.candy = (S.candy || 0) + n; saveSoon(); }
+ACTIONS.teamfeed = d => {
+  const id = +d.id, e = S.dex[id];
+  if(!e || e.lvl >= 100) return;
+  const c = candyCost(e.lvl);
+  if((S.candy || 0) < c){ toast("Pas assez de Bonbons d'équipe", "bad", "cross"); return; }
+  S.candy -= c;
+  e.lvl++; e.txp = 0;
+  try { Sfx.coin(); } catch(e2){}
+  buzz(10);
+  save();
+  if(typeof evoReady === "function" && evoReady(id)) toast(`${POKE[id].name} peut évoluer !`, "warn", "star");
+  refresh();
+};
+
+/* ---------- la puissance ---------- */
+function monPower(id){
+  const e = S.dex[id], p = POKE[id];
+  if(!e || !p) return 0;
+  return Math.round(p.bst * (1 + e.lvl / 25) * starMul(id) * (typeof perfectMul === "function" ? perfectMul(id) : 1) * (e.shiny ? 1.02 : 1));
+}
+function teamIds(){ return (S.team || []).filter(id=>S.dex[id]).slice(0, 6); }
+function teamPower(){ return teamIds().reduce((a, id)=>a + monPower(id), 0); }
+/* la trace de la puissance, jour après jour : on voit qu'elle monte */
+function teamPowerTrack(){
+  S.tpLog = S.tpLog || {};
+  const d = today(), p = teamPower();
+  if(!S.tpLog[d] || p > S.tpLog[d]) S.tpLog[d] = p;
+  const keys = Object.keys(S.tpLog).sort();
+  while(keys.length > 14){ delete S.tpLog[keys.shift()]; }
+  return keys.length > 1 ? p - S.tpLog[keys[keys.length - 2]] : 0;
+}
+
+/* les étoiles comptent dans les combats où se battent TES Pokémon */
+if(typeof makeFighter === "function"){
+  const _mf = makeFighter;
+  makeFighter = function(id, level, opts){
+    const f = _mf.apply(this, arguments);
+    if(opts && opts.owned && S.dex[id]){
+      const m = starMul(id);
+      if(m !== 1){ f.maxHp = Math.round(f.maxHp * m); f.hp = f.maxHp; for(const k of ["atk", "def", "spa", "spd", "spe"]) f[k] = Math.round(f[k] * m); }
+    }
+    return f;
+  };
+}
+if(typeof teamFighters === "function"){
+  teamFighters = function(ids, boost){
+    return ids.filter(id=>S.dex[id]).map(id=>makeFighter(id, S.dex[id].lvl, {shiny:S.dex[id].shiny, boost:boost || 1, owned:true}));
+  };
+}
+
+/* quand un membre de l'équipe évolue, c'est lui qui change : la nouvelle forme prend sa place */
+function teamOnEvolve(id, to){
+  const slot = (S.team || []).indexOf(id);
+  if(slot >= 0 && !S.team.includes(to)) S.team[slot] = to;
+}
+
+/* ============================================================
+   L'ÉCRAN
+   ============================================================ */
+SCREENS.team = {
+  after(){ if(typeof pmdWake === "function") pmdWake(); },
+  html(){
+    const ids = teamIds(), pw = teamPower(), delta = teamPowerTrack();
+    const lead = ids[0];
+    return `
+      <div class="tm-hero">
+        <div class="tm-pw"><small>PUISSANCE D'ÉQUIPE</small><b>${fmt(pw)}</b>${delta > 0 ? `<em>+${fmt(delta)} depuis hier</em>` : ""}</div>
+        <div class="tm-lead">${lead ? (typeof pmdCanvas === "function" ? pmdCanvas(lead, 0, 120, {walk:true, shiny:S.dex[lead].shiny}) : sprite(lead, S.dex[lead].shiny, "")) : ""}</div>
+        ${lead ? `<div class="tm-leadn">${esc(POKE[lead].name)} <span class="tiny dim">· ton partenaire</span></div>` : `<div class="tiny dim">Capture des Pokémon pour former ton équipe.</div>`}
+        <div class="tm-candy">${ic("seed")} <b>${fmt(S.candy || 0)}</b> Bonbons d'équipe</div>
+      </div>
+      <div class="tm-grid">${Array.from({length:6}, (_, i)=>{
+        const id = ids[i];
+        if(!id) return `<button class="tm-card empty" data-act="teamedit">${"+"}<small>Ajouter</small></button>`;
+        const e = S.dex[id], need = teamXpNeed(e.lvl), c = candyCost(e.lvl), evo = typeof evoReady === "function" && evoReady(id);
+        return `<div class="tm-card ${i === 0 ? "lead" : ""} ${evo ? "evo" : ""}">
+          <div class="tm-top">${starsHtml(id)}${i === 0 ? `<i class="tm-crown">♛</i>` : ""}</div>
+          <div class="tm-spr" data-act="teamview" data-id="${id}">${typeof pmdCanvas === "function" ? pmdCanvas(id, 0, 64, {shiny:e.shiny}) : sprite(id, e.shiny, "")}</div>
+          <b class="tm-n">${esc(POKE[id].name)}</b>
+          <div class="tm-lv"><span>N.${e.lvl}</span><span class="tm-pp">${fmt(monPower(id))}</span></div>
+          <div class="bar thin"><i style="width:${e.lvl >= 100 ? 100 : Math.min(100, (e.txp || 0) / need * 100).toFixed(0)}%"></i></div>
+          ${evo ? `<button class="btn xs gold wide" data-act="teamview" data-id="${id}">Évoluer</button>`
+                : `<button class="btn xs wide ${(S.candy || 0) >= c && e.lvl < 100 ? "pri" : ""}" data-act="teamfeed" data-id="${id}" ${(S.candy || 0) >= c && e.lvl < 100 ? "" : "disabled"}>+1 niv · ${c} ${ic("seed")}</button>`}
+        </div>`; }).join("")}</div>
+      <button class="btn wide" style="margin-top:10px" data-act="teamedit">${ic("refresh")} Changer l'équipe</button>
+      <div class="panel" style="margin-top:12px">
+        <div class="h sm">COMMENT ELLE GRANDIT</div>
+        <div class="tiny">· Chaque point d'<b>expérience</b> que tu gagnes, où que ce soit, en donne ${Math.round(TEAM_XP_SHARE * 100)} % à chacun des six.</div>
+        <div class="tiny">· Les <b>Bonbons d'équipe</b> (coffres de session, fouilles, victoires) font monter d'un niveau à la demande.</div>
+        <div class="tiny">· Les <b>étoiles</b> viennent des exemplaires capturés : ${STAR_STEPS.join(", ")} exemplaires pour 1 à 5 ★. Chaque étoile après la première : +${Math.round(STAR_BONUS * 100)} % de statistiques en combat.</div>
+        <div class="tiny">· Le premier de l'équipe est ton <b>partenaire</b> : il t'accompagne sur l'écran d'accueil.</div>
+      </div>`;
+  }
+};
+ACTIONS.teamedit = () => {
+  if(typeof teamPicker !== "function") return;
+  teamPicker("Mon équipe — 6 Pokémon, le premier est ton partenaire", 6, sel=>{ S.team = sel.slice(0, 6); save(); refresh(); }, S.team);
+};
+ACTIONS.teamview = d => {
+  const id = +d.id, e = S.dex[id]; if(!e) return;
+  const nx = nextStarAt(id);
+  if(typeof ACTIONS.dexopen === "function"){ ACTIONS.dexopen({id:String(id)}); return; }
+  sheet(`${sheetHead(POKE[id].name)}<div class="tiny">N.${e.lvl} · ${starsHtml(id)} · ${dexTotalCaught(id)} capturés${nx ? ` · prochaine étoile à ${nx}` : ""}</div>`);
+};
+
+/* ---------- les bonbons tombent un peu partout ---------- */
+if(typeof digClaim === "function"){
+  const _dc = digClaim;
+  digClaim = function(wall){ const r = _dc.apply(this, arguments); teamCandyGain(1 + (wall && wall.si >= 4 ? 1 : 0)); return r; };
+}
+if(typeof afterFightRewards === "function"){
+  const _af = afterFightRewards;
+  afterFightRewards = function(run, kind){ if(kind === "champ" || kind === "boss" || kind === "legend") teamCandyGain(kind === "boss" ? 5 : 2); return _af.apply(this, arguments); };
+}
+if(typeof sqFinish === "function"){
+  const _sf = sqFinish;
+  sqFinish = function(B){ const r = _sf.apply(this, arguments); if(B && B.result) teamCandyGain(1); return r; };
+}
+
+/* ---------- prochaine étape : une évolution prête dans l'équipe ---------- */
+if(typeof NEXTSTEP_HOOKS !== "undefined") NEXTSTEP_HOOKS.push(()=>{
+  const evo = teamIds().find(id=>typeof evoReady === "function" && evoReady(id));
+  if(evo) return {p:60, t:`${POKE[evo].name} peut évoluer`, go:"team", i:"star"};
+  const feed = teamIds().find(id=>S.dex[id].lvl < 100 && (S.candy || 0) >= candyCost(S.dex[id].lvl) * 3);
+  if(feed) return {p:35, t:`Bonbons d'équipe : fais grandir ${POKE[feed].name}`, go:"team", i:"seed"};
+  return null;
+});
+
 /* ===== 50-expedition.js ===== */
 /* ============================================================
    50 — EXPEDITION (roguelike a embranchements)
@@ -14350,7 +15426,7 @@ function newRunMon(run, id, lvl){
   return {id, level, hp:f.maxHp, maxHp:f.maxHp, item:null};
 }
 function runFighter(run, m){
-  const f = makeFighter(m.id, m.level, {shiny: runShiny(m)});
+  const f = makeFighter(m.id, m.level, {shiny: runShiny(m), owned:true});
   applyRelics(run, f);
   applyExpItem(m, f);
   f.maxHp = m.maxHp || f.maxHp;
@@ -17289,7 +18365,7 @@ function sqGiveXp(id, xp){
    ============================================================ */
 function sqUnit(id, level, side, opts){
   opts = opts || {};
-  const f = makeFighter(id, level, {shiny:opts.shiny});
+  const f = makeFighter(id, level, {shiny:opts.shiny, owned:side === "ally"});
   if(side === "ally" && typeof applyTowerBuffs === "function") applyTowerBuffs(lineRoot(id), f);
   /* les monstres d'une carte sont moins solides qu'un Pokemon d'archive ; le boss compense */
   const foeK = side === "foe" ? (opts.boss ? 1 : 0.72) : 1;
@@ -23504,6 +24580,7 @@ function pkWinBlind(){
   reward += interest;
   P.octets += reward;
   S.daily.dayPokerBlinds++; questTick("dayPokerBlinds",1);
+  S.stats.pokerBlinds = (S.stats.pokerBlinds || 0) + 1;
   if(P.score > (S.stats.pokerBest||0)) S.stats.pokerBest = P.score;
   Sfx.win();
   /* un verrou de secteur delivre un badge */
@@ -24219,9 +25296,9 @@ function canEvolve(id, e){
   if(fc) return fc;
   if(!friendEvo(id, e.to) && en.lvl < e.lvl) return {ok:false, why:`Niveau ${e.lvl} requis (actuel ${en.lvl}).`};
   if(en.c < dupCost(id)) return {ok:false, why:`${dupCost(id)} exemplaires requis (${en.c}).`};
-  if(!canPay("coins", evoCoinCost(id))) return {ok:false, why:`${fmt(evoCoinCost(id))} PokéCoins requis.`};
+  if(!canPay("coins", evoCoinCost(id))) return {ok:false, why:`${fmt(evoCoinCost(id))} PokéCoins requis.` + (typeof srcHint === "function" ? " Où en gagner : " + srcHint("coins") + "." : "")};
   if(e.stone && (S.stones[e.stone]||0) <= 0)
-    return {ok:false, why:`${STONES[e.stone]?.name||"Pierre"} requise.`};
+    return {ok:false, why:`${STONES[e.stone]?.name||"Pierre"} requise.` + (typeof srcHint === "function" ? " Où en trouver : " + srcHint("stone", e.stone) + "." : "")};
   return {ok:true};
 }
 
@@ -24354,6 +25431,7 @@ ACTIONS.evolve = d => {
   const isNew = addToDex(to, lvl, false);
   S.dex[to].lvl = Math.max(S.dex[to].lvl, lvl);
   S.stats.evolutions++; S.daily.dayEvo++; questTick("dayEvo",1);
+  if(typeof teamOnEvolve === "function") teamOnEvolve(id, to);
   researchTick(id, "evolve", 1);
   addIntegrity(RARITY[POKE[to].rar].integ * (isNew?0.85:0.05));
   addXp(80 + POKE[to].bst/4);
@@ -24834,6 +25912,7 @@ function fxLayerHtml(){
       <div class="panel">
         <div class="h sm">PRÉFÉRENCES</div>
         ${sw("sfx","Effets sonores","Sons de capture, de combat et d'interface")}
+        ${typeof musicSettingsHtml === "function" ? musicSettingsHtml() : ""}
         ${sw("haptics","Vibrations","Retour haptique sur les actions")}
         ${sw("skill","Visée manuelle","Mini-jeu d'adresse avant chaque lancer : bonus jusqu'à ×1.25, jamais de malus")}
       </div>
@@ -28085,7 +29164,6 @@ SCREENS.modules = {
           <div class="td-d">${pend ? pend + " chose(s) vous attendent" : "Cadeau, quêtes, contrats : tout est à jour"}</div></div>
         ${pend ? `<span class="badge">${pend}</span>` : ""}${ic("arrow")}
       </div>
-      ${directiveCard()}
       <div class="h">${ic("grid")} ACTIVITÉS</div>
       <div class="list">
         ${open.map(m=>{
@@ -28374,6 +29452,714 @@ ACTIONS.adminpassok = () => {
   if(ADMIN_PENDING){ ADMIN_PENDING = false; ACTIONS.admopen(); return; }
   toast("Panneau de test activé", "warn", "gear");
 };
+
+/* ===== 79b-world.js ===== */
+/* ============================================================
+   43 — LE MONDE
+   L'accueil était une liste de cartes. C'est maintenant un lieu :
+   la région, vue d'en haut, en pixel art — le Centre Pokémon, les
+   hautes herbes, la mine du Forage, la porte de l'Expédition, la
+   Tour, la Salle de jeu, le lac, la faille de la Brèche — et ton
+   partenaire qui s'y promène.
+
+   Le monde est abîmé. Les CHANTIERS DE RESTAURATION le réparent,
+   un lieu après l'autre ; ils se paient avec ce que rapportent
+   TOUTES les activités (PokéCoins, Fragments, minerai du Forage,
+   Noyaux) et demandent souvent d'avoir avancé ailleurs. Chaque
+   chantier change le dessin. Le dernier restaure le cœur de la
+   région : une statue de son légendaire, une grande scène, un
+   chapitre qui se ferme.
+
+   Les CHAPITRES racontent cette progression : un carton-titre
+   à chaque étape, et l'en-tête de l'accueil dit où l'on en est.
+   ============================================================ */
+
+/* ---------- les lieux : position sur la carte (en %), activité ---------- */
+const WORLD_SPOTS = {
+  gate:  {x:16, y:17, n:"Porte de la route", s:"Route",   go:"expedition", mod:"expedition"},
+  mine:  {x:80, y:15, n:"La mine", s:"Mine",             go:"idle",       mod:"idle"},
+  rift:  {x:50, y:8,  n:"La faille", s:"Brèche",           go:"breche",     mod:"breche"},
+  forest:{x:12, y:46, n:"La forêt", s:"Forêt",            go:"dex"},
+  pc:    {x:38, y:40, n:"Centre Pokémon", s:"Centre",      go:"eggs",       mod:"eggs", alt:"pokebox"},
+  heart: {x:58, y:50, n:"Le cœur", s:"Cœur",             go:"@heart"},
+  tower: {x:85, y:44, n:"La Tour", s:"Tour",             go:"tower",      mod:"tower"},
+  grass: {x:30, y:66, n:"Hautes herbes", s:"Herbes",       go:"capture"},
+  lake:  {x:14, y:80, n:"Le lac", s:"Lac",              go:"@fish"},
+  bridge:{x:54, y:72, n:"Le pont", s:"Pont"},
+  hall:  {x:82, y:78, n:"Salle de jeu", s:"Jeu",        go:"poker",      mod:"poker"}
+};
+const WORLD_REGIONS = {
+  kanto:{grass:["#78c850", "#70c048", "#80cc58"], dark:"#4f9a3c", tree:["#2f6a2a", "#3f8a36"], water:"#58a8e8", sand:"#e8d8a0", roof:"#e05048", sky:"#9fd8f8", mult:1,
+    names:{pc:"Centre Pokémon de Jadielle", grass:"Route 1", mine:"Mont Sélénite", lake:"Lac d'Azuria", gate:"Porte de Bourg Palette", tower:"Tour Pokémon",
+           forest:"Forêt de Jade", hall:"Salle de jeu de Céladopole", bridge:"Pont Pépite", heart:"Le cœur de Kanto"}},
+  johto:{grass:["#8cc060", "#84b858", "#94c868"], dark:"#5e9a40", tree:["#a8502a", "#d87a34"], water:"#4f98d8", sand:"#e0c890", roof:"#b04ad0", sky:"#f8c890", mult:3,
+    names:{pc:"Centre Pokémon d'Écorcia", grass:"Route 29", mine:"Caves Jumelles", lake:"Lac Colère", gate:"Porte de Bourg Geon", tower:"Tour Cendrée",
+           forest:"Bois aux Chênes", hall:"Salle de jeu de Doublonville", bridge:"Pont d'Oliville", heart:"Le cœur de Johto"}},
+  hoenn:{grass:["#68c890", "#60c088", "#70d098"], dark:"#3f9a68", tree:["#1f7a4a", "#2f9a5a"], water:"#38b8e8", sand:"#f4e4a8", roof:"#3a8ae0", sky:"#a8e8f8", mult:9,
+    names:{pc:"Centre Pokémon de Clémenti-Ville", grass:"Route 101", mine:"Grotte Granite", lake:"Lac Rivegauche", gate:"Porte de Bourg-en-Vol", tower:"Pilier Céleste",
+           forest:"Forêt de Mérouville", hall:"Salle de jeu de Lavandia", bridge:"Pont Cyclable", heart:"Le cœur de Hoenn"}}
+};
+
+/* ---------- les chantiers ----------
+   spot : le lieu qu'il répare ; cost : base, multipliée par la région ;
+   need : ce qu'il faut avoir fait ailleurs (texte + test). */
+const WORLD_PROJECTS = [
+  {spot:"pc",     v:"Réindexer",   cost:{coins:1500}, need:[]},
+  {spot:"grass",  v:"Recompiler",    cost:{coins:3000, shards:15}, need:[["10 espèces de la région au Pokédex", r=>dexCount(r) >= 10]]},
+  {spot:"mine",   v:"Réindexer",     cost:{coins:5000, ore:{cu:12}}, need:[["Le Forage ouvert", ()=>moduleUnlocked("idle")]]},
+  {spot:"lake",   v:"Purger",   cost:{coins:7000, shards:35}, need:[["5 Pokémon pêchés", ()=>(S.stats.fish || 0) >= 5]]},
+  {spot:"gate",   v:"Rétablir l'accès —",    cost:{coins:9000, shards:40}, need:[["Une Expédition réussie", ()=>(S.stats.expWins || 0) >= 1]]},
+  {spot:"tower",  v:"Reconstruire",    cost:{coins:13000, shards:60}, need:[["5 victoires dans la Tour", ()=>((typeof sqState === "function" && sqState().clears) || 0) >= 5]]},
+  {spot:"forest", v:"Retexturer",  cost:{coins:18000, ore:{fe:15}}, need:[["40 espèces de la région au Pokédex", r=>dexCount(r) >= 40]]},
+  {spot:"hall",   v:"Relancer",    cost:{coins:24000, cores:2}, need:[["Le Poké-Poker ouvert", ()=>moduleUnlocked("poker")]]},
+  {spot:"bridge", v:"Relier",    cost:{coins:32000, shards:100, ore:{ag:10}}, need:[["Niveau d'Archiviste 20", ()=>S.level >= 20]]},
+  {spot:"heart",  v:"Réindexer",  cost:{coins:45000, cores:5}, need:[["Les neuf autres zones réindexées", (r, w)=>w.done.length >= 9], ["70 espèces de la région au Pokédex", r=>dexCount(r) >= 70]]}
+];
+function worldState(){
+  S.world = S.world || {};
+  const W = S.world;
+  W.reg = W.reg || {};
+  for(const r of REGIONS) W.reg[r.key] = W.reg[r.key] || {done:[]};
+  W.view = W.view && W.reg[W.view] ? W.view : "kanto";
+  return W;
+}
+function worldReg(key){ return worldState().reg[key]; }
+function projOf(region, i){
+  const P = WORLD_PROJECTS[i], R = WORLD_REGIONS[region], m = R.mult;
+  const cost = {};
+  for(const k in P.cost){
+    if(k === "ore"){ cost.ore = {}; for(const o in P.cost.ore){ const idx = Math.min(4, ORE_IDS.indexOf(o) + (m >= 9 ? 2 : m >= 3 ? 1 : 0)); cost.ore[ORE_IDS[idx]] = Math.round(P.cost.ore[o] * (m >= 3 ? 1.5 : 1)); } }
+    else cost[k] = Math.round(P.cost[k] * (k === "cores" ? Math.sqrt(m) : m));
+  }
+  return {i, spot:P.spot, n:P.v.endsWith("—") ? `${P.v} ${R.names[P.spot]}` : `${P.v} — ${R.names[P.spot]}`, cost, need:P.need, region};
+}
+function projDone(region, i){ return worldReg(region).done.includes(i); }
+function projNeedOk(p){ const w = worldReg(p.region); return p.need.every(([, f])=>f(p.region, w)); }
+function projMissing(p){ const w = worldReg(p.region); return p.need.filter(([, f])=>!f(p.region, w)).map(([t])=>t); }
+function projCanPay(p){
+  const c = p.cost;
+  if(c.coins && S.coins < c.coins) return false;
+  if(c.shards && S.shards < c.shards) return false;
+  if(c.cores && S.cores < c.cores) return false;
+  if(c.ore) for(const o in c.ore) if(typeof oreHave !== "function" || oreHave(o) < c.ore[o]) return false;
+  return true;
+}
+/* ce qui manque pour payer, et où le trouver */
+function projMissingSrc(p){
+  const c = p.cost, out = [];
+  if(c.coins && S.coins < c.coins) out.push("PokéCoins — " + srcHint("coins"));
+  if(c.shards && S.shards < c.shards) out.push("Fragments — " + srcHint("shards"));
+  if(c.cores && S.cores < c.cores) out.push("Noyaux — " + srcHint("cores"));
+  if(c.ore) for(const o in c.ore) if(typeof oreHave !== "function" || oreHave(o) < c.ore[o]) out.push(oreDef(o).n + " — " + srcHint("ore", o));
+  return out.join(" · ");
+}
+function projCostHtml(p){
+  const c = p.cost, out = [];
+  const chip = (ok, html) => `<span class="wp-c ${ok ? "" : "miss"}">${html}</span>`;
+  if(c.coins) out.push(chip(S.coins >= c.coins, `${ic("coin")} ${fmt(c.coins)}`));
+  if(c.shards) out.push(chip(S.shards >= c.shards, `${ic("shard")} ${fmt(c.shards)}`));
+  if(c.cores) out.push(chip(S.cores >= c.cores, `${ic("core")} ${c.cores}`));
+  if(c.ore) for(const o in c.ore) out.push(chip(typeof oreHave === "function" && oreHave(o) >= c.ore[o], `${typeof oreSvg === "function" ? oreSvg(o, 13) : ""} ${c.ore[o]} ${esc(oreDef(o).n.toLowerCase())}`));
+  return out.join("");
+}
+function worldPct(region){ return worldReg(region).done.length / WORLD_PROJECTS.length; }
+function worldTotalDone(){ return REGIONS.reduce((a, r)=>a + worldReg(r.key).done.length, 0); }
+/* le prochain chantier, dans l'ordre : on les fait un par un, c'est plus lisible */
+function worldNextProj(region){
+  for(let i = 0; i < WORLD_PROJECTS.length; i++) if(!projDone(region, i)) return projOf(region, i);
+  return null;
+}
+ACTIONS.worldbuild = d => {
+  const region = d.r || worldState().view, i = +d.i, p = projOf(region, i);
+  if(projDone(region, i)) return;
+  if(!projNeedOk(p)){ toast("Il faut d'abord : " + projMissing(p).join(", "), "bad", "lock"); return; }
+  if(!projCanPay(p)){ toast("Il manque des ressources", "bad", "cross"); return; }
+  const c = p.cost;
+  if(c.coins) pay("coins", c.coins);
+  if(c.shards) S.shards -= c.shards;
+  if(c.cores) S.cores -= c.cores;
+  if(c.ore) for(const o in c.ore) forage().ore[o] -= c.ore[o];
+  worldReg(region).done.push(i);
+  const heart = p.spot === "heart";
+  addIntegrity(heart ? 3 : 0.8);
+  addXp(Math.round((heart ? 3000 : 400) * Math.sqrt(WORLD_REGIONS[region].mult)));
+  if(typeof teamCandyGain === "function") teamCandyGain(heart ? 15 : 3);
+  if(heart && typeof grantCardV === "function"){
+    const core = (regionDef(region).guardians.find(g=>g.core) || {}).id;
+    if(core){ const s = rollCardSeries(core, 3); grantCardV(s, core); }
+    gain("cores", 3);
+  }
+  S.stats.restored = (S.stats.restored || 0) + 1;
+  save();
+  WORLD_ANIM = {spot:p.spot, t:Date.now(), region};
+  try { if(typeof Music !== "undefined") Music.jingle("j_restauration"); } catch(e){}
+  closeSheet && closeSheet();
+  if(currentScreen !== "modules") go("modules"); else refresh();
+  const R = WORLD_REGIONS[region];
+  setTimeout(()=>{
+    if(typeof moment === "function") moment(heart ? {kind:"release", c:"#ffd24a", spr:(regionDef(region).guardians.find(g=>g.core) || {}).id,
+        kicker:"RÉGION RÉINDEXÉE", title:R.names.heart + " bat à nouveau", sub:`${regionDef(region).name} est entièrement réindexée. +3 Noyaux, une carte de son gardien, et 15 Bonbons d'équipe.`,
+        line:"Plus une ligne illisible dans tout le secteur. Ce qui le rongeait a reculé, {nom}. Pas disparu. Reculé.", dur:7000}
+      : {kind:"door", c:"#5ce07a", icon:"check", kicker:"SECTEUR RÉINDEXÉ · " + worldReg(region).done.length + " / " + WORLD_PROJECTS.length,
+        title:R.names[p.spot], sub:WORLD_RESTORED_LINES[p.spot] || "La zone est réindexée.", dur:3600}, true);
+    worldChapterCheck();
+  }, 1300);
+};
+const WORLD_RESTORED_LINES = {
+  pc:"Le Centre Pokémon répond de nouveau. Son index pointe enfin quelque part.",
+  grass:"Les hautes herbes sont recompilées. Des signatures y bougent à nouveau.",
+  mine:"L'entrée de la mine est réindexée. L'équipe de forage descendra sur des données saines.",
+  lake:"Le lac est purgé. Plus une ligne illisible dans l'eau.",
+  gate:"L'accès à la route est rétabli. Les expéditions partiront d'ici.",
+  tower:"La Tour se recompose, étage par étage, adresse par adresse.",
+  forest:"Les textures de la forêt sont revenues. Elle a ses couleurs d'origine.",
+  hall:"La Salle de jeu est relancée. Les cartes sont rangées dans le bon ordre.",
+  bridge:"Le pont relie les deux rives. Les deux moitiés du fichier se parlent."
+};
+
+/* ============================================================
+   LES CHAPITRES
+   ============================================================ */
+const CHAPTERS = [
+  {id:"c0", n:"Prologue — L'Archiviste", d:"Un système qui se réveille, une archive vide.", ok:()=>true},
+  {id:"c1", n:"Chapitre 1 — Kanto en ruine", d:"Le premier secteur tient à peine. Il faut le reconstruire.", ok:()=>S.level >= 5},
+  {id:"c2", n:"Chapitre 2 — Les gardiens de Kanto", d:"Kanto se relève. Ses gardiens attendent au sommet de la Tour.", ok:()=>worldReg("kanto").done.length >= 5},
+  {id:"c3", n:"Chapitre 3 — Le cœur de Kanto", d:"Il ne manque plus que le cœur.", ok:()=>worldReg("kanto").done.length >= 9},
+  {id:"c4", n:"Chapitre 4 — Johto, la couche héritée", d:"Écrite par-dessus Kanto, jamais nettoyée.", ok:()=>regionUnlocked("johto") && projDone("kanto", 9)},
+  {id:"c5", n:"Chapitre 5 — Les cendres de Johto", d:"La moitié de Johto respire. L'autre attend.", ok:()=>worldReg("johto").done.length >= 5},
+  {id:"c6", n:"Chapitre 6 — Hoenn, l'extension instable", d:"Le système y a improvisé sa propre géographie.", ok:()=>regionUnlocked("hoenn") && projDone("johto", 9)},
+  {id:"c7", n:"Chapitre 7 — Le ciel de Hoenn", d:"Quelque chose veille, tout là-haut.", ok:()=>worldReg("hoenn").done.length >= 5},
+  {id:"c8", n:"Épilogue — Le monde entier", d:"Trois secteurs debout. L'archive est pleine de vie.", ok:()=>projDone("hoenn", 9)}
+];
+function chapterIdx(){ let k = 0; CHAPTERS.forEach((c, i)=>{ try { if(c.ok()) k = i; } catch(e){} }); return k; }
+function worldChapterCheck(){
+  const W = worldState(), k = chapterIdx();
+  if(W.chap === undefined){ W.chap = k; return; }   /* une partie existante : pas de carton rétroactif */
+  if(k > W.chap){
+    W.chap = k; save();
+    const c = CHAPTERS[k];
+    try { if(typeof Music !== "undefined") Music.jingle("j_chapitre"); } catch(e){}
+    if(typeof moment === "function") moment({kind:"door", c:"#ffd24a", kicker:"NOUVEAU CHAPITRE", title:c.n, sub:c.d, dur:5200,
+      quote:k === 8 ? "Je n'ai plus rien à réparer. Je crois que je vais juste regarder, un moment." : null});
+  }
+}
+
+/* ============================================================
+   LA CARTE DE L'ARCHIVE
+   La région n'est pas un paysage : c'est un fichier. On la voit
+   telle que l'archive la stocke, tuile par tuile.
+
+   · Ce qui est RÉINDEXÉ s'affiche dans le rendu d'origine de sa
+     couche : Kanto en quatre teintes vertes (le premier fichier
+     écrit), Johto en couleurs limitées (la couche héritée), Hoenn
+     en rendu étendu (l'extension).
+   · Ce qui est DÉSINDEXÉ n'est plus que des données : blocs de
+     bits, tuiles mal adressées, lignes déchirées, en noir, blanc,
+     magenta et cyan — les couleurs de la faille.
+   · Quelque chose rôde dans les zones les plus abîmées. On ne le
+     nomme pas : l'archive elle-même ne sait plus ce que c'est.
+   · Réindexer un lieu le redécode sous nos yeux, de proche en
+     proche, à partir de son centre.
+   ============================================================ */
+let WORLD_ANIM = null;
+const WORLD_H = 384;
+const WT = 8;   /* une tuile : 8 x 8 pixels de l'archive, affichés en 16 x 16 */
+
+/* les palettes de rendu, par couche et par matière (de la plus claire à la plus sombre) */
+const DMG = ["#9bbc0f", "#8bac0f", "#306230", "#0f380f"];
+const WORLD_PAL = {
+  kanto:{grass:DMG, path:DMG, water:DMG, tree:DMG, rock:DMG, roof:DMG, wall:DMG, wood:DMG, gold:DMG, label:"RENDU MONOCHROME · 4 TEINTES"},
+  johto:{grass:["#e0f8c8", "#98d878", "#488848", "#183818"], path:["#f8f0c8", "#e0c890", "#a08050", "#402818"],
+         water:["#c8e8f8", "#70b0e8", "#3060a8", "#102048"], tree:["#c8e890", "#e08838", "#a04820", "#381808"],
+         rock:["#e8e0d0", "#b0a090", "#706050", "#302820"], roof:["#f8c8b0", "#d86848", "#983020", "#401008"],
+         wall:["#f8f8f0", "#d0c8b8", "#888070", "#302820"], wood:["#f0d0a0", "#c08850", "#805030", "#382010"],
+         gold:["#fff8c8", "#f8d048", "#b08818", "#403008"], label:"RENDU COULEUR · 56 TEINTES"},
+  hoenn:{grass:["#d8fff0", "#78e0a8", "#30a070", "#0c4830"], path:["#fff8e0", "#f0dca0", "#c0a060", "#584020"],
+         water:["#d8f8ff", "#60c8f8", "#2080d0", "#0c3070"], tree:["#b0f0a0", "#40b868", "#187840", "#063018"],
+         rock:["#f0f0f8", "#b8c0d0", "#707890", "#282c40"], roof:["#d8e8ff", "#5890f0", "#2858b8", "#0c2050"],
+         wall:["#ffffff", "#e0e8f0", "#98a8b8", "#303848"], wood:["#f8e0b8", "#d8a060", "#986030", "#402010"],
+         gold:["#fffcd8", "#ffe060", "#d0a020", "#504010"], label:"RENDU ÉTENDU · 32 768 TEINTES"}
+};
+/* l'étendue (en tuiles) que chaque lieu « possède » : désindexée tant qu'il ne l'est pas */
+const SPOT_RADIUS = {pc:3.2, grass:3.2, mine:3.6, lake:3.4, gate:2.8, tower:3, forest:3.6, hall:3, bridge:2.6, heart:2.6, rift:2.4};
+
+/* ---------- le plan de la région : une grille de tuiles ---------- */
+function worldGrid(cols, rows, region){
+  const g = [], rnd = mulberry32(region.length * 977 + 11);
+  for(let y = 0; y < rows; y++){ g.push([]); for(let x = 0; x < cols; x++) g[y].push({t:"grass", v:rnd()}); }
+  const at = k => [Math.round(WORLD_SPOTS[k].x / 100 * cols), Math.round(WORLD_SPOTS[k].y / 100 * rows)];
+  const set = (x, y, t, extra) => { if(y >= 0 && y < rows && x >= 0 && x < cols) Object.assign(g[y][x], {t}, extra || {}); };
+  /* la bordure : des arbres, comme toutes les cartes de cette époque */
+  for(let x = 0; x < cols; x++){ set(x, 0, "tree"); set(x, rows - 1, "tree"); }
+  for(let y = 0; y < rows; y++){ set(0, y, "tree"); set(cols - 1, y, "tree"); }
+  /* la rivière */
+  const [bx, by] = at("bridge");
+  for(let y = 0; y < rows; y++){ const cx = Math.round(bx + Math.sin(y / 3.2) * 1.2 + (y - by) * 0.12); set(cx, y, "water"); set(cx + 1, y, "water"); }
+  /* le lac */
+  const [lx, ly] = at("lake");
+  for(let y = -2; y <= 2; y++) for(let x = -3; x <= 3; x++) if(x * x / 10 + y * y / 4.4 <= 1) set(lx + x, ly + y, "water");
+  /* les chemins, du Centre vers chaque lieu (après l'eau : un chemin sur la rivière devient un pont) */
+  const [px0, py0] = at("pc");
+  for(const k of ["grass", "gate", "tower", "hall", "mine", "heart", "bridge", "forest"]){
+    const [tx, ty] = at(k);
+    let x = px0, y = py0 + 1;
+    for(let s = 0; s < 80 && (x !== tx || y !== ty); s++){
+      if(g[y] && g[y][x] && g[y][x].t === "water") set(x, y, "bridge", {spot:"bridge"}); else set(x, y, "path");
+      if(Math.abs(tx - x) > Math.abs(ty - y)) x += Math.sign(tx - x); else y += Math.sign(ty - y);
+    }
+  }
+  /* la forêt : des arbres serrés */
+  const [fx, fy] = at("forest");
+  for(let y = -3; y <= 3; y++) for(let x = -2; x <= 2; x++) if(rnd() < 0.85 && x * x + y * y * 0.6 <= 7) set(fx + x, fy + y, "tree");
+  /* les hautes herbes */
+  const [gx, gy] = at("grass");
+  for(let y = -1; y <= 1; y++) for(let x = -2; x <= 2; x++) set(gx + x, gy + y, "tall");
+  /* la montagne, et l'entrée de la mine */
+  const [mx, my] = at("mine");
+  for(let y = -2; y <= 1; y++) for(let x = -3 + Math.max(0, -y - 1); x <= 3 - Math.max(0, -y - 1); x++) set(mx + x, my + y, "rock");
+  set(mx, my + 1, "cave");
+  /* les bâtiments : chaque lieu a son empreinte */
+  const block = (k, w, h, t) => { const [x0, y0] = at(k); for(let y = 0; y < h; y++) for(let x = 0; x < w; x++) set(x0 - Math.floor(w / 2) + x, y0 - h + 1 + y, t, {bx:x, by:y, bw:w, bh:h}); };
+  block("pc", 4, 3, "pc"); block("hall", 4, 3, "hall"); block("gate", 3, 2, "gate"); block("tower", 2, 4, "tower"); block("heart", 2, 2, "heart");
+  return g;
+}
+
+/* ---------- dessiner une tuile ---------- */
+function wTile(px, X, Y, c, pal, v, done){
+  const P = pal, R = mulberry32(Math.floor(v * 1e6));
+  const fill = (m, s) => px(P[m][s], X, Y, WT, WT);
+  const dot = (m, s, x, y, w, h) => px(P[m][s], X + x, Y + y, w || 1, h || 1);
+  switch(c.t){
+    case "grass": fill("grass", 1); if(v < 0.5){ dot("grass", 2, 2, 3); dot("grass", 2, 5, 6); } if(v > 0.85){ dot("grass", 0, 3, 1, 2, 1); } break;
+    case "path":  fill("path", 0); dot("path", 1, 1, 6); dot("path", 1, 6, 2); break;
+    case "tall":  fill("grass", 1); for(const [a, b] of [[0, 1], [4, 1], [2, 5], [6, 5]]){ dot("grass", 3, a, b + 1, 1, 2); dot("grass", 3, a + 2, b + 1, 1, 2); dot("grass", 2, a + 1, b, 1, 3); } break;
+    case "water": fill("water", 2); { const o = Math.floor(v * 4); dot("water", 1, o, 2, 3, 1); dot("water", 0, o + 1, 2); dot("water", 1, (o + 4) % 6, 6, 3, 1); } break;
+    case "tree":  fill("grass", 1); dot("tree", 3, 1, 0, 6, 6); dot("tree", 2, 2, 1, 4, 4); dot("tree", 1, 3, 1, 2, 2); dot("wood", 3, 3, 6, 2, 2); break;
+    case "rock":  fill("rock", 1); dot("rock", 2, 0, 7, 8, 1); dot("rock", 2, 2 + Math.floor(v * 3), 2, 1, 4); dot("rock", 0, 1, 1, 2, 1); break;
+    case "cave":  fill("rock", 1); dot("rock", 3, 1, 1, 6, 7); if(done){ dot("wood", 2, 0, 0, 1, 8); dot("wood", 2, 7, 0, 1, 8); dot("wood", 1, 0, 0, 8, 1); dot("gold", 1, 3, 4, 2, 2); } break;
+    case "bridge":fill("water", 2); if(done){ dot("wood", 1, 0, 1, 8, 6); for(let i = 0; i < 8; i += 2) dot("wood", 3, i, 1, 1, 6); dot("wood", 2, 0, 0, 8, 1); dot("wood", 2, 0, 7, 8, 1); } else { dot("wood", 2, 0, 3, 2, 2); dot("wood", 2, 6, 4, 2, 2); } break;
+    default: {
+      /* les bâtiments, en tuiles : toit, mur, porte selon la position dans l'empreinte */
+      const top = c.by === 0, bottom = c.by === c.bh - 1, mid = c.bx === Math.floor(c.bw / 2) || (c.bw % 2 === 0 && c.bx === c.bw / 2 - 1);
+      if(c.t === "tower"){
+        fill("wall", 1); dot("wall", 0, 0, 0, 2, 8); dot("wall", 3, 7, 0, 1, 8);
+        if(c.by % 2 === 0) dot(done ? "gold" : "wall", done ? 1 : 3, 3, 2, 2, 3);
+        if(top){ dot("roof", 2, 0, 0, 8, 2); if(done && c.bx === 0) dot("gold", 1, 7, 0, 2, 2); }
+        if(bottom && done) dot("wall", 3, 3, 4, 2, 4);
+        break;
+      }
+      if(c.t === "heart"){
+        fill("grass", 1);
+        if(bottom){ dot("rock", 2, 0, 3, 8, 5); dot("rock", 0, 0, 3, 8, 1); }
+        break;
+      }
+      const roof = c.t === "hall" ? "gold" : c.t === "gate" ? "wood" : "roof";
+      if(top){ fill(roof, 2); dot(roof, 1, 0, 1, 8, 2); dot(roof, 3, 0, 7, 8, 1); }
+      else { fill("wall", 0); dot("wall", 2, 0, 7, 8, 1); dot("wall", 1, 0, 0, 1, 8);
+        if(bottom && mid) dot("wall", 3, 2, 2, 4, 6);
+        else if(!bottom) dot("water", 1, 2, 2, 4, 3); }
+      if(c.t === "pc" && top && mid) { dot("wall", 0, 2, 2, 4, 4); dot("roof", 3, 3, 3, 2, 2); }   /* l'enseigne */
+      if(c.t === "hall" && !top && !bottom) for(let i = 0; i < 4; i++) dot(["roof", "gold", "water", "grass"][i], 1, 1 + i * 2 - 1 + 1, 5, 1, 2);
+    }
+  }
+}
+/* ---------- une tuile désindexée ---------- */
+const GLITCH = ["#05040a", "#c8c8e0", "#ff3d7f", "#35f0d6", "#5a3a9a", "#1c1830", "#2a2440"];
+function wGlitch(px, X, Y, v, t, pal){
+  const R = mulberry32(Math.floor(v * 1e6) + t * 7919);
+  const kind = Math.floor(R() * 5);
+  if(kind === 0){
+    /* des bits, ligne par ligne : la signature de la faille */
+    const on = R() < 0.3 ? GLITCH[1] : GLITCH[6];
+    for(let y = 0; y < WT; y++){ const row = Math.floor(R() * 256); for(let x = 0; x < WT; x++) px((row >> x) & 1 ? on : GLITCH[0], X + x, Y + y); }
+  } else if(kind === 1){
+    /* la moitié en L : une tuile coupée en deux */
+    px(GLITCH[5], X, Y, WT, WT); px(GLITCH[R() < 0.5 ? 2 : 3], X, Y, WT, 4); px(GLITCH[R() < 0.5 ? 1 : 6], X, Y + 4, 4, 4);
+  } else if(kind === 2){
+    /* une tuile mal adressée, aux couleurs inversées */
+    const P = pal.water || DMG;
+    px(P[3], X, Y, WT, WT); px(P[0], X + 1, Y + Math.floor(R() * 6), 6, 1); px(P[1], X + Math.floor(R() * 5), Y + 2, 2, 4);
+  } else if(kind === 3){
+    /* des bandes : la mémoire relue de travers */
+    for(let y = 0; y < WT; y += 2) px(GLITCH[R() < 0.35 ? 2 + Math.floor(R() * 2) : 4 + Math.floor(R() * 3)], X, Y + y, WT, 1), px(GLITCH[0], X, Y + y + 1, WT, 1);
+  } else {
+    px(GLITCH[0], X, Y, WT, WT);
+    for(let i = 0; i < 6; i++) px(GLITCH[1 + Math.floor(R() * 4)], X + Math.floor(R() * 7), Y + Math.floor(R() * 7), 1 + Math.floor(R() * 3), 1);
+  }
+}
+
+/* ---------- la carte ---------- */
+function worldPaint(cv, region){
+  if(!cv || typeof cv.getContext !== "function") return;
+  const scr = typeof document !== "undefined" && document.getElementById ? document.getElementById("screen") : null;
+  const cssW = Math.max(260, Math.min(560, Math.round(((scr && scr.clientWidth) || 384) - 26)));
+  const cols = Math.max(16, Math.floor(cssW / 16)), rows = Math.floor(WORLD_H / 16);
+  const W = cols * WT, H = rows * WT;
+  cv.width = W; cv.height = H; cv.style.height = (rows * 16) + "px"; cv.style.width = (cols * 16) + "px";
+  const pal = WORLD_PAL[region] || WORLD_PAL.kanto;
+  const grid = worldGrid(cols, rows, region);
+  const doneIdx = worldReg(region).done, doneSet = new Set(doneIdx.map(i=>WORLD_PROJECTS[i].spot));
+  const pct = worldPct(region);
+  /* à qui appartient chaque tuile : le lieu le plus proche, s'il est assez près */
+  const spots = Object.keys(WORLD_SPOTS).filter(k=>k !== "rift" || moduleUnlocked("breche"));
+  const owner = [];
+  for(let y = 0; y < rows; y++){ owner.push([]); for(let x = 0; x < cols; x++){
+    let best = null, bd = 1e9;
+    for(const k of spots){ const s = WORLD_SPOTS[k], dx = x - s.x / 100 * cols, dy = y - s.y / 100 * rows, d = Math.hypot(dx, dy); if(d < (SPOT_RADIUS[k] || 3) && d < bd){ bd = d; best = k; } }
+    owner[y].push({k:best, d:bd});
+  } }
+  cv._world = {region, cols, rows, grid, owner, doneSet, pct, pal, t:0};
+  worldFrame(cv);
+}
+/* une image : les tuiles saines, puis par-dessus ce qui reste désindexé (et qui bouge) */
+function worldFrame(cv){
+  const M = cv._world; if(!M) return;
+  const x = cv.getContext("2d"), px = (c, X, Y, w, h) => { x.fillStyle = c; x.fillRect(X, Y, w || 1, h || 1); };
+  const {cols, rows, grid, owner, doneSet, pct, pal} = M;
+  M.t++;
+  /* le redécodage d'un lieu tout juste réindexé : de proche en proche, depuis son centre */
+  const anim = WORLD_ANIM && WORLD_ANIM.region === M.region ? WORLD_ANIM : null;
+  const wave = anim ? (Date.now() - anim.t) / 1800 * 6 : 99;
+  const rnd = mulberry32(M.t * 131 + 7);
+  const noise = (1 - pct) * 0.16;
+  for(let y = 0; y < rows; y++) for(let xx = 0; xx < cols; xx++){
+    const c = grid[y][xx], o = owner[y][xx], X = xx * WT, Y = y * WT;
+    const spot = c.spot || o.k;
+    let bad = false;
+    if(o.k === "rift") bad = c.v < 0.8;                                   /* la faille ne se répare pas */
+    else if(spot && !doneSet.has(spot)) bad = c.v < 0.92;
+    else if(spot && anim && anim.spot === spot && o.d > wave) bad = true;
+    else if(c.v > 1 - noise) bad = true;                                  /* un peu de bruit partout, tant que la région n'est pas finie */
+    if(bad){
+      /* toutes les tuiles ne bougent pas à chaque image : la corruption palpite */
+      if(c._g === undefined || rnd() < 0.07) c._g = Math.floor(rnd() * 1e6);
+      wGlitch(px, X, Y, c.v, c._g, pal);
+    } else wTile(px, X, Y, c, pal, c.v, !spot || doneSet.has(spot));
+  }
+  /* des lignes déchirées dans les zones abîmées */
+  const tears = Math.round((1 - pct) * 10);
+  for(let i = 0; i < tears; i++){
+    const y = Math.floor(rnd() * rows * WT), sh = Math.round((rnd() - 0.5) * 10);
+    if(!sh) continue;
+    try { const img = x.getImageData(0, y, cols * WT, 1); x.putImageData(img, sh, y); } catch(e){}
+  }
+}
+let WORLD_FRAME_T = null;
+function worldAnimStart(){
+  clearInterval(WORLD_FRAME_T);
+  WORLD_FRAME_T = setInterval(()=>{
+    const cv = document.getElementById("wd-cv");
+    if(!cv || !cv.isConnected){ clearInterval(WORLD_FRAME_T); return; }
+    if(document.hidden) return;
+    worldFrame(cv);
+  }, 220);
+}
+
+/* ---------- ce qui rôde : jamais nommé, toujours dans une zone illisible ---------- */
+let WORLD_LURK_T = null;
+function worldLurk(){
+  clearInterval(WORLD_LURK_T);
+  const move = () => {
+    const el = document.getElementById("wd-lurk");
+    if(!el){ clearInterval(WORLD_LURK_T); return; }
+    const region = worldState().view, done = new Set(worldReg(region).done.map(i=>WORLD_PROJECTS[i].spot));
+    const bad = Object.keys(WORLD_SPOTS).filter(k=>k !== "rift" && WORLD_PROJECTS.some(p=>p.spot === k) && !done.has(k));
+    if(!bad.length){ el.remove(); return; }
+    const k = pick(bad), s = WORLD_SPOTS[k];
+    el.classList.add("blink");
+    setTimeout(()=>{ el.style.left = (s.x + (rng() - 0.5) * 8) + "%"; el.style.top = (s.y + (rng() - 0.5) * 6) + "%"; el.classList.remove("blink"); }, 260);
+  };
+  move();
+  WORLD_LURK_T = setInterval(move, 7000);
+}
+
+/* ---------- le partenaire se promène ---------- */
+let WORLD_WALK = null;
+function worldWalkStart(){
+  clearInterval(WORLD_WALK);
+  const el = document.getElementById("wd-partner"); if(!el) return;
+  const spots = Object.keys(WORLD_SPOTS).filter(k=>k !== "rift" && k !== "lake");
+  let cur = "pc";
+  const step = () => {
+    const el2 = document.getElementById("wd-partner");
+    if(!el2){ clearInterval(WORLD_WALK); return; }
+    const nx = pick(spots.filter(k=>k !== cur));
+    const a = WORLD_SPOTS[cur], b = WORLD_SPOTS[nx];
+    const ang = Math.atan2(b.y - a.y, b.x - a.x);
+    /* huit directions : 0 bas, 2 droite, 4 haut, 6 gauche */
+    const dir = (Math.round((Math.PI / 2 - ang) / (Math.PI / 4)) % 8 + 8) % 8;
+    const cv = el2.querySelector("canvas");
+    if(cv){ cv.dataset.walk = "1"; cv.dataset.dir = dir; }
+    el2.style.left = (b.x + 4) + "%"; el2.style.top = (b.y + 6) + "%";
+    cur = nx;
+    setTimeout(()=>{ const c2 = el2.querySelector("canvas"); if(c2){ c2.dataset.walk = "0"; c2.dataset.dir = 0; } }, 3200);
+  };
+  setTimeout(step, 800);
+  WORLD_WALK = setInterval(step, 6500);
+}
+
+/* ---------- les bulles : ce qui attend, sur chaque lieu ---------- */
+function worldBadge(k){
+  try {
+    if(k === "mine" && moduleUnlocked("idle")){ const f = forage(); if(f.walls) return f.walls >= wallCap() ? "!" : String(f.walls); }
+    if(k === "pc"){
+      if(moduleUnlocked("eggs")){ const e = eggState(); const r = (e.inc || []).filter(x=>x && EGG_TIERS[x.tier] && (x.steps || 0) >= EGG_TIERS[x.tier].steps).length; if(r) return String(r); }
+      if(moduleUnlocked("pokebox") && canOpenBox()) return "★";
+    }
+    if(k === "gate" && S.expedition) return "…";
+    if(k === "tower" && typeof sqLockReady === "function" && sqLockReady()) return "!";
+    if(k === "heart"){ const p = worldNextProj(worldState().view); if(p && projNeedOk(p) && projCanPay(p)) return "⚒"; }
+  } catch(e){}
+  return "";
+}
+function spotOpen(k){ const s = WORLD_SPOTS[k]; return !s.mod || moduleUnlocked(s.mod) || (s.alt && moduleUnlocked(s.alt)); }
+ACTIONS.worldspot = d => {
+  const k = d.k, s = WORLD_SPOTS[k], region = worldState().view, R = WORLD_REGIONS[region];
+  if(!s) return;
+  if(s.go === "@heart" || !s.go){ ACTIONS.worldprojects(); return; }
+  if(s.go === "@fish"){ S.capMode = "fish"; go("capture"); return; }
+  if(!spotOpen(k)){
+    const m = typeof moduleMissing === "function" ? moduleMissing(s.mod) : [];
+    toast(`${R.names[k] || s.n} : ${m.length ? "il reste " + m.join(" · ") : "pas encore ouvert"}`, "", "lock"); return;
+  }
+  if(k === "pc" && !moduleUnlocked("eggs")){ go("pokebox"); return; }
+  if(k === "grass") S.capMode = "classic";
+  go(s.go);
+};
+ACTIONS.worldview = d => { worldState().view = d.r; save(); refresh(); };
+ACTIONS.worldprojects = () => {
+  const region = worldState().view, R = WORLD_REGIONS[region];
+  const rows = WORLD_PROJECTS.map((_, i)=>{
+    const p = projOf(region, i), dn = projDone(region, i), nOk = projNeedOk(p), pay = projCanPay(p);
+    const prevDone = i === 0 || projDone(region, i - 1);
+    return `<div class="wp-row ${dn ? "done" : ""} ${!prevDone && !dn ? "later" : ""}">
+      <span class="wp-ic">${dn ? ic("check") : (i + 1)}</span>
+      <div class="grow"><b>${esc(p.n)}</b>
+        ${dn ? `<div class="tiny ok">Réindexé</div>` : `<div class="wp-cost">${projCostHtml(p)}</div>
+        ${nOk ? "" : `<div class="tiny bad">Il faut : ${esc(projMissing(p).join(" · "))}</div>`}
+        ${nOk && !pay && prevDone ? `<div class="tiny dim">Où trouver : ${esc(projMissingSrc(p))}</div>` : ""}`}</div>
+      ${dn || !prevDone ? "" : `<button class="btn sm ${nOk && pay ? "gold" : ""}" data-act="worldbuild" data-r="${region}" data-i="${i}" ${nOk && pay ? "" : "disabled"}>Réindexer</button>`}
+    </div>`; }).join("");
+  sheet(`${sheetHead("Réindexation — " + regionDef(region).name)}
+    <div class="tiny muted" style="margin-bottom:8px">Chaque zone réindexée retrouve son rendu d'origine sur la carte. Elles se font dans l'ordre et se paient avec ce que rapportent toutes les activités.
+      La dernière réindexe le cœur de la région : une carte de son gardien, 3 Noyaux et 15 Bonbons d'équipe.</div>
+    ${rows}`);
+};
+
+/* ============================================================
+   L'ACCUEIL
+   ============================================================ */
+const _OLD_MODULES = SCREENS.modules;
+SCREENS.modules = {
+  after(host){
+    const cv = document.getElementById("wd-cv"), map = document.querySelector(".wd-map");
+    if(cv){
+      /* la carte prend la largeur exacte de ses tuiles : les lieux tombent juste */
+      if(map) map.style.width = "";
+      worldPaint(cv, worldState().view);
+      if(map){ map.style.width = cv.style.width; }
+      worldAnimStart();
+      worldLurk();
+    }
+    worldWalkStart();
+    if(typeof pmdWake === "function") pmdWake();
+    worldChapterCheck();
+    if(WORLD_ANIM && Date.now() - WORLD_ANIM.t < 4000){
+      const sp = document.querySelector(`.wd-spot[data-k="${WORLD_ANIM.spot}"]`);
+      if(sp){ sp.classList.add("just"); }
+    }
+  },
+  html(){
+    const W = worldState(), region = W.view, R = WORLD_REGIONS[region], reg = regionDef(region);
+    const ch = CHAPTERS[chapterIdx()], dn = worldReg(region).done.length, next = worldNextProj(region);
+    const lead = typeof teamIds === "function" ? teamIds()[0] : S.team[0];
+    const core = (reg.guardians.find(g=>g.core) || {}).id;
+    const open = REGIONS.filter(r=>regionUnlocked(r.key));
+    return `
+      <div class="wd-head">
+        <div class="grow"><small>${esc(ch.n.split(" — ")[0].toUpperCase())}</small><b>${esc(ch.n.split(" — ")[1] || ch.n)}</b></div>
+        ${open.length > 1 ? `<div class="wd-regs">${open.map(r=>`<button class="chip ${r.key === region ? "on" : ""}" data-act="worldview" data-r="${r.key}">${esc(r.name)}</button>`).join("")}</div>` : ""}
+      </div>
+      <div class="wd-frame">
+        <div class="wd-hud top"><span>ARCHIVE › SECTEUR ${esc(reg.name.toUpperCase())}</span><span>${esc((WORLD_PAL[region] || WORLD_PAL.kanto).label)}</span></div>
+        <div class="wd-map">
+          <canvas id="wd-cv"></canvas>
+          ${Object.entries(WORLD_SPOTS).map(([k, s])=>{
+            if(k === "rift" && !moduleUnlocked("breche")) return "";
+            const op = spotOpen(k), b = worldBadge(k), ok = k === "rift" ? false : !WORLD_PROJECTS.some((p, i)=>p.spot === k) || worldReg(region).done.some(i=>WORLD_PROJECTS[i].spot === k);
+            const name = s.s || s.n;
+            return `<button class="wd-spot ${op ? "" : "locked"} ${ok ? "ok" : "bad"} ${k}" data-act="worldspot" data-k="${k}" style="left:${s.x}%;top:${s.y}%">
+              <span class="wd-lbl">${op ? "" : ic("lock")}${esc(ok || k === "rift" ? name : name.replace(/[a-zA-Zéèêàçôûîœ]/g, (m, i)=>((i + dn) % 3 ? m : "▒")))}</span>${b ? `<i class="wd-b">${esc(b)}</i>` : ""}</button>`; }).join("")}
+          ${projDone(region, 9) && core ? `<span class="wd-statue" style="left:${WORLD_SPOTS.heart.x}%;top:${WORLD_SPOTS.heart.y}%">${sprite(core, false, "")}</span>` : ""}
+          ${dn < WORLD_PROJECTS.length ? `<span class="wd-lurk" id="wd-lurk" style="opacity:${(0.25 + 0.55 * (1 - dn / WORLD_PROJECTS.length)).toFixed(2)}"><img src="${MISSING_SPRITE}" alt=""></span>` : ""}
+          ${lead ? `<span class="wd-partner" id="wd-partner" style="left:${WORLD_SPOTS.pc.x + 4}%;top:${WORLD_SPOTS.pc.y + 6}%">${typeof pmdCanvas === "function" ? pmdCanvas(lead, 0, 40, {shiny:S.dex[lead] && S.dex[lead].shiny}) : sprite(lead, false, "")}</span>` : ""}
+          <i class="wd-scan"></i>
+        </div>
+        <div class="wd-hud bot"><span>INDEX ${Math.round(dn / WORLD_PROJECTS.length * 100)} %</span><span>${WORLD_PROJECTS.length - dn ? `${WORLD_PROJECTS.length - dn} ZONE${WORLD_PROJECTS.length - dn > 1 ? "S" : ""} ILLISIBLE${WORLD_PROJECTS.length - dn > 1 ? "S" : ""}` : "SECTEUR SAIN"}</span></div>
+      </div>
+      <div class="wd-rest" data-act="worldprojects">
+        <div class="row between"><b>Réindexation de ${esc(reg.name)}</b><span class="mono-num">${dn} / ${WORLD_PROJECTS.length}</span></div>
+        <div class="bar"><i style="width:${(dn / WORLD_PROJECTS.length * 100).toFixed(0)}%"></i></div>
+        ${next ? `<div class="wd-next"><span class="grow"><small>PROCHAINE ZONE À RÉINDEXER</small><b>${esc(next.n)}</b>
+            <span class="wp-cost">${projCostHtml(next)}</span>
+            ${projNeedOk(next) ? "" : `<em class="bad">Il faut : ${esc(projMissing(next).join(" · "))}</em>`}</span>
+          ${projNeedOk(next) && projCanPay(next) ? `<button class="btn sm gold" data-act="worldbuild" data-r="${region}" data-i="${next.i}">Réindexer</button>` : ic("arrow")}</div>`
+          : `<div class="tiny gold-t" style="margin-top:6px">${esc(reg.name)} est entièrement réindexée.</div>`}
+      </div>
+      ${typeof legendCardHtml === "function" ? legendCardHtml() : ""}
+      ${typeof raidCardHtml === "function" ? raidCardHtml() : ""}
+      ${_OLD_MODULES.html.call(this)}`;
+  }
+};
+
+/* ---------- prochaine étape : un chantier payable ---------- */
+if(typeof NEXTSTEP_HOOKS !== "undefined") NEXTSTEP_HOOKS.push(()=>{
+  for(const r of REGIONS){
+    if(!regionUnlocked(r.key)) continue;
+    const p = worldNextProj(r.key);
+    if(p && projNeedOk(p) && projCanPay(p)) return {p:68, t:`Réindexer : ${p.n.split(" — ")[1] || p.n}`, go:"modules", i:"check"};
+  }
+  return null;
+});
+
+/* ===== 79c-legend.js ===== */
+/* ============================================================
+   79c — LES PASSAGES LÉGENDAIRES
+   Un rendez-vous. Toutes les trois heures, un légendaire traverse
+   une région pendant 45 minutes. Le passage est le même pour tous
+   les joueurs (il se calcule à partir de l'heure), il s'annonce à
+   l'avance sur l'accueil, et quand il arrive, le jeu le dit.
+
+   L'affronter avec son équipe rapporte, à la première victoire du
+   passage, une carte de ce légendaire — donc son pouvoir — et des
+   Bonbons d'équipe. On peut retenter tant que le passage dure.
+   ============================================================ */
+
+const LEG_BLOCK = 3 * 3600e3, LEG_DUR = 45 * 60e3;
+const LEG_HOME = {144:"kanto", 145:"kanto", 146:"kanto", 150:"kanto", 151:"kanto",
+  243:"johto", 244:"johto", 245:"johto", 249:"johto", 250:"johto", 251:"johto",
+  377:"hoenn", 378:"hoenn", 379:"hoenn", 380:"hoenn", 381:"hoenn", 382:"hoenn", 383:"hoenn", 384:"hoenn", 385:"hoenn", 386:"hoenn"};
+const LEG_IDS = Object.keys(LEG_HOME).map(Number);
+function legHash(n){ let h = (n * 2654435761) >>> 0; h ^= h >>> 15; h = Math.imul(h, 2246822519) >>> 0; h ^= h >>> 13; return h >>> 0; }
+/* le passage d'un bloc de trois heures : le même pour tout le monde */
+function legendOfBlock(b){
+  const start = b * LEG_BLOCK + (legHash(b) % 120) * 60e3;
+  const pool = LEG_IDS.filter(id=>typeof regionUnlocked !== "function" || regionUnlocked(LEG_HOME[id]));
+  const id = (pool.length ? pool : LEG_IDS)[legHash(b + 7919) % (pool.length || LEG_IDS.length)];
+  return {b, id, region:LEG_HOME[id], start, end:start + LEG_DUR};
+}
+function legendNow(t){
+  t = t || Date.now();
+  const b = Math.floor(t / LEG_BLOCK), L = legendOfBlock(b);
+  return t >= L.start && t < L.end ? L : null;
+}
+function legendNext(t){
+  t = t || Date.now();
+  let b = Math.floor(t / LEG_BLOCK);
+  for(let k = 0; k < 3; k++){ const L = legendOfBlock(b + k); if(L.start > t) return L; }
+  return legendOfBlock(b + 1);
+}
+function legState(){ S.legend = S.legend || {won:{}, seen:{}}; return S.legend; }
+function legWon(L){ return !!(L && legState().won[L.b]); }
+function legLevel(){
+  const ids = typeof teamIds === "function" ? teamIds() : S.team;
+  const avg = ids.length ? ids.reduce((a, id)=>a + ((S.dex[id] && S.dex[id].lvl) || 5), 0) / ids.length : 10;
+  return clamp(Math.round(avg + 8), 15, 100);
+}
+function legHourTxt(t){ const d = new Date(t); return String(d.getHours()).padStart(2, "0") + " h " + String(d.getMinutes()).padStart(2, "0"); }
+
+/* ---------- le combat ---------- */
+ACTIONS.legfight = () => {
+  const L = legendNow();
+  if(!L){ toast("Le passage est terminé", "", "clock"); refresh(); return; }
+  const ids = typeof teamIds === "function" ? teamIds() : S.team;
+  if(!ids.length){ toast("Il faut une équipe", "bad", "cross"); return; }
+  const allies = teamFighters(ids, typeof allyBoost === "function" ? allyBoost() : 1);
+  const lv = legLevel();
+  const foe = makeFighter(L.id, lv, {boost:1.45});
+  foe.maxHp = Math.round(foe.maxHp * 2.6); foe.hp = foe.maxHp;
+  createBattle(allies, [foe], {
+    ai:true, title:"PASSAGE LÉGENDAIRE", stage:"boss",
+    intro:`<span class="gold-t">${esc(POKE[L.id].name)}</span> traverse ${esc(regionDef(L.region).name)}. Il ne restera pas longtemps.`,
+    onEnd: win => legEnd(L, win)
+  });
+  go("battle", {mode:"legend"});
+};
+function legEnd(L, win){
+  const st = legState();
+  if(win && !st.won[L.b]){
+    st.won[L.b] = true;
+    S.stats.legWins = (S.stats.legWins || 0) + 1;
+    const s = typeof rollCardSeries === "function" ? rollCardSeries(L.id, 1.6) : "art";
+    const fresh = typeof grantCardV === "function" ? grantCardV(s, L.id) : false;
+    gain("shards", 25); gain("coins", 1500 + S.level * 80);
+    if(typeof teamCandyGain === "function") teamCandyGain(5);
+    addXp(600 + S.level * 20);
+    save();
+    setTimeout(()=>{
+      if(typeof moment === "function") moment({kind:"release", c:"#ffd24a", spr:L.id, kicker:"PASSAGE LÉGENDAIRE",
+        title:`${POKE[L.id].name} s'incline`, sub:`Une carte « ${typeof seriesName === "function" ? seriesName(s) : s} »${fresh ? " — nouvelle !" : " (en double)"} · +25 Fragments · +5 Bonbons d'équipe`,
+        line:"Il te laisse une trace de lui. Je l'ai rangée dans ta collection, {nom}. Avec soin.", dur:5200});
+    }, 900);
+  } else if(!win){
+    if(typeof teamCandyGain === "function") teamCandyGain(1);
+    setTimeout(()=>toast(`${POKE[L.id].name} est trop fort pour l'instant. Tu peux retenter tant qu'il est là.`, "warn", "clock"), 600);
+    save();
+  }
+}
+
+/* ---------- l'annonce, à l'arrivée ---------- */
+function legTick(){
+  if(!S || !S.flags || !S.flags.intro) return;
+  const L = legendNow(); if(!L) return;
+  const st = legState();
+  if(st.seen[L.b]) return;
+  st.seen[L.b] = true;
+  for(const k in st.seen) if(+k < L.b - 20) delete st.seen[k];
+  for(const k in st.won) if(+k < L.b - 20) delete st.won[k];
+  saveSoon();
+  if(typeof banner === "function") banner({kicker:"SIGNATURE MAJEURE", title:`${POKE[L.id].name} traverse ${regionDef(L.region).name}`, sub:`Pendant 45 minutes, jusqu'à ${legHourTxt(L.end)}. Affronte-le depuis l'accueil.`, spr:L.id, c:"#ffd24a", dur:5200});
+  try { if(currentScreen === "modules") refresh(); } catch(e){}
+}
+if(typeof setInterval === "function") setInterval(()=>{ try { legTick(); } catch(e){} }, 20000);
+
+/* ---------- la carte de l'accueil ---------- */
+function legendCardHtml(){
+  const L = legendNow(), N = L ? null : legendNext();
+  if(L){
+    const won = legWon(L), left = L.end - Date.now();
+    return `<div class="lg-card on ${won ? "won" : ""}">
+      <span class="lg-spr">${sprite(L.id, false, "")}</span>
+      <div class="grow"><small>PASSAGE LÉGENDAIRE · EN CE MOMENT</small>
+        <b>${esc(POKE[L.id].name)} traverse ${esc(regionDef(L.region).name)}</b>
+        <em>${won ? "Vaincu pour ce passage. Il reviendra." : `Encore ${fmtTime(left)} · N.${legLevel()} · une carte à la clé`}</em></div>
+      ${won ? ic("check") : `<button class="btn sm gold" data-act="legfight">Affronter</button>`}
+    </div>`;
+  }
+  const known = typeof monFound === "function" ? monFound(N.id) : !!S.dex[N.id];
+  return `<div class="lg-card">
+    <span class="lg-spr sil">${sprite(N.id, false, "")}</span>
+    <div class="grow"><small>PROCHAIN PASSAGE LÉGENDAIRE</small>
+      <b>${known ? esc(POKE[N.id].name) : "Une signature majeure"} · ${esc(regionDef(N.region).name)}</b>
+      <em>À ${legHourTxt(N.start)}, dans ${fmtTime(N.start - Date.now())}, pendant 45 minutes</em></div>
+  </div>`;
+}
+/* sur l'écran de capture de la région traversée, le passage se voit aussi */
+if(SCREENS.capture){
+  const _ch = SCREENS.capture.html;
+  SCREENS.capture.html = function(){
+    const h = _ch.apply(this, arguments);
+    const L = legendNow();
+    if(!L || legWon(L) || S.region !== L.region) return h;
+    return `<button class="lg-strip" data-act="legfight"><span class="lg-spr">${sprite(L.id, false, "")}</span>
+      <span class="grow"><small>SIGNATURE MAJEURE</small><b>${esc(POKE[L.id].name)} traverse ${esc(regionDef(L.region).name)}</b></span><span class="lg-go">Affronter</span></button>` + h;
+  };
+}
+if(typeof NEXTSTEP_HOOKS !== "undefined") NEXTSTEP_HOOKS.push(()=>{
+  const L = legendNow();
+  if(L && !legWon(L)) return {p:88, t:`${POKE[L.id].name} traverse ${regionDef(L.region).name} : affronte-le`, go:"modules", i:"star"};
+  return null;
+});
 
 /* ===== 80-guide.js ===== */
 /* ============================================================
@@ -30601,6 +32387,274 @@ function netStart(){
   if(Net.signedIn()) setTimeout(()=>netSyncSmart("start"), 1500);
 }
 
+/* ===== 95b-social.js ===== */
+/* ============================================================
+   95b — LES AUTRES JOUEURS
+   · LE RAID DE LA SEMAINE : un légendaire, des points de vie
+     partagés. Trois attaques par jour avec son équipe ; les
+     dégâts de chacun s'additionnent. Des paliers communs donnent
+     à tous ceux qui ont participé la même récompense.
+     Sans compte en ligne, le raid se joue seul (mêmes paliers,
+     ramenés à un joueur).
+   · LES CLASSEMENTS DE LA SEMAINE : Poké-Poker, Brèche, Tour.
+   · LES DÉFIS : un code porte une partie de Brèche (graine,
+     départ, score). Un ami la rejoue exactement, et compare.
+
+   Les tables et fonctions sont dans sql/schema.sql (sections 7 et 8).
+   ============================================================ */
+
+/* ---------- le raid ---------- */
+const RAID_TRIES = 3;
+/* paliers par joueur : avec N joueurs, il en faut N fois plus */
+const RAID_TIERS = [
+  {pp:1500,   n:"Palier 1", rw:{coins:3000, shards:20}},
+  {pp:6000,   n:"Palier 2", rw:{shards:40, candy:6}},
+  {pp:15000,  n:"Palier 3", rw:{coins:12000, cores:2}},
+  {pp:30000,  n:"Palier 4", rw:{cores:3, card:1, candy:10}}
+];
+let RAID_NET = null;      /* {wk, total, players, top:[...], at} */
+function raidWeek(){ return typeof evWeekKey === "function" ? evWeekKey() : "S0"; }
+function raidBoss(){ return typeof evWeeklyLegend === "function" ? evWeeklyLegend() : 150; }
+function raidState(){
+  S.raid = S.raid || {};
+  const R = S.raid, wk = raidWeek();
+  if(R.wk !== wk) Object.assign(R, {wk, dmg:0, best:0, attacks:0, claimed:[], day:"", tries:0});
+  if(R.day !== today()){ R.day = today(); R.tries = 0; }
+  return R;
+}
+function raidOnline(){ return typeof Net !== "undefined" && Net.configured() && Net.signedIn() && RAID_NET && RAID_NET.wk === raidWeek(); }
+function raidTotal(){ return raidOnline() ? Math.max(RAID_NET.total, raidState().dmg) : raidState().dmg; }
+function raidPlayers(){ return raidOnline() ? Math.max(1, RAID_NET.players) : 1; }
+function raidTierGoal(i){ return RAID_TIERS[i].pp * raidPlayers(); }
+function raidTierReached(i){ return raidTotal() >= raidTierGoal(i); }
+function raidLevel(){
+  const ids = typeof teamIds === "function" ? teamIds() : S.team;
+  const avg = ids.length ? ids.reduce((a, id)=>a + ((S.dex[id] && S.dex[id].lvl) || 5), 0) / ids.length : 10;
+  return clamp(Math.round(avg), 10, 100);
+}
+async function raidRefresh(){
+  if(typeof Net === "undefined" || !Net.configured()) return;
+  const wk = raidWeek();
+  try {
+    const t = await Net.call(`/rest/v1/raid_totals?week=eq.${wk}&select=total,players`);
+    const top = await Net.call(`/rest/v1/raid?week=eq.${wk}&select=user_id,name,dmg,attacks&order=dmg.desc&limit=20`);
+    RAID_NET = {wk, total:(t && t[0] && +t[0].total) || 0, players:(t && t[0] && +t[0].players) || 0, top:top || [], at:Date.now()};
+    if(currentScreen === "social") refresh();
+  } catch(e){ RAID_NET = RAID_NET || null; }
+}
+ACTIONS.raidfight = () => {
+  const R = raidState();
+  if(R.tries >= RAID_TRIES){ toast("Plus d'attaque aujourd'hui : reviens demain", "", "clock"); return; }
+  const ids = typeof teamIds === "function" ? teamIds() : S.team;
+  if(!ids.length){ toast("Il faut une équipe", "bad", "cross"); return; }
+  R.tries++; save();
+  const id = raidBoss();
+  const allies = teamFighters(ids, typeof allyBoost === "function" ? allyBoost() : 1);
+  const boss = makeFighter(id, raidLevel(), {boost:1});
+  /* il ne cherche pas à gagner : il encaisse. L'équipe doit tenir assez pour frapper longtemps */
+  boss.atk = Math.round(boss.atk * 0.35); boss.spa = Math.round(boss.spa * 0.35);
+  boss.maxHp = 2000000; boss.hp = boss.maxHp; boss.raid = true;
+  createBattle(allies, [boss], {
+    ai:true, title:"RAID DE LA SEMAINE", stage:"boss",
+    intro:`<span class="gold-t">${esc(POKE[id].name)}</span> ne tombera pas aujourd'hui. Frappe aussi fort que tu peux.`,
+    onEnd: () => raidEnd(boss)
+  });
+  go("battle", {mode:"raid"});
+};
+function raidEnd(boss){
+  const R = raidState();
+  const dmg = Math.max(0, Math.round(boss.maxHp - Math.max(0, boss.hp)));
+  R.dmg += dmg; R.attacks++; R.best = Math.max(R.best || 0, dmg);
+  S.stats.raidDmg = (S.stats.raidDmg || 0) + dmg;
+  if(typeof teamCandyGain === "function") teamCandyGain(1);
+  addXp(200 + Math.round(dmg / 5));
+  save();
+  if(typeof Net !== "undefined" && Net.signedIn())
+    Net.call("/rest/v1/rpc/add_raid", {method:"POST", body:{p_week:raidWeek(), p_name:S.name || "Archiviste", p_dmg:Math.min(dmg, 400000)}}).then(()=>raidRefresh()).catch(()=>{});
+  setTimeout(()=>{
+    if(typeof moment === "function") moment({kind:"release", c:"#ff8a3d", spr:raidBoss(), kicker:"RAID DE LA SEMAINE",
+      title:`${fmt(dmg)} dégâts`, sub:`Total ${raidPlayers() > 1 ? "de tous les joueurs" : "de la semaine"} : ${fmt(raidTotal())} · ${RAID_TRIES - R.tries} attaque(s) encore aujourd'hui`,
+      then:()=>{ go("social"); }});
+  }, 700);
+}
+ACTIONS.raidclaim = d => {
+  const i = +d.i, R = raidState(), T = RAID_TIERS[i];
+  if(!T || R.claimed.includes(i) || !raidTierReached(i) || !R.attacks) return;
+  R.claimed.push(i);
+  const rw = T.rw;
+  if(rw.coins) gain("coins", rw.coins);
+  if(rw.shards) gain("shards", rw.shards);
+  if(rw.cores) gain("cores", rw.cores);
+  if(rw.candy && typeof teamCandyGain === "function") teamCandyGain(rw.candy);
+  let cardTxt = "";
+  if(rw.card && typeof grantCardV === "function"){ const s = rollCardSeries(raidBoss(), 2); grantCardV(s, raidBoss()); cardTxt = " · une carte de " + POKE[raidBoss()].name; }
+  save();
+  if(typeof banner === "function") banner({kicker:"RAID · " + T.n, title:"Récompense commune", sub:raidRwText(rw) + cardTxt, spr:raidBoss(), c:"#ff8a3d", sfx:"coin"});
+  refresh();
+};
+function raidRwText(rw){
+  return [rw.coins ? fmt(rw.coins) + " PokéCoins" : "", rw.shards ? rw.shards + " Fragments" : "", rw.cores ? rw.cores + " Noyaux" : "", rw.candy ? rw.candy + " Bonbons d'équipe" : "", rw.card ? "une carte du boss" : ""].filter(Boolean).join(" · ");
+}
+
+/* ---------- les classements de la semaine ---------- */
+const WK_MODES = {poker:"Poké-Poker · meilleur verrou", breche:"Brèche · meilleur score", tower:"Tour · palier le plus haut"};
+let WK_TAB = "raid", WK_NET = {};
+function wkState(){
+  S.wk = S.wk || {};
+  if(S.wk.wk !== raidWeek()) S.wk = {wk:raidWeek(), poker:0, breche:0, tower:0};
+  return S.wk;
+}
+function wkSubmit(mode, score){
+  score = Math.round(score || 0);
+  const W = wkState();
+  if(!(score > (W[mode] || 0))) return false;
+  W[mode] = score; saveSoon();
+  if(typeof Net !== "undefined" && Net.signedIn())
+    Net.call("/rest/v1/rpc/submit_weekly", {method:"POST", body:{p_week:raidWeek(), p_mode:mode, p_name:S.name || "Archiviste", p_score:score}}).catch(()=>{});
+  return true;
+}
+async function wkLoad(mode){
+  if(typeof Net === "undefined" || !Net.configured()) return;
+  try {
+    WK_NET[mode] = mode === "raid" ? (await raidRefresh(), RAID_NET && RAID_NET.top)
+      : await Net.call(`/rest/v1/weekly_scores?week=eq.${raidWeek()}&mode=eq.${mode}&select=user_id,name,score&order=score.desc&limit=20`);
+    if(currentScreen === "social") refresh();
+  } catch(e){ WK_NET[mode] = {err:e.message}; if(currentScreen === "social") refresh(); }
+}
+ACTIONS.wktab = d => { WK_TAB = d.t; refresh(); wkLoad(d.t); };
+/* les scores partent d'eux-mêmes */
+if(typeof pkWinBlind === "function"){
+  const _pw = pkWinBlind;
+  pkWinBlind = function(){ const sc = S.poker ? S.poker.score : 0; const r = _pw.apply(this, arguments); wkSubmit("poker", sc); return r; };
+}
+if(typeof brShowResults === "function"){
+  const _bs = brShowResults;
+  brShowResults = function(R, o){
+    try { wkSubmit("breche", brScore(R)); } catch(e){}
+    try { chalOnEnd(R); } catch(e){}
+    return _bs.apply(this, arguments);
+  };
+}
+if(typeof sqFinish === "function"){
+  const _sf2 = sqFinish;
+  sqFinish = function(B){ const r = _sf2.apply(this, arguments); try { if(B && B.result && typeof sqBestStage === "function") wkSubmit("tower", sqBestStage()); } catch(e){} return r; };
+}
+
+/* ---------- les défis par code ---------- */
+if(typeof brNewRun === "function"){
+  const _bn = brNewRun;
+  brNewRun = function(opts){ const R = _bn.apply(this, arguments); try { R.opts = {seed:R.seed, region:opts.region, hab:opts.hab, starter:opts.starter, mod:opts.mod || null}; R.challenge = opts.challenge || null; } catch(e){} return R; };
+}
+function chalEncode(o){ try { return "PCG1-" + btoa(unescape(encodeURIComponent(JSON.stringify(o)))).replace(/=+$/, ""); } catch(e){ return ""; } }
+function chalDecode(code){
+  try {
+    const raw = String(code || "").trim().replace(/^PCG1-/, "");
+    const o = JSON.parse(decodeURIComponent(escape(atob(raw))));
+    if(!o || typeof o.seed !== "number" || !POKE[o.starter] || !regionDef(o.region)) return null;
+    return o;
+  } catch(e){ return null; }
+}
+function chalOnEnd(R){
+  if(!R || !R.opts) return;
+  const sc = brScore(R);
+  S.chalLast = Object.assign({}, R.opts, {score:sc, name:S.name || "Archiviste"});
+  if(R.challenge){
+    const won = sc > R.challenge.score;
+    S.stats.chalWins = (S.stats.chalWins || 0) + (won ? 1 : 0);
+    setTimeout(()=>{ if(typeof banner === "function") banner({kicker:"DÉFI", title:won ? `Défi relevé : ${fmt(sc)} contre ${fmt(R.challenge.score)}` : `Raté de peu : ${fmt(sc)} contre ${fmt(R.challenge.score)}`, sub:`Le score de ${R.challenge.name}`, icon:won ? "trophy" : "cross", c:won ? "#5ce07a" : "#ff5470", dur:4200}); }, 1500);
+  }
+  saveSoon();
+}
+ACTIONS.chalcopy = () => {
+  const c = S.chalLast; if(!c){ toast("Joue d'abord une partie de Brèche", "", "boss"); return; }
+  const code = chalEncode(c);
+  try { navigator.clipboard.writeText(code); toast("Code du défi copié", "warn", "check"); }
+  catch(e){ sheet(`${sheetHead("Code du défi")}<textarea readonly style="width:100%;height:90px">${esc(code)}</textarea>`); }
+};
+ACTIONS.chalplay = () => {
+  const el = document.getElementById("chal-code"), o = chalDecode(el && el.value);
+  if(!o){ toast("Code de défi invalide", "bad", "cross"); return; }
+  if(!S.dex[o.starter]){ toast(`Il faut avoir ${POKE[o.starter].name} au Pokédex pour ce défi`, "bad", "lock"); return; }
+  if(typeof brStart !== "function"){ return; }
+  go("breche");
+  brStart(brNewRun({region:o.region, hab:o.hab, starter:o.starter, seed:o.seed, mod:o.mod, daily:false, guardian:null, challenge:{score:o.score, name:o.name}}));
+};
+
+/* ============================================================
+   L'ÉCRAN
+   ============================================================ */
+SCREENS.social = {
+  after(){ if(typeof Net !== "undefined" && Net.configured() && (!RAID_NET || Date.now() - RAID_NET.at > 60000)) raidRefresh(); wkLoad(WK_TAB); },
+  html(){
+    const R = raidState(), id = raidBoss(), on = typeof Net !== "undefined" && Net.configured() && Net.signedIn();
+    const tot = raidTotal(), pl = raidPlayers();
+    const last = RAID_TIERS[RAID_TIERS.length - 1], pctMax = raidTierGoal(RAID_TIERS.length - 1);
+    const W = wkState();
+    const board = (()=>{
+      const rows = WK_NET[WK_TAB];
+      const mine = WK_TAB === "raid" ? R.dmg : W[WK_TAB] || 0;
+      const me = on ? Net.userId() : null;
+      if(!on) return `<div class="empty">Ton meilleur score cette semaine : <b>${fmt(mine)}</b>.<br>Connecte-toi (Profil › En ligne) pour te mesurer aux autres.</div>`;
+      if(!rows) return `<div class="empty">Chargement…</div>`;
+      if(rows.err) return `<div class="empty">${esc(rows.err)}</div>`;
+      if(!rows.length) return `<div class="empty">Personne encore cette semaine. À toi d'ouvrir le classement.</div>`;
+      return rows.map((r, i)=>`<div class="wk-row ${r.user_id === me ? "me" : ""}"><span class="wk-rank">${i + 1}</span><b class="grow">${esc(r.name)}</b><span class="mono-num">${fmt(WK_TAB === "raid" ? r.dmg : r.score)}</span></div>`).join("");
+    })();
+    return `
+      <div class="h">${ic("boss")} RAID ET CLASSEMENTS</div>
+      <div class="rd-card">
+        <div class="rd-top">
+          <span class="rd-spr">${sprite(id, false, "")}</span>
+          <div class="grow"><small>RAID DE LA SEMAINE</small><b>${esc(POKE[id].name)}</b>
+            <em>${on ? `${pl} joueur${pl > 1 ? "s" : ""} · ${fmt(tot)} dégâts au total` : "Hors ligne : tu l'affrontes seul cette semaine"}</em></div>
+        </div>
+        <div class="rd-bar"><i style="width:${Math.min(100, tot / pctMax * 100).toFixed(1)}%"></i>
+          ${RAID_TIERS.map((T, i)=>`<span class="rd-tick ${raidTierReached(i) ? "on" : ""}" style="left:${(raidTierGoal(i) / pctMax * 100).toFixed(1)}%"></span>`).join("")}</div>
+        <div class="rd-tiers">${RAID_TIERS.map((T, i)=>{
+          const ok = raidTierReached(i), got = R.claimed.includes(i);
+          return `<div class="rd-tier ${ok ? "ok" : ""} ${got ? "got" : ""}">
+            <b>${esc(T.n)}</b><small>${fmt(raidTierGoal(i))}</small><em>${esc(raidRwText(T.rw))}</em>
+            ${ok && !got && R.attacks ? `<button class="btn xs gold" data-act="raidclaim" data-i="${i}">Prendre</button>` : got ? ic("check") : ""}</div>`; }).join("")}</div>
+        <div class="row between" style="margin-top:9px">
+          <span class="tiny">Tes dégâts : <b>${fmt(R.dmg)}</b> · meilleur coup ${fmt(R.best || 0)}</span>
+          <button class="btn pri sm" data-act="raidfight" ${R.tries >= RAID_TRIES ? "disabled" : ""}>Attaquer · ${RAID_TRIES - R.tries}/${RAID_TRIES}</button>
+        </div>
+        <div class="tiny dim" style="margin-top:5px">Trois attaques par jour avec ton équipe. Les paliers se débloquent pour tous ceux qui ont attaqué au moins une fois.</div>
+      </div>
+
+      <div class="h sm" style="margin-top:14px">CLASSEMENTS DE LA SEMAINE</div>
+      <div class="chipbar">${[["raid", "Raid"], ["poker", "Poker"], ["breche", "Brèche"], ["tower", "Tour"]].map(([k, n])=>`<button class="chip ${WK_TAB === k ? "on" : ""}" data-act="wktab" data-t="${k}">${n}</button>`).join("")}</div>
+      <div class="tiny dim" style="margin:-2px 0 6px">${WK_TAB === "raid" ? "Dégâts cumulés cette semaine" : esc(WK_MODES[WK_TAB])}</div>
+      <div class="wk-list">${board}</div>
+
+      <div class="h sm" style="margin-top:14px">DÉFIER UN AMI</div>
+      <div class="panel">
+        <div class="tiny">Un code porte ta dernière partie de Brèche : même graine, même départ, ton score. Ton ami la rejoue exactement.</div>
+        <button class="btn wide" style="margin-top:8px" data-act="chalcopy" ${S.chalLast ? "" : "disabled"}>${S.chalLast ? `Copier le code (score ${fmt(S.chalLast.score)})` : "Joue d'abord une partie de Brèche"}</button>
+        <input id="chal-code" type="text" placeholder="Coller un code de défi (PCG1-…)" style="margin-top:9px">
+        <button class="btn pri wide" style="margin-top:7px" data-act="chalplay">Relever le défi</button>
+      </div>`;
+  }
+};
+/* sur l'accueil : le raid de la semaine */
+function raidCardHtml(){
+  if(S.level < 10) return "";
+  const R = raidState(), id = raidBoss();
+  const claim = RAID_TIERS.some((T, i)=>raidTierReached(i) && !R.claimed.includes(i) && R.attacks);
+  return `<div class="lg-card rd-home ${claim ? "on" : ""}" data-act="goto" data-to="social">
+    <span class="lg-spr">${sprite(id, false, "")}</span>
+    <div class="grow"><small>RAID DE LA SEMAINE</small><b>${esc(POKE[id].name)}</b>
+      <em>${claim ? "Une récompense commune t'attend" : `${RAID_TRIES - R.tries} attaque(s) aujourd'hui · ${fmt(raidTotal())} dégâts au total`}</em></div>
+    ${ic("arrow")}</div>`;
+}
+if(typeof NEXTSTEP_HOOKS !== "undefined") NEXTSTEP_HOOKS.push(()=>{
+  if(S.level < 10) return null;
+  const R = raidState();
+  if(RAID_TIERS.some((T, i)=>raidTierReached(i) && !R.claimed.includes(i) && R.attacks)) return {p:72, t:"Raid : une récompense commune à prendre", go:"social", i:"boss"};
+  if(R.tries < RAID_TRIES) return {p:25, t:`Raid de la semaine : ${RAID_TRIES - R.tries} attaque(s) aujourd'hui`, go:"social", i:"boss"};
+  return null;
+});
+
 /* ===== 96-pwa.js ===== */
 /* ============================================================
    96 — INSTALLER L'APPLICATION (PWA)
@@ -30770,6 +32824,173 @@ function pwaSessionStart(){
   if(S.flags.pwaLastOffer && Date.now() - S.flags.pwaLastOffer < 20 * 3600 * 1000) return;
   if(S.level < 3) return;
   setTimeout(()=>{ if(!overlayBusy() && currentScreen === "capture") pwaOffer("later"); }, 2500);
+}
+
+/* ===== 96b-music.js ===== */
+/* ============================================================
+   96b — LA MUSIQUE
+   Le jeu n'a pas de musique propre : elle sera composée à part et
+   déposée en fichiers mp3 dans assets/music/. Ce module sait déjà
+   quoi jouer et quand ; il reste muet tant qu'un morceau manque.
+
+   Deux sortes de pistes :
+   · les AMBIANCES, en boucle, selon l'écran ou la situation ;
+   · les JINGLES, joués une fois par-dessus (l'ambiance baisse le
+     temps qu'ils passent, puis remonte).
+
+   Pour ajouter un morceau : poser assets/music/<clé>.mp3 puis
+   reconstruire (build_web.py dresse la liste des fichiers présents).
+   ============================================================ */
+
+const MUSIC_TRACKS = {
+  /* ambiances (boucle) */
+  accueil:        {loop:1, n:"Accueil", d:"L'écran d'accueil et les menus. Le thème principal du jeu."},
+  capture_kanto:  {loop:1, n:"Capture — Kanto", d:"Les hautes herbes de Kanto.", fb:"capture"},
+  capture_johto:  {loop:1, n:"Capture — Johto", d:"Johto.", fb:"capture"},
+  capture_hoenn:  {loop:1, n:"Capture — Hoenn", d:"Hoenn.", fb:"capture"},
+  capture:        {loop:1, n:"Capture", d:"Thème de capture par défaut (si une région n'a pas le sien)."},
+  peche:          {loop:1, n:"Pêche", d:"Mode pêche.", fb:"capture"},
+  collection:     {loop:1, n:"Collection", d:"Pokédex, cartes, couveuse, sac, profil.", fb:"accueil"},
+  forage:         {loop:1, n:"Forage", d:"Le puits, la forge, les fouilles."},
+  expedition:     {loop:1, n:"Expédition", d:"La carte d'expédition."},
+  tour:           {loop:1, n:"Tour", d:"La Tour et ses ailes."},
+  breche:         {loop:1, n:"Brèche", d:"La Brèche, pendant la partie."},
+  poker:          {loop:1, n:"Poké-Poker", d:"La table de jeu."},
+  combat:         {loop:1, n:"Combat", d:"Combat ordinaire (sauvage, dresseur)."},
+  combat_boss:    {loop:1, n:"Combat de boss", d:"Champion, élite, noyau, gardiens.", fb:"combat"},
+  legendaire:     {loop:1, n:"Légendaire", d:"Rencontre ou combat contre un légendaire, raid mondial.", fb:"combat_boss"},
+  monde:          {loop:1, n:"Le Monde", d:"La carte du monde à restaurer.", fb:"accueil"},
+  /* jingles (une fois) */
+  j_victoire:     {n:"Victoire", d:"Fin d'un combat gagné (3 à 6 s)."},
+  j_defaite:      {n:"Défaite", d:"Combat perdu (2 à 4 s)."},
+  j_niveau:       {n:"Niveau supérieur", d:"Montée de niveau d'Archiviste (3 à 5 s)."},
+  j_decouverte:   {n:"Nouvelle espèce", d:"Première capture d'une espèce (2 à 3 s)."},
+  j_rare:         {n:"Capture rare", d:"Capture très rare, chromatique ou légendaire (4 à 6 s)."},
+  j_evolution:    {n:"Évolution", d:"Un Pokémon évolue (5 à 8 s)."},
+  j_chapitre:     {n:"Nouveau chapitre", d:"Carton-titre d'un chapitre (4 à 6 s)."},
+  j_restauration: {n:"Restauration", d:"Un chantier du monde est terminé (3 à 5 s)."}
+};
+/* la liste des fichiers présents est écrite par build_web.py ; sans elle, on tente quand même */
+function musicHas(k){
+  if(typeof MUSIC_AVAILABLE !== "undefined") return MUSIC_AVAILABLE.includes(k);
+  return !Music.missing[k];
+}
+function musicResolve(k){
+  let g = 0;
+  while(k && g++ < 4){ if(musicHas(k)) return k; k = MUSIC_TRACKS[k] && MUSIC_TRACKS[k].fb; }
+  return null;
+}
+const Music = {
+  cur:null, el:null, missing:{}, duck:1, unlocked:false, ctxOverride:null,
+  on(){ return !!(S && S.settings && S.settings.music !== false) && typeof Audio !== "undefined"; },
+  vol(){ return ((S && S.settings && S.settings.musicVol) || 70) / 100 * 0.6; },
+  url(k){ return "assets/music/" + k + ".mp3"; },
+  /* joue une ambiance ; ne fait rien si c'est déjà elle */
+  play(key){
+    const k = musicResolve(key);
+    if(!this.on() || !k){ this.stop(); return; }
+    if(this.cur === k && this.el) return;
+    const old = this.el;
+    let a;
+    try { a = new Audio(this.url(k)); } catch(e){ return; }
+    a.loop = true; a.volume = 0; a.preload = "auto";
+    a.onerror = () => { this.missing[k] = true; if(this.el === a){ this.el = null; this.cur = null; } };
+    this.el = a; this.cur = k;
+    const p = a.play(); if(p && p.catch) p.catch(()=>{});
+    this.fade(a, this.vol() * this.duck, 700);
+    if(old) this.fade(old, 0, 600, ()=>{ try { old.pause(); } catch(e){} });
+  },
+  stop(){
+    const old = this.el; this.el = null; this.cur = null;
+    if(old) this.fade(old, 0, 400, ()=>{ try { old.pause(); } catch(e){} });
+  },
+  /* un jingle : l'ambiance baisse, puis revient */
+  jingle(key){
+    if(!this.on() || !musicHas(key)) return;
+    let a; try { a = new Audio(this.url(key)); } catch(e){ return; }
+    a.volume = Math.min(1, this.vol() * 1.4);
+    a.onerror = () => { this.missing[key] = true; this.unduck(); };
+    a.onended = () => this.unduck();
+    this.duck = 0.18; if(this.el) this.fade(this.el, this.vol() * this.duck, 250);
+    const p = a.play(); if(p && p.catch) p.catch(()=>this.unduck());
+    clearTimeout(this._dk); this._dk = setTimeout(()=>this.unduck(), 12000);
+  },
+  unduck(){ this.duck = 1; if(this.el) this.fade(this.el, this.vol(), 900); },
+  fade(a, to, ms, done){
+    const from = a.volume, t0 = Date.now();
+    clearInterval(a._fd);
+    a._fd = setInterval(()=>{
+      const k = Math.min(1, (Date.now() - t0) / ms);
+      try { a.volume = Math.max(0, Math.min(1, from + (to - from) * k)); } catch(e){}
+      if(k >= 1){ clearInterval(a._fd); if(done) done(); }
+    }, 40);
+  },
+  /* la piste qui convient à l'écran courant */
+  pick(){
+    if(this.ctxOverride) return this.ctxOverride;
+    const s = typeof currentScreen !== "undefined" ? currentScreen : "";
+    if(s === "capture") return (S && S.capMode === "fish") ? "peche" : "capture_" + ((S && S.region) || "kanto");
+    if(s === "idle") return "forage";
+    if(s === "expedition") return "expedition";
+    if(s === "tower" || s === "squad") return "tour";
+    if(s === "breche") return "breche";
+    if(s === "poker") return "poker";
+    if(s === "world") return "monde";
+    if(s === "battle") return "combat";
+    if(["dex", "cards", "eggs", "research", "bag", "shop", "profile", "atelier", "team"].includes(s)) return "collection";
+    return "accueil";
+  },
+  sync(){ if(this.unlocked) this.play(this.pick()); }
+};
+/* les navigateurs n'autorisent le son qu'après un premier geste */
+if(typeof document !== "undefined" && document.addEventListener)
+  document.addEventListener("pointerdown", ()=>{ if(!Music.unlocked){ Music.unlocked = true; Music.sync(); } }, {capture:true});
+
+/* chaque changement d'écran choisit sa piste */
+if(typeof go === "function"){
+  const _go = go;
+  go = function(name, arg){ const r = _go(name, arg); try { Music.sync(); } catch(e){} return r; };
+}
+/* les combats : boss et légendaires ont leur thème, la fin a son jingle */
+if(typeof createBattle === "function"){
+  const _cb = createBattle;
+  createBattle = function(allies, foes, opts){
+    opts = opts || {};
+    const leg = (foes || []).some(f=>f && POKE[f.id] && POKE[f.id].leg);
+    Music.ctxOverride = leg ? "legendaire" : (opts.stage === "boss" || opts.stage === "elite" || opts.boss) ? "combat_boss" : "combat";
+    const end = opts.onEnd;
+    opts.onEnd = function(win){
+      Music.ctxOverride = null;
+      Music.jingle(win ? "j_victoire" : "j_defaite");
+      setTimeout(()=>{ try { Music.sync(); } catch(e){} }, 60);
+      return end ? end.apply(this, arguments) : undefined;
+    };
+    const B = _cb(allies, foes, opts);
+    try { Music.sync(); } catch(e){}
+    return B;
+  };
+}
+/* réglages : musique activée par défaut */
+function musicDefaults(){ if(S && S.settings){ if(S.settings.music === undefined) S.settings.music = true; if(!S.settings.musicVol) S.settings.musicVol = 70; } }
+ACTIONS.musicvol = d => { musicDefaults(); S.settings.musicVol = clamp(+d.v || 70, 0, 100); if(Music.el) Music.el.volume = Music.vol(); saveSoon(); refresh(); };
+
+/* couper la musique depuis les réglages l'arrête tout de suite */
+if(ACTIONS.toggleset){
+  const _ts = ACTIONS.toggleset;
+  ACTIONS.toggleset = d => {
+    if(d.k === "music"){ musicDefaults(); S.settings.music = !S.settings.music; if(!S.settings.music) Music.stop(); else Music.sync(); save(); refresh(); return; }
+    return _ts(d);
+  };
+}
+function musicSettingsHtml(){
+  musicDefaults();
+  const have = Object.keys(MUSIC_TRACKS).filter(k=>musicHas(k) && typeof MUSIC_AVAILABLE !== "undefined").length;
+  return `<div class="row between" style="padding:7px 0">
+      <div class="grow"><div class="tiny">Musique</div>
+        <div class="tiny dim">${have ? `${have} morceau${have > 1 ? "x" : ""} installé${have > 1 ? "s" : ""}` : "Aucun morceau installé pour l'instant"}</div></div>
+      <button class="switch ${S.settings.music ? "on" : ""}" data-act="toggleset" data-k="music" aria-label="Musique"><i></i></button>
+    </div>
+    ${S.settings.music ? `<div class="row" style="gap:6px;padding:0 0 6px">${[30, 50, 70, 100].map(v=>`<button class="chip ${S.settings.musicVol === v ? "on" : ""}" data-act="musicvol" data-v="${v}">${v} %</button>`).join("")}</div>` : ""}`;
 }
 
 /* ===== 99-boot.js ===== */

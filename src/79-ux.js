@@ -50,7 +50,6 @@ SCREENS.modules = {
           <div class="td-d">${pend ? pend + " chose(s) vous attendent" : "Cadeau, quêtes, contrats : tout est à jour"}</div></div>
         ${pend ? `<span class="badge">${pend}</span>` : ""}${ic("arrow")}
       </div>
-      ${directiveCard()}
       <div class="h">${ic("grid")} ACTIVITÉS</div>
       <div class="list">
         ${open.map(m=>{

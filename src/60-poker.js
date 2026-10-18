@@ -696,6 +696,7 @@ function pkWinBlind(){
   reward += interest;
   P.octets += reward;
   S.daily.dayPokerBlinds++; questTick("dayPokerBlinds",1);
+  S.stats.pokerBlinds = (S.stats.pokerBlinds || 0) + 1;
   if(P.score > (S.stats.pokerBest||0)) S.stats.pokerBest = P.score;
   Sfx.win();
   /* un verrou de secteur delivre un badge */

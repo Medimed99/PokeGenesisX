@@ -335,7 +335,7 @@ const ACHIEVEMENTS = [
 
 /* ---------- Cosmetiques ---------- */
 const COSMETICS = {
-  title_novice:    {t:"title", n:"Utilisateur non identifié", def:1},
+  title_novice:    {t:"title", n:"Archiviste novice", def:1},
   title_titulaire: {t:"title", n:"Archiviste titulaire"},
   title_chroma:    {t:"title", n:"Chasseur d'anomalies"},
   title_index:     {t:"title", n:"Index vivant"},

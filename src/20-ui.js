@@ -325,19 +325,21 @@ function renderTopbar(){
     ${ev?`<div class="tiny gold-t" style="margin-top:4px">${esc(ev.n)} · ${fmtTime(ev.until-Date.now())}</div>`:""}`;
 }
 
+/* le profil s'ouvre en touchant son bandeau, en haut : sa place au dock revient à l'équipe */
 const DOCK = [
+  {k:"modules",  n:"Accueil", i:"grid"},
   {k:"capture",  n:"Capture", i:"capture"},
-  {k:"modules",  n:"Modules", i:"grid"},
+  {k:"team",     n:"Équipe",  i:"user"},
   {k:"dex",      n:"Collection", i:"dex"},
-  {k:"bag",      n:"Sac",     i:"box"},
-  {k:"profile",  n:"Profil",  i:"user"}
+  {k:"bag",      n:"Sac",     i:"box"}
 ];
 function renderDock(){
   const d = document.getElementById("dock");
   const alerts = {
     modules: canOpenBox() || questsReady(),
     dex: moduleUnlocked("eggs") && eggState().inc.some(x=>x.steps >= EGG_TIERS[x.tier].steps),
-    profile: false
+    profile: false,
+    team: typeof teamIds === "function" && teamIds().some(id=>typeof evoReady === "function" && evoReady(id))
   };
   d.innerHTML = DOCK.map(x=>`<button data-act="nav" data-to="${x.k}" class="${currentScreen===x.k?"on":""}">
       ${ic(x.i)}<span>${x.n}</span>${alerts[x.k]?'<i class="badge"></i>':""}</button>`).join("");

@@ -417,6 +417,7 @@ function onCatch(ballKey){
   if(ENC.shiny) integ *= 2;
 
   gain("coins", coins);
+  if(typeof potAdd === "function") potAdd(coins);
   addXp(xp);
   addIntegrity(integ);
   if(eventActive("ev_shard") || luckyF("shard")) gain("shards", (luckyF("shardMul")||1));
@@ -751,7 +752,9 @@ SCREENS.capture = {
       }).join("")}</span>
       <span class="tiny dim center" style="line-height:1.3">chroma<br><b class="gold-t">${shinyOddsText()}</b></span>
     </div>
-    ${S.capMode === "fish" ? "" : rstreakRow()}
+    ${typeof potHtml === "function" ? potHtml() : ""}
+    ${typeof roamHtml === "function" ? roamHtml() : ""}
+    ${S.capMode === "fish" || typeof bonusChipHtml !== "function" ? (S.capMode === "fish" ? "" : rstreakRow()) : bonusChipHtml()}
 
     <div class="ballrow">
       ${Object.entries(BALLS).filter(([k])=>(k === "safari") === (selBall() === "safari")).map(([k,b])=>{
@@ -833,7 +836,8 @@ SCREENS.capture = {
 
     const p = POKE[ENC.id];
     const isNew = !dexHas(ENC.id);
-    return `<div id="enc-stage">${bg}
+    return `<div id="enc-stage" class="${ENC.roam ? "roaming" : ""}">${bg}
+      ${typeof stakesTagHtml === "function" ? stakesTagHtml() : ""}
       ${S.streak>=3?`<div class="combo tier${comboTier()}"><b>×${S.streak}</b>
         <span>${comboLabel()}</span></div>`:""}
       ${ENC.shiny?`<div class="shiny-burst"></div>

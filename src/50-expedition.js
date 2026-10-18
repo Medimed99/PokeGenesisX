@@ -197,7 +197,7 @@ function newRunMon(run, id, lvl){
   return {id, level, hp:f.maxHp, maxHp:f.maxHp, item:null};
 }
 function runFighter(run, m){
-  const f = makeFighter(m.id, m.level, {shiny: runShiny(m)});
+  const f = makeFighter(m.id, m.level, {shiny: runShiny(m), owned:true});
   applyRelics(run, f);
   applyExpItem(m, f);
   f.maxHp = m.maxHp || f.maxHp;

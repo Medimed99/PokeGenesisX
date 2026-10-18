@@ -399,3 +399,91 @@ begin
 end $$;
 revoke all on function public.add_community(text, integer) from public, anon;
 grant execute on function public.add_community(text, integer) to authenticated;
+
+-- ------------------------------------------------------------
+-- 7. RAID MONDIAL DE LA SEMAINE
+-- Un légendaire par semaine, des points de vie partagés par tous. Chaque
+-- joueur ajoute ses dégâts par la fonction add_raid, plafonnée par appel :
+-- un combat ne peut pas, à lui seul, fausser le total.
+-- (à appliquer une fois dans Supabase > SQL Editor ; le script se relance sans risque)
+-- ------------------------------------------------------------
+create table if not exists public.raid (
+  week       text        not null,
+  user_id    uuid        not null references auth.users(id) on delete cascade,
+  name       text        not null default 'Archiviste',
+  dmg        bigint      not null default 0 check (dmg >= 0),
+  attacks    integer     not null default 0,
+  updated_at timestamptz not null default now(),
+  primary key (week, user_id)
+);
+create index if not exists raid_week_idx on public.raid (week, dmg desc);
+alter table public.raid enable row level security;
+drop policy if exists raid_read on public.raid;
+create policy raid_read on public.raid for select to anon, authenticated using (true);
+grant select on public.raid to anon, authenticated;
+revoke insert, update, delete on public.raid from anon, authenticated;
+
+create or replace view public.raid_totals with (security_invoker = on) as
+  select week, sum(dmg)::bigint as total, count(*)::integer as players
+  from public.raid group by week;
+grant select on public.raid_totals to anon, authenticated;
+
+create or replace function public.add_raid(p_week text, p_name text, p_dmg integer)
+returns void language plpgsql security definer set search_path = public as $$
+begin
+  if auth.uid() is null then
+    raise exception 'connexion requise' using errcode = '28000';
+  end if;
+  if p_week !~ '^S[0-9]{1,5}$' then
+    raise exception 'semaine invalide' using errcode = '22023';
+  end if;
+  insert into public.raid (week, user_id, name, dmg, attacks)
+  values (p_week, auth.uid(), left(coalesce(nullif(trim(p_name), ''), 'Archiviste'), 16), greatest(0, least(p_dmg, 400000)), 1)
+  on conflict (week, user_id) do update set
+    name       = excluded.name,
+    dmg        = public.raid.dmg + greatest(0, least(excluded.dmg, 400000)),
+    attacks    = public.raid.attacks + 1,
+    updated_at = now();
+end $$;
+revoke all on function public.add_raid(text, text, integer) from public, anon;
+grant execute on function public.add_raid(text, text, integer) to authenticated;
+
+-- ------------------------------------------------------------
+-- 8. CLASSEMENTS DE LA SEMAINE
+-- Un meilleur score par joueur, par mode et par semaine. Écriture uniquement
+-- par submit_weekly, qui ne garde que le meilleur.
+-- ------------------------------------------------------------
+create table if not exists public.weekly_scores (
+  week       text        not null,
+  mode       text        not null check (mode in ('poker', 'breche', 'tower')),
+  user_id    uuid        not null references auth.users(id) on delete cascade,
+  name       text        not null default 'Archiviste',
+  score      bigint      not null check (score >= 0),
+  updated_at timestamptz not null default now(),
+  primary key (week, mode, user_id)
+);
+create index if not exists weekly_scores_idx on public.weekly_scores (week, mode, score desc);
+alter table public.weekly_scores enable row level security;
+drop policy if exists weekly_scores_read on public.weekly_scores;
+create policy weekly_scores_read on public.weekly_scores for select to anon, authenticated using (true);
+grant select on public.weekly_scores to anon, authenticated;
+revoke insert, update, delete on public.weekly_scores from anon, authenticated;
+
+create or replace function public.submit_weekly(p_week text, p_mode text, p_name text, p_score bigint)
+returns void language plpgsql security definer set search_path = public as $$
+begin
+  if auth.uid() is null then
+    raise exception 'connexion requise' using errcode = '28000';
+  end if;
+  if p_week !~ '^S[0-9]{1,5}$' or p_mode not in ('poker', 'breche', 'tower') then
+    raise exception 'paramètres invalides' using errcode = '22023';
+  end if;
+  insert into public.weekly_scores (week, mode, user_id, name, score)
+  values (p_week, p_mode, auth.uid(), left(coalesce(nullif(trim(p_name), ''), 'Archiviste'), 16), greatest(0, least(p_score, 1000000000000)))
+  on conflict (week, mode, user_id) do update set
+    name       = excluded.name,
+    score      = greatest(public.weekly_scores.score, excluded.score),
+    updated_at = now();
+end $$;
+revoke all on function public.submit_weekly(text, text, text, bigint) from public, anon;
+grant execute on function public.submit_weekly(text, text, text, bigint) to authenticated;

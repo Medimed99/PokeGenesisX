@@ -176,8 +176,8 @@ function addXp(n){
     gain("coins", 200*S.level);
     if(S.level % 5 === 0) gain("cores", 1);
     Bus.emit("levelup", S.level);
-    toast(`Niveau d'Archiviste ${S.level}`, "warn", "star");
-    pzFlash(pzLine("levelup"));
+    if(typeof stageLevelUp === "function") stageLevelUp(S.level, up);
+    else { toast(`Niveau d'Archiviste ${S.level}`, "warn", "star"); pzFlash(pzLine("levelup")); }
   }
   saveSoon();
 }

@@ -67,6 +67,16 @@ pz_js = open(os.path.join(SRC, "_pzportrait.js"), encoding="utf-8").read()
 pz_emos = re.search(r"const PZ_EMOS = (\[[^\]]+\]);", pz_js).group(1)
 pz_w, pz_h = re.search(r"const PZ_W = (\d+), PZ_H = (\d+);", pz_js).groups()
 
+# --- la musique : les mp3 poses dans assets/music/ (cle = nom du fichier) ---
+music_keys = []
+if os.path.isdir("assets/music"):
+    os.makedirs(os.path.join(OUT, "assets", "music"), exist_ok=True)
+    for f in sorted(os.listdir("assets/music")):
+        if f.lower().endswith(".mp3"):
+            shutil.copy(os.path.join("assets/music", f), os.path.join(OUT, "assets", "music", f))
+            music_keys.append(os.path.splitext(f)[0])
+print(f"musique : {len(music_keys)} morceau(x)" + (" — " + ", ".join(music_keys) if music_keys else ""))
+
 assets_js = f"""/* Version hebergee : les images sont servies comme fichiers, pas encodees
    dans le HTML. Les noms portent une empreinte : on peut donc les mettre en
    cache indefiniment sans jamais servir une version perimee. */
@@ -84,6 +94,7 @@ const CARD_COLS={card_cols}, CARD_ROWS={card_rows}, CARD_CELL={card_cell};
 const CARD_SERIES={card_series};
 const CARD_INDEX={card_index};
 const CARD_ATLAS="{paths['cardart.png']}";
+const MUSIC_AVAILABLE={json.dumps(music_keys)};
 """
 
 # --- configuration du service en ligne, depuis l'environnement -------------
