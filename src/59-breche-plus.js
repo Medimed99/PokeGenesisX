@@ -317,7 +317,7 @@ function brSummonEcho(R, forcedId, weekly){
   R.boss = f;
   brShake(R, 8);
   if(typeof brCineStart === "function") brCineStart(R, f, {kicker:weekly ? "LÉGENDAIRE DE LA SEMAINE" : "ÉCHO DE LÉGENDAIRE", title:POKE[id].name.toUpperCase(),
-    sub:weekly ? "IL TRAVERSE LA BRÈCHE" : "LA FAILLE SE SOUVIENT DE LUI", color:"#ffd24a", dur:3.4,
+    sub:weekly ? "IL TRAVERSE LA BRÈCHE" : "LA FAILLE SE SOUVIENT DE LUI", color:"#ffd24a", dur:4.4,
     lines:[[0.2, "pz", weekly ? `${POKE[id].name} traverse la Brèche. Il ne restera pas.` : `Un écho de ${POKE[id].name}. Ce n'est qu'une copie… mais elle frappe pour de vrai.`]]});
   else brBanner(R, weekly ? "LÉGENDAIRE DE LA SEMAINE" : "ÉCHO DE LÉGENDAIRE", "#ffd24a", POKE[id].name.toUpperCase());
 }

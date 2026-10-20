@@ -109,7 +109,13 @@ const INFOS = {
     <p>· <b>Espèces identiques</b> — paire, brelan, carré.<br>
     · <b>Familles d'évolution</b> — duo, trio, lignée complète.<br>
     · <b>Types</b> — mono-type, duo-type, spectre complet.<br>
+    · <b>Suite Pokédex</b> — cinq numéros qui se suivent (les lignées se suivent dans le Pokédex).<br>
     · <b>Chromatiques</b> et <b>légendaires</b> — les combinaisons les plus riches.</p>
+    <p>Chaque verrou est tenu par un <b>dresseur</b> : l'objectif est sa jauge de PV, chaque main la fait fondre.
+    Au bout de chaque ante, un <b>Champion d'arène</b> impose sa règle (Défense Roc de Pierre, Torrent d'Ondine,
+    Paralysie de Major Bob…) et délivre son badge ; après les huit, le Conseil des Quatre puis le Champion.</p>
+    <p>Certains <b>programmes évoluent</b> à force d'être utilisés : Salamèche.exe devient Reptincel.exe puis
+    Dracaufeu.exe, Magicarpe.exe finit en Léviator.exe, Évoli.exe choisit sa forme selon votre jeu.</p>
     <p>Le score est <b class="cy">Jetons</b> × <b class="bad">Multiplicateur</b>. Les
     <b>programmes</b> s'empilent et transforment complètement une partie. Les <b>boosters</b>
     ajoutent à votre deck des espèces tirées de votre propre archive.</p>
@@ -395,7 +401,8 @@ const TUTOS = {
     {sel:"#screen", t:"Les données rares ne se rangent pas au hasard : elles se regroupent par motifs. Espèces identiques, familles, types."},
     {sel:"#hand", t:"Ce deck n'a ni couleur ni rang. Ce sont des Pokémon : espèces identiques, familles d'évolution, types, chromatiques."},
     {sel:"#pk-score-line", t:"Chaque motif reconnu stabilise une portion de couche. Jetons multipliés par Multiplicateur : les deux se travaillent séparément."},
-    {sel:"#jokers", t:"Les programmes s'empilent ici, de gauche à droite. Ce sont eux qui font les grosses parties, pas les cartes."}
+    {sel:"#jokers", t:"Les programmes s'empilent ici, de gauche à droite. Ce sont eux qui font les grosses parties, pas les cartes."},
+    {sel:".pk2-bl", t:"Chaque verrou est tenu par un dresseur : sa jauge de PV, c'est ton objectif. Au bout de l'ante, un Champion d'arène t'attend avec sa règle."}
   ]},
   dex:{steps:[
     {sel:".ring", t:"L'archive, secteur par secteur. Chaque ligne restaurée rend les lignes voisines plus stables — je ne sais toujours pas modéliser pourquoi."},

@@ -519,6 +519,9 @@ remplit. Les sous-titres descendent dans la bande noire. Les **petits boss** ont
 (ralenti, caméra qui se tourne, bandeau) : l'Alpha, le Chasseur des Profondeurs. Chaque **finale**
 fait zoomer la caméra sur le vaincu : rayons de lumière, silhouette blanche qui tremble, puis il
 éclate en **blocs de données** qui retombent avec la gravité.
+L'entrée du gardien dure 5,6 s (la carte de nom reste lisible 3 s). Aucune récompense ne s'ouvre
+pendant une entrée ou une chute de boss ; après le gardien, niveaux et coffres attendent qu'on
+choisisse de **descendre dans la faille** (ils n'ont de sens qu'à ce moment-là).
 
 Testé acte par acte dans `test.js`. Mesuré sur 30 runs : le débutant (qui ne cherche pas les abris)
 bat le boss 16 fois ; le joueur qui esquive l'atteint 15 fois sur 20 et le bat 14 fois.
@@ -662,6 +665,14 @@ ajoute 4 % de dégâts à l'espèce, affiché en étoiles.
     Champ de mines, Géants, **le Chasseur** (un ennemi vous marque : l'abattre paie deux coffres),
     Silence (plus aucun soin, octets doublés), l'arène qui rétrécit, Frénésie.
   - Un écho de légendaire aux paliers 3 et 6, un coffre à chaque palier franchi.
+  - **La horde est plafonnée** (150 ennemis) et se **densifie** au-delà de 15 apparitions par seconde :
+    moins d'ennemis, chacun plus solide (même total de PV, octets à proportion), jusqu'à ×4. Moins de
+    chiffres de dégâts à l'écran, particules plafonnées (650), réserve d'objets à curseur tournant.
+  - **Corrigé : une seconde de jeu en durait trois.** Chaque coup critique figeait l'image 25 ms ;
+    en profondeur, les critiques s'enchaînaient et la partie restait presque toujours figée. Les petits
+    arrêts sur image ont désormais un délai (mesuré : la partie tourne à 93 % du temps réel, contre 50 %).
+  - **Corrigé : descendre dans la faille figeait le jeu** quand la fenêtre de victoire avait recouvert
+    une récompense ; la descente repart d'un état propre.
   - **Palier 9 : Porygon-Z vient vous chercher.** « Ça fait trop longtemps que t'es là-dedans. On a
     encore du boulot dehors. Je te ramène — de force, s'il le faut. » Un vrai boss (sprites PMD de
     Porygon-Z) : Triplattaque (trois rayons feu/glace/foudre), Ultralaser, Conversion (il résiste au
@@ -703,22 +714,61 @@ des légendaires restent cachés, comme leurs noms dans la collection.
 
 Le profil est visible **en miniature dans l'en-tête de tous les écrans**, avec cadre, fond et effet.
 
-## Poké-Poker — écran pour le pouce
+## Poké-Poker — la salle de jeux (`60-poker.js`, `61-poker-content.js`, `62-poker-table.js`)
 
-Tout tenait dans le haut de l'écran et laissait le bas vide ; la main de huit cartes défilait de côté
-et se coupait ; « Abandonner » voisinait avec « Jouer ». L'écran est désormais une colonne qui occupe
-toute la hauteur : l'état de la manche en haut, **le tapis au centre** (le calcul jetons × multiplicateur
-en grand, qui prend tout l'espace libre), la main en **deux rangées de quatre**, puis les actions sous le
-pouce — « Jouer la main » plus large que « Défausser ». Combinaisons, Deck et Abandonner passent dans un
-menu. Le choix du verrou suit la même grammaire.
+Refondu au retour « pas assez attrayant, même constat qu'avant la refonte de la Brèche ».
 
-Mesuré dans Chromium sur trois formats (`tools/measure.py`) : aucun chevauchement ; tout tient à l'écran
-en 390 × 844 et 412 × 915 ; sur écran court, un léger défilement, rien de masqué.
+**La table** (`62`). En haut, l'**adversaire** : son portrait de dresseur, son nom, et une **jauge de PV**
+qui est l'objectif de la manche — chaque main la fait fondre comme une attaque, le portrait sursaute,
+le dresseur tombe K.O. Sous lui, la **règle** du Champion quand il y en a une. Les **programmes** sont des
+cartes sur une étagère (bordure de rareté, sprite, barre d'évolution, « Zzz » sous Poudre Dodo). Le
+**tapis** : un feutre vert, Jetons (bleu) × Mult (rouge) en grandes plaques qui s'embrasent quand la main
+suffit à gagner. Les **cartes** sont de vraies cartes Pokémon : cadre aux couleurs du type, numéro du
+Pokédex, Jetons en médaillon, feuille holographique pour les chromatiques, dorure, verre, corruption ; la
+main s'ouvre **en éventail** et se **distribue** depuis le deck ; on la trie par famille, type, valeur ou
+numéro. À la **résolution**, les cartes jouées montent sur le tapis, chacune sursaute et lâche ses Jetons,
+les programmes s'allument un à un, puis le total **frappe l'adversaire**. **Victoire** : sa réplique de
+défaite, et les Octets qui tombent ligne par ligne (verrou, mains restantes, programmes, intérêts).
+**Défaite** : sa scène aussi. La **cache** : programmes en vitrine, **boosters qu'on ouvre** (le paquet
+tremble, se déchire, les cartes se retournent), orbes, spectres, licences en tickets. La **salle** : enseigne
+au néon, cartes en éventail, vitrine des Champions battus.
 
-**Deux scènes** au moteur de cinématiques : le **badge** (le joyau se reconstruit, l'annonce système,
-Porygon-Z) et la **main secrète**, jouée une seule fois pour toute la sauvegarde (glitch, les Pokémon de
-la main, le titre en grand). Le moteur gagne une **file d'attente** — une main secrète qui gagne la manche
-enchaîne sur le badge au lieu de le couper — et un acteur **emblème**.
+**Le contenu** (`61`).
+- **Des adversaires** : 22 classes de dresseurs (Gamin, Jongleur, Cambrioleur, Médium, Topdresseuse…) avec
+  leurs répliques, de plus en plus aguerris au fil des antes, tirés de façon stable dans une partie.
+- **Un Champion d'arène de Kanto au bout de chaque ante**, avec une règle à son image : Pierre (*Défense
+  Roc* : hors Roche et Sol, moitié des Jetons), Ondine (*Torrent* : deux cartes emportées après chaque main),
+  Major Bob (*Paralysie* : une carte sur quatre injouable), Érika (*Poudre Dodo* : le premier programme dort),
+  Koga (*Toxik* : −1 Mult de base à chaque main), Morgane (*Prémonition* : cartes face cachée), Auguste
+  (*Fournaise* : pas de défausse, une main de plus), Giovanni (*La Maison gagne toujours* : +60 % à atteindre,
+  un Octet par main). Puis le **Conseil des Quatre** — Olga (*Gel*), Aldo (*Force brute*), Agatha
+  (*Malédiction*), Peter (*Colère* : chaque main doit battre la précédente) — et **Régis, Champion de la
+  Couche**, qui cumule deux de leurs règles. Les règles se lisent avant d'entrer.
+- **La Suite Pokédex** : cinq numéros consécutifs (les lignées se suivent dans le Pokédex), et son orbe.
+- **34 programmes de plus** : treize aux couleurs de leur Pokémon (Ronflex · Repos, Métamorph · Morphing,
+  Porygon · Raccourci qui forme Mono-Type et Suite à quatre cartes, Pikachu · Statik…) et **sept lignées
+  qui évoluent** à force de servir : Salamèche.exe → Reptincel.exe → Dracaufeu.exe (cartes Feu marquées),
+  Bulbizarre, Carapuce, Abra, Fantominus, **Magicarpe.exe** (inutile… jusqu'à Léviator.exe, ×3 Mult) et
+  **Évoli.exe**, qui devient Pyroli, Aquali ou Voltali selon le type que vous jouez le plus. Les formes
+  évoluées ne sont jamais en vente ; l'évolution a sa scène.
+- **D'une partie à l'autre** : la **vitrine des Champions** (première victoire contre chacun : un bonus de
+  PokéCoins) et la **Programmathèque** des programmes déjà croisés.
+
+Testé : chaque ante tombe sur son Champion, la Suite se forme, un programme évolue (et n'est jamais en
+vente sous sa forme évoluée), Paralysie, Torrent et Fournaise font ce qu'elles disent ; la partie simulée
+de 40 manches et toutes les règles s'évaluent sans valeur invalide.
+
+## Archivistes rivaux (`39r-rival.js`)
+
+Un archiviste rival surgit, rarement, après une capture. La rencontre se joue désormais comme dans les jeux
+d'origine : un « ! », la **transition en bandes noires**, puis l'**écran VS** — le rival entre par la droite
+en silhouette puis en couleurs, votre Pokémon de tête par la gauche, lignes de vitesse aux couleurs de ses
+types, VS qui frappe, ses trois Poké Balls (l'as en Hyper Ball) — sa réplique lettre par lettre, puis le
+choix, avec les gains annoncés. Relever le défi ferme l'écran en **iris de Poké Ball**. Au retour, le
+**verdict** : le rival vaincu chancelle, les gains apparaissent, le titre se dévoile. Chaque rival a son
+portrait, son **as** (Lokhlass, Florizarre, Magnéton, Arcanin, Ectoplasma, Dracolosse), trois répliques
+d'entrée selon le nombre de rencontres, et **se souvient de vous** : chaque victoire le rend plus fort de
+deux niveaux et paie davantage (un Noyau à la troisième). Une ambiance musicale dédiée, `rival`, est prévue.
 
 ## Icônes d'objets
 

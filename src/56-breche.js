@@ -238,9 +238,15 @@ function brRecomputeMods(R){
 /* ============================================================
    POOLS D'ENTITÉS
    ============================================================ */
-function brPool(make){ const list = []; return {
+/* un curseur tournant : chercher une place libre ne repart plus du début (c'était quadratique
+   avec des milliers de particules) ; un plafond, pour les effets : au-delà, on recycle */
+function brPool(make, max){ const list = []; let cur = 0; return {
   list,
-  get(){ for(const o of list) if(!o.on){ o.on = true; return o; } const o = make(); o.on = true; list.push(o); return o; },
+  get(){
+    const n = list.length;
+    for(let k = 0; k < n; k++){ const i = (cur + k) % n, o = list[i]; if(!o.on){ cur = i + 1; o.on = true; return o; } }
+    if(max && n >= max){ const o = list[cur % n]; cur = (cur + 1) % n; o.on = true; return o; }
+    const o = make(); o.on = true; list.push(o); return o; },
   each(fn){ for(const o of list) if(o.on) fn(o); },
   clear(){ for(const o of list) o.on = false; }
 };}
@@ -250,18 +256,20 @@ function brNewPools(){
     shots: brPool(()=>({hits:[]})),
     zones: brPool(()=>({})),
     gems:  brPool(()=>({})),
-    parts: brPool(()=>({})),
+    parts: brPool(()=>({}), 650),
     texts: brPool(()=>({})),
-    fx:    brPool(()=>({pts:[]})),
+    fx:    brPool(()=>({pts:[]}), 260),
     picks: brPool(()=>({}))
   };
 }
 /* grille spatiale : les collisions ne testent que les voisins */
 const BR_CELL = 64;
+/* une clé numérique : plus de chaîne fabriquée à chaque case, à chaque image */
+function brCellKey(gx, gy){ return (gx + 32768) * 65536 + (gy + 32768); }
 function brGrid(R){
   const g = R.grid; g.clear();
   R.P.foes.each(f=>{
-    const k = ((f.x / BR_CELL) | 0) + "," + ((f.y / BR_CELL) | 0);
+    const k = brCellKey(Math.floor(f.x / BR_CELL), Math.floor(f.y / BR_CELL));
     let a = g.get(k); if(!a){ a = []; g.set(k, a); } a.push(f);
   });
 }
@@ -269,7 +277,7 @@ function brNear(R, x, y, rad, fn){
   const x0 = Math.floor((x - rad) / BR_CELL), x1 = Math.floor((x + rad) / BR_CELL);
   const y0 = Math.floor((y - rad) / BR_CELL), y1 = Math.floor((y + rad) / BR_CELL);
   for(let gx = x0; gx <= x1; gx++) for(let gy = y0; gy <= y1; gy++){
-    const a = R.grid.get(gx + "," + gy);
+    const a = R.grid.get(brCellKey(gx, gy));
     if(a) for(const f of a) if(f.on && f.hp > 0) fn(f);
   }
 }
@@ -301,13 +309,22 @@ function brDefrag(R, f){
   if(f.elite || f.boss) brBurst(R, f.x, f.y, "#ffffff", n >> 1, 200, 0.4);
 }
 function brText(R, x, y, txt, color, size){
-  if(R.P.texts.list.filter(t=>t.on).length > 60) return;     /* lisibilite avant tout */
+  /* lisibilité avant tout, et le téléphone en dépend : en profondeur, moins de chiffres */
+  let n = 0; for(const t of R.P.texts.list) if(t.on) n++;
+  const cap = R.endless ? 26 : 48;
+  if(n > cap || (n > cap * 0.6 && size < 12)) return;
   const t = R.P.texts.get();
   t.x = x + (R.rng() - .5) * 10; t.y = y; t.txt = txt; t.color = color; t.size = size || 11;
   t.life = t.max = 0.7;
 }
 function brShake(R, amt){ R.shake = Math.min(14, R.shake + amt); }
-function brHitstop(R, ms){ R.hitstop = Math.max(R.hitstop, ms / 1000); }
+/* l'arrêt sur image ponctue un coup ; enchaîné à chaque critique, il figeait la partie
+   (en profondeur, une seconde de jeu durait trois secondes). Les petits arrêts ont un délai. */
+function brHitstop(R, ms){
+  if(ms < 60 && (R.hsCool || 0) > 0) return;
+  R.hitstop = Math.max(R.hitstop, ms / 1000);
+  R.hsCool = ms < 60 ? 0.5 : 0.25;
+}
 
 /* ============================================================
    DÉGÂTS
@@ -343,7 +360,8 @@ function brKill(R, f){
   R.kills++;
   if(R.mods.leech) brHeal(R, R.mods.leech, "leech");
   /* octets : leur couleur dit leur valeur */
-  const v = f.boss ? 60 : f.elite ? 18 : f.big ? 4 : 1;
+  /* un ennemi « dense » (horde plafonnée) vaut ce qu'il remplace */
+  const v = f.boss ? 60 : f.elite ? 18 : f.big ? 4 : Math.max(1, Math.round(f.dense || 1));
   const n = f.minion ? 0 : f.boss ? 12 : f.elite ? 5 : 1;
   for(let i = 0; i < n; i++){
     const g = R.P.gems.get();
@@ -363,7 +381,7 @@ function brKill(R, f){
   if(R.killSrc) brMisTick(R, R.killSrc);
   if(f.kind === "nest"){ R.chestsPending++; brMisTick(R, "nid"); if(f.poi) f.poi.used = true; brShake(R, 6);
     brBanner(R, "NID DÉTRUIT", "#ff3d7f"); }
-  if(f.kind === "splitter"){
+  if(f.kind === "splitter" && (!R.endless || brAlive(R) < BR_CAP)){
     for(let k = 0; k < 2; k++){ const c = brSpawnFoe(R, f.id, "split"); c.x = f.x + (k ? 14 : -14); c.y = f.y; }
   }
   if(f.reaper){ R.reaperDown = true; R.reaper = null; brBanner(R, "LA FAILLE A CÉDÉ", "#ffd24a", "impossible… et pourtant"); }

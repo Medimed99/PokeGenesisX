@@ -436,6 +436,8 @@ function brDeath(R){
   setTimeout(()=>{ if(BR === R) brFinish(R, false); }, 900);
 }
 function brVictory(R){
+  /* une récompense est encore à l'écran : on attend qu'elle soit refermée */
+  if(R.modal && BR === R){ setTimeout(()=>{ if(BR === R) brVictory(R); }, 400); return; }
   R.over = true;
   const m = document.getElementById("br-modal");
   if(!m) return;
@@ -451,6 +453,9 @@ function brVictory(R){
 ACTIONS.brend = () => { if(BR) brFinish(BR, true); };
 ACTIONS.brdeep = () => {
   const R = BR; if(!R) return;
+  /* la fenêtre de victoire a pu recouvrir une récompense : on repart d'un état propre,
+     sinon la partie restait figée derrière une fenêtre invisible */
+  R.modal = false; R.choices = null; R.paused = false;
   R.won = true; R.over = false; brDepthStart(R);
   const m = document.getElementById("br-modal"); if(m){ m.className = ""; m.innerHTML = ""; }
   brBanner(R, "FAILLE PROFONDE", "#ff3d7f", "neuf paliers, et quelqu'un au fond");

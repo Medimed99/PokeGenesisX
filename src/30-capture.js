@@ -753,8 +753,7 @@ SCREENS.capture = {
       <span class="tiny dim center" style="line-height:1.3">chroma<br><b class="gold-t">${shinyOddsText()}</b></span>
     </div>
     ${typeof potHtml === "function" ? potHtml() : ""}
-    ${typeof roamHtml === "function" ? roamHtml() : ""}
-    ${S.capMode === "fish" || typeof bonusChipHtml !== "function" ? (S.capMode === "fish" ? "" : rstreakRow()) : bonusChipHtml()}
+    ${S.capMode === "fish" ? "" : typeof bonusChipHtml !== "function" ? rstreakRow() : ""}
 
     <div class="ballrow">
       ${Object.entries(BALLS).filter(([k])=>(k === "safari") === (selBall() === "safari")).map(([k,b])=>{
@@ -790,6 +789,10 @@ SCREENS.capture = {
         </span>`;}).join("")}
       ${S.shinyCharge>0?`<span class="chip on">${ic("star")} ${S.shinyCharge} rencontres</span>`:""}
     </div>
+
+    ${/* la traque et les bonus : sous les baies, au-dessus des objectifs */ ""}
+    ${typeof roamHtml === "function" ? roamHtml() : ""}
+    ${S.capMode !== "fish" && typeof bonusChipHtml === "function" ? bonusChipHtml() : ""}
 
     ${objectivesCard()}
 

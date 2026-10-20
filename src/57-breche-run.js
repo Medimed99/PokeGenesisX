@@ -63,6 +63,7 @@ function brStart(R){
        l'ecran, la partie est figee. On ne se fait plus frapper en choisissant. */
     if(R.modal) R.shake = 0;
     if(!R.paused && !R.over && !R.modal){
+      if(R.hsCool > 0) R.hsCool -= dt;
       if(R.hitstop > 0){ R.hitstop -= dt; dt = 0; }
       if(R.slowmo > 0){ R.slowmo -= dt; dt *= 0.25; }
       brUpdate(R, dt);
@@ -144,6 +145,8 @@ function brDir(R){
    ============================================================ */
 function brUpdate(R, dt){
   if(R.cine && R.cine.freeze){ brCineTick(R, dt); return; }
+  /* les sous-titres s'effacent d'eux-mêmes, arène ou pas (un écho n'a pas d'arène) */
+  if(typeof brSayTick === "function") brSayTick(R, dt);
   if(R.finaleT > 0) R.finaleT -= dt;
   R.t += dt;
   /* --- l'Archiviste --- */
@@ -184,9 +187,15 @@ function brUpdate(R, dt){
   brKillMilestones(R);
   for(const w of R.team) if(w.pose){ w.pose.t += dt; if(w.pose.t >= w.pose.len) w.pose = null; }
 
-  /* les recompenses attendent un moment calme : jamais pendant une frappe */
-  if(R.pendingLevels > 0 && !R.modal){ R.pendingLevels--; brLevelUp(R); }
-  else if(R.chestsPending > 0 && !R.modal){ R.chestsPending--; brChest(R); }
+  /* les recompenses attendent un moment calme : jamais pendant une frappe, ni pendant la chute
+     ou l'entrée d'un boss. Après le gardien, elles n'ont de sens que si l'on descend dans la
+     faille : elles attendent ce choix (et sont servies à la descente). */
+  /* (les mises en scène avancent au rendu ; sans rendu — simulation —, elles expirent d'elles-mêmes) */
+  if(R.mini && R.t - (R.mini.gt || 0) > 4) R.mini = null;
+  if(R.fin && R.t - (R.fin.gt || 0) > 5) R.fin = null;
+  const hold = R.fin || R.cine || R.mini || R.pzDown || (R.bossDown && !R.endless);
+  if(!hold && R.pendingLevels > 0 && !R.modal){ R.pendingLevels--; brLevelUp(R); }
+  else if(!hold && R.chestsPending > 0 && !R.modal){ R.chestsPending--; brChest(R); }
 
   if(!R.bossOn && !R.endless && R.t >= R.bossAt) brSummonBoss(R);
   if(R.hp <= 0 && !R.over) brDeath(R);
@@ -237,7 +246,7 @@ function brSpawnFoe(R, id, kind){
   f.flash = 0; f.kx = 0; f.ky = 0; f.slow = 0; f.dot = 0; f.dotAcc = 0; f.phase = R.rng() * 6;
   f.charge = null; f.atk = 0; f.pattern = 0;
   f.shiny = !f.boss && R.rng() < (f.elite ? 1/180 : 1/2500) * (typeof charmMul === "function" ? charmMul() : 1);
-  f.echo = false; f.reaper = false; f.minion = false; f.nestOf = null; f.shield = false; f.under = 0; f.rise = 0; f.pose = null;
+  f.echo = false; f.reaper = false; f.minion = false; f.nestOf = null; f.shield = false; f.under = 0; f.rise = 0; f.pose = null; f.dense = 1;
   brShapeFoe(R, f, ["shooter","rusher","armored","splitter","split","nest","pylon"].includes(kind) ? kind : "n");
   return f;
 }
@@ -247,22 +256,28 @@ function brSpawn(R, dt){
   /* la horde : quelques ennemis au debut, une maree a la fin */
   const wave = (R.t % 60) > 50 ? 1.8 : 1;
   const rate = (1.2 + R.t * 0.035 + (R.endless ? (R.depth || 0) * 1.4 : 0)) * wave * (R.mod === "horde" ? 1.5 : 1) * (R.spawnMul || 1);
-  R.spawnAcc += rate * dt;
-  const cap = 230;
+  /* au-delà d'un certain débit, la horde se « densifie » : moins d'ennemis, chacun plus solide,
+     même total de PV à abattre. Le téléphone suit, la pression reste la même. */
+  const dens = R.endless ? Math.max(1, Math.min(4, rate / BR_RATE_REF)) : 1;
+  R.dens = dens;
+  R.spawnAcc += rate / dens * dt;
+  const cap = R.endless ? BR_CAP : 230;
+  let alive = brAlive(R);
   /* encerclement : toutes les 45 s, un cercle complet se referme sur l'Archiviste */
   if(R.t >= (R.nextRing || 60)){
     R.nextRing = (R.nextRing || 60) + 45;
-    const n = 18 + Math.min(30, Math.floor(R.t / 20)), id = brSpecies(R), rad = Math.max(R.W, R.H) * 0.48;
+    const n = Math.min(18 + Math.min(30, Math.floor(R.t / 20)), R.endless ? Math.max(10, cap + 24 - alive) : 99), id = brSpecies(R), rad = Math.max(R.W, R.H) * 0.48;
     for(let k = 0; k < n; k++){
       const f = brSpawnFoe(R, id, "n"), a = k / n * Math.PI * 2;
       f.x = R.x + Math.cos(a) * rad; f.y = R.y + Math.sin(a) * rad;
+      brDensify(f, dens);
     }
+    alive += n;
     brBanner(R, "ENCERCLEMENT", "#b06bff"); brTicker(R, "ENCERCLEMENT DÉTECTÉ", "#b06bff");
   }
-  let alive = 0; R.P.foes.each(()=>alive++);
   while(R.spawnAcc >= 1){
     R.spawnAcc -= 1;
-    if(alive++ < cap) brSpawnFoe(R, brSpecies(R), brRollKind(R));
+    if(alive++ < cap) brDensify(brSpawnFoe(R, brSpecies(R), brRollKind(R)), dens);
   }
   if(R.t >= R.nextElite){ R.nextElite += 60; brSpawnFoe(R, brSpecies(R), "elite"); brBanner(R, "ÉLITE CORROMPU", "#ff3d7f"); }
   if(!R.weeklySpawned && R.t >= 360 && R.t < R.bossAt - 90 && !R.endless && !R.bossOn && !(R.boss && R.boss.on) && typeof evWeeklyLegend === "function"){
@@ -270,6 +285,18 @@ function brSpawn(R, dt){
   }
   if(R.t >= R.nextMini && R.nextMini < R.bossAt){ R.nextMini += 9999; const al = brSpawnFoe(R, brSpecies(R), "mini"); brShake(R, 6);
     if(typeof brMiniIntro === "function") brMiniIntro(R, al, "UN ALPHA APPROCHE", POKE[al.id].name.toUpperCase(), "#ffb35c"); else brBanner(R, "UN ALPHA APPROCHE", "#ffb35c"); }
+}
+/* le plafond de la horde : au-delà, le téléphone peine */
+const BR_CAP = 150, BR_RATE_REF = 15;
+function brAlive(R){ let n = 0; R.P.foes.each(()=>n++); return n; }
+function brDensify(f, k){
+  if(!f) return f;
+  f.dense = k;
+  if(k <= 1.01 || f.boss || f.elite || f.big || f.kind === "nest" || f.kind === "pylon") return f;
+  f.max = f.hp = Math.round(f.hp * k);
+  f.dmg *= 1 + (k - 1) * 0.3;
+  f.size = Math.round(f.size * (1 + (k - 1) * 0.1)); f.r = f.size * 0.32;
+  return f;
 }
 function brSpawnTrickle(R, dt){
   R.spawnAcc += 0.8 * dt;

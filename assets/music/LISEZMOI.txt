@@ -19,6 +19,7 @@ AMBIANCES (jouées en boucle — prévoir une boucle propre)
   combat           Combat ordinaire.
   combat_boss      Champion, élite, noyau, gardien (sinon : combat).
   legendaire       Légendaire, Sanctuaire, raid mondial (sinon : combat_boss).
+  rival            Un archiviste rival vous défie, pendant l'écran de rencontre (sinon : combat_boss).
 
 JINGLES (joués une fois, l'ambiance baisse pendant ce temps)
   j_victoire       Combat gagné (3 à 6 s).

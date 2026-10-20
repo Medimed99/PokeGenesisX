@@ -39,7 +39,8 @@ function brScenarioStart(R, b){
   /* l'arene : un cercle de corruption entre l'Archiviste et le gardien */
   const cx = R.x + (b.x - R.x) * 0.35, cy = R.y + (b.y - R.y) * 0.35;
   R.arena = {x:cx, y:cy, r:Math.max(R.W, R.H) * 1.1, target:460, burnT:0};
-  brCineStart(R, b, {kicker:g ? "SIGNATURE LÉGENDAIRE" : "ANOMALIE MAJEURE", title:nm, sub:R.scen.sub,
+  /* le gardien a le temps de se présenter : on doit pouvoir lire sa carte */
+  brCineStart(R, b, {kicker:g ? "SIGNATURE LÉGENDAIRE" : "ANOMALIE MAJEURE", title:nm, sub:R.scen.sub, dur:5.6,
     color:g ? "#ff3d7f" : "#ffb35c", lines:[
       [0.2, "pz", g ? `Signal légendaire : ${R.scen.name}. C'est lui qui verrouille ce secteur.` : `Une anomalie majeure se condense. Elle a pris la forme de ${R.scen.name}.`],
       [1.9, b.id, "▓ ACCÈS REFUSÉ ▓ ARCHIVE SCELLÉE ▓"]
@@ -97,7 +98,7 @@ function brCineTick(R, dt){
 }
 /* ---------- les entrées courtes : un alpha, un chasseur — la partie ralentit sans s'arrêter ---------- */
 function brMiniIntro(R, f, title, sub, color){
-  R.mini = {t:0, dur:1.9, f, title, sub, color:color || "#ffb35c"};
+  R.mini = {t:0, dur:1.9, f, title, sub, color:color || "#ffb35c", gt:R.t};
   R.slowmo = Math.max(R.slowmo || 0, 0.45);
   brRing(R, f.x, f.y, 140, color || "#ffb35c", 0.5);
   try { Sfx.glitch(); buzz([20, 30, 40]); } catch(e){}
@@ -112,7 +113,7 @@ function brMiniTick(R, dtReal){
 }
 /* ---------- la finale : rayons, silhouette blanche, éclatement en blocs ---------- */
 function brFinaleStart(R, f, color){
-  R.fin = {t:0, dur:2.6, x:f.x, y:f.y, id:f.id, size:f.size, c:color || "#ff3d7f", shat:false, pz:!!f.pz};
+  R.fin = {t:0, dur:2.6, x:f.x, y:f.y, id:f.id, size:f.size, c:color || "#ff3d7f", shat:false, pz:!!f.pz, gt:R.t};
 }
 function brFinaleTick(R, dtReal){
   const F = R.fin; if(!F) return;
@@ -168,7 +169,6 @@ function brArenaTick(R, dt){
       brSay(R, "pz", safe ? "Vous avez tenu. Achevez-le !" : "Touché… mais il est à bout. Achevez-le !", 2.6);
     }
   }
-  brSayTick(R, dt);
 }
 
 /* ---------- actes III et IV : les seuils ---------- */
