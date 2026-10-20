@@ -77,6 +77,13 @@ const INFOS = {
     <p>Six ailes de sept paliers, trois vagues par palier, un boss au septième, en trois difficultés.
     Les <b>parchemins</b>, que seule la Tour donne, font monter les compétences ; l'expérience y fait monter
     le niveau d'archive.</p>
+    <p>La jauge de <b>Synchro</b> se remplit quand votre équipe agit et encaisse. Pleine, elle lance une
+    frappe d'équipe : tous vos Pokémon attaquent la cible à la suite, puis repartent avec de l'élan. Elle ne
+    coûte pas le tour en cours. En automatique, elle part dès qu'elle est prête.</p>
+    <p>Les adversaires vaincus lâchent un <b>butin</b> : des PokéCoins, parfois un Bonbon d'équipe, et rarement
+    un parchemin (les boss de vague en lâchent un à coup sûr). Une victoire garde tout ; une défaite ne garde
+    que les PokéCoins. Un palier déjà franchi se rejoue en automatique, en boucle si vous le souhaitez.</p>
+    <p>Étoiles : une pour la victoire, deux avec un K.O. au plus, trois sans aucun K.O.</p>
     <p>Au sommet des ailes 2, 4 et 6 se tiennent les <b>verrous légendaires</b> : ceux de Kanto en Normal,
     de Johto en Difficile, de Hoenn en Enfer.</p>`},
   expedition:{n:"L'expédition", d:`
@@ -380,8 +387,9 @@ const TUTOS = {
   ]},
   towerprep:{steps:[
     {sel:".sw-waves", t:"Avant chaque palier, tu vois ce qui t'attend. Regarde les types : c'est eux qui décident, plus que les niveaux."},
-    {sel:".sw-slots", t:"Le premier emplacement porte la couronne. Les Pokémon puissants y donnent un passif à toute l'équipe."},
-    {sel:".sw-go", t:"En combat, chaque Pokémon a trois compétences : une attaque, une à recharge, une ultime. Les parchemins de la Tour les font monter."}
+    {sel:".sq-intel", t:"Ici, le niveau des vagues face au tien, et les types qui les font plier. Un Pokémon du bon type vaut dix niveaux."},
+    {sel:"#pp-host", t:"Le premier emplacement porte la couronne. Les Pokémon puissants y donnent un passif à toute l'équipe."},
+    {sel:".sw-go", t:"En combat, chaque Pokémon a trois compétences : une attaque, une à recharge, une ultime. Et quand la Synchro est pleine, toute l'équipe frappe ensemble. Les parchemins de la Tour font monter les compétences."}
   ]},
   poker:{steps:[
     {sel:"#screen", t:"Les données rares ne se rangent pas au hasard : elles se regroupent par motifs. Espèces identiques, familles, types."},

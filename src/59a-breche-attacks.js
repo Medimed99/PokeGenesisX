@@ -102,7 +102,7 @@ function brFireExtra(R, w, st, pos, tgt, ang){
         brShot(R, pos.x, pos.y, Math.cos(a) * 250, Math.sin(a) * 250,
           {dmg:st.dmg, r:6 * A, color: P.rainbow ? `hsl(${k / n * 360},95%,62%)` : C, w:W, life:0.9, pierce:2});
       }
-      if(P.heal) R.hp = Math.min(R.maxHp, R.hp + P.heal);
+      if(P.heal) brHeal(R, P.heal, "leech");
       return; }
     case "rain": {
       const n = (P.strikes || 1) + st.count;
@@ -126,7 +126,7 @@ function brFireExtra(R, w, st, pos, tgt, ang){
       const rad = 72 * A * (P.r || 1);
       brNear(R, pos.x, pos.y, rad, f=>{ if(Math.hypot(f.x - pos.x, f.y - pos.y) < rad + f.r) brHit(R, f, st.dmg, C, 0, 0, 0); });
       if(P.slowAll) R.P.foes.each(f=>{ if(!f.boss && Math.hypot(f.x - R.x, f.y - R.y) < 320) f.slow = Math.max(f.slow, 0.6); });
-      if(P.heal) R.hp = Math.min(R.maxHp, R.hp + P.heal);
+      if(P.heal) brHeal(R, P.heal, "leech");
       w.auraR = rad; w.auraT = 0.5;
       return; }
     case "tornado":

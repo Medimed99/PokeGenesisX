@@ -158,7 +158,8 @@ function brUpdate(R, dt){
   const last = R.trail[0];
   if(!last || Math.hypot(last.x - R.x, last.y - R.y) > 3){ R.trail.unshift({x:R.x, y:R.y}); if(R.trail.length > 120) R.trail.pop(); }
   if(R.inv > 0) R.inv -= dt;
-  if(R.mods.regen) R.hp = Math.min(R.maxHp, R.hp + R.mods.regen * dt);
+  if(R.mods.regen) brHeal(R, R.mods.regen * dt, "regen");
+  brHealTick(R, dt);
   R.shake = Math.max(0, R.shake - dt * 30);
 
   brSpawn(R, dt);
@@ -236,7 +237,7 @@ function brSpawnFoe(R, id, kind){
   f.flash = 0; f.kx = 0; f.ky = 0; f.slow = 0; f.dot = 0; f.dotAcc = 0; f.phase = R.rng() * 6;
   f.charge = null; f.atk = 0; f.pattern = 0;
   f.shiny = !f.boss && R.rng() < (f.elite ? 1/180 : 1/2500) * (typeof charmMul === "function" ? charmMul() : 1);
-  f.echo = false; f.reaper = false; f.minion = false; f.nestOf = null; f.shield = false; f.under = 0;
+  f.echo = false; f.reaper = false; f.minion = false; f.nestOf = null; f.shield = false; f.under = 0; f.rise = 0; f.pose = null;
   brShapeFoe(R, f, ["shooter","rusher","armored","splitter","split","nest","pylon"].includes(kind) ? kind : "n");
   return f;
 }
@@ -245,7 +246,7 @@ function brSpawn(R, dt){
   /* densite : monte tout le long, avec des vagues toutes les 60 s */
   /* la horde : quelques ennemis au debut, une maree a la fin */
   const wave = (R.t % 60) > 50 ? 1.8 : 1;
-  const rate = (1.2 + R.t * 0.035 + (R.endless ? (R.depth || 0) * 1.4 : 0)) * wave * (R.mod === "horde" ? 1.5 : 1);
+  const rate = (1.2 + R.t * 0.035 + (R.endless ? (R.depth || 0) * 1.4 : 0)) * wave * (R.mod === "horde" ? 1.5 : 1) * (R.spawnMul || 1);
   R.spawnAcc += rate * dt;
   const cap = 230;
   /* encerclement : toutes les 45 s, un cercle complet se referme sur l'Archiviste */
@@ -267,7 +268,8 @@ function brSpawn(R, dt){
   if(!R.weeklySpawned && R.t >= 360 && R.t < R.bossAt - 90 && !R.endless && !R.bossOn && !(R.boss && R.boss.on) && typeof evWeeklyLegend === "function"){
     R.weeklySpawned = true; brSummonEcho(R, evWeeklyLegend(), true);
   }
-  if(R.t >= R.nextMini && R.nextMini < R.bossAt){ R.nextMini += 9999; brSpawnFoe(R, brSpecies(R), "mini"); brBanner(R, "UN ALPHA APPROCHE", "#ffb35c"); brShake(R, 6); }
+  if(R.t >= R.nextMini && R.nextMini < R.bossAt){ R.nextMini += 9999; const al = brSpawnFoe(R, brSpecies(R), "mini"); brShake(R, 6);
+    if(typeof brMiniIntro === "function") brMiniIntro(R, al, "UN ALPHA APPROCHE", POKE[al.id].name.toUpperCase(), "#ffb35c"); else brBanner(R, "UN ALPHA APPROCHE", "#ffb35c"); }
 }
 function brSpawnTrickle(R, dt){
   R.spawnAcc += 0.8 * dt;
@@ -447,7 +449,7 @@ function brFire(R, w, st, pos){
       brShake(R, 2);
       break; }
     case "pulse": {
-      R.hp = Math.min(R.maxHp, R.hp + 2 + w.lv);
+      brHeal(R, 2 + w.lv, "leech");
       brRing(R, pos.x, pos.y, 120 * st.area, C, 0.35);
       brNear(R, pos.x, pos.y, 120 * st.area, f=>{ brHit(R, f, st.dmg, C, 0, 0, 0); if(w.stage >= 2 && !f.boss) f.stun = 0.7; });
       break; }
@@ -521,6 +523,7 @@ function brShots(R, dt){
       R.curW = W;
       const d = Math.hypot(s.vx, s.vy) || 1;
       brHit(R, f, s.dmg, s.color, s.vx / d, s.vy / d, s.kind === "flame" ? 40 : 120);
+      if(s.ty && typeof brTyImpact === "function") brTyImpact(R, s.x, s.y, s.ty, s.vx, s.vy, s.kind === "flame" ? 1 : 3);
       if(s.slow) f.slow = s.slow;
       if(s.stun && !f.boss) f.stun = s.stun;
       if(s.boom){ const bx = s.x, by = s.y, br = s.boom; brRing(R, bx, by, br, s.color, 0.25);
@@ -535,6 +538,7 @@ function brLobLand(R, s){
     brDecal(R, tp === 5 || tp === 6 ? "crater" : (BR_TYPE_DECAL[tp] || "crack"), s.lobTo.x, s.lobTo.y, s.area * 0.7, 7); }
   brRing(R, s.lobTo.x, s.lobTo.y, s.area, s.color, 0.3);
   brBurst(R, s.lobTo.x, s.lobTo.y, s.color, 10, 150, 0.4);
+  if(s.ty && typeof brTyImpact === "function") brTyImpact(R, s.lobTo.x, s.lobTo.y, s.ty, 0, 0, 7);
   brNear(R, s.lobTo.x, s.lobTo.y, s.area, f=>{
     const dx = f.x - s.lobTo.x, dy = f.y - s.lobTo.y, d = Math.hypot(dx, dy) || 1;
     if(d < s.area + f.r) brHit(R, f, s.dmg, s.color, dx / d, dy / d, 260);
@@ -578,7 +582,7 @@ function brZones(R, dt){
       if(Math.hypot(f.x - z.x, f.y - z.y) > z.r + f.r * 0.5) return;
       brHit(R, f, z.dmg, z.color, 0, 0, 0);
       if(z.k === "puddle"){ f.dot = 2; f.dotDmg = z.dmg * 0.6; }
-      if(z.k === "seed"){ f.slow = 0.5; R.hp = Math.min(R.maxHp, R.hp + 0.15); }
+      if(z.k === "seed"){ f.slow = 0.5; brHeal(R, 0.15, "leech"); }
     });
   });
 }
@@ -597,7 +601,7 @@ function brGems(R, dt){
     if(d < mag || g.pull){ g.pull = true; const sp = 480 + (g.pv = (g.pv || 0) + dt * 900); g.x += dx / d * sp * dt; g.y += dy / d * sp * dt; }
     if(d < 16){
       g.on = false; g.pv = 0;
-      R.xp += g.v * (R.mods.xp || 1);
+      R.xp += g.v * (R.mods.xp || 1) * (R.anom && R.anom.k === "silence" ? 2 : 1);
       R.pickChain = (R.pickT > 0 ? (R.pickChain || 0) + 1 : 0); R.pickT = 0.35;
       if(R.sndT <= 0 || R.sndT === undefined){ try { Sfx.coin(); } catch(e){} R.sndT = 0.06; }
       while(R.xp >= R.need){ R.xp -= R.need; R.lv++; R.need = brXpNeed(R.lv); R.pendingLevels++; }
@@ -607,7 +611,8 @@ function brGems(R, dt){
   if(R.sndT > 0) R.sndT -= dt;
 }
 function brParts(R, dt){
-  R.P.parts.each(p=>{ p.life -= dt; if(p.life <= 0){ p.on = false; return; } p.x += p.vx * dt; p.y += p.vy * dt; p.vx *= 0.92; p.vy *= 0.92; });
+  R.P.parts.each(p=>{ p.life -= dt; if(p.life <= 0){ p.on = false; return; } p.x += p.vx * dt; p.y += p.vy * dt;
+    if(p.g){ p.vy += p.g * dt; p.vx *= 0.985; } else { p.vx *= 0.92; p.vy *= 0.92; } });
   R.P.texts.each(t=>{ t.life -= dt; if(t.life <= 0){ t.on = false; return; } t.y -= 34 * dt; });
   R.P.fx.each(f=>{ f.life -= dt; if(f.life <= 0) f.on = false; });
   if(R.hurt > 0) R.hurt -= dt;
@@ -642,6 +647,7 @@ function brSummonBoss(R){
 function brBossAI(R, dt){
   const b = R.boss;
   if(!b || !b.on) return;
+  if(b.pz){ brPzAI(R, b, dt); return; }
   if(b.flash > 0) b.flash -= dt;
   if(brBossKitTick(R, b, dt)) return;                     /* enterre, ou en train de jaillir */
   brScenarioPhase(R, b);
@@ -692,6 +698,7 @@ function brBossDown(R, f){
   R.slowmo = 1.4; brShake(R, 14);
   brBurst(R, f.x, f.y, "#ffffff", 80, 340, 0.9);
   brBanner(R, "SECTEUR STABILISÉ", "#35f0d6", R.guardian ? "VERROU LEVÉ" : "ALPHA VAINCU");
+  if(typeof brFinaleStart === "function") brFinaleStart(R, f, BR_ARCH[POKE[f.id].types[0]].c);
   try { Sfx.win(); buzz([40, 50, 90]); } catch(e){}
   brScenarioFinale(R, f);
   setTimeout(()=>{ if(BR === R) brVictory(R); }, 3000);
@@ -703,19 +710,28 @@ function brBossDown(R, f){
 function brRender(R, cv){
   const x = cv.getContext("2d");
   const W = R.W, H = R.H;
+  /* les mises en scène avancent au temps réel, même au ralenti */
+  const nowR = performance.now(), rdt = Math.min(0.05, (nowR - (R.rLast || nowR)) / 1000); R.rLast = nowR;
+  if(!R.paused && typeof brMiniTick === "function"){ brMiniTick(R, rdt); brFinaleTick(R, rdt); }
   x.setTransform(R.dpr, 0, 0, R.dpr, 0, 0);
   x.imageSmoothingEnabled = false;
   const sx = (R.rng() - .5) * R.shake, sy = (R.rng() - .5) * R.shake;
   const cam0 = R.cam || R;
   const camX = cam0.x - W / 2 + sx, camY = cam0.y - H / 2 + sy;
-  /* sol carrele */
-  const fl = brFloor(R.hab), fs = fl.width;
-  const ox = -((camX % fs) + fs) % fs, oy = -((camY % fs) + fs) % fs;
-  for(let tx = ox; tx < W; tx += fs) for(let ty = oy; ty < H; ty += fs) x.drawImage(fl, tx, ty);
+  /* le zoom de la caméra, autour du centre de l'écran */
+  const camZ = R.camZ || 1;
+  if(camZ !== 1) x.setTransform(R.dpr * camZ, 0, 0, R.dpr * camZ, R.dpr * W / 2 * (1 - camZ), R.dpr * H / 2 * (1 - camZ));
+  /* le sol, peint morceau par morceau (59w) */
+  if(typeof brDrawGround === "function") brDrawGround(x, R, camX, camY, W, H);
+  else { const fl = brFloor(R.hab), fs = fl.width;
+    const ox = -((camX % fs) + fs) % fs, oy = -((camY % fs) + fs) % fs;
+    for(let tx = ox; tx < W; tx += fs) for(let ty = oy; ty < H; ty += fs) x.drawImage(fl, tx, ty); }
   const X = v => v - camX, Y = v => v - camY;
   brDrawUnder(x, R, X, Y);
   brDrawDecals(x, R, X, Y);
   brDrawHazards(x, R, X, Y);
+  if(typeof brDrawAnom === "function") brDrawAnom(x, R, X, Y);
+  if(typeof brDrawRift === "function") brDrawRift(x, R, X, Y);
 
   /* zones au sol */
   R.P.zones.each(z=>{
@@ -727,6 +743,12 @@ function brRender(R, cv){
       x.fillStyle = "rgba(255,61,127," + (0.12 + (1 - k) * 0.25) + ")";
       x.beginPath(); x.arc(X(z.x), Y(z.y), z.r, 0, 7); x.fill();
       x.strokeStyle = "#ff3d7f"; x.lineWidth = 2; x.beginPath(); x.arc(X(z.x), Y(z.y), z.r * (1 - k), 0, 7); x.stroke();
+      /* un bloc de données qui tombe : son ombre grandit, il descend */
+      if(z.cube){ const fall = 1 - k, cx2 = X(z.x), cy2 = Y(z.y) - (1 - fall) * 260, sz = 14 + fall * 10;
+        x.fillStyle = "rgba(0,0,0,.35)"; x.beginPath(); x.ellipse(X(z.x), Y(z.y), sz * fall, sz * 0.4 * fall, 0, 0, 7); x.fill();
+        x.fillStyle = "#0a2a30"; x.fillRect(cx2 - sz / 2, cy2 - sz, sz, sz);
+        x.fillStyle = z.color; x.fillRect(cx2 - sz / 2, cy2 - sz, sz, 3); x.fillRect(cx2 - sz / 2, cy2 - sz, 3, sz);
+        x.fillStyle = "rgba(255,255,255,.6)"; x.fillRect(cx2 - sz / 2 + 4, cy2 - sz + 5, 3, 3); }
       return;
     }
     if(z.k === "ring"){
@@ -778,8 +800,9 @@ function brRender(R, cv){
       x.fillStyle = "#ff283c"; x.beginPath(); x.arc(X(R.x), Y(R.y), 3, 0, 7); x.fill();
     }
     const spr = brSprite(f.id, f.shiny ? "s" : "c");
-    const s = f.size, fx = X(f.x), fy = Y(f.y);
+    const rise = f.rise || 0, s = f.size, fx = X(f.x), fy = Y(f.y) + rise * 64;
     if(fx < -s || fy < -s || fx > W + s || fy > H + s) continue;
+    if(rise >= 1) continue;                                 /* encore sous la faille */
     x.fillStyle = "rgba(0,0,0,.35)"; x.beginPath(); x.ellipse(fx, fy + s * 0.32, s * 0.3, s * 0.1, 0, 0, 7); x.fill();
     if(f.elite || f.boss){
       const gl = x.createRadialGradient(fx, fy, 0, fx, fy, s * 0.7);
@@ -792,10 +815,14 @@ function brRender(R, cv){
        Les chromatiques prennent une planche recolorée (59p) ; tant qu'elle n'est pas prête : sprite fixe. */
     f.dir = brDir8(R.x - f.x, R.y - f.y, f.dir);
     const ft = f.stun > 0 ? null : R.t + f.phase;
-    const FV = f.shiny ? "s" : "c";
+    const FV = f.pz ? "n" : f.shiny ? "s" : "c";
+    if(rise > 0) x.globalAlpha = Math.max(0.1, 1 - rise);
     const pmd = (f.hurtT > 0 && brAnimDraw(x, f.id, "hurt", FV, f.dir, 0.28 - f.hurtT, fx + jit, fy, s * 0.95))
+             || (f.pose && f.pose.t < 0.8 && brAnimDraw(x, f.id, f.pose.anim, FV, f.dir, f.pose.t, fx + jit, fy, s * 0.95))
              || brPmdDraw(x, f.id, FV, f.dir, ft, fx + jit, fy, s * 0.95);
-    if(pmd && f.flash > 0) brPmdDraw(x, f.id, "w", f.dir, ft, fx + jit, fy, s * 0.95, 0.85);
+    if(pmd && (f.flash > 0 || (rise > 0 && rise < 0.6))) brPmdDraw(x, f.id, "w", f.dir, ft, fx + jit, fy, s * 0.95, f.flash > 0 ? 0.85 : 1 - rise / 0.6);
+    x.globalAlpha = 1;
+    if(f.pose){ f.pose.t += 1 / 60; if(f.pose.t >= 0.8) f.pose = null; }
     if(!pmd && spr){
       x.save(); x.translate(fx + jit, fy + bob);
       if(f.x > R.x) x.scale(-1, 1);
@@ -835,11 +862,15 @@ function brRender(R, cv){
   }
   /* equipe : la file suit le chef, chacun a sa place */
   for(let i = R.team.length - 1; i >= 0; i--){
-    const w = R.team[i], p = brMemberPos(R, i), s = i === 0 ? 58 : 44;
+    const w = R.team[i], p0 = brMemberPos(R, i), s = i === 0 ? 58 : 44;
+    /* pendant une ruée ou un bond, le Pokémon quitte sa place */
+    const p = typeof brMemberOff === "function" ? brMemberOff(w, p0) : p0, lift = p.z || 0;
     /* éveillé : il prend ses couleurs chromatiques */
     const V = brIsShiny(w) ? "s" : "n";
     const spr = brSprite(brShownId(w), V);
-    x.fillStyle = "rgba(0,0,0,.4)"; x.beginPath(); x.ellipse(X(p.x), Y(p.y) + s * 0.34, s * 0.28, s * 0.09, 0, 0, 7); x.fill();
+    const shk = 1 / (1 + lift / 60);
+    x.fillStyle = "rgba(0,0,0,.4)"; x.beginPath(); x.ellipse(X(p.x), Y(p.y) + s * 0.34, s * 0.28 * shk, s * 0.09 * shk, 0, 0, 7); x.fill();
+    if(w.dash && typeof brDrawDashTrail === "function") brDrawDashTrail(x, R, w, p0, X, Y, s, V);
     if(w.stage >= 2){
       const gl = x.createRadialGradient(X(p.x), Y(p.y), 0, X(p.x), Y(p.y), s * 0.7);
       gl.addColorStop(0, "rgba(255,210,74,.35)"); gl.addColorStop(1, "rgba(255,210,74,0)");
@@ -854,11 +885,12 @@ function brRender(R, cv){
     const blink = i === 0 && R.inv > 0 && Math.floor(R.t * 20) % 2 ? 0.45 : undefined;
     const pmdT = moving ? R.t + i * 0.13 : null;
     const pose = w.pose && w.pose.t < w.pose.len ? w.pose : null;
-    const pmd = (pose && brAnimDraw(x, brShownId(w), pose.anim, V, pose.dir, pose.t, X(p.x), Y(p.y), s, blink))
-             || brPmdDraw(x, brShownId(w), V, w.dir || 0, pmdT, X(p.x), Y(p.y), s, blink);
-    if(pmd && R.evoFlash && R.evoFlash.w === w) brPmdDraw(x, brShownId(w), "w", w.dir || 0, pmdT, X(p.x), Y(p.y), s, R.evoFlash.a);
+    const py = Y(p.y) - lift;
+    const pmd = (pose && brAnimDraw(x, brShownId(w), pose.anim, V, pose.dir, pose.t, X(p.x), py, s, blink))
+             || brPmdDraw(x, brShownId(w), V, w.dir || 0, pmdT, X(p.x), py, s, blink);
+    if(pmd && R.evoFlash && R.evoFlash.w === w) brPmdDraw(x, brShownId(w), "w", w.dir || 0, pmdT, X(p.x), py, s, R.evoFlash.a);
     if(!pmd && spr){
-      x.save(); x.translate(X(p.x), Y(p.y) + Math.sin(R.t * 10 + i) * (R.vx || R.vy ? 2 : 0.6));
+      x.save(); x.translate(X(p.x), Y(p.y) - lift + Math.sin(R.t * 10 + i) * (R.vx || R.vy ? 2 : 0.6));
       if(R.face < 0) x.scale(-1, 1);
       if(i === 0 && R.inv > 0 && Math.floor(R.t * 20) % 2) x.globalAlpha = 0.45;
       x.drawImage(spr, -s / 2, -s / 2, s, s);
@@ -874,6 +906,7 @@ function brRender(R, cv){
   x.globalCompositeOperation = "lighter";
   R.P.shots.each(s=>{
     const px = X(s.x), py = Y(s.y);
+    if(s.ty && typeof brDrawShotTy === "function" && brDrawShotTy(x, R, s, px, py)) return;
     if(s.kind === "lob"){ x.fillStyle = s.color; x.beginPath(); x.arc(px, py, 9, 0, 7); x.fill(); return; }
     if(s.kind === "flame"){ const k2 = s.life / 0.42;
       x.globalAlpha = Math.min(1, k2 * 1.6) * 0.55; x.fillStyle = s.color; x.beginPath(); x.arc(px, py, s.r * (2.2 - k2), 0, 7); x.fill();
@@ -900,7 +933,8 @@ function brRender(R, cv){
       x.fillStyle = "rgba(255,61,127," + (0.15 + (1 - k) * 0.3) + ")"; x.fillRect(0, -f.w, f.len, f.w * 2); x.restore(); x.globalCompositeOperation = "lighter"; }
     x.globalAlpha = 1;
   });
-  R.P.parts.each(p=>{ x.globalAlpha = p.life / p.max; x.fillStyle = p.color; x.fillRect(X(p.x), Y(p.y), p.size, p.size); });
+  R.P.parts.each(p=>{ x.globalAlpha = Math.min(1, p.life / p.max * 1.4); x.fillStyle = p.color;
+    if(p.sh) brDrawPart(x, R, p, X(p.x), Y(p.y)); else x.fillRect(X(p.x), Y(p.y), p.size, p.size); });
   x.globalAlpha = 1; x.globalCompositeOperation = "source-over";
   /* halo d'attraction discret autour de l'Archiviste */
   x.strokeStyle = "rgba(53,240,214,.12)"; x.lineWidth = 1;
@@ -926,6 +960,7 @@ function brRender(R, cv){
     }
   }
   if(R.shield){ x.strokeStyle = "rgba(143,247,232,.7)"; x.lineWidth = 2; x.beginPath(); x.arc(W / 2 + sx, H / 2 + sy, 30 + Math.sin(R.t * 5) * 2, 0, 7); x.stroke(); }
+  x.setTransform(R.dpr, 0, 0, R.dpr, 0, 0);
   /* vignette, et rouge quand on est touche */
   const vg = x.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.35, W / 2, H / 2, Math.max(W, H) * 0.75);
   vg.addColorStop(0, "rgba(0,0,0,0)"); vg.addColorStop(1, R.hurt > 0 ? "rgba(255,30,80,.55)" : "rgba(4,0,12,.55)");

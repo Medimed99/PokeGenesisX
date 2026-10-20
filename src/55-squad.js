@@ -238,7 +238,7 @@ function sqNewBattle(ids, z, s, opts){
   });
   const lead = sqApplyLeader(team);
   const B = {z, s, d, wave:0, waves:opts.waves || sqWaves(z, s, null, d), allies:team, foes:[], lead, turn:0, over:false, result:null, ko:0, rnd:opts.rnd || rng,
-             lock:opts.lock || null};
+             lock:opts.lock || null, sync:0, grp:0, loot:{coins:0, scrolls:0, candy:0}};
   sqLoadWave(B, 0);
   return B;
 }
@@ -280,8 +280,8 @@ function sqTurnStart(B, u){
   for(const e of u.fx.filter(e => e.k === "brn" || e.k === "psn")){
     const dmg = Math.max(1, Math.round(u.maxHp * (e.k === "brn" ? 0.05 : 0.06)));
     u.hp = Math.max(0, u.hp - dmg);
-    ev.push({k:"dot", tgt:u, dmg, b:e.k});
-    if(u.hp <= 0){ ev.push({k:"ko", tgt:u}); break; }
+    ev.push({k:"dot", tgt:u, dmg, b:e.k, hp:u.hp});
+    if(u.hp <= 0){ ev.push({k:"ko", tgt:u}); sqLoot(B, u, ev); break; }
   }
   if(u.hp > 0 && sqHas(u, "stun")){
     ev.push({k:"stun", tgt:u});
@@ -314,6 +314,44 @@ function sqAddFx(u, k, t, extra){
 }
 const SQ_HARMFUL = new Set(["brn", "psn", "stun", "slow", "defdn", "atkdn"]);
 
+/* un coup : le calcul des degats, partage par les competences et la Synchro */
+function sqStrike(B, u, t, sk, mult){
+  const critBonus = (sk.fx.find(f => f.k === "crit") || {}).v || 0;
+  const pierce = sk.fx.some(f => f.k === "pierce");
+  const hits = sk.hits || 1;
+  let total = 0, crit = false, eff = 1;
+  for(let h = 0; h < hits && t.hp > 0; h++){
+    eff = typeMult(sk.t, t.types);
+    if(eff === 0) eff = 0.25;
+    eff = Math.min(2, eff);
+    const stab = u.types.includes(sk.t) ? 1.15 : 1;
+    let A = u.atk * (sqHas(u, "atkup") ? 1.5 : 1) * (sqHas(u, "atkdn") ? 0.6 : 1);
+    let D = t.def * (sqHas(t, "defup") ? 1.7 : 1) * (sqHas(t, "defdn") ? 0.3 : 1) * (pierce ? 0.5 : 1);
+    const c = B.rnd() < u.crit + critBonus;
+    crit = crit || c;
+    let dmg = A * ((mult || sk.mult) / hits) * (100 / (100 + D * 1.1)) * eff * stab * (0.92 + B.rnd() * 0.16) * (c ? u.critDmg : 1);
+    dmg = Math.max(1, Math.round(dmg));
+    if(t.shield > 0){ const a = Math.min(t.shield, dmg); t.shield -= a; dmg -= a; }
+    t.hp = Math.max(0, t.hp - dmg);
+    total += dmg;
+  }
+  return {total, crit, eff, hits};
+}
+/* la Synchro : la jauge commune de l'equipe, nourrie par l'action */
+const SQ_SYNC_MAX = 100;
+function sqSyncGain(B, v){ if(B.over) return; B.sync = Math.min(SQ_SYNC_MAX, (B.sync || 0) + v); }
+/* le butin : ce que lache un adversaire qui tombe */
+function sqLoot(B, t, ev, g){
+  if(t.side !== "foe" || t._looted) return;
+  t._looted = true;
+  B.loot = B.loot || {coins:0, scrolls:0, candy:0};
+  const coins = Math.round((4 + t.level * 1.2) * (t.boss ? 6 : 1));
+  const scroll = t.guardian ? 0 : t.boss ? 1 : (B.rnd() < 0.035 ? 1 : 0);
+  const candy = B.rnd() < (t.boss ? 0.6 : 0.1) ? 1 : 0;
+  B.loot.coins += coins; B.loot.scrolls += scroll; B.loot.candy += candy;
+  ev.push({k:"loot", tgt:t, coins, scroll, candy, g:g || 0});
+}
+
 /* une action : la competence si, sur la cible ti */
 function sqAct(B, u, si, ti){
   const sk = u.skills[si] && u.cds[si] === 0 ? u.skills[si] : u.skills[0];
@@ -322,35 +360,21 @@ function sqAct(B, u, si, ti){
   if(sk.cd) u.cds[si] = sk.cd + 1;          /* +1 : le debut du prochain tour la decompte */
   const tg = sqTargets(B, u, sk, ti);
   const friends = u.side === "ally" ? B.allies : B.foes;
-  const critBonus = (sk.fx.find(f => f.k === "crit") || {}).v || 0;
-  const pierce = sk.fx.some(f => f.k === "pierce");
+  /* une competence de zone frappe tout le monde en meme temps : ses evenements forment un groupe */
+  const g = sk.kind === "aoe" ? ++B.grp : 0;
+  const sync0 = B.sync || 0;
   if(sk.kind === "atk" || sk.kind === "aoe"){
     for(const t of tg){
-      const hits = sk.hits || 1;
-      let total = 0, crit = false, eff = 1;
-      for(let h = 0; h < hits && t.hp > 0; h++){
-        eff = typeMult(sk.t, t.types);
-        if(eff === 0) eff = 0.25;
-        eff = Math.min(2, eff);
-        const stab = u.types.includes(sk.t) ? 1.15 : 1;
-        let A = u.atk * (sqHas(u, "atkup") ? 1.5 : 1) * (sqHas(u, "atkdn") ? 0.6 : 1);
-        let D = t.def * (sqHas(t, "defup") ? 1.7 : 1) * (sqHas(t, "defdn") ? 0.3 : 1) * (pierce ? 0.5 : 1);
-        const c = B.rnd() < u.crit + critBonus;
-        crit = crit || c;
-        let dmg = A * (sk.mult / hits) * (100 / (100 + D * 1.1)) * eff * stab * (0.92 + B.rnd() * 0.16) * (c ? u.critDmg : 1);
-        dmg = Math.max(1, Math.round(dmg));
-        if(t.shield > 0){ const a = Math.min(t.shield, dmg); t.shield -= a; dmg -= a; }
-        t.hp = Math.max(0, t.hp - dmg);
-        total += dmg;
-      }
-      ev.push({k:"hit", src:u, tgt:t, dmg:total, crit, eff, hits});
-      if(t.hp <= 0){ ev.push({k:"ko", tgt:t}); continue; }
+      const r = sqStrike(B, u, t, sk);
+      ev.push({k:"hit", src:u, tgt:t, dmg:r.total, crit:r.crit, eff:r.eff, hits:r.hits, hp:t.hp, sh:t.shield, ty:sk.t, g});
+      if(u.side === "foe") sqSyncGain(B, 3);
+      if(t.hp <= 0){ ev.push({k:"ko", tgt:t, g}); if(u.side === "ally") sqSyncGain(B, 10); sqLoot(B, t, ev, g); continue; }
       for(const f of sk.fx){
         if(f.self || f.team || f.k === "crit" || f.k === "pierce" || f.k === "heal") continue;
         if(f.p !== undefined && B.rnd() >= f.p) continue;
-        if(t.guardian && (f.k === "stun" || f.k === "atb-")){ ev.push({k:"fx", tgt:t, b:"immune"}); continue; }
-        if(f.k === "atb-"){ t.gauge = Math.max(0, t.gauge - f.v); ev.push({k:"atb", tgt:t, v:-f.v}); }
-        else { sqAddFx(t, f.k, f.t || 1); ev.push({k:"fx", tgt:t, b:f.k}); }
+        if(t.guardian && (f.k === "stun" || f.k === "atb-")){ ev.push({k:"fx", tgt:t, b:"immune", g}); continue; }
+        if(f.k === "atb-"){ t.gauge = Math.max(0, t.gauge - f.v); ev.push({k:"atb", tgt:t, v:-f.v, g}); }
+        else { sqAddFx(t, f.k, f.t || 1); ev.push({k:"fx", tgt:t, b:f.k, g}); }
       }
     }
   }
@@ -360,24 +384,66 @@ function sqAct(B, u, si, ti){
     if(!(f.self || toTeam)) continue;
     const list = f.self ? [u] : sqAlive(friends);
     for(const a of list){
-      if(f.k === "heal"){ const v = Math.round(a.maxHp * f.v); a.hp = Math.min(a.maxHp, a.hp + v); ev.push({k:"heal", tgt:a, v}); }
+      if(f.k === "heal"){ const v = Math.round(a.maxHp * f.v); a.hp = Math.min(a.maxHp, a.hp + v); ev.push({k:"heal", tgt:a, v, hp:a.hp}); }
       else if(f.k === "cleanse"){ const n = a.fx.length; a.fx = a.fx.filter(e => !SQ_HARMFUL.has(e.k)); if(a.fx.length < n) ev.push({k:"fx", tgt:a, b:"cleanse"}); }
-      else if(f.k === "shield"){ a.shield = Math.max(a.shield, Math.round(a.maxHp * f.v)); sqAddFx(a, "shield", f.t); ev.push({k:"fx", tgt:a, b:"shield"}); }
+      else if(f.k === "shield"){ a.shield = Math.max(a.shield, Math.round(a.maxHp * f.v)); sqAddFx(a, "shield", f.t); ev.push({k:"fx", tgt:a, b:"shield", sh:a.shield}); }
       else if(f.k === "atb+"){ if(a !== u){ a.gauge = Math.min(100, a.gauge + f.v); ev.push({k:"atb", tgt:a, v:f.v}); } else u.bonusAtb = f.v; }
       else { sqAddFx(a, f.k, f.t || 1); ev.push({k:"fx", tgt:a, b:f.k}); }
     }
   }
+  if(u.side === "ally") sqSyncGain(B, si === 2 ? 4 : 7);
   sqTurnEnd(B, u);
   if(u.bonusAtb){ u.gauge = u.bonusAtb; u.bonusAtb = 0; }
+  if((B.sync || 0) !== sync0) ev.push({k:"sync", v:B.sync});
   sqCheck(B, ev);
   return ev;
+}
+/* la Synchro, lancee au debut d'un tour allie, ne le consomme pas :
+   toute l'equipe frappe la cible a la suite, puis repart avec de l'elan */
+function sqSyncReady(B){ return !B.over && (B.sync || 0) >= SQ_SYNC_MAX && sqAlive(B.allies).length > 0 && sqAlive(B.foes).length > 0; }
+function sqSync(B, ti){
+  if(!sqSyncReady(B)) return [];
+  B.sync = 0;
+  const ev = [{k:"syncstart", n:sqAlive(B.allies).length}, {k:"sync", v:0}];
+  const list = B.foes;
+  let t = list[ti] && list[ti].hp > 0 ? list[ti] : sqAlive(B.foes)[0];
+  for(const a of sqAlive(B.allies)){
+    if(!t || t.hp <= 0) t = sqAlive(B.foes)[0];
+    if(!t) break;
+    const sk = Object.assign({}, a.skills[0], {fx:[]});
+    ev.push({k:"skill", src:a, si:0, sk, sync:true});
+    const r = sqStrike(B, a, t, sk, 1.35);
+    ev.push({k:"hit", src:a, tgt:t, dmg:r.total, crit:r.crit, eff:r.eff, hits:r.hits, hp:t.hp, sh:t.shield, ty:sk.t, g:0});
+    if(t.hp <= 0){ ev.push({k:"ko", tgt:t}); sqLoot(B, t, ev); }
+  }
+  /* l'elan : toute l'equipe avance sa jauge */
+  for(const a of sqAlive(B.allies)){ a.gauge = Math.min(99, a.gauge + 20); ev.push({k:"atb", tgt:a, v:20}); }
+  sqCheck(B, ev);
+  return ev;
+}
+/* l'ordre des prochains tours, sans rien changer au combat */
+function sqPredict(B, n){
+  const all = [...sqAlive(B.allies), ...sqAlive(B.foes)].map(u => ({u, g:u.gauge}));
+  const out = [];
+  if(!all.length) return out;
+  let guard = 0;
+  while(out.length < n && guard++ < 400){
+    const ready = all.filter(o => o.g >= 100);
+    if(ready.length){
+      ready.sort((a, b) => b.g - a.g || sqSpd(b.u) - sqSpd(a.u));
+      out.push(ready[0].u); ready[0].g = 0; continue;
+    }
+    const step = Math.min(...all.map(o => (100 - o.g) / (sqSpd(o.u) * 0.07)));
+    for(const o of all) o.g += sqSpd(o.u) * 0.07 * Math.max(0.01, step);
+  }
+  return out;
 }
 /* fin de vague, fin de combat */
 function sqCheck(B, ev){
   sqPhase(B, ev);
   if(!sqAlive(B.allies).length){ B.over = true; B.result = false; ev.push({k:"end", win:false}); return; }
   if(!sqAlive(B.foes).length){
-    if(B.wave < B.waves.length - 1){ sqLoadWave(B, B.wave + 1); ev.push({k:"wave", n:B.wave}); }
+    if(B.wave < B.waves.length - 1){ sqLoadWave(B, B.wave + 1); ev.push({k:"wave", n:B.wave, foes:B.foes.slice()}); }
     else { B.over = true; B.result = true; ev.push({k:"end", win:true}); }
   }
 }
@@ -447,6 +513,7 @@ function sqFinish(B){
   const lv = sqStageLevel(B.z, B.s, B.d);
   const base = Math.round((18 + lv * 3.2) * (B.result ? 1 : 0.35));
   const xps = B.allies.map(u => sqGiveXp(u.id, Math.round(base * (u.hp > 0 ? 1 : 0.5)))).filter(Boolean);
+  const loot = sqLootGrant(B);
   if(B.result){
     q.st[`${B.d || 0}:${B.z}:${B.s}`] = Math.max(prev, stars);
     /* une aile franchie pour la premiere fois : un moment, a la sortie des resultats */
@@ -462,7 +529,17 @@ function sqFinish(B){
     if(T){ T.best = Math.max(T.best || 0, sqBestStage()); S.stats.towerBest = Math.max(S.stats.towerBest || 0, T.best); }
   }
   save();
-  return {stars, prev, first, rw, xps};
+  return {stars, prev, first, rw, xps, loot};
+}
+/* le butin ramasse pendant le combat : tout en cas de victoire, les PokeCoins seuls en cas de defaite */
+function sqLootGrant(B){
+  if(B._lootDone) return B._lootDone;
+  const L = Object.assign({coins:0, scrolls:0, candy:0}, B.loot || {});
+  if(!B.result){ L.scrolls = 0; L.candy = 0; }
+  if(L.coins) gain("coins", L.coins);
+  if(L.scrolls) sqState().scrolls += L.scrolls;
+  if(L.candy && typeof teamCandyGain === "function") teamCandyGain(L.candy);
+  return B._lootDone = L;
 }
 /* monter une competence */
 function sqUpgrade(id, si){
@@ -539,6 +616,7 @@ function sqLockFinish(B){
   const base = Math.round((18 + lv * 3.2) * (B.result ? 1.4 : 0.35));
   const xps = B.allies.map(u => sqGiveXp(u.id, Math.round(base * (u.hp > 0 ? 1 : 0.5)))).filter(Boolean);
   let rw = null, gw = null, first = false;
+  const loot = sqLootGrant(B);
   S.daily.dayBoss = (S.daily.dayBoss || 0) + 1;
   if(typeof questTick === "function") questTick("dayBoss", 1);
   if(B.result){
@@ -554,5 +632,5 @@ function sqLockFinish(B){
     if(typeof fragOn === "function") fragOn("tower", `Au pied du verrou de ${g.name}`);
   } else if(!(S.story || []).includes("pz_first_guardian_fail")) S.flags.guardFail = true;
   save();
-  return {stars, prev, first, rw, xps, gw, lock:{r, i, g}};
+  return {stars, prev, first, rw, xps, gw, loot, lock:{r, i, g}};
 }

@@ -97,6 +97,7 @@ function brPlusMods(R){
   m.shieldCd = I.bouclier ? 14 - 2 * I.bouclier : 0;
   m.sitrus = I.sitrus ? 40 - 8 * I.sitrus : 0;
   m.loot = 1 + 0.15 * (I.piece || 0);
+  if(R.anom && R.anom.k === "frenesie") m.cd *= 0.8;
   if(R.buff){ if(R.buff.k === "force") m.dmg *= 1.4; if(R.buff.k === "hate") m.cd *= 0.7; if(R.buff.k === "aimant") m.magnet *= 4; }
   /* PV max : Roche et Orbe Vie les modifient, on garde la proportion de vie */
   const U = (S.breche && S.breche.upg) || {};
@@ -130,7 +131,7 @@ function brOnHit(R, f, sec){
   if(sec === 13 && R.rng() < 0.15 && !f.boss) f.stun = 0.6;
   if(sec === 11){ f.kx *= 1.8; f.ky *= 1.8; }
   if(sec === 14){ f.kx *= 2.6; f.ky *= 2.6; }
-  if(sec === 12) R.hp = Math.min(R.maxHp, R.hp + 0.3);
+  if(sec === 12) brHeal(R, 0.3, "leech");
   if(sec === 18 && R.rng() < 0.2) f.vuln = 3;
 }
 
@@ -161,7 +162,7 @@ function brDrop(R, f){
   if(f.boss || f.reaper) return;
   const M = R.mods, r = R.rng();
   let k = null;
-  if(r < (f.elite || f.big ? 0.35 : 1 / 70) * (M.turbo || 1)) k = "turbo";
+  if(r < (f.elite || f.big ? 0.35 : 1 / 70) * (R.endless ? Math.min(1.5, M.turbo || 1) : (M.turbo || 1))) k = "turbo";
   else if(R.rng() < (f.elite || f.big ? 0.25 : 1 / 320)) k = "magnet";
   else if(R.rng() < 1 / 180) k = "berry";
   if(!k) return;
@@ -175,13 +176,15 @@ function brPicks(R, dt){
     const d = Math.hypot(R.x - p.x, R.y - p.y);
     if(d < 22){
       p.on = false;
-      if(p.k === "turbo"){ R.turbo = R.mods.turboDur || 5; brBanner(R, "TURBO !", "#4fdcff"); brTicker(R, "TURBO ACTIVÉ — PERCUTEZ LA HORDE", "#4fdcff"); try { Sfx.shiny(); buzz([10, 20, 10]); } catch(e){} }
+      if(p.k === "turbo" && R.endless && R.turboCd > 0){ p.on = true; return; }
+      if(p.k === "turbo"){ R.turbo = R.mods.turboDur || 5; if(R.endless) R.turboCd = R.turbo + 10; brBanner(R, "TURBO !", "#4fdcff"); brTicker(R, "TURBO ACTIVÉ — PERCUTEZ LA HORDE", "#4fdcff"); try { Sfx.shiny(); buzz([10, 20, 10]); } catch(e){} }
       if(p.k === "magnet"){ R.P.gems.each(g=>g.pull = true); brRing(R, R.x, R.y, 300, "#ff3d7f", 0.5); try { Sfx.win(); } catch(e){} }
       if(p.k === "berry" && p.tree) brMisTick(R, "baie");
-      if(p.k === "berry"){ R.hp = Math.min(R.maxHp, R.hp + R.maxHp * 0.25); brText(R, R.x, R.y - 30, "+PV", "#5ce07a", 14); try { Sfx.coin(); } catch(e){} }
+      if(p.k === "berry"){ brHeal(R, R.maxHp * 0.25, "item"); brText(R, R.x, R.y - 30, "+PV", "#5ce07a", 14); try { Sfx.coin(); } catch(e){} }
       brBurst(R, p.x, p.y, BR_PICKS[p.k].c, 18, 180, 0.5);
     }
   });
+  if(R.turboCd > 0) R.turboCd -= dt;
   /* turbo : on fonce, et on percute ce qu'on traverse */
   if(R.turbo > 0){
     R.turbo -= dt;
@@ -199,7 +202,7 @@ function brPicks(R, dt){
   /* bouclier et baie Sitrus */
   if(R.mods.shieldCd){ R.shieldT = (R.shieldT || 0) + dt; if(R.shieldT >= R.mods.shieldCd) R.shield = true; }
   if(R.mods.sitrus && R.hp < R.maxHp * 0.35 && (R.sitrusT || 0) <= 0){
-    R.hp = Math.min(R.maxHp, R.hp + R.maxHp * 0.3); R.sitrusT = R.mods.sitrus;
+    brHeal(R, R.maxHp * 0.3, "item"); R.sitrusT = R.mods.sitrus;
     brText(R, R.x, R.y - 30, "Sitrus !", "#ffd24a", 14);
   }
   if(R.sitrusT > 0) R.sitrusT -= dt;
@@ -295,17 +298,7 @@ const BR_DEPTH_NEWS = {
   9: "Un écho de légendaire remonte",
   12: "LA FAILLE VOUS A REPÉRÉ"
 };
-function brDepthTick(R){
-  if(!R.endless) return;
-  const d = 1 + Math.floor((R.t - R.bossAt) / 60);
-  if(d <= (R.depth || 0)) return;
-  R.depth = d;
-  R.chestsPending++;                               /* chaque palier franchi paie */
-  brBanner(R, "PROFONDEUR " + d, d >= 12 ? "#ff3d7f" : "#b06bff", BR_DEPTH_NEWS[d] || "La corruption s'épaissit");
-  brTicker(R, "PROFONDEUR " + d + " — " + (BR_DEPTH_NEWS[d] || "LA CORRUPTION S'ÉPAISSIT").toUpperCase(), "#b06bff");
-  if(d % 3 === 0 && d < 12) brSummonEcho(R);
-  if(d === 12) brSummonReaper(R);
-}
+/* l'horloge des profondeurs, leurs anomalies et Porygon-Z : 59d */
 function brLegendsOf(region){
   const r = regionDef(region), out = [];
   for(let i = r.from; i <= r.to; i++) if(POKE[i] && POKE[i].leg) out.push(i);
@@ -322,8 +315,11 @@ function brSummonEcho(R, forcedId, weekly){
   f.spd = 50; f.dmg = 15 * Math.sqrt(rm) * Math.pow(1.12, R.depth);
   f.atk = 2; f.pattern = 0;
   R.boss = f;
-  brBanner(R, weekly ? "LÉGENDAIRE DE LA SEMAINE" : "ÉCHO DE LÉGENDAIRE", "#ffd24a", POKE[id].name.toUpperCase());
   brShake(R, 8);
+  if(typeof brCineStart === "function") brCineStart(R, f, {kicker:weekly ? "LÉGENDAIRE DE LA SEMAINE" : "ÉCHO DE LÉGENDAIRE", title:POKE[id].name.toUpperCase(),
+    sub:weekly ? "IL TRAVERSE LA BRÈCHE" : "LA FAILLE SE SOUVIENT DE LUI", color:"#ffd24a", dur:3.4,
+    lines:[[0.2, "pz", weekly ? `${POKE[id].name} traverse la Brèche. Il ne restera pas.` : `Un écho de ${POKE[id].name}. Ce n'est qu'une copie… mais elle frappe pour de vrai.`]]});
+  else brBanner(R, weekly ? "LÉGENDAIRE DE LA SEMAINE" : "ÉCHO DE LÉGENDAIRE", "#ffd24a", POKE[id].name.toUpperCase());
 }
 function brSummonReaper(R){
   const f = R.P.foes.get();
@@ -349,6 +345,7 @@ function brEchoDown(R, f){
   R.echoes = (R.echoes || 0) + 1;
   brBurst(R, f.x, f.y, "#ffd24a", 70, 320, 0.8);
   brBanner(R, "ÉCHO DISSIPÉ", "#ffd24a", "trois coffres de données");
+  if(typeof brFinaleStart === "function") brFinaleStart(R, f, "#ffd24a");
   R.slowmo = 0.8; brShake(R, 10);
   try { Sfx.win(); } catch(e){}
 }

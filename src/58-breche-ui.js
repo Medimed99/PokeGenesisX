@@ -83,8 +83,8 @@ function brTrack(R){
   if(!tr) return;
   if(R.endless){
     tr.innerHTML = `<i class="br-fill deep" id="br-fill"></i>
-      ${[3,6,9,12].map(d=>{ const k = Math.min(1, Math.max(0, (d - (R.depth || 1)) / 12));
-        return ""; }).join("")}`;
+      ${[1,2,3,4,5,6,7,8].map(d=>`<b class="br-mk ${d === 3 || d === 6 ? "alpha" : "elite"}" style="left:${(d / BR_PZ_DEPTH * 100).toFixed(1)}%"></b>`).join("")}
+      <b class="br-mk boss pz" style="left:100%">◈</b>`;
     R.trackMode = "deep";
     return;
   }
@@ -98,10 +98,11 @@ function brTrack(R){
 }
 function brNextEvent(R){
   if(R.endless){
-    const next = R.bossAt + (R.depth || 1) * 60, left = Math.max(0, next - R.t);
-    const d = (R.depth || 1) + 1;
-    const what = d === 12 ? "MissingNo" : d % 3 === 0 ? "écho légendaire" : "palier " + d;
-    return {txt:`${what} dans ${Math.floor(left / 60)}:${String(Math.floor(left % 60)).padStart(2,"0")}`, hot: left < 10 || d === 12};
+    if(R.pzOn) return {txt:"Porygon-Z", hot:true};
+    const I = brDepthInfo(R);
+    if(R.boss && R.boss.on) return {txt:(R.anom ? BR_ANOM[R.anom.k].n.toLowerCase() + " · " : "") + "écho en vue", hot:true};
+    const what = I.pz ? "Porygon-Z" : "palier " + I.next + ((I.next === 3 || I.next === 6) ? " · écho" : "");
+    return {txt:`${R.anom ? BR_ANOM[R.anom.k].n.toLowerCase() + " · " : ""}${what} dans ${Math.floor(I.left / 60)}:${String(Math.floor(I.left % 60)).padStart(2,"0")}`, hot: I.left < 10 || I.pz};
   }
   if(R.bossOn) return {txt: R.boss ? "Alpha en vue" : "", hot:true};
   const ev = [];
@@ -122,13 +123,13 @@ function brHudTick(R){
   if((R.endless ? "deep" : "run") !== R.trackMode) brTrack(R);
   const fill = $("br-fill");
   if(fill){
-    const k = R.endless ? ((R.t - R.bossAt) % 60) / 60 : Math.min(1, R.t / R.bossAt);
+    const k = R.endless ? Math.min(1, ((R.depth || 0) + Math.min(1, (R.deepClock || 0) / BR_DEPTH_LEN)) / BR_PZ_DEPTH) : Math.min(1, R.t / R.bossAt);
     fill.style.width = (k * 100).toFixed(1) + "%";
   }
   const tm = $("br-time");
   if(tm){
     const shown = R.endless ? R.t : Math.min(R.t, R.bossAt);
-    tm.textContent = (R.endless ? "PROF. " + (R.depth || 1) + " · " : "") + String(Math.floor(shown / 60)).padStart(2, "0") + ":" + String(Math.floor(shown % 60)).padStart(2, "0");
+    tm.textContent = (R.endless ? "PROF. " + (R.depth || 0) + " · " : "") + String(Math.floor(shown / 60)).padStart(2, "0") + ":" + String(Math.floor(shown % 60)).padStart(2, "0");
   }
   const nx = $("br-next");
   if(nx){ const e = brNextEvent(R); nx.textContent = e.txt; nx.className = "br-next" + (e.hot ? " hot" : ""); }
@@ -136,7 +137,7 @@ function brHudTick(R){
   const bb = $("br-boss");
   if(bb){
     bb.className = "br-boss" + (R.boss ? " on" : "");
-    if(R.boss){ $("br-bossname").textContent = POKE[R.boss.id].name + (R.boss.shield ? " · PROTÉGÉ" : "");
+    if(R.boss){ $("br-bossname").textContent = (R.boss.nm || POKE[R.boss.id].name) + (R.boss.conv ? " · CONVERSION " + TYPE_NAMES[R.boss.conv].toUpperCase() : "") + (R.boss.shield ? " · PROTÉGÉ" : "");
       $("br-bossbar").style.width = ((R.bossHpPct || 1) * 100) + "%"; bb.classList.toggle("shield", !!R.boss.shield); }
   }
   const tb = $("br-turbo");
@@ -281,7 +282,7 @@ function brChoiceHtml(R, o, idx){
 }
 function brLevelUp(R){
   R.modal = true;
-  R.hp = Math.min(R.maxHp, R.hp + R.maxHp * 0.10);
+  brHeal(R, R.maxHp * 0.10, "reward");
   R.choices = brChoices(R);
   try { Sfx.win(); buzz([15, 25, 15]); } catch(e){}
   brBurst(R, R.x, R.y, "#35f0d6", 26, 220, 0.6);
@@ -307,7 +308,7 @@ ACTIONS.brpick = d => {
   }
   else if(o.k === "item"){ R.items[o.key] = (R.items[o.key] || 0) + 1; brRecomputeMods(R); }
   else if(o.k === "gold"){ brApplyGold(R, o.g.k); brBanner(R, o.g.n.toUpperCase(), "#ffd24a"); }
-  else if(o.k === "heal") R.hp = Math.min(R.maxHp, R.hp + R.maxHp * 0.4);
+  else if(o.k === "heal") brHeal(R, R.maxHp * 0.4, "reward");
   else R.bonusData = (R.bonusData || 0) + 25;
   brHudTeam(R);
   brResume(R);
@@ -340,7 +341,7 @@ function brChest(R){
   for(let k = 0; k < n; k++){
     const up = R.team.filter(w=>w.lv < BR_MAXLV);
     if(up.length && R.rng() < 0.7){ const w = up[Math.floor(R.rng() * up.length)]; w.lv++; gifts.push({id:brShownId(w), t:POKE[brShownId(w)].name + " niv. " + w.lv}); }
-    else { R.hp = Math.min(R.maxHp, R.hp + 25); gifts.push({t:"+25 PV"}); }
+    else { brHeal(R, 25, "reward"); gifts.push({t:"+25 PV"}); }
   }
   brHudTeam(R);
   try { Sfx.shiny(); buzz([20, 30, 20]); } catch(e){}
@@ -429,6 +430,7 @@ function brDeath(R){
     R.P.foes.each(f=>{ if(!f.boss && Math.hypot(f.x - R.x, f.y - R.y) < 260) brHit(R, f, 9999, "#35f0d6"); });
     return;
   }
+  if(R.pzOn){ brPzRescue(R); return; }
   R.over = true;
   try { Sfx.lose ? Sfx.lose() : Sfx.glitch(); buzz([60, 40, 120]); } catch(e){}
   setTimeout(()=>{ if(BR === R) brFinish(R, false); }, 900);
@@ -443,15 +445,15 @@ function brVictory(R){
     <div class="tiny muted" style="margin:6px 0 12px">La Brèche est refermée. Mais la faille, dessous, continue de s'ouvrir.</div>
     <button class="btn pri wide" data-act="brend">Encaisser la victoire</button>
     <button class="btn wide" style="margin-top:7px" data-act="brdeep">Descendre dans la faille profonde</button>
-    <div class="tiny dim" style="margin-top:6px">Mode infini : les récompenses s'additionnent tant que vous tenez.</div>
+    <div class="tiny dim" style="margin-top:6px">Neuf paliers, chacun avec son anomalie. Les récompenses s'additionnent à chaque palier franchi — et au fond, quelqu'un vous attend.</div>
   </div>`;
 }
 ACTIONS.brend = () => { if(BR) brFinish(BR, true); };
 ACTIONS.brdeep = () => {
   const R = BR; if(!R) return;
-  R.won = true; R.endless = true; R.over = false;
+  R.won = true; R.over = false; brDepthStart(R);
   const m = document.getElementById("br-modal"); if(m){ m.className = ""; m.innerHTML = ""; }
-  brBanner(R, "FAILLE PROFONDE", "#ff3d7f", "jusqu'où tiendrez-vous ?");
+  brBanner(R, "FAILLE PROFONDE", "#ff3d7f", "neuf paliers, et quelqu'un au fond");
   R.last = performance.now();
 };
 
@@ -480,8 +482,11 @@ function brFinish(R, won, quit){
   R.won = R.won || won;
   const fw = R.won ? consumeFirstWin("breche") : 1;
   const depth = R.depth || 0, loot = (R.mods && R.mods.loot) || 1;
-  const data = Math.round((R.kills * 0.35 + survived / 5 + R.lv * 3 + (R.won ? 80 : 0) + depth * depth * 12 + (R.echoes || 0) * 60 + (R.bonusData || 0)) * fw * loot * (R.daily ? 1.5 : 1));
-  const coins = Math.round((R.kills * 4 + (R.won ? 900 : 0) + depth * 600) * fw * loot);
+  const pzB = R.pzDown ? 1 : 0;
+  const data = Math.round((R.kills * 0.35 + survived / 5 + R.lv * 3 + (R.won ? 80 : 0) + depth * depth * 12 + (R.echoes || 0) * 60 + (R.bonusData || 0) + pzB * 400) * fw * loot * (R.daily ? 1.5 : 1));
+  const coins = Math.round((R.kills * 4 + (R.won ? 900 : 0) + depth * 600 + pzB * 6000) * fw * loot);
+  if(R.pzDown){ S.flags.brPorygon = true; st.pzWins = (st.pzWins || 0) + 1; }
+  if(R.pzRescued) st.pzRescues = (st.pzRescues || 0) + 1;
   st.bestDepth = Math.max(st.bestDepth || 0, depth);
   /* missions : chacune paie, et les trois ensemble paient davantage */
   const mis = R.missions || [], misDone = mis.filter(m=>m.done).length;
@@ -539,7 +544,8 @@ function brShowResults(R, o){
   const tot = Object.values(R.dmgBy).reduce((a, b)=>a + b, 0) || 1;
   m.className = "on res";
   m.innerHTML = `<div class="br-card results">
-    <div class="br-h" style="color:${R.won ? "#35f0d6" : "#ff3d7f"}">${R.won ? (R.endless ? "FAILLE PROFONDE" : "BRÈCHE REFERMÉE") : o.quit ? "RUN ABANDONNÉE" : "L'ÉQUIPE A CÉDÉ"}</div>
+    <div class="br-h" style="color:${R.won ? "#35f0d6" : "#ff3d7f"}">${R.pzDown ? "SORTIE FORCÉE" : R.pzRescued ? "RAPATRIÉ PAR PORYGON-Z" : R.won ? (R.endless ? "FAILLE PROFONDE" : "BRÈCHE REFERMÉE") : o.quit ? "RUN ABANDONNÉE" : "L'ÉQUIPE A CÉDÉ"}</div>
+    ${R.pzDown ? `<div class="tiny" style="color:#35f0d6;margin:-2px 0 6px">Vous avez vaincu Porygon-Z au fond de la faille. Il vous a ramené quand même.</div>` : R.pzRescued ? `<div class="tiny dim" style="margin:-2px 0 6px">Porygon-Z vous a sorti de là. Les récompenses du fond sont gardées.</div>` : ""}
     <div class="br-stats">
       <div><span>Temps</span><b>${Math.floor(R.t / 60)}:${String(Math.floor(R.t % 60)).padStart(2,"0")}</b></div>
       <div><span>Niveau</span><b>${R.lv}</b></div>

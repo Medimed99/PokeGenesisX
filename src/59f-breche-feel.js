@@ -447,6 +447,14 @@ function brHazardsTick(R, dt){
       if(!h.hit && Math.abs(along) < 26 && Math.abs(side) < h.span / 2 && R.inv <= 0 && brTakeHit(R, h.dmg, null)){ h.hit = true; R.inv = 0.6; R.hurt = 0.3; R.x += cx * 60; R.y += cy * 60; }
       if(R.rng() < 0.5) brDecal(R, "puddle", h.x + (R.rng() - .5) * h.span * -cy, h.y + (R.rng() - .5) * h.span * cx, 22, 3);
     }
+    /* l'Ultralaser de Porygon-Z : un seul coup, très large */
+    if(h.k === "bigbeam"){
+      const cx = Math.cos(h.a), cy = Math.sin(h.a), rx = R.x - h.x, ry = R.y - h.y, along = rx * cx + ry * cy;
+      if(!h.hit && along > 0 && along < h.len && Math.abs(rx * cy - ry * cx) < h.w && R.inv <= 0 && brTakeHit(R, h.dmg, null)){ h.hit = true; R.inv = 0.7; R.hurt = 0.4; }
+      R.curW = -1;
+      if(!h.foesHit){ h.foesHit = true; R.P.foes.each(f=>{ if(f.boss) return; const fx = f.x - h.x, fy = f.y - h.y, al = fx * cx + fy * cy;
+        if(al > 0 && al < h.len && Math.abs(fx * cy - fy * cx) < h.w + f.r) brHit(R, f, 9999, "#ff3d7f", cx, cy, 300); }); }
+    }
     if(h.k === "laser" && h.boss && h.boss.on){
       const a = h.a0 + h.arc * (1 - Math.max(0, h.life) / h.max); h.cur = a; h.x = h.boss.x; h.y = h.boss.y;
       const cx = Math.cos(a), cy = Math.sin(a), rx = R.x - h.x, ry = R.y - h.y, along = rx * cx + ry * cy;
@@ -463,8 +471,12 @@ function brDrawHazards(x, R, X, Y){
     if(h.k === "wave"){ x.save(); x.translate(X(h.x), Y(h.y)); x.rotate(h.a);
       x.globalAlpha = 0.6; x.fillStyle = "#3a8bff"; x.fillRect(-20, -h.span / 2, 40, h.span);
       x.globalAlpha = 0.95; x.fillStyle = "#e8fbff"; x.fillRect(12, -h.span / 2, 8, h.span); x.restore(); x.globalAlpha = 1; }
+    if(h.k === "bigbeam"){ const k = Math.max(0, h.life) / h.max; x.save(); x.translate(X(h.x), Y(h.y)); x.rotate(h.a);
+      x.globalCompositeOperation = "lighter"; x.globalAlpha = k; x.fillStyle = "#ff3d7f"; x.fillRect(0, -h.w * (0.6 + k * 0.4), h.len, h.w * 2 * (0.6 + k * 0.4));
+      x.fillStyle = "#ffd0e0"; x.fillRect(0, -h.w * 0.45 * k, h.len, h.w * 0.9 * k); x.fillStyle = "#ffffff"; x.fillRect(0, -h.w * 0.15, h.len, h.w * 0.3);
+      x.restore(); x.globalAlpha = 1; x.globalCompositeOperation = "source-over"; }
     if(h.k === "laser" && h.cur !== undefined){ x.save(); x.translate(X(h.x), Y(h.y)); x.rotate(h.cur);
-      x.globalCompositeOperation = "lighter"; x.fillStyle = "#c7d2e0"; x.globalAlpha = 0.85; x.fillRect(0, -9, h.len, 18);
+      x.globalCompositeOperation = "lighter"; x.fillStyle = h.col || "#c7d2e0"; x.globalAlpha = 0.85; x.fillRect(0, -9, h.len, 18);
       x.fillStyle = "#ffffff"; x.fillRect(0, -3, h.len, 6); x.restore(); x.globalAlpha = 1; x.globalCompositeOperation = "source-over"; }
   }
 }

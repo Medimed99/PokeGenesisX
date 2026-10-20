@@ -291,7 +291,7 @@ function brBurst(R, x, y, color, n, speed, life){
   for(let i = 0; i < n; i++){
     const p = R.P.parts.get(), a = R.rng() * Math.PI * 2, s = speed * (0.4 + R.rng() * 0.8);
     p.x = x; p.y = y; p.vx = Math.cos(a) * s; p.vy = Math.sin(a) * s;
-    p.life = p.max = life * (0.6 + R.rng() * 0.6); p.color = color; p.size = 2 + (R.rng() * 3 | 0);
+    p.life = p.max = life * (0.6 + R.rng() * 0.6); p.color = color; p.size = 2 + (R.rng() * 3 | 0); p.sh = null; p.g = 0;
   }
 }
 /* « defragmentation » : l'ennemi vaincu se disloque en pixels de sa couleur */
@@ -341,7 +341,7 @@ function brHit(R, f, dmg, color, kx, ky, kb){
 function brKill(R, f){
   brDefrag(R, f);
   R.kills++;
-  if(R.mods.leech) R.hp = Math.min(R.maxHp, R.hp + R.mods.leech);
+  if(R.mods.leech) brHeal(R, R.mods.leech, "leech");
   /* octets : leur couleur dit leur valeur */
   const v = f.boss ? 60 : f.elite ? 18 : f.big ? 4 : 1;
   const n = f.minion ? 0 : f.boss ? 12 : f.elite ? 5 : 1;
@@ -351,7 +351,9 @@ function brKill(R, f){
     g.v = v; g.pull = false; g.pv = 0;
   }
   if((f.elite || f.big) && !f.boss){ brHitstop(R, 70); brShake(R, 5); try { buzz(20); } catch(e){} R.chestsPending++; }
-  R.killsBy[f.id] = (R.killsBy[f.id] || 0) + 1;
+  if(!f.pz) R.killsBy[f.id] = (R.killsBy[f.id] || 0) + 1;
+  /* un ennemi doré : sa fuite valait le coup */
+  if(f.gold){ for(let i = 0; i < 6; i++){ const g = R.P.gems.get(); g.x = f.x + (R.rng() - .5) * 60; g.y = f.y + (R.rng() - .5) * 60; g.v = 4; g.pull = false; g.pv = 0; } brBurst(R, f.x, f.y, "#ffd24a", 24, 220, 0.5); }
   if(f.elite) R.elitesDown.push({id:f.id, shiny:f.shiny});
   brDrop(R, f);
   brDecalOnKill(R, f);
@@ -365,6 +367,6 @@ function brKill(R, f){
     for(let k = 0; k < 2; k++){ const c = brSpawnFoe(R, f.id, "split"); c.x = f.x + (k ? 14 : -14); c.y = f.y; }
   }
   if(f.reaper){ R.reaperDown = true; R.reaper = null; brBanner(R, "LA FAILLE A CÉDÉ", "#ffd24a", "impossible… et pourtant"); }
-  else if(f.boss) (f.echo ? brEchoDown(R, f) : brBossDown(R, f));
+  else if(f.boss) (f.pz ? brPzDown(R, f) : f.echo ? brEchoDown(R, f) : brBossDown(R, f));
   f.on = false;
 }

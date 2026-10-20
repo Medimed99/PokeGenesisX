@@ -22,6 +22,8 @@ function stageHold(){
   if(typeof CINE !== "undefined" && CINE && !CINE.dead) return true;
   const d = typeof document !== "undefined" && document.getElementById ? document.getElementById("discover") : null;
   if(d && /\bon\b/.test(d.className || "")) return true;
+  /* un combat de la Tour en cours : les annonces attendent les résultats */
+  try { if(SQB && !SQB._ended && currentScreen === "tower") return true; } catch(e){}
   return false;
 }
 const STAGE_Q = [];

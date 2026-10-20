@@ -286,6 +286,7 @@ const ACHIEVEMENTS = [
   {id:"h_mn",    n:"Tu n'étais pas censé voir ça", d:"Rencontrer la faille.",                    hid:1, chk:s=>s.flags.sawMissing,        rw:{cos:"title_faille"}},
   {id:"h_fail",  n:"Persévérance",           d:"Échouer 10 captures d'affilée.",                 hid:1, chk:s=>s.flags.fail10,            rw:{coins:400}},
   {id:"h_master",n:"Abus de privilège",      d:"Utiliser une Master Ball sur un Pokémon commun.",hid:1, chk:s=>s.flags.masterWaste,       rw:{cos:"title_gaspilleur"}},
+  {id:"h_pzout", n:"Sortie forcée",          d:"Vaincre Porygon-Z au fond de la Brèche.",        hid:1, chk:s=>!!s.flags.brPorygon,       rw:{cores:3}},
   {id:"h_night", n:"Insomnie",               d:"Jouer entre 3h et 5h du matin.",                 hid:1, chk:s=>s.flags.night,             rw:{cos:"bg_night"}},
   {id:"h_pz",    n:"Ami du programme",       d:"Voir toutes les scenes de Porygon-Z.",           hid:1, chk:s=>s.story.length>=14,        rw:{cos:"frame_pz"}},
   {id:"h_konami", n:"Séquence reconnue",      d:"Entrer un code qui ne vient pas de ce monde.", hid:1,

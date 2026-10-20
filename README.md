@@ -189,7 +189,7 @@ recrues à choisir — en version immersive. Première pierre : l'arène.
 À suivre (deuxième livraison) : la carte-voyage, les recrues révélées comme des cartes, les
 événements racontés par Porygon-Z.
 
-## La Tour — combats d'équipe façon Summoners War (`55`, `55b`)
+## La Tour — combats d'équipe façon Summoners War (`55`, `55b`, `55c`)
 
 - **Équipe de 4** Pokémon de l'archive, à leur niveau d'archive (les niveaux se gagnent en Expédition).
   Le premier est le **meneur** : les espèces puissantes (BST ≥ 470, légendaires) ont un passif tiré de
@@ -204,12 +204,33 @@ recrues à choisir — en version immersive. Première pierre : l'arène.
   du secteur), trois vagues par palier, trois difficultés **Normal / Difficile / Enfer** (+16 et +32
   niveaux, monstres plus solides), chacune ouverte par le boss de la précédente. Étoiles : 3 sans
   perte, 2 avec une perte, 1 sinon.
-- **Préparation** (comme Summoners War) : les vagues à affronter, quatre emplacements dont le meneur,
-  la liste de ses Pokémon en grille, le bouton COMBAT.
-- **Combat en vue de trois quarts** : l'équipe en bas à gauche tournée vers le haut-droite, les
-  monstres en haut à droite, profondeur ; fiche par Pokémon (type, PV, jauge, effets et durées),
-  boutons ronds de compétence (appui long = description), flèche rouge sur la cible, vagues en
-  points, pause, AUTO et ×1/×2/×3, cinématique des ultimes.
+- **Préparation** (comme Summoners War) : les vagues à affronter, le niveau des vagues face à celui de
+  l'équipe, les types qui les font plier (`sqPrepIntel`), quatre emplacements dont le meneur, la liste
+  de ses Pokémon en grille, la règle des étoiles, le bouton COMBAT.
+- **Combat en vue de trois quarts** (`55c`) : l'équipe en bas à gauche tournée vers le haut-droite, les
+  monstres en haut à droite, profondeur. L'écran raconte les événements du moteur sans jamais lire
+  l'état interne en avance : chaque coup porte les PV restants (`hp` dans l'événement), une vague
+  arrive avec sa liste (`foes`), une attaque de zone forme un groupe (`g`) joué d'un seul coup.
+  Plaques de vie sous les pieds, dessinées après tous les sprites, avec la traînée du coup ; sprites
+  ancrés aux pieds (`sqSprDraw`), **au repos en pose Idle** (planches PMD `-idle`, `build_pmd_extra.py`)
+  et en marche seulement pour entrer en scène ; pose **Charge** pour les ultimes.
+- **Décors peints** par aile (`sqPaintScene` : forêt, grotte, centrale, tour hantée, plage, volcan,
+  vide du verrou), l'aire de combat tramée en diagonale entre les deux camps, les accessoires dans les
+  deux coins libres ; **ambiance animée** (`sqAmbient` : lucioles et feuilles, poussière, étincelles,
+  feux follets, reflets, braises, bits) et lumières qui clignotent, vacillent ou palpitent.
+- **Lisibilité** : ordre des prochains tours (`sqPredict`), barre du boss en tête, efficacité de la
+  compétence choisie sur chaque adversaire (▲▲ / ▼), impacts à la forme de leur type (`SQ_IMPACT`),
+  coupure d'ultime, entrée du boss, chiffres qui s'empilent.
+- **Synchro** (`sqSync`) : jauge d'équipe nourrie par l'action (+7 par action, +10 par K.O., +3 par coup
+  reçu) ; pleine, toute l'équipe frappe la cible à la suite (×1,35) puis gagne 20 % de jauge, sans
+  consommer le tour. L'automatique la lance dès qu'elle est prête.
+- **Butin** (`sqLoot`) : chaque adversaire vaincu lâche des PokéCoins, parfois un Bonbon d'équipe, 3,5 %
+  de chances d'un parchemin (un à coup sûr pour un boss de vague) ; il vole jusqu'au compteur.
+  Victoire : tout est gardé ; défaite : les PokéCoins seuls (`sqLootGrant`).
+- **Répétition** : en automatique, un palier gagné peut se relancer en boucle (compte à rebours).
+- **Page des compétences** (`sqSkillsHtml`) : un Pokémon à la fois, trois cartes avec l'effet actuel,
+  le gain du niveau suivant (avant → après), le prix, l'animation de montée ; accessible depuis la
+  carte, la préparation et les résultats. **Reprendre l'ascension** mène au prochain palier non franchi.
 - **Expérience** : chaque combat en donne à l'équipe (`sqGiveXp`) et fait monter le niveau d'archive.
 - **Parchemins** (récompense propre à la Tour) : monter une compétence (+8 % par niveau, recharge −1
   au niveau 5), pour toute la lignée. Les renforts de lignée de l'ancienne Tour restent appliqués.
@@ -490,6 +511,15 @@ Le combat se joue en actes, chacun obligeant à bouger autrement :
    2,6 s (30 % des PV sinon, et la horde hors abri est balayée) ; puis il s'emballe.
 5. **Finale** : ralenti, défragmentation en pixels, conclusion de Porygon-Z.
 
+**Mises en scène** (refaites) : le jeu se fige sur une alerte rouge, la caméra glisse vers le boss
+**et zoome** (×1,42), une faille s'ouvre sous ses pieds, il en sort en silhouette blanche puis prend
+ses couleurs, **rugit** (onde de choc, cratère, la horde soufflée), puis sa **carte de nom** traverse
+l'écran en biais — son sprite PMD en grand dans sa pose de concentration, nom en glitch, vie qui se
+remplit. Les sous-titres descendent dans la bande noire. Les **petits boss** ont leur entrée courte
+(ralenti, caméra qui se tourne, bandeau) : l'Alpha, le Chasseur des Profondeurs. Chaque **finale**
+fait zoomer la caméra sur le vaincu : rayons de lumière, silhouette blanche qui tremble, puis il
+éclate en **blocs de données** qui retombent avec la gravité.
+
 Testé acte par acte dans `test.js`. Mesuré sur 30 runs : le débutant (qui ne cherche pas les abris)
 bat le boss 16 fois ; le joueur qui esquive l'atteint 15 fois sur 20 et le bat 14 fois.
 
@@ -513,8 +543,8 @@ Repris de l'étude de *Pokémon Arena* (Big Kid Nation) :
 ### Attaques et sprites de marche (`59a`, `59p`)
 
 - **Trois attaques par type** (`BR_ATK`), choisies selon le profil de l'espèce : spécialiste (à
-  distance), physique (contact, rebond), équilibré (zone). **62 attaques distinctes** sur 386 espèces,
-  26 formes, dont neuf nouvelles : ricochet, nova, pluie, spirale, aura, tornade, balayage, faille, orage.
+  distance), physique (ruée, bond, contact), équilibré (zone). **72 attaques distinctes** sur 386 espèces,
+  31 formes, dont onze nouvelles : ricochet, nova, pluie, spirale, aura, tornade, balayage, faille, orage, ruée, bond.
 - **Signatures des 21 légendaires** (`BR_LEGEND`) : singularité de Mewtwo, Métronome de Mew, Aéroblast
   de Lugia, Lame Pangéenne de Groudon, Vœu Destructeur de Jirachi, Onde Originelle de Kyogre…
 - **Équilibrage mesuré** : `node brdps.js` mesure chaque forme à conditions égales (horde et cible
@@ -524,6 +554,55 @@ Repris de l'étude de *Pokémon Arena* (Big Kid Nation) :
   et la horde, recolorés en corruption pour les ennemis. `build_pmd.py` optimise les planches de
   `sprites/pmd_raw` (386 espèces, 1,8 Mo) ; la version en ligne les charge à la demande, la version
   autonome les embarque. Source : PMDCollab/SpriteCollab, CC BY-NC 4.0, crédité dans le journal.
+
+### Le corps attaque (`59k-breche-fx.js`)
+
+« Un Ronflex qui tire des boules lumineuses, ça n'a aucun sens. » Désormais :
+- **La ruée** (`dash`) : Vive-Attaque, Aqua-Jet, Étincelle, Aéropiqué, Direct Toxik, Câlinerie — le
+  Pokémon fonce en ligne droite à travers la horde (images rémanentes, lignes de vitesse, traînée de
+  son type) puis revient ; à l'évolution finale, l'aller et le retour frappent.
+- **Le bond** (`slam`) : les **poids lourds** (physiques, lents, massifs : Ronflex, Grolem, Rhinoféros,
+  Steelix, Ursaring, Donphan, Mackogneur, Galeking… 29 espèces) s'élèvent et **retombent de tout leur
+  poids** sur la cible : ombre qui grossit, onde de choc, cratère, éboulis, ennemis étourdis.
+  Ronflex fait **Plaquage** (évolué : Giga Impact), Steelix Tacle Lourd, Mackogneur Marto-Poing.
+- **Poings et griffes** s'élancent au contact avant de frapper (le coup part à l'arrivée).
+- **Un projectile par type** : étoile de Météores, sphère d'aura tourbillonnante, croissant de vent,
+  boule de boue toxique, motte de terre, roc anguleux, aiguille, Ball'Ombre au cœur noir, éclat
+  d'acier, boule de feu et sa traîne, goutte, feuille qui tournoie, étincelle qui crépite, anneaux
+  psy, éclat de glace, flamme draconique, croissant des ténèbres, scintillement féerique. Les
+  projectiles lobés ont leur ombre au sol.
+- **Un impact par type** : braises qui montent, gouttes qui retombent, feuilles, étincelles, éclats,
+  cailloux, bulles, fumée — particules à forme, rotation et gravité (budget de 90 par image).
+- Équilibrage mesuré avec `node brdps.js` : ruée et bond à 0,98 de la médiane.
+
+### Des univers qui existent (`59w-breche-world.js`)
+
+- **Le sol est peint morceau par morceau** (480 px, un texel = deux pixels, à l'échelle des sprites)
+  à partir de bruits calculés **en coordonnées du monde** : aucune couture, aucun motif répété.
+  Routes : herbe nuancée, sentiers de terre, massifs de fleurs. Sylve : mousse, feuilles mortes,
+  taches de lumière. Nappes : lagune, bancs de sable, rive mouillée, caustiques. Cavités : roche
+  fissurée en dalles naturelles, minéraux qui luisent. Ruines : dallage décalé, joints envahis de
+  mousse, dalles gravées. Foyer : orgues de basalte et **fentes de lave incandescentes**.
+  La peinture se fait par tranches de 3,5 ms par image (mesuré : aucune image au-delà de 26 ms en
+  traversant la carte), le morceau suivant est préparé dans le sens de la marche.
+- **Le relief** : feuillus à grappes de feuillage ombrées, conifères à étages (Sylve), rochers ombrés et
+  moussus (algues dans les Nappes, écume au pied), stalagmites annelées, colonnes cannelées brisées
+  au glyphe qui luit, orgues de basalte aux veines qui pulsent.
+- **Les terrains** : l'eau a une rive irrégulière, de l'écume qui court, des reflets mouvants et des
+  éclats de soleil ; la lave une croûte en plaques et des bulles qui crèvent ; les hautes herbes sont
+  de vraies touffes qui ondulent.
+- **Les lieux sont des objets**, plus des ronds : la **cache** est une caisse de données (écran qui
+  défile, voyants, hologramme, couvercle qui se soulève pendant l'ouverture) ; l'**autel** un dais de
+  pierre, trois obélisques et un cristal d'or sous une colonne de lumière, dont le cercle de runes se
+  remplit ; le **captif** est enfermé dans une cage de glitch, il s'agite et appelle à l'aide ; la
+  **souche** a ses cernes, ses racines et des pousses qui luisent (elle fleurit une fois éveillée) ;
+  le **cristal** est un massif de prismes ; la **dalle-glyphe** une pierre gravée qui se recharge ;
+  le **geyser** un évent qui fume, se fissure en rougeoyant puis crache une colonne de feu ; le
+  **remous** un tourbillon à bras d'écume ; l'**arbre à baies** porte des baies qui luisent avant de
+  tomber ; le **nid** est un monticule vivant, avec son œil, ses vrilles et ses éclats en orbite.
+- **L'ambiance** : pollen et pétales, lucioles et feuilles qui tombent sous des rais de lumière,
+  reflets et écume, poussière et gouttes, motes de glyphes, braises et cendres — et un étalonnage de
+  lumière propre à chaque habitat.
 
 ### Les cartes (`59m-breche-map.js`)
 
@@ -572,9 +651,24 @@ ajoute 4 % de dégâts à l'espèce, affiché en étoiles.
 - **Ramassables** : l'**Octet Turbo** triple la vitesse et fait percuter la horde ; l'aimant aspire
   tous les octets ; la baie soigne.
 - **Menaces** dès la run normale : tireurs, kamikazes, blindés, scindeurs.
-- **Faille profonde** : un palier par minute (+30 % de PV ennemis chacun), un écho de légendaire
-  tous les trois paliers, et au palier 12 **MissingNo**, qui accélère sans cesse. Mesuré avec
-  l'Archive au maximum (`node brsim.js 6 deep`) : toutes les runs se terminent, profondeur médiane 12.
+- **Faille profonde** (`59d-breche-depth.js`, refaite) : **neuf paliers** de 55 s, et quelqu'un au fond.
+  - **Plus de PV infinis** : tous les soins passent par `brHeal`. Le vol de vie (Grelot, synergie
+    Plante, attaques qui soignent) remplit un réservoir plafonné à 5 % des PV, qui se recharge à
+    2,5 % par seconde ; en profondeur, chaque palier réduit les soins de 7 % (30 % au minimum) ;
+    l'Octet Turbo est plafonné et a un temps de recharge. Avant, une horde de 50 K.O. par seconde
+    rendait des centaines de PV par seconde.
+  - **Une anomalie par palier**, tirée sans remise parmi dix : Nuit noire, Pluie de blocs, Miroir
+    (la horde prend les traits de votre équipe), Ruée dorée (des ennemis dorés qui fuient et paient),
+    Champ de mines, Géants, **le Chasseur** (un ennemi vous marque : l'abattre paie deux coffres),
+    Silence (plus aucun soin, octets doublés), l'arène qui rétrécit, Frénésie.
+  - Un écho de légendaire aux paliers 3 et 6, un coffre à chaque palier franchi.
+  - **Palier 9 : Porygon-Z vient vous chercher.** « Ça fait trop longtemps que t'es là-dedans. On a
+    encore du boulot dehors. Je te ramène — de force, s'il le faut. » Un vrai boss (sprites PMD de
+    Porygon-Z) : Triplattaque (trois rayons feu/glace/foudre), Ultralaser, Conversion (il résiste au
+    type qui le frappe le plus), pluie de blocs, téléportation et salves ; à 55 % il **recycle votre
+    équipe** en copies corrompues, à 25 % il entre en surchauffe. Le battre : **SORTIE FORCÉE**
+    (+400 Données, +6 000 PokéCoins, succès caché « Sortie forcée ») ; tomber devant lui n'est pas une
+    défaite, il vous **rapatrie**. Et il laisse entendre qu'il y a quelque chose, plus bas…
 
 ## Sprites chromatiques
 
