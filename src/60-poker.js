@@ -346,6 +346,21 @@ function pkBlindLabel(){
   if(pkStage() === "champion") return "Affrontement final";
   return BLIND_NAMES[P.blind];
 }
+/* barre de progression permanente : huit badges puis le conseil */
+function badgeRow(){
+  const P = S.poker;
+  const got = P.badges || [];
+  const st = pkStage();
+  return `<div class="badgerow">
+    ${BADGES.map((b,i)=>`<span class="bdg ${got.includes(i)?"on":""}" style="--bc:${b.c}"
+      title="${esc(b.n)}">${got.includes(i)?"◆":"·"}</span>`).join("")}
+    <span class="bdg-sep"></span>
+    ${ELITE_NAMES.map((_,i)=>`<span class="bdg e4 ${st==="champion"||(st==="elite"&&(P.eliteIdx||0)>i)?"on":""}
+      ${st==="elite"&&(P.eliteIdx||0)===i?"cur":""}">${i+1}</span>`).join("")}
+    <span class="bdg champ ${st==="champion"?"cur":""}">★</span>
+  </div>`;
+}
+
 /* ---------- construction du deck ---------- */
 const BASE_FAMS = [1,4,7,10,13,16,19,21,23,25,27,29,32,41,43,46,50,54,58,60,63,66,69,74,92,129,133];
 function newDeck(o){
@@ -375,8 +390,7 @@ function startPoker(deckId){
     jokers:[], licences:[], levels:{},
     boss:null, playedTypes:{}, discardedThisRound:0, roundHands:0, noDiscard:true,
     stage:"ante", eliteIdx:0, badges:[],
-    octets:4, shop:null, endless:false, lastHand:null,
-    seed:randInt(1, 1e9), opps:{}, sort:"fam", fresh:[], evoQ:[], lastTotal:0
+    octets:4, shop:null, endless:false, lastHand:null
   };
   S.pokerMeta.unlocked = true;
   tutoMaybe("poker");
@@ -385,23 +399,21 @@ function startPoker(deckId){
 
 function pkStartRound(){
   const P = S.poker;
-  const st = pkStage();
-  /* le verrou de secteur est tenu par un Champion d'arène, le Conseil, ou le Champion (61) */
-  P.boss = (P.blind === 2 || st !== "ante") ? (typeof pkBossFor === "function" ? pkBossFor(P) : pick(BOSS_BLINDS)) : null;
+  P.boss = P.blind === 2 ? pick(BOSS_BLINDS) : null;
   const f = P.boss ? P.boss.f : {};
+  const st = pkStage();
   let base;
-  if(st === "elite")         base = Math.round(anteTarget(9, 2) * (1 + (P.eliteIdx||0) * 0.45) * (f.target || 1));
-  else if(st === "champion") base = Math.round(anteTarget(9, 2) * 3.4 * (f.target || 1));
+  if(st === "elite")         base = Math.round(anteTarget(9, 2) * (1 + (P.eliteIdx||0) * 0.45));
+  else if(st === "champion") base = Math.round(anteTarget(9, 2) * 3.4);
   else                       base = anteTarget(P.ante, P.blind, P.boss);
   P.target = Math.round(base * (P.discount || 1) * (typeof pkDeckTargetMul === "function" ? pkDeckTargetMul(P) : 1));
   P.discount = 1;
   P.score = 0;
-  P.handsLeft = f.oneHand ? 1 : P.hands - (f.lessHand||0) + (f.noDisc ? 1 : 0);
-  P.discardsLeft = f.noDisc ? 0 : Math.max(0, P.discards - (f.lessDiscard||0));
-  P.lastTotal = 0; P.winInfo = null; P.loseInfo = null;
+  P.handsLeft = f.oneHand ? 1 : P.hands - (f.lessHand||0);
+  P.discardsLeft = Math.max(0, P.discards - (f.lessDiscard||0));
   P.draw = shuffle(P.deck.map(c=>Object.assign({}, c)));
   if(typeof pkDeckOnRound === "function") pkDeckOnRound(P);
-  P.hand = []; P.sel = []; P.fresh = [];
+  P.hand = []; P.sel = [];
   P.roundHands = 0; P.discardedThisRound = 0;
   P.state = "play";
   pkDraw();
@@ -413,27 +425,8 @@ function drawSize(){
 }
 function pkDraw(){
   const P = S.poker;
-  const f = P.boss ? P.boss.f : {};
-  P.fresh = [];
-  while(P.hand.length < drawSize() && P.draw.length){
-    const c = P.draw.pop();
-    c.par = false; c.fd = !!f.faceDown;              /* Prémonition : face cachée */
-    P.hand.push(c); P.fresh.push(c.u);
-  }
-  /* Paralysie : une carte sur quatre, jamais au point de bloquer la main */
-  if(f.para) for(const u of P.fresh){
-    const c = P.hand.find(x=>x.u === u);
-    const nPar = P.hand.filter(x=>x.par).length;
-    if(c && rng() < f.para && P.hand.length - nPar > 5 && nPar < Math.floor(P.hand.length / 3)) c.par = true;
-  }
-  pkSortHand(P);
-}
-/* trier la main : par famille (les lignées côte à côte), par type, par valeur, par numéro */
-function pkSortHand(P){
-  const m = P.sort || "fam";
-  const key = m === "type" ? (c=>POKE[c.id].types[0] * 1000 + c.id) : m === "chips" ? (c=>-cardChips(c) * 1000 + c.id)
-            : m === "dex" ? (c=>c.id) : (c=>famOf(c.id) * 1000 + c.id);
-  P.hand.sort((a, b)=>key(a) - key(b) || a.u - b.u);
+  while(P.hand.length < drawSize() && P.draw.length) P.hand.push(P.draw.pop());
+  P.hand.sort((a,b)=> famOf(a.id)-famOf(b.id) || a.id-b.id);
 }
 function selCards(){
   const P = S.poker;
@@ -441,9 +434,6 @@ function selCards(){
 }
 function pkToggle(u){
   const P = S.poker;
-  const c = P.hand.find(x=>x.u === u);
-  if(c && c.par){ if(typeof pkNope === "function") pkNope(u, "Paralysée"); return; }
-  if(c && c.fd) c.fd = false;                       /* on la découvre en la touchant */
   const i = P.sel.indexOf(u);
   if(i >= 0) P.sel.splice(i,1);
   else { if(P.sel.length >= 5) return; P.sel.push(u); }
@@ -478,15 +468,9 @@ function pkScore(preview){
 
   x.steps.push({kind:"base", label:ev.n, dc:base.chips, dm:base.mult,
                 chips:base.chips, mult:base.mult});
-  /* Koga · Toxik : chaque main empoisonne la suivante */
-  if(f.toxic && P.roundHands > 0){ const commit = step("boss", "Toxik"); x.mult = Math.max(1, x.mult - P.roundHands); commit(); }
 
   let scoring = ev.scoring.slice();
   if(f.maxScore) scoring = scoring.filter(c=>played.indexOf(c) < f.maxScore);
-  /* Olga · Gel : la première carte jouée qui marque est gelée */
-  if(f.firstDead && scoring.length){ const first = played.find(c=>scoring.includes(c)); scoring = scoring.filter(c=>c !== first); x.frozen = first && first.u; }
-  /* Agatha · Malédiction : la plus forte ne marque pas */
-  if(f.cursed && scoring.length){ const top = scoring.reduce((m, c)=>cardChips(c) > cardChips(m) ? c : m, scoring[0]); scoring = scoring.filter(c=>c !== top); x.cursed = top.u; }
 
   for(const c of scoring){
     if(f.deadType && POKE[c.id].types.includes(f.deadType)) continue;
@@ -494,21 +478,18 @@ function pkScore(preview){
     if(f.deadShiny && c.shiny) continue;
     if(f.deadLegend && isLegend(c.id)) continue;
     const commit = step("card", POKE[c.id].name, c.u);
-    /* Pierre · Défense Roc : la moitié des Jetons, sauf Roche et Sol */
-    x.chips += f.half && !POKE[c.id].types.some(t=>f.half.includes(t)) ? Math.round(cardChips(c) / 2) : cardChips(c);
+    x.chips += cardChips(c);
     if(c.ed === "glass") x.mult *= 2;
     if(c.ed === "gold" && !preview) P.octets += 3;
     x.scored.push(c);
     if(P.deckId === "psy" && POKE[c.id].types.includes(14)) x.mult *= tierVal(150, [1.1, 1.15, 1.2]);
-    P.jokers.forEach((j, ji)=>{
-      if(f.sleep && ji === 0) return;               /* Érika · Poudre Dodo */
+    for(const j of P.jokers){
       const def = jokerDef(j);
       if(def && def.onCard) def.onCard(c, x, j);
-    });
+    }
     commit();
   }
   for(let i=0;i<P.jokers.length;i++){
-    if(f.sleep && i === 0) continue;
     let def = jokerDef(P.jokers[i]);
     if(def && def.mirror && i > 0) def = jokerDef(P.jokers[i-1]) || def;
     if(def && def.onHand){
@@ -530,10 +511,6 @@ function pkScore(preview){
     const commit = step("boss", "Main annulée");
     x.chips = 0; x.mult = 0; commit();
   }
-  /* Aldo · Force brute : moins de quatre cartes, rien */
-  if(f.minCards && played.length < f.minCards){ const commit = step("boss", "Force brute"); x.chips = 0; x.mult = 0; commit(); }
-  /* Peter · Colère : il faut battre la main précédente */
-  if(f.beat && P.roundHands > 0 && Math.round(x.chips * x.mult) <= (P.lastTotal || 0)){ const commit = step("boss", "Colère"); x.chips = 0; x.mult = 0; commit(); }
   x.total = Math.round(x.chips * x.mult);
   /* on ne garde que les etapes qui ont reellement change quelque chose */
   x.steps = x.steps.filter((st,i)=> i === 0 || st.dc !== 0 || Math.abs(st.dm) > 0.001);
@@ -558,6 +535,96 @@ function pkPlay(){
   RESOLVE.timer = setTimeout(stepResolve, 260);
 }
 
+function stepResolve(){
+  if(!RESOLVE) return;
+  const st = RESOLVE.res.steps[RESOLVE.i];
+  if(!st){ endResolveSteps(); return; }
+  RESOLVE.i++;
+  RESOLVE.chips = st.chips;
+  RESOLVE.mult  = st.mult;
+  paintResolve(st);
+  RESOLVE.timer = setTimeout(stepResolve, st.kind === "base" ? 430 : 330);
+}
+
+function paintResolve(st){
+  const line = document.getElementById("pk-score-line");
+  if(line){
+    line.innerHTML = `<span class="pk-hn">${esc(RESOLVE.res.handName)}</span>
+      <span class="chips" id="pk-chips">${fmt(RESOLVE.chips)}</span><span class="muted">×</span>
+      <span class="mult" id="pk-mult">${RESOLVE.mult.toFixed(RESOLVE.mult % 1 ? 2 : 0)}</span>`;
+    const cEl = document.getElementById("pk-chips"), mEl = document.getElementById("pk-mult");
+    if(st.dc) bump(cEl);
+    if(Math.abs(st.dm) > 0.001) bump(mEl);
+  }
+  /* cible du declenchement : carte jouee ou programme */
+  let target = null;
+  if(st.kind === "card") target = document.querySelector(`#hand .pcard[data-u="${st.ref}"]`);
+  if(st.kind === "joker") target = document.querySelector(`#jokers .joker[data-i="${st.ref}"]`);
+  if(st.kind === "boss")  target = document.querySelector(".blind-card");
+  if(target){
+    target.classList.remove("trigger"); void target.offsetWidth; target.classList.add("trigger");
+    floatDelta(target, st);
+  }
+  if(st.kind === "joker"){ Sfx.wobble(); buzz(8); }
+  else if(st.kind === "boss"){ Sfx.glitch(); }
+  else Sfx.click();
+}
+function bump(el){
+  if(!el) return;
+  el.classList.remove("tick"); void el.offsetWidth; el.classList.add("tick");
+}
+function floatDelta(target, st){
+  const host = document.getElementById("poker-felt");
+  if(!host) return;
+  const parts = [];
+  if(st.dc) parts.push({t:"+" + fmt(st.dc), c:"var(--cyan)"});
+  if(Math.abs(st.dm) > 0.001){
+    parts.push(st.mulMode ? {t:"×" + (st.mult / Math.max(0.01, st.mult - st.dm)).toFixed(2), c:"var(--magenta)"}
+                          : {t:"+" + st.dm.toFixed(st.dm % 1 ? 1 : 0) + " Mult", c:"var(--magenta)"});
+  }
+  if(!parts.length) return;
+  const r = target.getBoundingClientRect(), h = host.getBoundingClientRect();
+  parts.forEach((p, k)=>{
+    const d = document.createElement("div");
+    d.className = "pkdelta";
+    d.textContent = p.t;
+    d.style.color = p.c;
+    d.style.left = (r.left - h.left + r.width/2 - 20) + "px";
+    d.style.top  = (r.top  - h.top  - 6 + k*14) + "px";
+    host.appendChild(d);
+    setTimeout(()=>d.remove(), 900);
+  });
+}
+
+function endResolveSteps(){
+  if(!RESOLVE || RESOLVE.done) return;
+  RESOLVE.done = true;
+  const total = RESOLVE.res.total;
+  const line = document.getElementById("pk-score-line");
+  if(line){
+    line.innerHTML = `<span class="pk-total">${fmt(total)}</span>`;
+    const el = line.firstElementChild;
+    if(el){ el.classList.add("burst"); }
+  }
+  const felt = document.getElementById("poker-felt");
+  if(felt && total > 0){
+    Sfx.win();
+    burstEl(felt, {n: total > S.poker.target*0.4 ? 28 : 14, spread:110,
+      colors:["#35f0d6","#ffc857","#ffffff"], dur:900});
+  }
+  RESOLVE.timer = setTimeout(commitResolve, 820);
+}
+/* un appui saute l'animation sans rien changer au resultat */
+function skipResolve(){
+  if(!RESOLVE || RESOLVE.done) return;
+  clearTimeout(RESOLVE.timer);
+  RESOLVE.i = RESOLVE.res.steps.length;
+  const last = RESOLVE.res.steps[RESOLVE.res.steps.length-1];
+  if(last){ RESOLVE.chips = last.chips; RESOLVE.mult = last.mult; }
+  endResolveSteps();
+}
+ACTIONS.pkskipres = () => skipResolve();
+
 function commitResolve(){
   const P = S.poker;
   if(!RESOLVE) return;
@@ -579,12 +646,7 @@ function commitResolve(){
   }
   P.playedTypes[res.handKey] = (P.playedTypes[res.handKey]||0) + 1;
   if(res.handKey === "banc_karp") S.flags.karpHand = true;
-  P.hit = {from:P.score, to:P.score + res.total, total:res.total};
   P.score += res.total;
-  P.lastTotal = res.total;
-  const bf = P.boss ? P.boss.f : {};
-  if(bf.handOctet) P.octets += 1;                    /* Giovanni : la maison paie quand même */
-  if(typeof pkEvoTick === "function") pkEvoTick(P, res, false);
   P.handsLeft--; P.roundHands++;
   P.lastHand = {key:res.handKey, n:res.handName, chips:Math.round(res.chips),
                 mult:+res.mult.toFixed(2), total:res.total};
@@ -606,14 +668,6 @@ function commitResolve(){
   P.hand = P.hand.filter(c=>!played.includes(c.u));
   P.sel = [];
   pkDraw();
-  /* Ondine · Torrent : deux cartes emportées par le courant */
-  P.washed = null;
-  if(bf.wash && P.hand.length && P.score < P.target && P.handsLeft > 0){
-    const fr = P.fresh.slice(), gone = [];
-    for(let k = 0; k < bf.wash && P.hand.length; k++) gone.push(P.hand.splice(Math.floor(rng() * P.hand.length), 1)[0]);
-    pkDraw(); P.fresh = fr.concat(P.fresh).filter(u=>P.hand.some(c=>c.u === u));
-    P.washed = gone.map(c=>c.id);
-  }
   buzz(14);
 
   if(P.score >= P.target){ pkWinBlind(); return; }
@@ -635,26 +689,16 @@ function pkDiscard(){
 
 function pkWinBlind(){
   const P = S.poker;
-  const opp = typeof pkOpp === "function" ? pkOpp(P) : null;
-  /* la récompense, ligne par ligne : on doit voir d'où vient chaque Octet */
-  const rows = [["Verrou franchi", 3 + P.blind]];
-  if(P.handsLeft) rows.push([`Mains restantes × ${P.handsLeft}`, P.handsLeft]);
-  if(P.econ) rows.push(["Badge de champion", P.econ]);
-  let jk = 0;
-  for(const j of P.jokers){ const d = jokerDef(j); if(d?.passive === "econ") jk += 2; if(d?.passive === "econ3") jk += 3; }
-  if(jk) rows.push(["Programmes", jk]);
-  const wish = typeof pkWishBonus === "function" ? pkWishBonus(P) : 0;
-  if(wish) rows.push(["Vœu exaucé", wish]);
+  let reward = 3 + P.blind + P.handsLeft + P.econ;
+  for(const j of P.jokers) if(jokerDef(j)?.passive === "econ") reward += 2;
+  if(typeof pkWishBonus === "function") reward += pkWishBonus(P);
   const interest = Math.min(5, Math.floor(P.octets/5));
-  if(interest) rows.push(["Intérêts", interest]);
-  const reward = rows.reduce((a, r)=>a + r[1], 0);
+  reward += interest;
   P.octets += reward;
   S.daily.dayPokerBlinds++; questTick("dayPokerBlinds",1);
   S.stats.pokerBlinds = (S.stats.pokerBlinds || 0) + 1;
   if(P.score > (S.stats.pokerBest||0)) S.stats.pokerBest = P.score;
   Sfx.win();
-  /* Magicarpe.exe compte les verrous franchis */
-  if(typeof pkEvoTick === "function") pkEvoTick(P, null, true);
   /* un verrou de secteur delivre un badge */
   let badge = null;
   if(pkStage() === "ante" && P.blind === 2 && !(P.badges||[]).includes(P.ante-1)){
@@ -662,20 +706,30 @@ function pkWinBlind(){
     (P.badges = P.badges || []).push(badge);
     Sfx.shiny();
   }
-  /* la vitrine : un Champion battu pour la première fois, toutes parties confondues */
-  let firstLeader = false, bonus = 0;
-  if(opp && (opp.kind === "leader" || opp.kind === "elite" || opp.kind === "champion")){
-    firstLeader = typeof pkLeaderBeaten === "function" && pkLeaderBeaten(opp.leader || "champion");
-    if(firstLeader){ bonus = opp.kind === "champion" ? 5000 : opp.kind === "elite" ? 1500 : 600 + 150 * (P.ante - 1); gain("coins", bonus); }
-  }
   const final = pkStage() === "champion" && !P.endless;
   P.state = "reward";
-  P.winInfo = {rows, reward, badge, final, firstLeader, bonus, score:P.score, target:P.target,
-    opp:opp ? {name:opp.name, title:opp.title, cls:opp.cls, lo:opp.lo, kind:opp.kind, leader:opp.leader || null} : null};
   save();
-  const show = () => { if(typeof pkWinScreen === "function") pkWinScreen(P.winInfo); else refresh(); };
-  if(badge !== null) playCine(badgeCine(badge, P.badges.length), show);
-  else show();
+  const showWin = () => sheet(`<div class="center">
+    <div class="h" style="justify-content:center">${esc(BLIND_NAMES[P.blind])} FRANCHI</div>
+    <div class="tiny muted">${fmt(P.score)} / ${fmt(P.target)}</div>
+    <div class="tiles" style="margin:10px 0">
+      <div class="tile gold"><div class="k">Manche</div><div class="v">+${3+P.blind}</div></div>
+      <div class="tile gold"><div class="k">Mains restantes</div><div class="v">+${P.handsLeft}</div></div>
+      <div class="tile gold"><div class="k">Intérêts</div><div class="v">+${interest}</div></div>
+      <div class="tile accent"><div class="k">Octets</div><div class="v">${P.octets}</div></div>
+    </div>
+    ${badge !== null ? `<div class="badgewin">
+      <span class="bdg big on" style="--bc:${BADGES[badge].c}">◆</span>
+      <div><div class="tiny cy">BADGE ${esc(BADGES[badge].n.toUpperCase())}</div>
+        <div class="tiny muted">${esc(BADGES[badge].d)}</div></div>
+    </div>` : ""}
+    ${final?`<div class="tiny cy" style="margin-bottom:8px">Le Champion est tombé. La couche est stabilisée.</div>`:""}
+    <button class="btn pri wide" data-act="${final?"pkfinish":"pkshop"}">
+      ${final?"Terminer la partie":"Accéder à la cache"}</button>
+    ${final?`<button class="btn wide" style="margin-top:7px" data-act="pkendless">Continuer en Couche Zéro</button>`:""}
+  </div>`, true);
+  if(badge !== null) playCine(badgeCine(badge, P.badges.length), showWin);
+  else showWin();
 }
 
 /* ============================================================
@@ -722,12 +776,14 @@ function pkLose(){
   const shards = Math.round((18*P.ante + P.octets*2) * fw * (heldActive("poker") ? 2 : 1));
   const coins = Math.round(220*P.ante * fw);
   gain("shards", shards); gain("coins", coins); addXp(90*P.ante);
-  const opp = typeof pkOpp === "function" ? pkOpp(P) : null;
-  P.loseInfo = {shards, coins, score:P.score, target:P.target, ante:P.ante,
-    opp:opp ? {name:opp.name, title:opp.title, cls:opp.cls, hi:opp.hi, kind:opp.kind} : null};
   save();
-  if(typeof pkLoseScreen === "function") pkLoseScreen(P.loseInfo);
-  else sheet(`<div class="center"><div class="h" style="justify-content:center;color:var(--magenta)">MANCHE PERDUE</div>
+  sheet(`<div class="center">
+    <div class="h" style="justify-content:center;color:var(--magenta)">MANCHE PERDUE</div>
+    <div class="tiny muted">${fmt(P.score)} / ${fmt(P.target)} — Ante ${P.ante}</div>
+    <div class="tiles" style="margin:10px 0">
+      <div class="tile accent"><div class="k">Fragments</div><div class="v">+${shards}</div></div>
+      <div class="tile gold"><div class="k">PokéCoins</div><div class="v">+${fmt(coins)}</div></div>
+    </div>
     <button class="btn pri wide" data-act="pkquit">Quitter</button></div>`, true);
 }
 ACTIONS.pkquit = () => { closeSheet(); S.poker = null; save(); go("poker"); };
@@ -759,14 +815,13 @@ ACTIONS.pkshop = () => { closeSheet(); const P = S.poker; P.state = "shop"; pkRo
 function pkRollShop(){
   const P = S.poker;
   const owned = P.jokers.map(j=>j.id);
-  const pool = JOKERS.filter(j=>!owned.includes(j.id) && !j.evoOnly && (typeof jokerAvail !== "function" || jokerAvail(j)));
+  const pool = JOKERS.filter(j=>!owned.includes(j.id) && (typeof jokerAvail !== "function" || jokerAvail(j)));
   const weighted = [];
   for(const j of pool){ const w = [10,6,3,1][j.rar]; for(let i=0;i<w;i++) weighted.push(j); }
   const offer = [];
   for(let i=0;i<2 && weighted.length;i++){ const j = pick(weighted); if(!offer.includes(j)) offer.push(j); }
   const lic = LICENCES.filter(l=>!P.licences.includes(l.id));
   const prev = P.shop?.rerolls || 0;
-  if(typeof pkSeen === "function") offer.forEach(j=>pkSeen(j.id));
   P.shop = {
     jokers: offer.map(j=>({id:j.id, cost:j.cost})),
     boosters: shuffle(BOOSTERS).slice(0,2).map(b=>({id:b.id, cost:b.cost})),
@@ -849,6 +904,25 @@ ACTIONS.pkbuyb = d => {
   P.pendingBooster = {picks, shiny, n:b.n};
   save(); pkShowBooster();
 };
+function pkShowBooster(){
+  const B = S.poker.pendingBooster;
+  sheet(`${sheetHead(B.n)}
+    <div class="tiny muted" style="margin-bottom:10px">Choisissez une carte : elle rejoint définitivement
+      votre deck pour cette partie.</div>
+    <div class="row" style="gap:7px;justify-content:center">
+      ${B.picks.map(id=>pkCardHtml({u:-1,id,shiny:B.shiny,ed:""}, false,
+         `data-act="pkpickb" data-id="${id}"`, true)).join("")}
+    </div>`);
+}
+ACTIONS.pkpickb = d => {
+  const P = S.poker, B = P.pendingBooster;
+  const maxU = P.deck.reduce((a,c)=>Math.max(a,c.u), 0);
+  P.deck.push({u:maxU+1, id:+d.id, shiny:B.shiny, ed:""});
+  toast(POKE[+d.id].name + " rejoint le deck", "", "check");
+  delete P.pendingBooster;
+  closeSheet(); save(); refresh();
+};
+
 function applyPlanet(id){
   const P = S.poker;
   const pl = PLANETS.find(x=>x.id===id);
@@ -867,7 +941,7 @@ function applySpectral(id){
   }
   if(id === "sp_forge"){
     const owned = P.jokers.map(j=>j.id);
-    const pool = JOKERS.filter(j=>j.rar === 3 && !j.evoOnly && !owned.includes(j.id) && (typeof jokerAvail !== "function" || jokerAvail(j)));
+    const pool = JOKERS.filter(j=>j.rar === 3 && !owned.includes(j.id) && (typeof jokerAvail !== "function" || jokerAvail(j)));
     if(!pool.length || P.jokers.length >= jokerSlots()){
       P.octets += 8; toast("Aucun emplacement libre — 8 Octets rendus", "bad", "coin"); return;
     }
@@ -947,6 +1021,7 @@ ACTIONS.pkskip = () => {
   ACTIONS.pknext();
 };
 ACTIONS.pkplay = () => pkPlay();
+ACTIONS.pkdiscard = () => pkDiscard();
 ACTIONS.pkcard = d => pkToggle(+d.u);
 ACTIONS.pkmenu = () => {
   sheet(`${sheetHead("Partie en cours")}
@@ -968,6 +1043,19 @@ ACTIONS.pkdecksel = d => {
   }
   S.pokerMeta.deck = d.id; save(); refresh();
 };
+/* le choix du deck, sous le bouton de lancement : on voit aussi les decks fermés */
+function pkDeckPicker(){
+  if(typeof PK_DECKS === "undefined") return "";
+  const cur = pkDeckOpen(S.pokerMeta.deck || "std") ? (S.pokerMeta.deck || "std") : "std";
+  return `<div class="h sm" style="margin-top:4px">DECK</div>
+    <div class="pk-decks">${PK_DECKS.map(d=>{
+      const open = pkDeckOpen(d.id), t = d.card ? cardTier(d.card) : 0;
+      return `<button class="pk-deck ${cur === d.id ? "on" : ""} ${open ? "" : "locked"}" data-act="pkdecksel" data-id="${d.id}">
+        <span class="pkd-art">${d.card ? (open ? sprite(d.card, false, "") : `<span class="monunknown">?</span>`) : ic("cards")}</span>
+        <span class="grow"><b>${esc(d.n)}</b>${t ? ` <i class="cpw-t t${t}">${TIER_NAMES[t]}</i>` : ""}
+          <small>${open ? esc(pkDeckDesc(d)) : "Fermé · s'ouvre avec une carte de " + esc(d.card && monFound(d.card) ? POKE[d.card].name : "légendaire") + "."}</small></span>
+      </button>`;}).join("")}</div>`;
+}
 ACTIONS.pkabandon = () => {
   sheet(`${sheetHead("Abandonner la partie ?")}<div class="tiny muted">La progression de la partie est perdue.</div>
     <div class="btn-grid c2" style="margin-top:10px">
@@ -991,6 +1079,33 @@ ACTIONS.pkinfo = () => {
             <b class="bad">${b.mult}</b></div>
           <div class="tiny dim">joué ${played}×</div></div>
       </div>`;}).join("")}</div>`);
+};
+ACTIONS.pkjinfo = d => {
+  const P = S.poker, i = +d.i, j = P.jokers[i], def = jokerDef(j);
+  sheet(`${sheetHead(def.n)}
+    <div class="row" style="gap:11px">
+      <span class="sprbox jr${def.rar}" style="width:56px;height:56px;border-radius:4px">
+        ${sprite(def.spr, false, "")}</span>
+      <div class="grow">
+        <span class="tt rar r${def.rar}" style="--rc:${RARITY[def.rar].c}">
+          ${"◆".repeat(def.rar+1)} ${RAR_NAME[def.rar]}</span>
+        <div class="tiny" style="margin-top:6px">${esc(def.d)}</div>
+        ${def.fragile?`<div class="tiny bad" style="margin-top:4px">Utilisations : ${(j.uses||0)}/${def.fragile}</div>`:""}
+      </div>
+    </div>
+    <div class="panel tight" style="margin-top:11px">
+      <div class="h sm">ORDRE D'EXÉCUTION — position ${i+1} sur ${P.jokers.length}</div>
+      <div class="tiny muted">Les programmes s'appliquent de gauche à droite. Un multiplicateur
+        placé en dernier agit sur tout ce qui précède : l'ordre change le score.</div>
+      <div class="btn-grid c2" style="margin-top:8px">
+        <button class="btn sm" data-act="pkjmove" data-i="${i}" data-d="-1" ${i===0?"disabled":""}>
+          ◀ Vers la gauche</button>
+        <button class="btn sm" data-act="pkjmove" data-i="${i}" data-d="1"
+          ${i===P.jokers.length-1?"disabled":""}>Vers la droite ▶</button>
+      </div>
+    </div>
+    <button class="btn dan wide" style="margin-top:9px" data-act="pkjsell" data-i="${i}">
+      Revendre (+${Math.max(1,Math.floor(def.cost/2))} Octets)</button>`, true);
 };
 ACTIONS.pkjmove = d => {
   const P = S.poker, i = +d.i, j = i + (+d.d);
@@ -1016,4 +1131,254 @@ ACTIONS.pkdeck = () => {
       </div>`).join("")}`);
 };
 
-/* ---------- rendu : voir 62-poker-table.js ---------- */
+/* ---------- rendu ---------- */
+function pkCardHtml(c, selected, attrs, big, extraCls){
+  const p = POKE[c.id];
+  const t = p.types[0];
+  const ed = c.ed || "";
+  return `<div class="pcard ${selected?"sel":""} ${ed} ${c.shiny?"shy":""} ${c.rb?"rb":""} ${big?"big":""} ${extraCls||""} t${t}bg" ${attrs||""}>
+    <div class="pc-top">
+      <span class="pc-nm">${esc(p.name)}</span>
+      ${c.shiny?'<span class="pc-sh">◆</span>':""}
+    </div>
+    <span class="sprbox pc-art">${sprite(c.id, c.shiny, "")}</span>
+    <div class="pc-bot">
+      <span class="tt t${t}">${TYPE_NAMES[t]}</span>
+      <span class="pc-ch">${cardChips(c)}</span>
+    </div>
+    ${stageOf(c.id)?`<span class="pc-st">${"·".repeat(stageOf(c.id))}</span>`:""}
+    ${c.rb?`<span class="pc-rb" title="Arc-en-ciel : copie l'espèce qui complète la main">◇</span>`:""}
+  </div>`;
+}
+/* le tapis : le nom de la main, puis jetons x multiplicateur, en grand */
+function pkScoreLineHtml(res){
+  if(!res) return `<div class="pk-hint">${ic("cards")}
+      <div>Touchez jusqu'à cinq cartes</div>
+      <div class="tiny dim">Le calcul de la main s'affiche ici avant de jouer.</div></div>`;
+  const lv = (S.poker.levels && S.poker.levels[res.handKey]) || 0;
+  return `<div class="pk-hn">${esc(res.handName)}${lv ? ` <span class="pk-lv">niv. ${lv + 1}</span>` : ""}</div>
+    <div class="pk-calc">
+      <span class="chips">${fmt(res.chips)}</span><span class="pk-x">×</span>
+      <span class="mult">${res.mult.toFixed(res.mult % 1 ? 2 : 0)}</span>
+    </div>
+    <div class="pk-total">= <b>${fmt(res.total)}</b></div>`;
+}
+function pkRenderLive(){
+  const P = S.poker;
+  const res = P.sel.length ? pkScore(true) : null;
+  const line = document.getElementById("pk-score-line");
+  if(line) line.innerHTML = pkScoreLineHtml(res);
+  document.querySelectorAll("#hand .pcard").forEach(el=>{
+    el.classList.toggle("sel", P.sel.includes(+el.dataset.u));
+  });
+  const pb = document.getElementById("pk-play"), db = document.getElementById("pk-disc");
+  if(pb) pb.disabled = !P.sel.length || P.handsLeft<=0;
+  if(db) db.disabled = !P.sel.length || P.discardsLeft<=0;
+}
+
+SCREENS.poker = {
+  html(){
+    const P = S.poker;
+    if(!P) return this.lobby();
+    if(P.state === "blind")   return this.blindView(P);
+    if(P.state === "shop")    return this.shopView(P);
+    if(P.state === "resolve") return this.playView(P, true);
+    return this.playView(P);
+  },
+  lobby(){
+    const ok = moduleUnlocked("poker");
+    return `
+      <div class="h">${ic("cards")} POKÉ-POKER ${infoBtn("poker")}</div>
+      <div class="sub">Les données rares se rangent par motifs.</div>
+      ${moduleGoal("Composez des mains avec des Pokémon : espèces identiques, familles d'évolution, types, chromatiques. Les programmes achetés entre deux manches multiplient tout.",
+        "Beaucoup de Fragments, des Noyaux, et de l'intégrité en cas de partie complète.")}
+      <div class="panel bracket">
+        <div class="tiny">Un deck de 52 <b class="cy">Pokémon</b>. Les combinaisons ne se lisent pas en
+          couleurs et en rangs, mais en <b>espèces identiques</b>, <b>familles d'évolution</b>,
+          <b>types</b> et <b>chromatiques</b>. Chaque main marque
+          <b class="cy">Jetons</b> × <b class="bad">Multiplicateur</b>.</div>
+        <hr class="sep">
+        <div class="tiny">Trois verrous par ante, huit antes pour stabiliser la couche. Entre deux verrous,
+          la cache vend des <b>programmes</b>, des <b>licences</b> et des <b>boosters</b> qui ajoutent
+          des espèces de votre archive à votre deck.</div>
+      </div>
+      <div class="tiles" style="margin-bottom:10px">
+        <div class="tile accent"><div class="k">Meilleure ante</div><div class="v">${S.pokerMeta.bestAnte||0}</div></div>
+        <div class="tile gold"><div class="k">Parties gagnées</div><div class="v">${S.stats.pokerWins}</div></div>
+        <div class="tile"><div class="k">Meilleur score</div><div class="v">${fmt(S.stats.pokerBest||0)}</div></div>
+        <div class="tile"><div class="k">Archive</div><div class="v">${dexTotal()}</div></div>
+      </div>
+      ${ok ? pkDeckPicker() : ""}
+      <button class="btn pri wide" data-act="pkstart" ${ok?"":"disabled"}>Lancer une partie</button>
+      <button class="btn ghost wide" style="margin-top:7px" data-act="pkinfo">Voir les combinaisons</button>
+      <button class="btn ghost wide" style="margin-top:7px" data-act="goto" data-to="modules">Retour aux modules</button>`;
+  },
+  /* choix du verrou : meme grammaire que l'ecran de jeu — l'etat en haut,
+     le verrou au centre du tapis, les decisions sous le pouce */
+  blindView(P){
+    const boss = P.blind === 2 || pkStage() !== "ante";
+    return `<div class="pk-table">
+      <div class="pk-head">
+        <div class="grow"><div class="pk-stage">${esc(pkStageLabel())}</div>
+          <div class="pk-blind">Prochain verrou${P.deckId && P.deckId !== "std" && typeof pkDeckDef === "function" ? ` · <span class="gold-t">${esc(pkDeckDef(P.deckId).n)}</span>` : ""}</div></div>
+        <span class="pill">${ic("coin")} ${P.octets}</span>
+        <button class="pk-menu" data-act="pkmenu" aria-label="Menu">${ic("grid")}</button>
+      </div>
+      ${badgeRow()}
+      ${this.jokerRow(P)}
+      <div class="pk-felt">
+        <div class="pk-blindcard ${boss ? "boss" : ""}">
+          <div class="pb-kind">${boss ? "VERROU DE SECTEUR" : "VERROU"}</div>
+          <div class="pb-name">${esc(pkBlindLabel())}</div>
+          <div class="pb-row">
+            <div><div class="tiny dim">Score requis</div>
+              <div class="pb-big">${fmt(P.target || anteTarget(P.ante, P.blind))}</div></div>
+            <div><div class="tiny dim">Récompense</div>
+              <div class="pb-big gold-t">${3 + P.blind} <span class="tiny">Octets</span></div></div>
+          </div>
+          ${boss ? `<div class="tiny bad" style="margin-top:8px">Il impose une contrainte, révélée à l'entrée.
+            ${pkStage() === "ante" ? "Le vaincre délivre un badge." : ""}</div>`
+                 : `<div class="tiny dim" style="margin-top:8px">Contourner rapporte des Octets et améliore votre
+                    combinaison favorite, sans faire avancer le score.</div>`}
+        </div>
+      </div>
+      <div class="pk-actions ${boss ? "solo" : ""}">
+        ${boss ? "" : `<button class="btn" data-act="pkskip">Contourner</button>`}
+        <button class="btn pri" data-act="pkstartblind">Entrer</button>
+      </div>
+    </div>`;
+  },
+  /* Ecran de jeu, pense pour le pouce. Tout tenait dans le haut de l'ecran
+     et laissait le bas vide ; la main de huit cartes defilait de cote et se
+     coupait ; « Abandonner » voisinait avec « Jouer ». Desormais, de haut en
+     bas : l'etat de la manche, le tapis (le calcul de la main, en grand), la
+     main en deux rangees, et les actions a portee de pouce. */
+  playView(P, resolving){
+    const shown = resolving ? (P.resolvePlayed||[]) : null;
+    const pct = Math.min(100, P.score / P.target * 100);
+    return `<div class="pk-table">
+      <div class="pk-head">
+        <div class="grow">
+          <div class="pk-stage">${esc(pkStageLabel())}</div>
+          <div class="pk-blind">${esc(pkBlindLabel())}</div>
+        </div>
+        <span class="pill">${ic("coin")} ${P.octets}</span>
+        <button class="pk-menu" data-act="pkmenu" aria-label="Menu">${ic("grid")}</button>
+      </div>
+      ${badgeRow()}
+      ${P.boss?`<div class="blind-card"><b class="bad">${esc(P.boss.n)}</b>
+        <div class="tiny">${esc(P.boss.d)}</div></div>`:""}
+      <div class="pk-goal">
+        <div class="row between tiny"><span class="muted">Objectif</span>
+          <b class="mono-num">${fmt(P.score)} <span class="muted">/ ${fmt(P.target)}</span></b></div>
+        <div class="bar thick" style="margin-top:5px"><i style="width:${pct}%"></i></div>
+      </div>
+      ${this.jokerRow(P)}
+
+      <div class="pk-felt" id="poker-felt">
+        <div class="score-line big" id="pk-score-line">${pkScoreLineHtml(null)}</div>
+      </div>
+
+      <div class="handinfo">
+        <span>Mains <b class="cy">${P.handsLeft}</b></span>
+        <span>Défausses <b class="gold-t">${P.discardsLeft}</b></span>
+        <span>Pioche <b>${P.draw.length}</b></span>
+      </div>
+      <div id="hand" class="grid ${P.hand.length > 8 ? "g5" : ""} ${resolving?"resolving":""}">
+        ${P.hand.map(c=>{
+          const inPlay = resolving && shown.includes(c.u);
+          const dim = resolving && !inPlay;
+          return pkCardHtml(c, inPlay, `data-u="${c.u}"${resolving?"":' data-act="pkcard"'}`,
+            false, dim ? "dimmed" : "");
+        }).join("")}
+      </div>
+      <div class="pk-actions">
+        ${resolving
+          ? `<button class="btn wide ghost" data-act="pkskipres">Passer l'animation</button>`
+          : `<button class="btn" id="pk-disc" data-act="pkdiscard" ${P.sel.length&&P.discardsLeft>0?"":"disabled"}>
+               Défausser</button>
+             <button class="btn pri" id="pk-play" data-act="pkplay" ${P.sel.length&&P.handsLeft>0?"":"disabled"}>
+               Jouer la main</button>`}
+      </div>
+    </div>`;
+  },
+  shopView(P){
+    const lic = P.shop.licence ? LICENCES.find(l=>l.id===P.shop.licence.id) : null;
+    return `
+      <div class="row between"><div class="h" style="margin:0">ARCHIVE D'ÉCHANGE</div>
+        <span class="pill">${ic("coin")} ${P.octets} Octets</span></div>
+      ${badgeRow()}
+      ${this.jokerRow(P)}
+      <div class="tiny dim" style="margin:5px 0 9px">${P.jokers.length}/${jokerSlots()} emplacements utilisés</div>
+
+      <div class="h sm">PROGRAMMES</div>
+      <div class="list">
+        ${P.shop.jokers.length ? P.shop.jokers.map((o,i)=>{
+          const j = JOKERS.find(x=>x.id===o.id);
+          return `<div class="shopitem">
+            <span class="sprbox" style="width:38px;height:38px">${sprite(j.spr,false,"")}</span>
+            <div class="grow"><div>${esc(j.n)}
+              <span class="tt rar r${j.rar}" style="--rc:${RARITY[j.rar].c}">
+                ${"◆".repeat(j.rar+1)} ${RAR_NAME[j.rar]}</span></div>
+              <div class="tiny muted">${esc(j.d)}</div></div>
+            <button class="btn sm ${P.octets>=o.cost?"gold":""}" data-act="pkbuyj" data-i="${i}"
+              ${P.octets>=o.cost?"":"disabled"}>${o.cost}</button></div>`;}).join("")
+          : `<div class="empty">Stock épuisé.</div>`}
+      </div>
+
+      <div class="h sm" style="margin-top:11px">BOOSTERS</div>
+      <div class="list">
+        ${P.shop.boosters.length ? P.shop.boosters.map((o,i)=>{
+          const b = BOOSTERS.find(x=>x.id===o.id);
+          return `<div class="shopitem"><div class="ic">${ic("chest")}</div>
+            <div class="grow"><div>${esc(b.n)}</div><div class="tiny muted">${esc(b.d)}</div></div>
+            <button class="btn sm ${P.octets>=o.cost?"gold":""}" data-act="pkbuyb" data-i="${i}"
+              ${P.octets>=o.cost?"":"disabled"}>${o.cost}</button></div>`;}).join("")
+          : `<div class="empty">Stock épuisé.</div>`}
+      </div>
+
+      ${P.shop.consum ? (()=>{
+        const o = P.shop.consum;
+        const def = o.kind === "planet" ? PLANETS.find(x=>x.id===o.id) : SPECTRALS.find(x=>x.id===o.id);
+        const lv = o.kind === "planet" ? (P.levels[def.hand]||0) : 0;
+        const desc = o.kind === "planet"
+          ? `${HANDS_BY_ID[def.hand].n} passe au niveau ${lv+2}`
+          : def.d;
+        return `<div class="h sm" style="margin-top:11px">${o.kind==="planet"?"PLANÈTE":"SPECTRE"}</div>
+          <div class="shopitem ${o.kind==="spectral"?"spectral":"planet"}">
+            <div class="ic">${ic(o.kind==="planet"?"core":"shard2")}</div>
+            <div class="grow"><div>${esc(def.n)}</div><div class="tiny muted">${esc(desc)}</div></div>
+            <button class="btn sm ${P.octets>=o.cost?"gold":""}" data-act="pkbuycon"
+              ${P.octets>=o.cost?"":"disabled"}>${o.cost}</button></div>`;
+      })() : ""}
+      ${lic?`<div class="h sm" style="margin-top:11px">LICENCE</div>
+        <div class="shopitem"><div class="ic">${ic("star")}</div>
+          <div class="grow"><div>${esc(lic.n)}</div><div class="tiny muted">${esc(lic.d)}</div>
+            <div class="tiny dim">Amélioration permanente pour toute la partie.</div></div>
+          <button class="btn sm ${P.octets>=lic.cost?"gold":""}" data-act="pkbuylic"
+            ${P.octets>=lic.cost?"":"disabled"}>${lic.cost}</button></div>`:""}
+
+      <div class="btn-grid c2" style="margin-top:11px">
+        <button class="btn" data-act="pkreroll" ${P.octets>=P.shop.rerollCost?"":"disabled"}>
+          ${ic("refresh")} Relancer (${P.shop.rerollCost})</button>
+        <button class="btn pri" data-act="pknext">Verrou suivant</button>
+      </div>
+      <button class="btn ghost wide sm" style="margin-top:7px" data-act="pkdeck">Consulter le deck (${P.deck.length})</button>`;
+  },
+  jokerRow(P){
+    const slots = jokerSlots();
+    const cells = [];
+    for(let i=0;i<slots;i++){
+      const j = P.jokers[i];
+      if(j){
+        const def = jokerDef(j);
+        cells.push(`<div class="joker jr${def.rar}" data-i="${i}" data-act="pkjinfo">
+          <span class="jrar">${"◆".repeat(def.rar+1)}</span>
+          <span class="sprbox" style="width:28px;height:28px">${sprite(def.spr,false,"")}</span>
+          <div class="jn">${esc(def.n)}</div></div>`);
+      } else cells.push(`<div class="slot-empty">+</div>`);
+    }
+    return `<div id="jokers">${cells.join("")}</div>`;
+  },
+  after(){ if(S.poker && S.poker.state === "play" && !RESOLVE) pkRenderLive(); }
+};

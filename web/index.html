@@ -5101,457 +5101,6 @@ body.crv-on #toasts,body.crv-on #pztalk{visibility:hidden}
 }
 .sq2-say{max-height:48px;overflow:hidden}
 
-/* ============================================================
-   ARCHIVISTES RIVAUX — l'écran de rencontre (39r)
-   ============================================================ */
-.rv{position:fixed;inset:0;z-index:120;pointer-events:auto;overflow:hidden;font-family:inherit;--rc:#ff3d7f;--rc2:#ff3d7f}
-.rv-alert{position:absolute;left:50%;top:38%;transform:translate(-50%,-50%) scale(0);font:900 92px/1 var(--font-px,monospace);color:#fff;
-  text-shadow:0 0 0 var(--rc),4px 4px 0 var(--rc),-3px -3px 0 #000;animation:rvBang .8s cubic-bezier(.2,1.6,.4,1) forwards}
-.rv-alert b{display:block;animation:rvShake .12s linear 5}
-@keyframes rvBang{0%{transform:translate(-50%,-50%) scale(0)}25%{transform:translate(-50%,-60%) scale(1.3)}45%{transform:translate(-50%,-50%) scale(1)}85%{transform:translate(-50%,-50%) scale(1);opacity:1}100%{transform:translate(-50%,-50%) scale(1);opacity:0}}
-@keyframes rvShake{0%,100%{transform:translateX(0)}50%{transform:translateX(5px)}}
-/* la transition des jeux d'origine : des bandes noires, alternées */
-.rv-bars{position:absolute;inset:0;display:flex;flex-direction:column}
-.rv-bars i{flex:1;background:#05060c}
-.rv-bars i:nth-child(odd){animation:rvBarL .5s cubic-bezier(.6,0,.4,1) calc(.3s + var(--i) * 25ms) both}
-.rv-bars i:nth-child(even){animation:rvBarR .5s cubic-bezier(.6,0,.4,1) calc(.3s + var(--i) * 25ms) both}
-@keyframes rvBarL{from{transform:translateX(-101%)}to{transform:none}}
-@keyframes rvBarR{from{transform:translateX(101%)}to{transform:none}}
-/* l'écran VS */
-.rv-stage{position:absolute;inset:0;opacity:0;animation:rvIn .01s linear .82s forwards;background:#06070e}
-.verdict .rv-stage{animation-delay:0s}
-@keyframes rvIn{to{opacity:1}}
-.rv-top{position:absolute;left:0;right:0;top:0;height:50%;overflow:hidden;
-  background:linear-gradient(160deg,color-mix(in srgb,var(--rc) 70%,#000) 0%,color-mix(in srgb,var(--rc2) 45%,#05060c) 70%,#05060c 100%);
-  clip-path:polygon(0 0,100% 0,100% 100%,0 78%);animation:rvTop .5s cubic-bezier(.2,1,.3,1) .85s both}
-.verdict .rv-top{animation-delay:.05s}
-@keyframes rvTop{from{transform:translateX(100%)}to{transform:none}}
-.rv-speed i{position:absolute;left:-40%;top:var(--y);height:3px;width:45%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.55));
-  animation:rvSpeed .55s linear calc(var(--i) * -60ms) infinite}
-@keyframes rvSpeed{from{transform:translateX(0)}to{transform:translateX(330%)}}
-.rv-trainer{position:absolute;right:4%;bottom:14%;filter:drop-shadow(0 8px 0 rgba(0,0,0,.45));animation:rvTrainer .7s cubic-bezier(.2,1.25,.4,1) 1s both}
-.rv-trainer .trn{filter:brightness(0);animation:rvReveal .35s linear 1.45s forwards}
-.verdict .rv-trainer .trn{animation:none;filter:none}
-@keyframes rvTrainer{from{transform:translateX(130%)}to{transform:none}}
-@keyframes rvReveal{to{filter:none}}
-.rv-plate{position:absolute;left:5%;top:18%;max-width:55%;padding:8px 12px 9px;background:rgba(5,6,12,.78);border-left:4px solid var(--rc);
-  transform:skewX(-8deg);animation:rvPlate .45s cubic-bezier(.2,1.2,.4,1) 1.15s both}
-.rv-plate>*{transform:skewX(8deg)}
-.rv-plate small{display:block;font:700 8px/1.3 var(--font-px,monospace);letter-spacing:1.6px;color:var(--rc)}
-.rv-plate b{display:block;font:900 28px/1.05 var(--font-px,monospace);color:#fff;letter-spacing:2px;text-shadow:3px 3px 0 rgba(0,0,0,.6)}
-.rv-plate span{display:block;font-size:11px;color:#cfd8e6;margin-top:2px}
-.rv-types{display:flex;gap:4px;align-items:center;margin-top:6px}
-.rv-types em{font-style:normal;font:700 10px var(--font-px,monospace);color:#ffe9a8;margin-left:4px}
-@keyframes rvPlate{from{transform:skewX(-8deg) translateX(-120%)}to{transform:skewX(-8deg)}}
-.rv-bot{position:absolute;left:0;right:0;bottom:0;height:52%;
-  background:linear-gradient(200deg,#0c1424 0%,#05060c 80%);clip-path:polygon(0 22%,100% 0,100% 100%,0 100%);
-  animation:rvBot .5s cubic-bezier(.2,1,.3,1) .85s both}
-@keyframes rvBot{from{transform:translateX(-100%)}to{transform:none}}
-.rv-me{position:absolute;left:6%;top:16%;animation:rvMe .6s cubic-bezier(.2,1.25,.4,1) 1.05s both}
-.rv-me canvas,.rv-me .sprbox{filter:drop-shadow(0 6px 0 rgba(0,0,0,.5))}
-@keyframes rvMe{from{transform:translateX(-140%)}to{transform:none}}
-.rv-plate.me{left:auto;right:5%;top:30%;border-left:0;border-right:4px solid #35f0d6;text-align:right;transform:skewX(8deg);animation-name:rvPlateMe}
-.rv-plate.me>*{transform:skewX(-8deg)}
-.rv-plate.me small{color:#35f0d6}
-@keyframes rvPlateMe{from{transform:skewX(8deg) translateX(120%)}to{transform:skewX(8deg)}}
-.rv-vs{position:absolute;left:50%;top:47%;transform:translate(-50%,-50%);display:flex;gap:2px;z-index:3;
-  font:900 68px/1 var(--font-px,monospace);color:#fff;text-shadow:4px 4px 0 var(--rc),-3px -3px 0 #000,0 0 24px var(--rc)}
-.rv-vs span{display:inline-block;opacity:0;animation:rvVs .45s cubic-bezier(.2,1.8,.4,1) 1.25s forwards}
-.rv-vs span+span{animation-delay:1.33s}
-@keyframes rvVs{0%{opacity:0;transform:scale(3) rotate(-12deg)}60%{opacity:1;transform:scale(.9)}100%{opacity:1;transform:none}}
-.rv.on .rv-stage{}
-.rv-balls{position:absolute;right:8%;top:53%;display:flex;gap:6px;z-index:2}
-.rv-balls span{opacity:0;animation:xsPop .3s ease-out var(--d) forwards}
-.rv-balls span.ace{filter:drop-shadow(0 0 6px #ffd24a)}
-.rv-dlg{position:absolute;left:4%;right:4%;bottom:118px;padding:10px 12px 12px;background:rgba(244,246,250,.97);color:#121826;border-radius:8px;
-  border:3px solid #2b3446;box-shadow:0 0 0 2px #e8ecf2 inset;opacity:0;transform:translateY(12px);transition:opacity .2s,transform .2s;z-index:4}
-.rv.talk .rv-dlg{opacity:1;transform:none}
-.rv-who{font:700 9px var(--font-px,monospace);letter-spacing:1.4px;color:color-mix(in srgb,var(--rc) 75%,#000);margin-bottom:3px}
-.rv-txt{font-size:14px;line-height:1.45;min-height:40px}
-.rv-acts{position:absolute;left:4%;right:4%;bottom:18px;opacity:0;transform:translateY(16px);transition:opacity .25s,transform .25s;z-index:4;pointer-events:none}
-.rv.ask .rv-acts{opacity:1;transform:none;pointer-events:auto}
-.rv-prize{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:4px;font-size:11px;color:#cfd8e6;margin-bottom:9px}
-.rv-prize svg{width:13px;height:13px}
-/* un appui pendant l'entrée : tout s'affiche d'un coup */
-.rv.now *{animation-delay:0s!important;animation-duration:.01s!important}
-.rv.now .rv-speed i{animation-duration:.55s!important}
-/* relever le défi : l'iris d'une Poké Ball se referme */
-.rv-iris{position:absolute;inset:0;pointer-events:none;background:#000;clip-path:circle(150% at 50% 50%);opacity:0}
-.rv.go .rv-iris{opacity:1;animation:rvIris .6s cubic-bezier(.7,0,.3,1) forwards}
-@keyframes rvIris{0%{clip-path:circle(0 at 50% 50%)}100%{clip-path:circle(150% at 50% 50%)}}
-.rv.go .rv-stage{animation:rvSpin .6s ease-in forwards}
-@keyframes rvSpin{to{transform:scale(1.15) rotate(8deg);filter:brightness(2)}}
-.rv.bye{transition:opacity .4s;opacity:0}
-/* le verdict */
-.verdict.won .rv-trainer{animation:rvBeaten 1.2s ease-in-out .5s both}
-@keyframes rvBeaten{0%{transform:none}15%{transform:translateX(-8px)}30%{transform:translateX(7px)}45%{transform:translateX(-5px)}60%{transform:translateX(3px)}100%{transform:translateY(8px);filter:saturate(.35) brightness(.8)}}
-.verdict.lost .rv-trainer{animation:rvGloat 1.6s ease-in-out .4s infinite alternate}
-@keyframes rvGloat{to{transform:translateY(-6px)}}
-.verdict .rv-dlg{bottom:auto;top:52%}
-.rv-gains{position:absolute;left:4%;right:4%;top:calc(52% + 110px);display:flex;justify-content:center;gap:8px}
-.rv-gains>div{flex:1;max-width:120px;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 6px;border-radius:10px;
-  background:#0c1424;border:1px solid var(--line2,#26324a);opacity:0;animation:xsPop .35s ease-out var(--d) forwards}
-.rv-gains svg{width:18px;height:18px}
-.rv-gains b{font:800 16px var(--font-px,monospace)}
-.rv-gains small{font-size:9px;color:#8ea3bd;letter-spacing:1px;text-transform:uppercase}
-.rv-title{position:absolute;left:50%;top:calc(52% + 196px);transform:translateX(-50%);padding:8px 18px;border-radius:10px;text-align:center;
-  background:linear-gradient(100deg,#2a1e05,#5a4310 40%,#2a1e05);border:1px solid #ffd24a;box-shadow:0 0 22px #ffd24a55;opacity:0;
-  animation:xsPop .4s ease-out var(--d) forwards;overflow:hidden}
-.rv-title::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.55) 50%,transparent 70%);
-  transform:translateX(-100%);animation:rvShine 1.6s ease-in-out 1.6s infinite}
-@keyframes rvShine{to{transform:translateX(100%)}}
-.rv-title small{display:block;font:700 8px var(--font-px,monospace);letter-spacing:1.6px;color:#ffd24a}
-.rv-title b{font-size:15px;color:#fff}
-
-/* ============================================================
-   POKÉ-POKER · LA TABLE (62)
-   ============================================================ */
-.pk2{position:relative;margin:-10px -12px -18px;padding:8px 10px 14px;min-height:calc(100dvh - 150px);display:flex;flex-direction:column;gap:7px;
-  background:radial-gradient(120% 60% at 50% -10%,#2a0a26 0%,transparent 60%),radial-gradient(90% 50% at 100% 0%,#062a2a 0%,transparent 60%),linear-gradient(180deg,#0a0714,#05040b);overflow:hidden}
-.pk2 *{-webkit-tap-highlight-color:transparent}
-/* l'adversaire */
-.pk2-opp{position:relative;display:flex;align-items:center;gap:9px;padding:6px 8px;border-radius:12px;
-  background:linear-gradient(100deg,color-mix(in srgb,var(--oc) 34%,#0c0f1c),#0c0f1c 72%);border:1px solid color-mix(in srgb,var(--oc) 55%,transparent)}
-.pk2-opp.boss{box-shadow:0 0 18px color-mix(in srgb,var(--oc) 38%,transparent)}
-.pk2-port{flex:0 0 60px;height:60px;border-radius:10px;overflow:hidden;display:flex;align-items:flex-end;justify-content:center;
-  background:radial-gradient(circle at 50% 75%,color-mix(in srgb,var(--oc) 45%,#1a2238),#0a0d18 75%);border:1px solid rgba(255,255,255,.08)}
-.pk2-port.hit{animation:pk2Hit .45s}
-.pk2-port.ko .trn{animation:pk2Faint .9s ease-in forwards}
-@keyframes pk2Hit{0%,100%{transform:none;filter:none}20%{transform:translateX(-5px);filter:brightness(3)}40%{transform:translateX(5px)}60%{transform:translateX(-3px);filter:brightness(2)}80%{transform:translateX(2px)}}
-@keyframes pk2Faint{0%{transform:none}25%{transform:translateX(-4px);filter:brightness(3)}100%{transform:translateY(60px);opacity:0;filter:grayscale(1)}}
-.pk2-oinfo{flex:1;min-width:0}
-.pk2-oname small{display:block;font:700 8px/1.2 var(--font-px,monospace);letter-spacing:1.4px;color:var(--oc);text-transform:uppercase}
-.pk2-oname b{font-size:15px;color:#fff}
-.pk2-hp{display:flex;align-items:center;gap:5px;margin-top:4px}
-.pk2-hpk{font:800 8px var(--font-px,monospace);color:#ffd24a;background:#1a1408;padding:1px 4px;border-radius:3px;border:1px solid #ffd24a55}
-.pk2-hpbar{flex:1;height:9px;border-radius:5px;background:#141a2a;border:1px solid #2c3850;overflow:hidden;box-shadow:inset 0 1px 0 rgba(0,0,0,.5)}
-.pk2-hpbar i{display:block;height:100%;border-radius:4px;transition:width .6s cubic-bezier(.2,.8,.3,1),background .3s;box-shadow:inset 0 -2px 0 rgba(0,0,0,.2),inset 0 2px 0 rgba(255,255,255,.35)}
-.pk2-hpn{font:700 11px var(--font-px,monospace);color:#fff;text-align:right;margin-top:2px}
-.pk2-hpn span{color:#8ea3bd;font-size:9px}
-.pk2-side{display:flex;flex-direction:column;align-items:flex-end;gap:5px}
-.pk2-oct{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:99px;background:#1a1408;border:1px solid #ffd24a66;color:#ffd24a;font:800 12px var(--font-px,monospace)}
-.pk2-oct svg{width:13px;height:13px}
-.pk2-menu{width:32px;height:32px;border-radius:9px;background:#121828;border:1px solid #26324a;color:#8ea3bd;display:flex;align-items:center;justify-content:center}
-.pk2-menu svg{width:15px;height:15px}
-.pk2-ko{position:absolute;left:14px;top:-10px;font:900 22px var(--font-px,monospace);color:#ff3d7f;text-shadow:3px 3px 0 #000;animation:pk2Pop .5s cubic-bezier(.2,1.8,.4,1);z-index:3}
-@keyframes pk2Pop{0%{transform:scale(2.4);opacity:0}100%{transform:none;opacity:1}}
-.pk2-rule{display:flex;flex-direction:column;gap:1px;padding:5px 10px;border-radius:9px;background:linear-gradient(90deg,#24091a,#140812);border:1px dashed #ff3d7f88;font-size:10.5px;color:#f0c6d6;line-height:1.35}
-.pk2-rule b{color:#ff6f9a;font-size:11px}
-.pk2-rule.trigger{animation:pk2Jolt .38s}
-/* l'étagère des programmes */
-.pk2-shelf{display:flex;gap:5px;justify-content:center;flex-wrap:wrap}
-.pkj{position:relative;flex:0 0 62px;width:62px;height:74px;border-radius:9px;display:flex;flex-direction:column;align-items:center;padding-top:2px;
-  background:linear-gradient(180deg,#1a2238,#0e1322);border:2px solid #4a5a72;box-shadow:0 3px 0 rgba(0,0,0,.45);overflow:hidden;cursor:pointer}
-.pkj.r1{border-color:#4fb2ff}.pkj.r2{border-color:#b06bff;background:linear-gradient(180deg,#261a40,#110b20)}
-.pkj.r3{border-color:#ffd24a;background:linear-gradient(180deg,#2e2208,#120d04);box-shadow:0 3px 0 rgba(0,0,0,.45),0 0 12px #ffd24a55}
-.pkj.r3::after{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.28) 50%,transparent 70%);background-size:250% 100%;animation:pk2Holo 3s linear infinite;pointer-events:none}
-.pkj-art .sprbox{width:46px;height:46px}
-.pkj-nm{font:700 7px/1.15 var(--font-px,monospace);color:#e8f0ff;text-align:center;padding:0 3px;max-width:100%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
-.pkj-rar{position:absolute;top:2px;right:4px;font-size:6px;color:#8ea3bd;letter-spacing:-1px}
-.pkj.r1 .pkj-rar{color:#4fb2ff}.pkj.r2 .pkj-rar{color:#c896ff}.pkj.r3 .pkj-rar{color:#ffd24a}
-.pkj-evo{position:absolute;left:6px;right:6px;bottom:4px;height:3px;background:#05070e;border-radius:2px;overflow:hidden}
-.pkj-evo i{display:block;height:100%;background:linear-gradient(90deg,#ffd24a,#fff3b0)}
-.pkj.zz{filter:grayscale(.85) brightness(.55)}
-.pkj-z{position:absolute;top:6px;left:5px;font:800 10px var(--font-px,monospace);color:#d9c4ff;animation:pk2Zz 1.6s ease-in-out infinite}
-@keyframes pk2Zz{0%,100%{transform:translateY(0);opacity:.5}50%{transform:translateY(-5px);opacity:1}}
-.pkj.empty{border-style:dashed;border-color:#26324a;background:rgba(14,20,36,.4);justify-content:center;color:#3a4a66;font-size:18px;box-shadow:none;cursor:default}
-.pkj.trigger{animation:pk2Jolt .38s}
-@keyframes pk2Jolt{0%{transform:none}30%{transform:translateY(-6px) rotate(-6deg) scale(1.12)}60%{transform:translateY(-2px) rotate(5deg) scale(1.06)}100%{transform:none}}
-/* le tapis */
-.pk2-felt{position:relative;flex:1;min-height:196px;border-radius:20px;padding:10px 8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;
-  background:radial-gradient(ellipse at 50% 45%,#145246 0%,#0c3029 55%,#071b17 100%);
-  border:2px solid #0f5a4c;box-shadow:inset 0 0 0 3px #062019,inset 0 0 44px rgba(0,0,0,.55),0 0 0 1px rgba(53,240,214,.2),0 0 26px rgba(53,240,214,.1)}
-.pk2-felt::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
-  background:repeating-linear-gradient(45deg,rgba(255,255,255,.022) 0 2px,transparent 2px 13px),repeating-linear-gradient(-45deg,rgba(255,255,255,.022) 0 2px,transparent 2px 13px)}
-.pk2-felt::after{content:"";position:absolute;left:50%;top:50%;width:150px;height:150px;margin:-75px 0 0 -75px;border-radius:50%;pointer-events:none;
-  border:3px solid rgba(255,255,255,.035);background:linear-gradient(transparent 47%,rgba(255,255,255,.035) 47% 53%,transparent 53%)}
-.pk2-stage{position:relative;z-index:1;display:flex;gap:5px;justify-content:center}
-.pk2-stage:empty{display:none}
-.pk2-sslot{animation:pk2Fly .4s cubic-bezier(.2,1.25,.4,1) var(--d) both}
-@keyframes pk2Fly{from{transform:translateY(170px) scale(.7) rotate(-8deg);opacity:0}to{transform:none;opacity:1}}
-.pk2-stage .pkc{width:62px;height:86px}
-.pk2-stage .pkc.idle{opacity:.42;filter:grayscale(.65);transform:scale(.9)}
-.pk2-stage .pkc.trigger{animation:pk2CardPop .32s}
-@keyframes pk2CardPop{0%{transform:none}40%{transform:translateY(-12px) scale(1.12) rotate(-3deg)}100%{transform:none}}
-.pk2-line{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:6px}
-.pk2-hint{display:flex;align-items:center;gap:6px;color:#7fb0a6;font-size:11px}
-.pk2-hint svg{width:16px;height:16px}
-.pk2-hn{font:800 14px var(--font-px,monospace);color:#fff;letter-spacing:1px;text-shadow:0 2px 0 rgba(0,0,0,.55)}
-.pk2-hn.pop{animation:pk2Pop .4s cubic-bezier(.2,1.8,.4,1)}
-.pk2-lv{font-size:9px;color:#35f0d6;background:#062a26;padding:1px 5px;border-radius:5px;vertical-align:middle}
-.pk2-calc{display:flex;align-items:center;gap:8px}
-.pk2-chips,.pk2-mult{min-width:88px;padding:8px 12px;border-radius:11px;font:900 22px var(--font-px,monospace);text-align:center;color:#fff;
-  box-shadow:0 4px 0 rgba(0,0,0,.45);text-shadow:2px 2px 0 rgba(0,0,0,.35)}
-.pk2-chips{background:linear-gradient(180deg,#3796ff,#1a5fd0);border:2px solid #8fc8ff}
-.pk2-mult{background:linear-gradient(180deg,#ff5868,#c81e3a);border:2px solid #ffa3ae}
-.pk2-x{font:900 20px var(--font-px,monospace);color:#ffd24a;text-shadow:2px 2px 0 #000}
-.pk2-calc.hot .pk2-chips,.pk2-calc.hot .pk2-mult{animation:pk2Flame .45s ease-in-out infinite alternate}
-@keyframes pk2Flame{from{box-shadow:0 4px 0 rgba(0,0,0,.45),0 0 10px #ff8a3d,0 -6px 14px #ffb35c88}to{box-shadow:0 4px 0 rgba(0,0,0,.45),0 0 20px #ff3d2a,0 -12px 22px #ffd24aaa}}
-.tick{animation:pk2Tick .22s}
-@keyframes pk2Tick{50%{transform:scale(1.18)}}
-.pk2-eq{font-size:11px;color:#9fd8cc}
-.pk2-eq b{font:800 14px var(--font-px,monospace);color:#ffd24a}
-.pk2-eq em{font-style:normal;font:800 11px var(--font-px,monospace);color:#ff3d7f;margin-left:4px;animation:pk2Blink .6s steps(1) infinite}
-@keyframes pk2Blink{50%{opacity:.25}}
-.pk2-total{font:900 40px var(--font-px,monospace);color:#ffd24a;text-shadow:0 0 18px #ffd24a88,3px 3px 0 #000}
-.pk2-total.burst{animation:pk2Pop .45s cubic-bezier(.2,1.8,.4,1)}
-.pk2-delta{position:absolute;transform:translateX(-50%);font:900 15px var(--font-px,monospace);text-shadow:2px 2px 0 #000;pointer-events:none;z-index:6;white-space:nowrap;animation:pk2Float .95s ease-out forwards}
-.pk2-delta.chips{color:#8fc8ff}.pk2-delta.mult{color:#ff8a96}.pk2-delta.xmult{color:#ff3d7f;font-size:19px}.pk2-delta.boss{color:#d9a3ff;font-size:12px}
-@keyframes pk2Float{0%{opacity:0;transform:translate(-50%,6px) scale(.6)}20%{opacity:1;transform:translate(-50%,-6px) scale(1.15)}100%{opacity:0;transform:translate(-50%,-36px)}}
-/* compteurs, deck */
-.pk2-meta{display:flex;align-items:center;justify-content:space-between;padding:0 4px;min-height:28px}
-.pk2-hands{display:flex;gap:2px}
-.pk2-hands i{display:inline-flex;opacity:.22;filter:grayscale(1)}
-.pk2-hands i.on{opacity:1;filter:none}
-.pk2-disc{display:flex;align-items:center;gap:4px;color:#ff8a96;font:800 12px var(--font-px,monospace)}
-.pk2-disc svg{width:14px;height:14px}
-.pk2-deck{display:flex;align-items:center;gap:6px;background:none;border:0;color:#e8f0ff;font:800 12px var(--font-px,monospace);padding:0}
-/* la main en éventail */
-#hand.pk2-fan{display:block;position:relative;height:150px;margin:0 20px;padding:0;min-height:0;overflow:visible;gap:0}
-.pk2-slot{position:absolute;bottom:2px;left:calc((100% - 74px) * var(--t));width:74px;z-index:var(--z);transform-origin:50% 170%;transform:translateY(var(--dy)) rotate(var(--r))}
-.pk2-slot .pkc{width:74px;height:103px}
-.pk2-slot .pkc-art .sprbox{width:62px;height:62px}
-.pk2-slot .pkc-nm{font-size:7px}
-.pk2-slot .pkc{transition:transform .2s cubic-bezier(.2,1.4,.4,1),box-shadow .2s}
-.pk2-slot .pkc.sel{transform:translateY(-28px) scale(1.05);box-shadow:0 0 0 2px #35f0d6,0 0 18px #35f0d6aa,0 6px 0 rgba(0,0,0,.4)}
-.pk2-slot.deal{animation:pk2Deal .45s cubic-bezier(.2,1,.3,1) var(--d) both}
-@keyframes pk2Deal{from{transform:translate(170px,60px) rotate(30deg);opacity:0}to{transform:translateY(var(--dy)) rotate(var(--r));opacity:1}}
-.pk2-slot.toss{animation:pk2Toss .3s ease-in forwards}
-@keyframes pk2Toss{to{transform:translate(-220px,-50px) rotate(-50deg);opacity:0}}
-.pkc.nope{animation:pk2Nope .35s}
-@keyframes pk2Nope{20%{transform:translateX(-5px)}40%{transform:translateX(5px)}60%{transform:translateX(-3px)}80%{transform:translateX(2px)}}
-.pk2-fan.resolving .pkc{filter:brightness(.7)}
-/* les cartes */
-.pkc{position:relative;width:66px;height:92px;flex:0 0 auto;border-radius:7px;padding:2px;cursor:pointer;user-select:none;
-  background:linear-gradient(160deg,var(--tc,#8ea3bd),color-mix(in srgb,var(--tc2,#8ea3bd) 70%,#000));box-shadow:0 3px 0 rgba(0,0,0,.45),0 0 0 1px rgba(0,0,0,.65)}
-.pkc-in{position:relative;width:100%;height:100%;border-radius:5px;overflow:hidden;display:flex;flex-direction:column;background:linear-gradient(180deg,#f8f4e8,#e2dccb)}
-.pkc-hd{height:13px;padding:1px 22px 0 3px;display:flex;align-items:center;background:color-mix(in srgb,var(--tc,#8ea3bd) 28%,#f8f4e8)}
-.pkc-nm{font:800 6.5px/1 var(--font-px,monospace);color:#1a1f2b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.pkc-ch{position:absolute;top:1px;right:1px;min-width:20px;height:15px;padding:0 3px;border-radius:8px;background:#1a5fd0;border:1.5px solid #fff;color:#fff;
-  font:800 8px/12px var(--font-px,monospace);text-align:center;box-shadow:0 1px 0 rgba(0,0,0,.4);z-index:2}
-.pkc-art{flex:1;margin:0 3px;border-radius:3px;display:flex;align-items:center;justify-content:center;overflow:hidden;
-  background:radial-gradient(circle at 50% 62%,color-mix(in srgb,var(--tc,#8ea3bd) 45%,#fff) 0%,color-mix(in srgb,var(--tc,#8ea3bd) 82%,#000) 100%);border:1px solid rgba(0,0,0,.35)}
-.pkc-art .sprbox{width:56px;height:56px}
-.pkc-ft{height:14px;display:flex;align-items:center;justify-content:space-between;padding:0 3px;gap:2px}
-.pkc-no{font:700 6.5px var(--font-px,monospace);color:#4a5060}
-.pkc-st{font-size:5px;color:#c8901e;letter-spacing:-.5px}
-.pkc-ty{font:700 5.5px/9px var(--font-px,monospace);padding:0 2px;border-radius:3px;background:var(--tc);color:#fff;text-shadow:0 1px 0 rgba(0,0,0,.6)}
-.pkc-ty.b{background:var(--tc2);margin-left:-1px}
-.pkc-st{margin-left:auto}
-.pkc.shy{background:linear-gradient(160deg,#fff3b0,#c8901e 45%,#fff3b0 70%,#a0701a)}
-.pkc-holo{position:absolute;inset:0;pointer-events:none;mix-blend-mode:color-dodge;
-  background:linear-gradient(115deg,transparent 18%,rgba(255,80,200,.5) 34%,rgba(80,220,255,.5) 50%,rgba(255,240,120,.5) 66%,transparent 82%);background-size:260% 260%;animation:pk2Holo 2.6s linear infinite}
-.pkc-spark{position:absolute;left:18%;top:28%;width:4px;height:4px;background:#fff;border-radius:50%;box-shadow:30px 8px 0 -1px #fff,12px 30px 0 -1px #fff;animation:pk2Twinkle 1.4s steps(2) infinite;pointer-events:none}
-@keyframes pk2Holo{from{background-position:0% 50%}to{background-position:260% 50%}}
-@keyframes pk2Twinkle{50%{opacity:0}}
-.pkc.gold .pkc-in{box-shadow:inset 0 0 0 2px #ffd24a}
-.pkc-gold{position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,transparent 35%,rgba(255,226,120,.75) 50%,transparent 65%);background-size:250% 100%;animation:pk2Holo 2.2s linear infinite}
-.pkc.glass .pkc-in{background:linear-gradient(180deg,rgba(248,244,232,.78),rgba(200,230,255,.7))}
-.pkc-glass{position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(120deg,rgba(255,255,255,.0) 0 10px,rgba(255,255,255,.45) 10px 12px,rgba(255,255,255,0) 12px 26px)}
-.pkc.corrupt{background:linear-gradient(160deg,#ff3d7f,#35f0d6)}
-.pkc-corr{position:absolute;inset:0;pointer-events:none;background:linear-gradient(transparent 40%,rgba(255,61,127,.35) 40% 44%,transparent 44% 70%,rgba(53,240,214,.35) 70% 73%,transparent 73%);animation:pk2Glitch 1.1s steps(3) infinite}
-@keyframes pk2Glitch{0%{transform:translateX(0)}33%{transform:translateX(2px)}66%{transform:translateX(-2px)}}
-.pkc-rb{position:absolute;left:3px;top:15px;font-size:11px;color:#fff;text-shadow:0 0 4px #ff3d7f,0 0 8px #35f0d6;z-index:2}
-.pkc.par .pkc-in::after{content:"";position:absolute;inset:0;background:rgba(255,228,94,.28);box-shadow:inset 0 0 0 2px #ffe45e}
-.pkc-para{position:absolute;left:-5px;top:-7px;font-size:17px;filter:drop-shadow(0 0 4px #ffe45e);animation:pk2Zz 1s ease-in-out infinite;z-index:3}
-.pkc.back,.pkc.fd{background:#1a1f2b}
-.pkc-back{position:absolute;inset:2px;border-radius:5px;overflow:hidden;
-  background:repeating-linear-gradient(45deg,#1d2a6b 0 6px,#16205a 6px 12px);box-shadow:inset 0 0 0 2px #e8ecf2,inset 0 0 0 4px #1d2a6b}
-.pkc-back i{position:absolute;left:50%;top:50%;width:30px;height:30px;margin:-15px 0 0 -15px;border-radius:50%;
-  background:linear-gradient(#ff3d5a 0 46%,#1a1f2b 46% 54%,#f4f6fa 54%);box-shadow:0 0 0 2px #1a1f2b}
-.pkc-back i::after{content:"";position:absolute;left:50%;top:50%;width:8px;height:8px;margin:-4px 0 0 -4px;border-radius:50%;background:#f4f6fa;box-shadow:0 0 0 2px #1a1f2b}
-.pkc.mini{width:22px;height:30px;padding:1px;border-radius:4px;cursor:pointer}
-.pkc.mini .pkc-back i{width:12px;height:12px;margin:-6px 0 0 -6px}
-.pkc.mini .pkc-back i::after{width:3px;height:3px;margin:-1.5px 0 0 -1.5px;box-shadow:0 0 0 1px #1a1f2b}
-.pkc.big{width:84px;height:116px}
-.pkc.big .pkc-nm{font-size:8px}.pkc.big .pkc-art .sprbox{width:70px;height:70px}.pkc.big .pkc-ch{font-size:9.5px;height:17px;line-height:14px;min-width:24px}
-.pk2-stage .pkc.big .pkc-nm{font-size:6.5px}.pk2-stage .pkc.big .pkc-art .sprbox{width:52px;height:52px}
-.sheet .pkc{display:inline-block;margin:3px;vertical-align:top}
-/* les actions */
-.pk2-acts{display:flex;gap:7px}
-.pk2-btn{flex:1;min-height:52px;border-radius:13px;border:0;font:800 14px var(--font-px,monospace);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
-  box-shadow:0 4px 0 rgba(0,0,0,.5);transition:transform .08s,box-shadow .08s;letter-spacing:.5px}
-.pk2-btn small{font:600 9px/1 system-ui,sans-serif;opacity:.85;display:flex;align-items:center;gap:3px;letter-spacing:.2px}
-.pk2-btn small svg,.pk2-btn svg{width:13px;height:13px}
-.pk2-btn:active:not(:disabled){transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.5)}
-.pk2-btn.blue{background:linear-gradient(180deg,#3796ff,#1a5fd0)}
-.pk2-btn.red{background:linear-gradient(180deg,#ff6372,#c81e3a)}
-.pk2-btn.sort{flex:0 0 58px;background:#1a2238;border:1px solid #2c3850;color:#cfd8e6}
-.pk2-btn.ghost{background:#141b2c;border:1px solid #2c3850;color:#cfd8e6}
-.pk2-btn.wide{flex:1 1 100%}
-.pk2-btn:disabled{filter:grayscale(.75) brightness(.55);box-shadow:none}
-/* victoire, défaite */
-.pk2-ov{position:absolute;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(3,4,10,.8);backdrop-filter:blur(3px);animation:rvIn .25s both}
-.pk2-ovc{width:100%;max-width:360px;padding:14px;border-radius:16px;background:linear-gradient(180deg,#121a2e,#0a0f1c);border:1px solid #2c3850;box-shadow:0 10px 40px rgba(0,0,0,.6);text-align:center;animation:pk2Pop .4s cubic-bezier(.2,1.4,.4,1)}
-.pk2-ov.win .pk2-ovc{border-color:#ffd24a88;box-shadow:0 10px 40px rgba(0,0,0,.6),0 0 30px #ffd24a33}
-.pk2-ovport{height:96px;display:flex;justify-content:center;align-items:flex-end;margin-bottom:4px}
-.pk2-ovport.beaten .trn{animation:pk2Beaten 1.4s ease-in-out forwards}
-@keyframes pk2Beaten{0%{transform:none}12%{transform:translateX(-6px)}24%{transform:translateX(5px)}36%{transform:translateX(-3px)}100%{transform:translateY(10px);filter:grayscale(.7) brightness(.75)}}
-.pk2-ovport.gloat .trn{animation:rvGloat 1.4s ease-in-out infinite alternate}
-.pk2-ovk{font:700 8px var(--font-px,monospace);letter-spacing:1.4px;color:#8ea3bd;text-transform:uppercase}
-.pk2-say{position:relative;margin:7px 0 9px;padding:8px 11px;border-radius:10px;background:#f4f6fa;color:#121826;font-size:12px;line-height:1.4;border:2px solid #2b3446;text-align:left}
-.pk2-say.big{margin:auto 0 0}
-.pk2-who{display:block;font:700 8px var(--font-px,monospace);letter-spacing:1.4px;color:#7a3ab8;margin-bottom:2px}
-.pk2-ovt{font:900 20px var(--font-px,monospace);color:#ffd24a;letter-spacing:1px;text-shadow:3px 3px 0 #000}
-.pk2-ovt.bad{color:#ff3d7f}
-.pk2-ovs{font:800 13px var(--font-px,monospace);color:#fff;margin:2px 0 8px}
-.pk2-ovs span{color:#8ea3bd;font-size:10px}
-.pk2-rows{display:flex;flex-direction:column;gap:4px;margin-bottom:10px}
-.pk2-rows>div{display:flex;justify-content:space-between;align-items:center;padding:6px 10px;border-radius:8px;background:#0e1424;font-size:12px;color:#cfd8e6;opacity:0;animation:pk2Row .3s ease-out var(--d) forwards}
-.pk2-rows b{font:800 13px var(--font-px,monospace);color:#ffd24a;display:flex;align-items:center;gap:4px}
-.pk2-rows b svg{width:13px;height:13px}
-.pk2-rows .tot{background:#1a1408;border:1px solid #ffd24a55}
-@keyframes pk2Row{from{opacity:0;transform:translateX(-14px)}to{opacity:1;transform:none}}
-.pk2-first{margin-bottom:10px;padding:8px;border-radius:10px;background:linear-gradient(100deg,#2a1e05,#5a4310 40%,#2a1e05);border:1px solid #ffd24a;opacity:0;animation:xsPop .4s ease-out var(--d) forwards}
-.pk2-first small{display:block;font:700 7.5px var(--font-px,monospace);letter-spacing:1.4px;color:#ffd24a}
-.pk2-first b{color:#fff;font-size:14px}
-/* le tableau des verrous */
-.pk2-bhead{display:flex;align-items:center;gap:8px}
-.pk2-bhead>div{flex:1}
-.pk2-bhead small{display:block;font:700 8px var(--font-px,monospace);letter-spacing:1.4px;color:#35f0d6}
-.pk2-bhead b{font-size:16px;color:#fff}
-.pk2-badges{display:flex;gap:3px;justify-content:center;align-items:center}
-.pk2-bdg{width:17px;height:17px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:8px;color:#3a4a66;background:#0e1424;border:1px solid #26324a}
-.pk2-bdg.on{color:#fff;background:var(--bc,#35f0d6);border-color:#fff;box-shadow:0 0 8px var(--bc,#35f0d6)}
-.pk2-bdg.e4{font:700 8px var(--font-px,monospace);border-radius:4px}.pk2-bdg.e4.on{background:#7a3ab8;--bc:#b06bff}
-.pk2-bdg.champ{border-radius:4px}.pk2-bdg.cur{border-color:#ffd24a;color:#ffd24a;animation:pk2Blink 1s steps(1) infinite}
-.pk2-bsep{width:8px}
-.pk2-bl{display:flex;gap:6px;align-items:flex-end}
-.pk2-bc{flex:1;position:relative;min-width:0;border-radius:12px;padding:7px 5px 8px;display:flex;flex-direction:column;align-items:center;gap:4px;
-  background:linear-gradient(180deg,color-mix(in srgb,var(--oc) 22%,#0e1424),#0b0f1c);border:1px solid #26324a;opacity:.6}
-.pk2-bc.cur{flex:1.6;opacity:1;border-color:var(--oc);box-shadow:0 0 18px color-mix(in srgb,var(--oc) 45%,transparent)}
-.pk2-bl.n1 .pk2-bc{flex:1}
-.pk2-bc.done{opacity:.4}
-.pk2-bck{font:700 7px var(--font-px,monospace);letter-spacing:1px;color:var(--oc);text-align:center;line-height:1.3}
-.pk2-bcp{display:flex;align-items:flex-end;justify-content:center;min-height:64px}
-.pk2-bc.cur .pk2-bcp{animation:rvGloat 1.6s ease-in-out infinite alternate}
-.pk2-bcn{font-size:12px;font-weight:700;text-align:center;color:#fff;line-height:1.2}
-.pk2-bcn small{display:block;font-size:9px;color:#8ea3bd;font-weight:500}
-.pk2-bct{text-align:center}.pk2-bct small{display:block;font-size:8px;color:#8ea3bd}.pk2-bct b{font:800 13px var(--font-px,monospace);color:#fff}
-.pk2-bcr{font:800 11px var(--font-px,monospace);color:#ffd24a;display:flex;align-items:center;gap:3px}.pk2-bcr svg{width:12px;height:12px}
-.pk2-bcrule{width:100%;padding:5px 6px;border-radius:7px;background:#1c0a14;border:1px dashed #ff3d7f88;font-size:9px;color:#f0c6d6;text-align:center;line-height:1.35}
-.pk2-bcrule b{display:block;color:#ff6f9a;font-size:10px}.pk2-bcrule span{display:block;margin-top:2px}
-.pk2-bcdone{position:absolute;top:44%;left:50%;transform:translate(-50%,-50%) rotate(-14deg);font:900 11px var(--font-px,monospace);color:#5ce07a;border:2px solid #5ce07a;padding:2px 6px;border-radius:5px;background:rgba(5,20,10,.8)}
-/* la cache */
-.pk2-keeper{display:flex;gap:8px;align-items:center}
-.pk2-keeper .pk2-say{flex:1;margin:0;font-size:11px}
-.pk2-sh{font:700 8px var(--font-px,monospace);letter-spacing:1.6px;color:#35f0d6;margin:4px 2px -2px}
-.pk2-row{display:flex;flex-direction:column;gap:6px}
-.pk2-item{display:flex;align-items:center;gap:9px;padding:7px 8px;border-radius:12px;background:#0e1424;border:1px solid #26324a}
-.pk2-itd{flex:1;min-width:0}
-.pk2-itd b{display:block;font-size:12px;color:#fff}
-.pk2-itd span{display:block;font-size:10.5px;color:#9fb0c8;line-height:1.35}
-.pk2-itd em{display:block;font-style:normal;font-size:9.5px;color:#ffd24a;margin-top:2px}
-.pk2-price{flex:0 0 auto;display:flex;align-items:center;gap:3px;padding:9px 10px;border-radius:10px;border:0;background:linear-gradient(180deg,#ffd24a,#c8901e);color:#1a1408;
-  font:900 13px var(--font-px,monospace);box-shadow:0 3px 0 rgba(0,0,0,.45)}
-.pk2-price svg{width:13px;height:13px}
-.pk2-price.no{filter:grayscale(.85) brightness(.55);box-shadow:none}
-.pk2-packs{display:flex;gap:6px}
-.pk2-packi{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;padding:8px 6px;border-radius:12px;background:#0e1424;border:1px solid #26324a;text-align:center}
-.pk2-packi .pk2-itd span{font-size:9.5px}
-.pk2-foil{position:relative;width:96px;height:132px;border-radius:9px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;overflow:hidden;
-  background:linear-gradient(135deg,#ff3d7f,#7a3ab8 35%,#35f0d6 70%,#ffd24a);box-shadow:0 4px 0 rgba(0,0,0,.5),inset 0 0 0 3px rgba(255,255,255,.4)}
-.pk2-foil::before{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.55) 50%,transparent 70%);background-size:250% 100%;animation:pk2Holo 2.4s linear infinite}
-.pk2-foil b{position:relative;font:900 9px var(--font-px,monospace);color:#fff;text-shadow:1px 1px 0 #000;letter-spacing:1px}
-.pk2-foil small{position:relative;font-size:8px;color:#fff;text-shadow:1px 1px 0 #000}
-.pk2-foil .sprbox{position:relative;filter:drop-shadow(0 3px 0 rgba(0,0,0,.4))}
-.pk2-foil.sm{width:76px;height:100px}
-.k-b_evo .pk2-foil{filter:hue-rotate(60deg)}.k-b_type .pk2-foil{filter:hue-rotate(150deg)}.k-b_herit .pk2-foil{filter:hue-rotate(210deg) saturate(1.3)}
-.k-b_chroma .pk2-foil{background:linear-gradient(135deg,#fff3b0,#c8901e 40%,#ffe9a8 60%,#a0701a)}
-.pk2-orb{position:relative;width:46px;height:46px;flex:0 0 auto;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,#8fd0ff 22%,#2a5fd0 58%,#0a1a40);box-shadow:0 0 14px #4fb2ff88}
-.pk2-orb.spectral{background:radial-gradient(circle at 35% 30%,#fff,#e0b8ff 22%,#7a3ab8 58%,#1a0a30);box-shadow:0 0 14px #b06bff88}
-.pk2-orb i{position:absolute;inset:-5px;border-radius:50%;border:2px solid rgba(255,255,255,.35);transform:rotateX(70deg);animation:pk2Ring 4s linear infinite}
-@keyframes pk2Ring{to{transform:rotateX(70deg) rotateZ(360deg)}}
-.pk2-ticket{width:46px;height:34px;flex:0 0 auto;border-radius:6px;background:linear-gradient(90deg,#ffd24a,#ffb35c);display:flex;align-items:center;justify-content:center;color:#1a1408;
-  -webkit-mask:radial-gradient(circle at 0 50%,transparent 5px,#000 6px) left/51% 100% no-repeat,radial-gradient(circle at 100% 50%,transparent 5px,#000 6px) right/51% 100% no-repeat}
-.pk2-ticket svg{width:18px;height:18px}
-/* le booster qu'on ouvre */
-.pk2-pack{position:fixed;inset:0;z-index:110;display:flex;align-items:center;justify-content:center;background:rgba(3,4,10,.86);backdrop-filter:blur(4px);opacity:0;transition:opacity .2s}
-.pk2-pack.on{opacity:1}
-.pk2-packc{width:100%;max-width:400px;padding:16px;text-align:center;position:relative;min-height:330px}
-.pk2-packt{font:900 15px var(--font-px,monospace);color:#fff;letter-spacing:1px;margin-bottom:12px;text-shadow:2px 2px 0 #000}
-.pk2-wrap{position:absolute;left:50%;top:64px;transform:translateX(-50%);animation:pk2Shake .45s ease-in-out .1s 2}
-.pk2-wrap .pk2-foil{width:150px;height:206px}
-.pk2-wrap .pk2-foil b{font-size:12px}
-.pk2-tear{position:absolute;left:-4px;right:-4px;top:0;height:30px;background:linear-gradient(135deg,#ff3d7f,#7a3ab8);border-radius:9px 9px 0 0;opacity:0}
-.pk2-pack.open .pk2-tear{opacity:1;animation:pk2Tear .45s ease-in forwards}
-@keyframes pk2Tear{to{transform:translate(70px,-90px) rotate(35deg);opacity:0}}
-.pk2-pack.show .pk2-wrap{animation:pk2Drop .4s ease-in forwards}
-@keyframes pk2Drop{to{transform:translate(-50%,240px) rotate(8deg);opacity:0}}
-@keyframes pk2Shake{0%,100%{transform:translateX(-50%) rotate(0)}25%{transform:translateX(-50%) rotate(-5deg)}75%{transform:translateX(-50%) rotate(5deg)}}
-.pk2-picks{display:flex;gap:8px;justify-content:center;opacity:0;margin-top:20px}
-.pk2-pack.show .pk2-picks{opacity:1}
-.pk2-pick{display:flex;flex-direction:column;align-items:center;gap:5px;opacity:0}
-.pk2-pack.show .pk2-pick{animation:pk2Rise .35s cubic-bezier(.2,1.3,.4,1) var(--d) forwards}
-@keyframes pk2Rise{from{opacity:0;transform:translateY(60px) scale(.8)}to{opacity:1;transform:none}}
-.pk2-flip{position:relative;width:92px;height:128px}
-.pk2-flip>.pkc{position:absolute;inset:0;width:100%;height:100%}
-.pk2-flip>.pkc:not(.back){transform:rotateY(90deg)}
-.pk2-pack.show .pk2-flip>.back{animation:pk2FlipOut .22s ease-in calc(var(--d) + .4s) forwards}
-.pk2-pack.show .pk2-flip>.pkc:not(.back){animation:pk2FlipIn .22s ease-out calc(var(--d) + .62s) forwards}
-@keyframes pk2FlipOut{to{transform:rotateY(90deg)}}
-@keyframes pk2FlipIn{from{transform:rotateY(90deg)}to{transform:none}}
-.pk2-pick .pkc.big .pkc-art .sprbox{width:74px;height:74px}
-.pk2-pickn{font-size:11px;color:#fff;font-weight:700;max-width:100px}
-.pk2-pickn small{display:block;font-size:9px;color:#9fb0c8;font-weight:500}
-.pk2-packh{font-size:11px;color:#8ea3bd;margin-top:12px;opacity:0;transition:opacity .3s 1.2s}
-.pk2-pack.show .pk2-packh{opacity:1}
-/* l'évolution d'un programme */
-.pk2-evo{position:fixed;inset:0;z-index:115;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 45%,#2a2a3a,#05060c 70%);opacity:0;transition:opacity .25s}
-.pk2-evo.on{opacity:1}
-.pk2-evoc{width:100%;max-width:340px;padding:16px;text-align:center}
-.pk2-evot{font-size:14px;color:#fff;margin-bottom:16px}
-.pk2-evos{position:relative;height:120px;display:flex;justify-content:center;align-items:center}
-.pk2-evos span{position:absolute}
-.pk2-evos .a{animation:pk2EvoA 2.4s steps(1) forwards}
-.pk2-evos .b{opacity:0;animation:pk2EvoB 2.4s steps(1) forwards}
-.pk2-evo:not(.done) .pk2-evos span{filter:brightness(0) invert(1) drop-shadow(0 0 14px #fff)}
-@keyframes pk2EvoA{0%,20%,40%,55%,68%,78%,86%,92%,96%{opacity:1}10%,30%,48%,62%,73%,82%,89%,94%,98%,100%{opacity:0}}
-@keyframes pk2EvoB{0%,20%,40%,55%,68%,78%,86%,92%,96%{opacity:0}10%,30%,48%,62%,73%,82%,89%,94%,98%,100%{opacity:1}}
-.pk2-evo.done .pk2-evos .b{opacity:1;animation:pk2Pop .4s}
-.pk2-evon{min-height:52px;margin:14px 0;font-size:13px;color:#fff;line-height:1.45}
-.pk2-evobox{margin-top:8px;padding:7px 9px;border-radius:9px;background:#1a1408;border:1px solid #ffd24a55}
-.pk2-evobar{height:5px;border-radius:3px;background:#05070e;margin-top:5px;overflow:hidden}
-.pk2-evobar i{display:block;height:100%;background:linear-gradient(90deg,#ffd24a,#fff3b0)}
-/* la salle de jeux */
-.pk2.lobby{gap:9px}
-.pk2-neon{text-align:center;padding:10px 0 0}
-.pk2-neon span{font:900 32px var(--font-px,monospace);color:#fff;letter-spacing:2px;text-shadow:0 0 6px #ff3d7f,0 0 18px #ff3d7f,0 0 34px #ff3d7f;animation:pk2Neon 5s infinite}
-.pk2-neon span.b{text-shadow:0 0 6px #35f0d6,0 0 18px #35f0d6,0 0 34px #35f0d6;margin-left:8px;animation-delay:1.3s}
-.pk2-neon small{display:block;font:700 8px var(--font-px,monospace);letter-spacing:2.4px;color:#8ea3bd;margin-top:6px;text-transform:uppercase}
-@keyframes pk2Neon{0%,18%,22%,62%,64%,100%{opacity:1}20%,63%{opacity:.35}}
-.pk2-show{position:relative;height:150px}
-.pk2-sc{position:absolute;left:50%;bottom:4px;margin-left:-42px;transform-origin:50% 150%;transform:rotate(calc((var(--i) - 2) * 13deg));animation:pk2Sway 4s ease-in-out calc(var(--i) * -.6s) infinite alternate}
-@keyframes pk2Sway{from{transform:rotate(calc((var(--i) - 2) * 13deg))}to{transform:rotate(calc((var(--i) - 2) * 15deg)) translateY(-4px)}}
-.pk2-pitch{font-size:11.5px;color:#cfd8e6;line-height:1.5;padding:8px 10px;border-radius:10px;background:#0e1424;border:1px solid #26324a}
-.pk2-stats{display:flex;gap:6px}
-.pk2-stats>div{flex:1;text-align:center;padding:7px 4px;border-radius:10px;background:#0e1424;border:1px solid #26324a}
-.pk2-stats b{display:block;font:900 15px var(--font-px,monospace);color:#ffd24a}
-.pk2-stats small{font-size:8.5px;color:#8ea3bd}
-.pk2-case{padding:7px 8px;border-radius:12px;background:linear-gradient(180deg,#160f24,#0b0912);border:1px solid #3a2a50}
-.pk2-caseh{font:700 8px var(--font-px,monospace);letter-spacing:1.4px;color:#c9a6ff;display:flex;justify-content:space-between}
-.pk2-casel{display:flex;flex-wrap:wrap;gap:4px;justify-content:center;margin-top:7px}
-.pk2-ld{width:40px;height:40px;border-radius:8px;background:#0e1424;border:1px solid #26324a;overflow:hidden;display:flex;align-items:flex-end;justify-content:center}
-.pk2-ld .trn{filter:brightness(0) opacity(.45)}
-.pk2-ld.on{border-color:#ffd24a;box-shadow:0 0 8px #ffd24a55;background:radial-gradient(circle at 50% 80%,#3a2e10,#0e1424)}
-.pk2-ld.on .trn{filter:none}
-.pk2-ld.champ{border-color:#7a3ab8}
-.pk2-play{width:100%;min-height:58px;border-radius:15px;border:0;background:linear-gradient(180deg,#ff4f80,#c81e5a);color:#fff;font:900 15px var(--font-px,monospace);letter-spacing:1px;
-  box-shadow:0 5px 0 #6a0a2a,0 0 26px #ff3d7f55}
-.pk2-play span{display:inline-flex;align-items:center;gap:8px}.pk2-play svg{width:18px;height:18px}
-.pk2-play:active:not(:disabled){transform:translateY(4px);box-shadow:0 1px 0 #6a0a2a}
-.pk2-play:disabled{filter:grayscale(.8) brightness(.6)}
-.pk2-dex{display:flex;flex-direction:column;gap:6px}
-.pk2-dexi{display:flex;gap:9px;align-items:center;padding:6px;border-radius:10px;background:#0e1424}
-.pk2-dexi>div:last-child{flex:1;min-width:0}
-.pk2-dexi b{display:block;font-size:12px}.pk2-dexi span{display:block;font-size:10.5px;color:#9fb0c8}
-.pk2-dexi.unk{opacity:.55}
-@media (max-height:720px){
-  .pk2{gap:5px}.pk2-felt{min-height:150px}#hand.pk2-fan{height:122px}
-  .pk2-slot{left:calc((100% - 64px) * var(--t));width:64px}.pk2-slot .pkc{width:64px;height:89px}.pk2-slot .pkc-art .sprbox{width:52px;height:52px}.pkj{height:64px;width:56px;flex-basis:56px}.pkj-art .sprbox{width:38px;height:38px}
-  .pk2-chips,.pk2-mult{min-width:74px;font-size:18px;padding:6px 9px}
-}
-
 </style>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
@@ -13301,7 +12850,86 @@ function friendCheck(from, e){
   return null;
 }
 
-/* 6. DÉFIS SURPRISES : les archivistes rivaux vivent dans 39r-rival.js */
+/* ============================================================
+   6. DÉFIS SURPRISES
+   La boucle la plus repetee du jeu avait besoin d'imprevu. Un
+   archiviste rival surgit parfois apres une capture.
+   ============================================================ */
+const RIVALS = [
+  {k:"r_iris",  n:"Iris, archiviste des nappes",   t:[11,15], title:"Plongeur d'index"},
+  {k:"r_moss",  n:"Moss, jardinier d'arborescence", t:[12,7],  title:"Élagueur"},
+  {k:"r_volt",  n:"Volt, compilateur",             t:[13,9],  title:"Survolté"},
+  {k:"r_cendre",n:"Cendre, fondeur",               t:[10,6],  title:"Porteur de braise"},
+  {k:"r_nox",   n:"Nox, veilleur de nuit",         t:[17,8],  title:"Veilleur"},
+  {k:"r_ayla",  n:"Ayla, copiste draconique",      t:[16,14], title:"Draconologue"}
+];
+for(const r of RIVALS) COSMETICS["title_" + r.k] = {t:"title", n:r.title};
+let RIVAL = null;
+function rivalTick(){
+  if(S.capMode === "fish" || S.level < 10 || S.team.length < 3) return false;
+  if(rng() > 0.012) return false;
+  RIVAL = pick(RIVALS);
+  setTimeout(()=>{
+    /* jamais par-dessus une autre fenetre : le defi attendra une autre capture */
+    const disc = document.getElementById("discover");
+    if(sheetOpen() || (disc && /\bon\b/.test(disc.className || ""))){ RIVAL = null; return; }
+    sheet(`<div class="center">
+      <div class="h" style="justify-content:center;color:var(--magenta)">DÉFI</div>
+      <div class="tiny" style="margin:8px 0 4px"><b>${esc(RIVAL.n)}</b></div>
+      <div class="tiny muted" style="margin-bottom:10px">« Tu travailles sur mon secteur. Montre-moi ce que
+        vaut ton équipe. »</div>
+      <div class="wrap" style="justify-content:center;margin-bottom:10px">
+        ${RIVAL.t.map(t=>`<span class="tt t${t}">${TYPE_NAMES[t]}</span>`).join("")}</div>
+      <div class="tiny dim" style="margin-bottom:10px">Refuser ne coûte rien. Gagner rapporte un titre,
+        la première fois.</div>
+      <div class="btn-grid c2">
+        <button class="btn ghost" data-act="rivalno">Refuser</button>
+        <button class="btn pri" data-act="rivalgo">Accepter</button>
+      </div>
+    </div>`, true);
+    Sfx.glitch(); buzz([20,30,20]);
+  }, 700);
+  return true;
+}
+ACTIONS.rivalno = () => { RIVAL = null; closeSheet(); };
+ACTIONS.rivalgo = () => {
+  const rv = RIVAL; if(!rv) return;
+  closeSheet();
+  const allies = teamFighters(S.team);
+  const avg = Math.round(allies.reduce((a,f)=>a + f.level, 0) / Math.max(1, allies.length));
+  const foes = [];
+  for(let i = 0; i < 3; i++){
+    const pool = [];
+    for(const r of unlockedRegions()) for(let j = r.from; j <= r.to; j++){
+      const p = POKE[j];
+      if(p && !p.leg && !isExclusive(j) && p.types.some(t=>rv.t.includes(t)) && p.bst >= 300) pool.push(j);
+    }
+    foes.push(makeFighter(pool.length ? pick(pool) : randInt(1,151), clamp(avg + 2, 5, 100), {boost:1.05}));
+  }
+  createBattle(allies, foes, {
+    ai: true, speed: S.settings.battleSpeed || 1, title: rv.n.split(",")[0].toUpperCase(), stage: "elite",
+    onEnd: win => {
+      S.stats.rivals = (S.stats.rivals || 0) + (win ? 1 : 0);
+      if(win){
+        const first = !(S.cos.owned || []).includes("title_" + rv.k);
+        gain("coins", 1500 + avg * 40); gain("shards", 20);
+        if(first) unlockCosmetic("title_" + rv.k);
+        sheet(`<div class="center"><div class="h" style="justify-content:center">DÉFI REMPORTÉ</div>
+          <div class="tiny muted" style="margin:8px 0">« Pas mal. Je reviendrai. »</div>
+          ${first?`<div class="tiny cy">Titre débloqué : ${esc(rv.title)}</div>`:""}
+          <button class="btn pri wide" style="margin-top:11px" data-act="closeandgo" data-to="capture">Reprendre</button>
+        </div>`, true);
+      } else {
+        sheet(`<div class="center"><div class="h" style="justify-content:center">DÉFI PERDU</div>
+          <div class="tiny muted" style="margin:8px 0">Rien n'est perdu. Il repassera.</div>
+          <button class="btn pri wide" style="margin-top:11px" data-act="closeandgo" data-to="capture">Reprendre</button>
+        </div>`, true);
+      }
+      save(); checkAchievements();
+    }
+  });
+  go("battle");
+};
 
 /* ============================================================
    7. CODES
@@ -13900,235 +13528,6 @@ const SRC_HINTS = {
   stone_sun:    "Fouilles du Forage — surtout le Noyau onirique et le Pic Météore"
 };
 function srcHint(kind, key){ return SRC_HINTS[kind + "_" + key] || SRC_HINTS[kind] || ""; }
-
-/* ===== 39r-rival.js ===== */
-/* ============================================================
-   39r — LES ARCHIVISTES RIVAUX
-   Retour de jeu : « ces rencontres ne sont pas du tout animées alors
-   qu'elles le devraient, ça perd de sa superbe alors que c'est quelque
-   chose de rare et de marquant ». Une rencontre se joue désormais comme
-   dans les jeux d'origine :
-     1. l'alerte : un « ! », l'écran qui sursaute ;
-     2. la transition de combat : des bandes noires qui balaient l'écran ;
-     3. l'écran VS : le rival entre par la droite, vous par la gauche,
-        lignes de vitesse aux couleurs de ses types, VS qui frappe,
-        son équipe en Poké Balls (l'as en doré) ;
-     4. sa réplique, lettre par lettre, puis le choix ;
-     5. relever le défi ferme l'écran en iris de Poké Ball ;
-     6. au retour, le verdict : le rival vaincu chancelle, les gains
-        défilent, le titre se dévoile.
-   Chaque rival a désormais son portrait, son as, ses répliques, et il
-   se souvient de vous : chaque victoire le rend plus fort, et paie plus.
-   ============================================================ */
-const RIVALS = [
-  {k:"r_iris",   n:"Iris",   role:"archiviste des nappes",     cls:"cool_trainer_f", t:[11,15], title:"Plongeur d'index",  ace:131,
-   intro:["Tu travailles sur mon secteur. Les nappes, c'est chez moi.", "Encore toi ? L'eau a de la mémoire, tu sais.", "Cette fois, je ne te laisserai pas remonter."],
-   win:"Pas mal. L'eau finit toujours par revenir.", lose:"Reviens quand tu sauras nager."},
-  {k:"r_moss",   n:"Moss",   role:"jardinier d'arborescence",  cls:"aroma_lady",     t:[12,7],  title:"Élagueur",          ace:3,
-   intro:["Chut. Tu marches sur mes racines.", "Mon arborescence a poussé depuis la dernière fois.", "Une branche de trop, et je taille."],
-   win:"Tu as élagué proprement. Je vais devoir replanter.", lose:"Tout repousse. Même toi, un jour."},
-  {k:"r_volt",   n:"Volt",   role:"compilateur",               cls:"engineer",       t:[13,9],  title:"Survolté",          ace:82,
-   intro:["Ton équipe tourne sur quelle version ? Laisse-moi vérifier.", "Recompilé, optimisé. On recommence ?", "Surtension garantie. Tu signes où ?"],
-   win:"Erreur fatale de mon côté. Bien joué.", lose:"Mise à jour recommandée. Pour toi."},
-  {k:"r_cendre", n:"Cendre", role:"fondeur",                   cls:"kindler",        t:[10,6],  title:"Porteur de braise", ace:59,
-   intro:["Ça sent le roussi par ici. C'est moi.", "Le four est chaud. Toi aussi, j'espère.", "Je fonds ce qui me résiste. Résiste, pour voir."],
-   win:"Les braises couvent. Elles reprendront.", lose:"Rien ne résiste longtemps à la fonte."},
-  {k:"r_nox",    n:"Nox",    role:"veilleur de nuit",          cls:"channeler",      t:[17,8],  title:"Veilleur",          ace:94,
-   intro:["Tu n'aurais pas dû capturer celui-là. Il était sous ma garde.", "La nuit se souvient de ton visage.", "Les ombres m'ont prévenu de ton arrivée."],
-   win:"…L'aube vient toujours trop tôt.", lose:"Rentre avant la nuit. Elle est à moi."},
-  {k:"r_ayla",   n:"Ayla",   role:"copiste draconique",        cls:"expert_f",       t:[16,14], title:"Draconologue",      ace:149,
-   intro:["J'ai recopié chaque écaille de ce secteur. Toi, tu le salis.", "Mes dragons ont lu tes combats. Ils ne sont pas impressionnés.", "La dernière page de mon registre est pour toi."],
-   win:"Je recopierai ce combat. Il le mérite.", lose:"Une ligne de plus dans mon registre. Rien d'autre."}
-];
-for(const r of RIVALS) COSMETICS["title_" + r.k] = {t:"title", n:r.title};
-let RIVAL = null;
-/* ce que le rival sait de vous */
-function rivalRec(k){ S.rivals = S.rivals || {}; return S.rivals[k] = S.rivals[k] || {w:0, l:0, met:0}; }
-function rivalLevel(rv, avg){ return clamp(avg + 2 + Math.min(12, 2 * rivalRec(rv.k).w), 5, 100); }
-function rivalPrize(rv, avg){
-  const w = rivalRec(rv.k).w;
-  return {coins:1500 + avg * 40 + 400 * w, shards:20 + 5 * w, cores:w === 2 ? 1 : 0, first:!(S.cos.owned || []).includes("title_" + rv.k)};
-}
-function rivalColor(rv){ return typeof arCol === "function" ? arCol(rv.t[0]) : "#ff3d7f"; }
-function rivalTick(){
-  if(S.capMode === "fish" || S.level < 10 || S.team.length < 3) return false;
-  if(rng() > 0.012) return false;
-  RIVAL = pick(RIVALS);
-  setTimeout(()=>{
-    /* jamais par-dessus une autre fenêtre : le défi attendra une autre capture */
-    const disc = document.getElementById("discover");
-    if(sheetOpen() || (disc && /\bon\b/.test(disc.className || "")) || document.getElementById("rv")){ RIVAL = null; return; }
-    rivalScene(RIVAL);
-  }, 700);
-  return true;
-}
-
-/* ---------- l'écran de rencontre ---------- */
-function rivalScene(rv){
-  const rec = rivalRec(rv.k);
-  rec.met++;
-  const allies = teamFighters(S.team);
-  const avg = Math.round(allies.reduce((a, f)=>a + f.level, 0) / Math.max(1, allies.length));
-  const prize = rivalPrize(rv, avg), lv = rivalLevel(rv, avg), C = rivalColor(rv);
-  const line = rv.intro[Math.min(rv.intro.length - 1, rec.met - 1)] || rv.intro[0];
-  const lead = S.team[0] || 25;
-  const old = document.getElementById("rv"); if(old) old.remove();
-  const el = document.createElement("div");
-  el.id = "rv"; el.className = "rv";
-  el.style.setProperty("--rc", C);
-  el.style.setProperty("--rc2", typeof arCol === "function" ? arCol(rv.t[1] || rv.t[0]) : C);
-  el.innerHTML = `
-    <div class="rv-alert"><b>!</b></div>
-    <div class="rv-bars">${Array.from({length:8}, (_, i)=>`<i style="--i:${i}"></i>`).join("")}</div>
-    <div class="rv-stage">
-      <div class="rv-top">
-        <div class="rv-speed">${Array.from({length:14}, (_, i)=>`<i style="--i:${i};--y:${(i * 37) % 100}%"></i>`).join("")}</div>
-        <div class="rv-trainer">${trainerArt(rv.cls, 172, "big")}</div>
-        <div class="rv-plate">
-          <small>ARCHIVISTE RIVAL${rec.met > 1 ? ` · RENCONTRE N°${rec.met}` : ""}</small>
-          <b>${esc(rv.n.toUpperCase())}</b>
-          <span>${esc(rv.role)}</span>
-          <div class="rv-types">${rv.t.map(t=>`<span class="tt t${t}">${TYPE_NAMES[t]}</span>`).join("")}<em>N.${lv}</em></div>
-        </div>
-      </div>
-      <div class="rv-vs"><span>V</span><span>S</span></div>
-      <div class="rv-bot">
-        <div class="rv-me">${typeof pmdCanvas === "function" ? pmdCanvas(lead, 3, 132, {shiny:!!(S.dex[lead] && S.dex[lead].shiny)}) : sprBox(lead, false, 110)}</div>
-        <div class="rv-plate me">
-          <small>VOUS</small>
-          <b>${esc((S.name || "Archiviste").toUpperCase())}</b>
-          <span>équipe de niveau ${avg}${rec.w || rec.l ? ` · ${rec.w} victoire${rec.w > 1 ? "s" : ""} contre ${esc(rv.n)}` : ""}</span>
-        </div>
-      </div>
-      <div class="rv-balls">${[0, 1, 2].map(i=>`<span class="${i === 2 ? "ace" : ""}" style="--d:${1550 + i * 140}ms">${itemIcon("ball:" + (i === 2 ? "hyper" : "poke"), 30) || ic("ball")}</span>`).join("")}</div>
-      <div class="rv-dlg"><div class="rv-who">${esc(rv.n)}</div><div class="rv-txt" id="rv-txt"></div></div>
-      <div class="rv-acts">
-        <div class="rv-prize">${ic("coin")} <b>${fmt(prize.coins)}</b> · ${ic("shard")} <b>${prize.shards}</b>${prize.cores ? ` · <b class="vi">+1 Noyau</b>` : ""}${prize.first ? ` · titre <b class="gold-t">« ${esc(rv.title)} »</b>` : ""}</div>
-        <div class="btn-grid c2">
-          <button class="btn ghost" data-act="rivalno">Refuser</button>
-          <button class="btn pri" data-act="rivalgo">Relever le défi</button>
-        </div>
-      </div>
-    </div>
-    <div class="rv-iris"></div>`;
-  document.body.appendChild(el);
-  /* un appui pendant l'entrée la termine d'un coup */
-  el.addEventListener("click", e=>{ if(!el.classList.contains("talk")){ el.classList.add("now"); rivalType(rv, line, true); e.stopPropagation(); } }, true);
-  requestAnimationFrame(()=>el.classList.add("on"));
-  try { Sfx.glitch(); buzz([30, 40, 60]); } catch(e){}
-  try { Music.ctxOverride = "rival"; Music.sync(); } catch(e){}
-  if(typeof pmdWake === "function") pmdWake();
-  el._t1 = setTimeout(()=>{ try { Sfx.boss ? Sfx.boss() : Sfx.wobble(); buzz(40); } catch(e){} }, 1250);
-  el._t2 = setTimeout(()=>rivalType(rv, line), 1850);
-}
-/* la réplique, lettre par lettre */
-function rivalType(rv, line, now){
-  const el = document.getElementById("rv"), tx = document.getElementById("rv-txt");
-  if(!el || !tx) return;
-  if(el.classList.contains("talk") && !now) return;
-  el.classList.add("talk");
-  clearTimeout(el._t1); clearTimeout(el._t2); clearTimeout(el._tw);
-  const full = "« " + line + " »";
-  if(now){ tx.textContent = full; el.classList.add("ask"); return; }
-  let i = 0;
-  const step = ()=>{
-    if(!document.getElementById("rv")) return;
-    i = Math.min(full.length, i + 2);
-    tx.textContent = full.slice(0, i);
-    if(i % 6 === 0) try { Sfx.click(); } catch(e){}
-    if(i < full.length) el._tw = setTimeout(step, 28);
-    else setTimeout(()=>{ const e2 = document.getElementById("rv"); if(e2) e2.classList.add("ask"); }, 250);
-  };
-  step();
-}
-function rivalClose(cb, iris){
-  const el = document.getElementById("rv");
-  if(!el){ if(cb) cb(); return; }
-  clearTimeout(el._t1); clearTimeout(el._t2); clearTimeout(el._tw);
-  el.classList.add(iris ? "go" : "bye");
-  setTimeout(()=>{ el.remove(); if(cb) cb(); }, iris ? 620 : 420);
-}
-ACTIONS.rivalno = () => {
-  const rv = RIVAL; RIVAL = null;
-  const tx = document.getElementById("rv-txt");
-  if(tx && rv) tx.textContent = "« Une autre fois, alors. Je ne serai pas loin. »";
-  try { Music.ctxOverride = null; Music.sync(); } catch(e){}
-  setTimeout(()=>rivalClose(), 700);
-  closeSheet();
-};
-ACTIONS.rivalgo = () => {
-  const rv = RIVAL; if(!rv) return;
-  closeSheet();
-  try { Sfx.wobble(); buzz([20, 30, 80]); } catch(e){}
-  rivalClose(()=>rivalBattle(rv), true);
-};
-function rivalBattle(rv){
-  const allies = teamFighters(S.team);
-  const avg = Math.round(allies.reduce((a, f)=>a + f.level, 0) / Math.max(1, allies.length));
-  const lv = rivalLevel(rv, avg), prize = rivalPrize(rv, avg);
-  const foes = [];
-  for(let i = 0; i < 3; i++){
-    const pool = [];
-    for(const r of unlockedRegions()) for(let j = r.from; j <= r.to; j++){
-      const p = POKE[j];
-      if(p && !p.leg && !isExclusive(j) && p.types.some(t=>rv.t.includes(t)) && p.bst >= 300) pool.push(j);
-    }
-    /* le troisième est son as, s'il est à portée */
-    const ace = i === 2 && POKE[rv.ace] && unlockedRegions().some(r=>rv.ace >= r.from && rv.ace <= r.to) ? rv.ace : null;
-    foes.push(makeFighter(ace || (pool.length ? pick(pool) : randInt(1, 151)), clamp(lv + (ace ? 2 : 0), 5, 100), {boost:1.05}));
-  }
-  try { Music.ctxOverride = null; } catch(e){}
-  createBattle(allies, foes, {
-    ai: true, speed: S.settings.battleSpeed || 1, title: rv.n.toUpperCase(), stage: "elite",
-    intro: `${rv.n} envoie ${foes[0].name} !`,
-    onEnd: win => {
-      const rec = rivalRec(rv.k);
-      S.stats.rivals = (S.stats.rivals || 0) + (win ? 1 : 0);
-      if(win){
-        rec.w++;
-        gain("coins", prize.coins); gain("shards", prize.shards);
-        if(prize.cores) gain("cores", prize.cores);
-        if(prize.first) unlockCosmetic("title_" + rv.k);
-      } else rec.l++;
-      save(); checkAchievements();
-      setTimeout(()=>rivalVerdict(rv, win, prize), 450);
-    }
-  });
-  go("battle");
-}
-/* ---------- le verdict ---------- */
-function rivalVerdict(rv, win, prize){
-  const old = document.getElementById("rv"); if(old) old.remove();
-  const C = rivalColor(rv);
-  const el = document.createElement("div");
-  el.id = "rv"; el.className = "rv verdict " + (win ? "won" : "lost");
-  el.style.setProperty("--rc", C);
-  el.innerHTML = `
-    <div class="rv-stage">
-      <div class="rv-top">
-        <div class="rv-speed">${Array.from({length:10}, (_, i)=>`<i style="--i:${i};--y:${(i * 41) % 100}%"></i>`).join("")}</div>
-        <div class="rv-trainer">${trainerArt(rv.cls, 172, "big")}</div>
-        <div class="rv-plate">
-          <small>${win ? "DÉFI REMPORTÉ" : "DÉFI PERDU"}</small>
-          <b>${esc(rv.n.toUpperCase())}</b>
-          <span>${esc(rv.role)}</span>
-        </div>
-      </div>
-      <div class="rv-dlg"><div class="rv-who">${esc(rv.n)}</div><div class="rv-txt">« ${esc(win ? rv.win : rv.lose)} »</div></div>
-      ${win ? `<div class="rv-gains">
-        <div style="--d:500ms">${ic("coin")}<b class="gold-t">+${fmt(prize.coins)}</b><small>PokéCoins</small></div>
-        <div style="--d:700ms">${ic("shard")}<b class="cy">+${prize.shards}</b><small>Fragments</small></div>
-        ${prize.cores ? `<div style="--d:900ms">${ic("core")}<b class="vi">+1</b><small>Noyau</small></div>` : ""}
-      </div>
-      ${prize.first ? `<div class="rv-title" style="--d:1200ms"><small>TITRE DÉBLOQUÉ</small><b>${esc(rv.title)}</b></div>` : ""}`
-      : `<div class="tiny muted center" style="margin:10px 0">Rien n'est perdu. ${esc(rv.n)} repassera — et vous serez prêt.</div>`}
-      <div class="rv-acts"><button class="btn pri wide" data-act="rivalback">Reprendre</button></div>
-    </div>`;
-  document.body.appendChild(el);
-  requestAnimationFrame(()=>el.classList.add("on", "talk", "ask"));
-  try { win ? Sfx.win() : Sfx.lose(); } catch(e){}
-}
-ACTIONS.rivalback = () => { RIVAL = null; rivalClose(()=>go("capture")); };
 
 /* ===== 35-modules.js ===== */
 /* ============================================================
@@ -28582,6 +27981,21 @@ function pkBlindLabel(){
   if(pkStage() === "champion") return "Affrontement final";
   return BLIND_NAMES[P.blind];
 }
+/* barre de progression permanente : huit badges puis le conseil */
+function badgeRow(){
+  const P = S.poker;
+  const got = P.badges || [];
+  const st = pkStage();
+  return `<div class="badgerow">
+    ${BADGES.map((b,i)=>`<span class="bdg ${got.includes(i)?"on":""}" style="--bc:${b.c}"
+      title="${esc(b.n)}">${got.includes(i)?"◆":"·"}</span>`).join("")}
+    <span class="bdg-sep"></span>
+    ${ELITE_NAMES.map((_,i)=>`<span class="bdg e4 ${st==="champion"||(st==="elite"&&(P.eliteIdx||0)>i)?"on":""}
+      ${st==="elite"&&(P.eliteIdx||0)===i?"cur":""}">${i+1}</span>`).join("")}
+    <span class="bdg champ ${st==="champion"?"cur":""}">★</span>
+  </div>`;
+}
+
 /* ---------- construction du deck ---------- */
 const BASE_FAMS = [1,4,7,10,13,16,19,21,23,25,27,29,32,41,43,46,50,54,58,60,63,66,69,74,92,129,133];
 function newDeck(o){
@@ -28611,8 +28025,7 @@ function startPoker(deckId){
     jokers:[], licences:[], levels:{},
     boss:null, playedTypes:{}, discardedThisRound:0, roundHands:0, noDiscard:true,
     stage:"ante", eliteIdx:0, badges:[],
-    octets:4, shop:null, endless:false, lastHand:null,
-    seed:randInt(1, 1e9), opps:{}, sort:"fam", fresh:[], evoQ:[], lastTotal:0
+    octets:4, shop:null, endless:false, lastHand:null
   };
   S.pokerMeta.unlocked = true;
   tutoMaybe("poker");
@@ -28621,23 +28034,21 @@ function startPoker(deckId){
 
 function pkStartRound(){
   const P = S.poker;
-  const st = pkStage();
-  /* le verrou de secteur est tenu par un Champion d'arène, le Conseil, ou le Champion (61) */
-  P.boss = (P.blind === 2 || st !== "ante") ? (typeof pkBossFor === "function" ? pkBossFor(P) : pick(BOSS_BLINDS)) : null;
+  P.boss = P.blind === 2 ? pick(BOSS_BLINDS) : null;
   const f = P.boss ? P.boss.f : {};
+  const st = pkStage();
   let base;
-  if(st === "elite")         base = Math.round(anteTarget(9, 2) * (1 + (P.eliteIdx||0) * 0.45) * (f.target || 1));
-  else if(st === "champion") base = Math.round(anteTarget(9, 2) * 3.4 * (f.target || 1));
+  if(st === "elite")         base = Math.round(anteTarget(9, 2) * (1 + (P.eliteIdx||0) * 0.45));
+  else if(st === "champion") base = Math.round(anteTarget(9, 2) * 3.4);
   else                       base = anteTarget(P.ante, P.blind, P.boss);
   P.target = Math.round(base * (P.discount || 1) * (typeof pkDeckTargetMul === "function" ? pkDeckTargetMul(P) : 1));
   P.discount = 1;
   P.score = 0;
-  P.handsLeft = f.oneHand ? 1 : P.hands - (f.lessHand||0) + (f.noDisc ? 1 : 0);
-  P.discardsLeft = f.noDisc ? 0 : Math.max(0, P.discards - (f.lessDiscard||0));
-  P.lastTotal = 0; P.winInfo = null; P.loseInfo = null;
+  P.handsLeft = f.oneHand ? 1 : P.hands - (f.lessHand||0);
+  P.discardsLeft = Math.max(0, P.discards - (f.lessDiscard||0));
   P.draw = shuffle(P.deck.map(c=>Object.assign({}, c)));
   if(typeof pkDeckOnRound === "function") pkDeckOnRound(P);
-  P.hand = []; P.sel = []; P.fresh = [];
+  P.hand = []; P.sel = [];
   P.roundHands = 0; P.discardedThisRound = 0;
   P.state = "play";
   pkDraw();
@@ -28649,27 +28060,8 @@ function drawSize(){
 }
 function pkDraw(){
   const P = S.poker;
-  const f = P.boss ? P.boss.f : {};
-  P.fresh = [];
-  while(P.hand.length < drawSize() && P.draw.length){
-    const c = P.draw.pop();
-    c.par = false; c.fd = !!f.faceDown;              /* Prémonition : face cachée */
-    P.hand.push(c); P.fresh.push(c.u);
-  }
-  /* Paralysie : une carte sur quatre, jamais au point de bloquer la main */
-  if(f.para) for(const u of P.fresh){
-    const c = P.hand.find(x=>x.u === u);
-    const nPar = P.hand.filter(x=>x.par).length;
-    if(c && rng() < f.para && P.hand.length - nPar > 5 && nPar < Math.floor(P.hand.length / 3)) c.par = true;
-  }
-  pkSortHand(P);
-}
-/* trier la main : par famille (les lignées côte à côte), par type, par valeur, par numéro */
-function pkSortHand(P){
-  const m = P.sort || "fam";
-  const key = m === "type" ? (c=>POKE[c.id].types[0] * 1000 + c.id) : m === "chips" ? (c=>-cardChips(c) * 1000 + c.id)
-            : m === "dex" ? (c=>c.id) : (c=>famOf(c.id) * 1000 + c.id);
-  P.hand.sort((a, b)=>key(a) - key(b) || a.u - b.u);
+  while(P.hand.length < drawSize() && P.draw.length) P.hand.push(P.draw.pop());
+  P.hand.sort((a,b)=> famOf(a.id)-famOf(b.id) || a.id-b.id);
 }
 function selCards(){
   const P = S.poker;
@@ -28677,9 +28069,6 @@ function selCards(){
 }
 function pkToggle(u){
   const P = S.poker;
-  const c = P.hand.find(x=>x.u === u);
-  if(c && c.par){ if(typeof pkNope === "function") pkNope(u, "Paralysée"); return; }
-  if(c && c.fd) c.fd = false;                       /* on la découvre en la touchant */
   const i = P.sel.indexOf(u);
   if(i >= 0) P.sel.splice(i,1);
   else { if(P.sel.length >= 5) return; P.sel.push(u); }
@@ -28714,15 +28103,9 @@ function pkScore(preview){
 
   x.steps.push({kind:"base", label:ev.n, dc:base.chips, dm:base.mult,
                 chips:base.chips, mult:base.mult});
-  /* Koga · Toxik : chaque main empoisonne la suivante */
-  if(f.toxic && P.roundHands > 0){ const commit = step("boss", "Toxik"); x.mult = Math.max(1, x.mult - P.roundHands); commit(); }
 
   let scoring = ev.scoring.slice();
   if(f.maxScore) scoring = scoring.filter(c=>played.indexOf(c) < f.maxScore);
-  /* Olga · Gel : la première carte jouée qui marque est gelée */
-  if(f.firstDead && scoring.length){ const first = played.find(c=>scoring.includes(c)); scoring = scoring.filter(c=>c !== first); x.frozen = first && first.u; }
-  /* Agatha · Malédiction : la plus forte ne marque pas */
-  if(f.cursed && scoring.length){ const top = scoring.reduce((m, c)=>cardChips(c) > cardChips(m) ? c : m, scoring[0]); scoring = scoring.filter(c=>c !== top); x.cursed = top.u; }
 
   for(const c of scoring){
     if(f.deadType && POKE[c.id].types.includes(f.deadType)) continue;
@@ -28730,21 +28113,18 @@ function pkScore(preview){
     if(f.deadShiny && c.shiny) continue;
     if(f.deadLegend && isLegend(c.id)) continue;
     const commit = step("card", POKE[c.id].name, c.u);
-    /* Pierre · Défense Roc : la moitié des Jetons, sauf Roche et Sol */
-    x.chips += f.half && !POKE[c.id].types.some(t=>f.half.includes(t)) ? Math.round(cardChips(c) / 2) : cardChips(c);
+    x.chips += cardChips(c);
     if(c.ed === "glass") x.mult *= 2;
     if(c.ed === "gold" && !preview) P.octets += 3;
     x.scored.push(c);
     if(P.deckId === "psy" && POKE[c.id].types.includes(14)) x.mult *= tierVal(150, [1.1, 1.15, 1.2]);
-    P.jokers.forEach((j, ji)=>{
-      if(f.sleep && ji === 0) return;               /* Érika · Poudre Dodo */
+    for(const j of P.jokers){
       const def = jokerDef(j);
       if(def && def.onCard) def.onCard(c, x, j);
-    });
+    }
     commit();
   }
   for(let i=0;i<P.jokers.length;i++){
-    if(f.sleep && i === 0) continue;
     let def = jokerDef(P.jokers[i]);
     if(def && def.mirror && i > 0) def = jokerDef(P.jokers[i-1]) || def;
     if(def && def.onHand){
@@ -28766,10 +28146,6 @@ function pkScore(preview){
     const commit = step("boss", "Main annulée");
     x.chips = 0; x.mult = 0; commit();
   }
-  /* Aldo · Force brute : moins de quatre cartes, rien */
-  if(f.minCards && played.length < f.minCards){ const commit = step("boss", "Force brute"); x.chips = 0; x.mult = 0; commit(); }
-  /* Peter · Colère : il faut battre la main précédente */
-  if(f.beat && P.roundHands > 0 && Math.round(x.chips * x.mult) <= (P.lastTotal || 0)){ const commit = step("boss", "Colère"); x.chips = 0; x.mult = 0; commit(); }
   x.total = Math.round(x.chips * x.mult);
   /* on ne garde que les etapes qui ont reellement change quelque chose */
   x.steps = x.steps.filter((st,i)=> i === 0 || st.dc !== 0 || Math.abs(st.dm) > 0.001);
@@ -28794,6 +28170,96 @@ function pkPlay(){
   RESOLVE.timer = setTimeout(stepResolve, 260);
 }
 
+function stepResolve(){
+  if(!RESOLVE) return;
+  const st = RESOLVE.res.steps[RESOLVE.i];
+  if(!st){ endResolveSteps(); return; }
+  RESOLVE.i++;
+  RESOLVE.chips = st.chips;
+  RESOLVE.mult  = st.mult;
+  paintResolve(st);
+  RESOLVE.timer = setTimeout(stepResolve, st.kind === "base" ? 430 : 330);
+}
+
+function paintResolve(st){
+  const line = document.getElementById("pk-score-line");
+  if(line){
+    line.innerHTML = `<span class="pk-hn">${esc(RESOLVE.res.handName)}</span>
+      <span class="chips" id="pk-chips">${fmt(RESOLVE.chips)}</span><span class="muted">×</span>
+      <span class="mult" id="pk-mult">${RESOLVE.mult.toFixed(RESOLVE.mult % 1 ? 2 : 0)}</span>`;
+    const cEl = document.getElementById("pk-chips"), mEl = document.getElementById("pk-mult");
+    if(st.dc) bump(cEl);
+    if(Math.abs(st.dm) > 0.001) bump(mEl);
+  }
+  /* cible du declenchement : carte jouee ou programme */
+  let target = null;
+  if(st.kind === "card") target = document.querySelector(`#hand .pcard[data-u="${st.ref}"]`);
+  if(st.kind === "joker") target = document.querySelector(`#jokers .joker[data-i="${st.ref}"]`);
+  if(st.kind === "boss")  target = document.querySelector(".blind-card");
+  if(target){
+    target.classList.remove("trigger"); void target.offsetWidth; target.classList.add("trigger");
+    floatDelta(target, st);
+  }
+  if(st.kind === "joker"){ Sfx.wobble(); buzz(8); }
+  else if(st.kind === "boss"){ Sfx.glitch(); }
+  else Sfx.click();
+}
+function bump(el){
+  if(!el) return;
+  el.classList.remove("tick"); void el.offsetWidth; el.classList.add("tick");
+}
+function floatDelta(target, st){
+  const host = document.getElementById("poker-felt");
+  if(!host) return;
+  const parts = [];
+  if(st.dc) parts.push({t:"+" + fmt(st.dc), c:"var(--cyan)"});
+  if(Math.abs(st.dm) > 0.001){
+    parts.push(st.mulMode ? {t:"×" + (st.mult / Math.max(0.01, st.mult - st.dm)).toFixed(2), c:"var(--magenta)"}
+                          : {t:"+" + st.dm.toFixed(st.dm % 1 ? 1 : 0) + " Mult", c:"var(--magenta)"});
+  }
+  if(!parts.length) return;
+  const r = target.getBoundingClientRect(), h = host.getBoundingClientRect();
+  parts.forEach((p, k)=>{
+    const d = document.createElement("div");
+    d.className = "pkdelta";
+    d.textContent = p.t;
+    d.style.color = p.c;
+    d.style.left = (r.left - h.left + r.width/2 - 20) + "px";
+    d.style.top  = (r.top  - h.top  - 6 + k*14) + "px";
+    host.appendChild(d);
+    setTimeout(()=>d.remove(), 900);
+  });
+}
+
+function endResolveSteps(){
+  if(!RESOLVE || RESOLVE.done) return;
+  RESOLVE.done = true;
+  const total = RESOLVE.res.total;
+  const line = document.getElementById("pk-score-line");
+  if(line){
+    line.innerHTML = `<span class="pk-total">${fmt(total)}</span>`;
+    const el = line.firstElementChild;
+    if(el){ el.classList.add("burst"); }
+  }
+  const felt = document.getElementById("poker-felt");
+  if(felt && total > 0){
+    Sfx.win();
+    burstEl(felt, {n: total > S.poker.target*0.4 ? 28 : 14, spread:110,
+      colors:["#35f0d6","#ffc857","#ffffff"], dur:900});
+  }
+  RESOLVE.timer = setTimeout(commitResolve, 820);
+}
+/* un appui saute l'animation sans rien changer au resultat */
+function skipResolve(){
+  if(!RESOLVE || RESOLVE.done) return;
+  clearTimeout(RESOLVE.timer);
+  RESOLVE.i = RESOLVE.res.steps.length;
+  const last = RESOLVE.res.steps[RESOLVE.res.steps.length-1];
+  if(last){ RESOLVE.chips = last.chips; RESOLVE.mult = last.mult; }
+  endResolveSteps();
+}
+ACTIONS.pkskipres = () => skipResolve();
+
 function commitResolve(){
   const P = S.poker;
   if(!RESOLVE) return;
@@ -28815,12 +28281,7 @@ function commitResolve(){
   }
   P.playedTypes[res.handKey] = (P.playedTypes[res.handKey]||0) + 1;
   if(res.handKey === "banc_karp") S.flags.karpHand = true;
-  P.hit = {from:P.score, to:P.score + res.total, total:res.total};
   P.score += res.total;
-  P.lastTotal = res.total;
-  const bf = P.boss ? P.boss.f : {};
-  if(bf.handOctet) P.octets += 1;                    /* Giovanni : la maison paie quand même */
-  if(typeof pkEvoTick === "function") pkEvoTick(P, res, false);
   P.handsLeft--; P.roundHands++;
   P.lastHand = {key:res.handKey, n:res.handName, chips:Math.round(res.chips),
                 mult:+res.mult.toFixed(2), total:res.total};
@@ -28842,14 +28303,6 @@ function commitResolve(){
   P.hand = P.hand.filter(c=>!played.includes(c.u));
   P.sel = [];
   pkDraw();
-  /* Ondine · Torrent : deux cartes emportées par le courant */
-  P.washed = null;
-  if(bf.wash && P.hand.length && P.score < P.target && P.handsLeft > 0){
-    const fr = P.fresh.slice(), gone = [];
-    for(let k = 0; k < bf.wash && P.hand.length; k++) gone.push(P.hand.splice(Math.floor(rng() * P.hand.length), 1)[0]);
-    pkDraw(); P.fresh = fr.concat(P.fresh).filter(u=>P.hand.some(c=>c.u === u));
-    P.washed = gone.map(c=>c.id);
-  }
   buzz(14);
 
   if(P.score >= P.target){ pkWinBlind(); return; }
@@ -28871,26 +28324,16 @@ function pkDiscard(){
 
 function pkWinBlind(){
   const P = S.poker;
-  const opp = typeof pkOpp === "function" ? pkOpp(P) : null;
-  /* la récompense, ligne par ligne : on doit voir d'où vient chaque Octet */
-  const rows = [["Verrou franchi", 3 + P.blind]];
-  if(P.handsLeft) rows.push([`Mains restantes × ${P.handsLeft}`, P.handsLeft]);
-  if(P.econ) rows.push(["Badge de champion", P.econ]);
-  let jk = 0;
-  for(const j of P.jokers){ const d = jokerDef(j); if(d?.passive === "econ") jk += 2; if(d?.passive === "econ3") jk += 3; }
-  if(jk) rows.push(["Programmes", jk]);
-  const wish = typeof pkWishBonus === "function" ? pkWishBonus(P) : 0;
-  if(wish) rows.push(["Vœu exaucé", wish]);
+  let reward = 3 + P.blind + P.handsLeft + P.econ;
+  for(const j of P.jokers) if(jokerDef(j)?.passive === "econ") reward += 2;
+  if(typeof pkWishBonus === "function") reward += pkWishBonus(P);
   const interest = Math.min(5, Math.floor(P.octets/5));
-  if(interest) rows.push(["Intérêts", interest]);
-  const reward = rows.reduce((a, r)=>a + r[1], 0);
+  reward += interest;
   P.octets += reward;
   S.daily.dayPokerBlinds++; questTick("dayPokerBlinds",1);
   S.stats.pokerBlinds = (S.stats.pokerBlinds || 0) + 1;
   if(P.score > (S.stats.pokerBest||0)) S.stats.pokerBest = P.score;
   Sfx.win();
-  /* Magicarpe.exe compte les verrous franchis */
-  if(typeof pkEvoTick === "function") pkEvoTick(P, null, true);
   /* un verrou de secteur delivre un badge */
   let badge = null;
   if(pkStage() === "ante" && P.blind === 2 && !(P.badges||[]).includes(P.ante-1)){
@@ -28898,20 +28341,30 @@ function pkWinBlind(){
     (P.badges = P.badges || []).push(badge);
     Sfx.shiny();
   }
-  /* la vitrine : un Champion battu pour la première fois, toutes parties confondues */
-  let firstLeader = false, bonus = 0;
-  if(opp && (opp.kind === "leader" || opp.kind === "elite" || opp.kind === "champion")){
-    firstLeader = typeof pkLeaderBeaten === "function" && pkLeaderBeaten(opp.leader || "champion");
-    if(firstLeader){ bonus = opp.kind === "champion" ? 5000 : opp.kind === "elite" ? 1500 : 600 + 150 * (P.ante - 1); gain("coins", bonus); }
-  }
   const final = pkStage() === "champion" && !P.endless;
   P.state = "reward";
-  P.winInfo = {rows, reward, badge, final, firstLeader, bonus, score:P.score, target:P.target,
-    opp:opp ? {name:opp.name, title:opp.title, cls:opp.cls, lo:opp.lo, kind:opp.kind, leader:opp.leader || null} : null};
   save();
-  const show = () => { if(typeof pkWinScreen === "function") pkWinScreen(P.winInfo); else refresh(); };
-  if(badge !== null) playCine(badgeCine(badge, P.badges.length), show);
-  else show();
+  const showWin = () => sheet(`<div class="center">
+    <div class="h" style="justify-content:center">${esc(BLIND_NAMES[P.blind])} FRANCHI</div>
+    <div class="tiny muted">${fmt(P.score)} / ${fmt(P.target)}</div>
+    <div class="tiles" style="margin:10px 0">
+      <div class="tile gold"><div class="k">Manche</div><div class="v">+${3+P.blind}</div></div>
+      <div class="tile gold"><div class="k">Mains restantes</div><div class="v">+${P.handsLeft}</div></div>
+      <div class="tile gold"><div class="k">Intérêts</div><div class="v">+${interest}</div></div>
+      <div class="tile accent"><div class="k">Octets</div><div class="v">${P.octets}</div></div>
+    </div>
+    ${badge !== null ? `<div class="badgewin">
+      <span class="bdg big on" style="--bc:${BADGES[badge].c}">◆</span>
+      <div><div class="tiny cy">BADGE ${esc(BADGES[badge].n.toUpperCase())}</div>
+        <div class="tiny muted">${esc(BADGES[badge].d)}</div></div>
+    </div>` : ""}
+    ${final?`<div class="tiny cy" style="margin-bottom:8px">Le Champion est tombé. La couche est stabilisée.</div>`:""}
+    <button class="btn pri wide" data-act="${final?"pkfinish":"pkshop"}">
+      ${final?"Terminer la partie":"Accéder à la cache"}</button>
+    ${final?`<button class="btn wide" style="margin-top:7px" data-act="pkendless">Continuer en Couche Zéro</button>`:""}
+  </div>`, true);
+  if(badge !== null) playCine(badgeCine(badge, P.badges.length), showWin);
+  else showWin();
 }
 
 /* ============================================================
@@ -28958,12 +28411,14 @@ function pkLose(){
   const shards = Math.round((18*P.ante + P.octets*2) * fw * (heldActive("poker") ? 2 : 1));
   const coins = Math.round(220*P.ante * fw);
   gain("shards", shards); gain("coins", coins); addXp(90*P.ante);
-  const opp = typeof pkOpp === "function" ? pkOpp(P) : null;
-  P.loseInfo = {shards, coins, score:P.score, target:P.target, ante:P.ante,
-    opp:opp ? {name:opp.name, title:opp.title, cls:opp.cls, hi:opp.hi, kind:opp.kind} : null};
   save();
-  if(typeof pkLoseScreen === "function") pkLoseScreen(P.loseInfo);
-  else sheet(`<div class="center"><div class="h" style="justify-content:center;color:var(--magenta)">MANCHE PERDUE</div>
+  sheet(`<div class="center">
+    <div class="h" style="justify-content:center;color:var(--magenta)">MANCHE PERDUE</div>
+    <div class="tiny muted">${fmt(P.score)} / ${fmt(P.target)} — Ante ${P.ante}</div>
+    <div class="tiles" style="margin:10px 0">
+      <div class="tile accent"><div class="k">Fragments</div><div class="v">+${shards}</div></div>
+      <div class="tile gold"><div class="k">PokéCoins</div><div class="v">+${fmt(coins)}</div></div>
+    </div>
     <button class="btn pri wide" data-act="pkquit">Quitter</button></div>`, true);
 }
 ACTIONS.pkquit = () => { closeSheet(); S.poker = null; save(); go("poker"); };
@@ -28995,14 +28450,13 @@ ACTIONS.pkshop = () => { closeSheet(); const P = S.poker; P.state = "shop"; pkRo
 function pkRollShop(){
   const P = S.poker;
   const owned = P.jokers.map(j=>j.id);
-  const pool = JOKERS.filter(j=>!owned.includes(j.id) && !j.evoOnly && (typeof jokerAvail !== "function" || jokerAvail(j)));
+  const pool = JOKERS.filter(j=>!owned.includes(j.id) && (typeof jokerAvail !== "function" || jokerAvail(j)));
   const weighted = [];
   for(const j of pool){ const w = [10,6,3,1][j.rar]; for(let i=0;i<w;i++) weighted.push(j); }
   const offer = [];
   for(let i=0;i<2 && weighted.length;i++){ const j = pick(weighted); if(!offer.includes(j)) offer.push(j); }
   const lic = LICENCES.filter(l=>!P.licences.includes(l.id));
   const prev = P.shop?.rerolls || 0;
-  if(typeof pkSeen === "function") offer.forEach(j=>pkSeen(j.id));
   P.shop = {
     jokers: offer.map(j=>({id:j.id, cost:j.cost})),
     boosters: shuffle(BOOSTERS).slice(0,2).map(b=>({id:b.id, cost:b.cost})),
@@ -29085,6 +28539,25 @@ ACTIONS.pkbuyb = d => {
   P.pendingBooster = {picks, shiny, n:b.n};
   save(); pkShowBooster();
 };
+function pkShowBooster(){
+  const B = S.poker.pendingBooster;
+  sheet(`${sheetHead(B.n)}
+    <div class="tiny muted" style="margin-bottom:10px">Choisissez une carte : elle rejoint définitivement
+      votre deck pour cette partie.</div>
+    <div class="row" style="gap:7px;justify-content:center">
+      ${B.picks.map(id=>pkCardHtml({u:-1,id,shiny:B.shiny,ed:""}, false,
+         `data-act="pkpickb" data-id="${id}"`, true)).join("")}
+    </div>`);
+}
+ACTIONS.pkpickb = d => {
+  const P = S.poker, B = P.pendingBooster;
+  const maxU = P.deck.reduce((a,c)=>Math.max(a,c.u), 0);
+  P.deck.push({u:maxU+1, id:+d.id, shiny:B.shiny, ed:""});
+  toast(POKE[+d.id].name + " rejoint le deck", "", "check");
+  delete P.pendingBooster;
+  closeSheet(); save(); refresh();
+};
+
 function applyPlanet(id){
   const P = S.poker;
   const pl = PLANETS.find(x=>x.id===id);
@@ -29103,7 +28576,7 @@ function applySpectral(id){
   }
   if(id === "sp_forge"){
     const owned = P.jokers.map(j=>j.id);
-    const pool = JOKERS.filter(j=>j.rar === 3 && !j.evoOnly && !owned.includes(j.id) && (typeof jokerAvail !== "function" || jokerAvail(j)));
+    const pool = JOKERS.filter(j=>j.rar === 3 && !owned.includes(j.id) && (typeof jokerAvail !== "function" || jokerAvail(j)));
     if(!pool.length || P.jokers.length >= jokerSlots()){
       P.octets += 8; toast("Aucun emplacement libre — 8 Octets rendus", "bad", "coin"); return;
     }
@@ -29183,6 +28656,7 @@ ACTIONS.pkskip = () => {
   ACTIONS.pknext();
 };
 ACTIONS.pkplay = () => pkPlay();
+ACTIONS.pkdiscard = () => pkDiscard();
 ACTIONS.pkcard = d => pkToggle(+d.u);
 ACTIONS.pkmenu = () => {
   sheet(`${sheetHead("Partie en cours")}
@@ -29204,6 +28678,19 @@ ACTIONS.pkdecksel = d => {
   }
   S.pokerMeta.deck = d.id; save(); refresh();
 };
+/* le choix du deck, sous le bouton de lancement : on voit aussi les decks fermés */
+function pkDeckPicker(){
+  if(typeof PK_DECKS === "undefined") return "";
+  const cur = pkDeckOpen(S.pokerMeta.deck || "std") ? (S.pokerMeta.deck || "std") : "std";
+  return `<div class="h sm" style="margin-top:4px">DECK</div>
+    <div class="pk-decks">${PK_DECKS.map(d=>{
+      const open = pkDeckOpen(d.id), t = d.card ? cardTier(d.card) : 0;
+      return `<button class="pk-deck ${cur === d.id ? "on" : ""} ${open ? "" : "locked"}" data-act="pkdecksel" data-id="${d.id}">
+        <span class="pkd-art">${d.card ? (open ? sprite(d.card, false, "") : `<span class="monunknown">?</span>`) : ic("cards")}</span>
+        <span class="grow"><b>${esc(d.n)}</b>${t ? ` <i class="cpw-t t${t}">${TIER_NAMES[t]}</i>` : ""}
+          <small>${open ? esc(pkDeckDesc(d)) : "Fermé · s'ouvre avec une carte de " + esc(d.card && monFound(d.card) ? POKE[d.card].name : "légendaire") + "."}</small></span>
+      </button>`;}).join("")}</div>`;
+}
 ACTIONS.pkabandon = () => {
   sheet(`${sheetHead("Abandonner la partie ?")}<div class="tiny muted">La progression de la partie est perdue.</div>
     <div class="btn-grid c2" style="margin-top:10px">
@@ -29227,6 +28714,33 @@ ACTIONS.pkinfo = () => {
             <b class="bad">${b.mult}</b></div>
           <div class="tiny dim">joué ${played}×</div></div>
       </div>`;}).join("")}</div>`);
+};
+ACTIONS.pkjinfo = d => {
+  const P = S.poker, i = +d.i, j = P.jokers[i], def = jokerDef(j);
+  sheet(`${sheetHead(def.n)}
+    <div class="row" style="gap:11px">
+      <span class="sprbox jr${def.rar}" style="width:56px;height:56px;border-radius:4px">
+        ${sprite(def.spr, false, "")}</span>
+      <div class="grow">
+        <span class="tt rar r${def.rar}" style="--rc:${RARITY[def.rar].c}">
+          ${"◆".repeat(def.rar+1)} ${RAR_NAME[def.rar]}</span>
+        <div class="tiny" style="margin-top:6px">${esc(def.d)}</div>
+        ${def.fragile?`<div class="tiny bad" style="margin-top:4px">Utilisations : ${(j.uses||0)}/${def.fragile}</div>`:""}
+      </div>
+    </div>
+    <div class="panel tight" style="margin-top:11px">
+      <div class="h sm">ORDRE D'EXÉCUTION — position ${i+1} sur ${P.jokers.length}</div>
+      <div class="tiny muted">Les programmes s'appliquent de gauche à droite. Un multiplicateur
+        placé en dernier agit sur tout ce qui précède : l'ordre change le score.</div>
+      <div class="btn-grid c2" style="margin-top:8px">
+        <button class="btn sm" data-act="pkjmove" data-i="${i}" data-d="-1" ${i===0?"disabled":""}>
+          ◀ Vers la gauche</button>
+        <button class="btn sm" data-act="pkjmove" data-i="${i}" data-d="1"
+          ${i===P.jokers.length-1?"disabled":""}>Vers la droite ▶</button>
+      </div>
+    </div>
+    <button class="btn dan wide" style="margin-top:9px" data-act="pkjsell" data-i="${i}">
+      Revendre (+${Math.max(1,Math.floor(def.cost/2))} Octets)</button>`, true);
 };
 ACTIONS.pkjmove = d => {
   const P = S.poker, i = +d.i, j = i + (+d.d);
@@ -29252,843 +28766,256 @@ ACTIONS.pkdeck = () => {
       </div>`).join("")}`);
 };
 
-/* ---------- rendu : voir 62-poker-table.js ---------- */
-
-/* ===== 61-poker-content.js ===== */
-/* ============================================================
-   61 — POKÉ-POKER · LE CONTENU
-   Retour de jeu : « pas assez attrayant ». Côté contenu :
-     · des ADVERSAIRES : chaque verrou est tenu par un dresseur, avec son
-       portrait et ses répliques ; le verrou de secteur de chaque ante est
-       un Champion d'arène de Kanto, avec une règle à son image (Pierre et
-       sa Défense Roc, Ondine et son Torrent, Major Bob et sa Paralysie…),
-       puis le Conseil des Quatre et Régis, Champion de la Couche ;
-     · une combinaison nouvelle, la SUITE POKÉDEX (cinq numéros consécutifs :
-       les lignées d'évolution se suivent dans le Pokédex) ;
-     · des PROGRAMMES QUI ÉVOLUENT : Salamèche.exe devient Reptincel.exe
-       puis Dracaufeu.exe à force de marquer des cartes Feu ; Magicarpe.exe
-       ne sert à rien… jusqu'à devenir Léviator.exe ; Évoli.exe choisit son
-       évolution selon votre jeu ;
-     · une douzaine de programmes nouveaux, aux couleurs de leur Pokémon ;
-     · une progression d'une partie à l'autre : la vitrine des badges des
-       Champions battus, et la Programmathèque des programmes découverts.
-   ============================================================ */
-
-/* ---------- les dresseurs des petits et grands verrous ---------- */
-const PK_FOLKS = [
-  {cls:"youngster",      t:"Gamin",          hi:"Mes cartes sont les meilleures, j'te jure !",           lo:"C'est pas juste, j'avais presque une paire !"},
-  {cls:"bug_catcher",    t:"Scout",          hi:"J'ai capturé toutes ces cartes moi-même.",              lo:"Mes Chenipan n'étaient pas prêts…"},
-  {cls:"swimmer_m",      t:"Nageur",         hi:"On plonge ? Le premier qui coule a perdu.",              lo:"Glou… J'ai bu la tasse."},
-  {cls:"juggler",        t:"Jongleur",       hi:"Je fais tourner les cartes plus vite que tes yeux.",    lo:"J'en ai fait tomber une. Ou cinq."},
-  {cls:"burglar",        t:"Cambrioleur",    hi:"Je prendrai juste tes Octets. Et ta main, peut-être.",  lo:"Bon… je repasserai par la fenêtre."},
-  {cls:"rocker",         t:"Rockeur",        hi:"Monte le son ! Les cartes, ça se joue fort.",           lo:"Rappel annulé."},
-  {cls:"gentleman",      t:"Gentleman",      hi:"Une partie entre gens de bonne compagnie, voulez-vous ?", lo:"Touché. Avec élégance, je dois le dire."},
-  {cls:"beauty",         t:"Canon",          hi:"Ne me regarde pas, regarde tes cartes.",                lo:"Tu as de beaux jeux, je l'admets."},
-  {cls:"psychic_m",      t:"Médium",         hi:"Je connais déjà ta prochaine main.",                    lo:"Je ne l'avais pas vue venir, celle-là."},
-  {cls:"scientist",      t:"Scientifique",   hi:"Probabilité de ta victoire : 12,4 %.",                  lo:"Je… je dois revoir mes calculs."},
-  {cls:"engineer",       t:"Ingénieur",      hi:"Ce deck est calibré au micron.",                        lo:"Court-circuit. Je recâble tout."},
-  {cls:"hiker",          t:"Montagnard",     hi:"Les cartes, c'est comme les montagnes : on grimpe.",    lo:"Éboulement ! J'ai tout perdu."},
-  {cls:"black_belt",     t:"Karatéka",       hi:"Hiya ! Mes mains frappent fort.",                       lo:"Ma garde était trop basse."},
-  {cls:"bird_keeper",    t:"Ornithologue",   hi:"Mes cartes volent au-dessus des tiennes.",              lo:"Plumé."},
-  {cls:"channeler",      t:"Exorciste",      hi:"Les esprits m'ont soufflé ton jeu…",                    lo:"Les esprits m'ont menti."},
-  {cls:"kindler",        t:"Allumeur",       hi:"Je vais mettre le feu à la table.",                     lo:"Éteint. Complètement éteint."},
-  {cls:"ruin_maniac",    t:"Fana de ruines", hi:"Ces cartes sont plus vieilles que la couche elle-même.", lo:"Encore une relique de perdue."},
-  {cls:"aroma_lady",     t:"Fleuriste",      hi:"Respire. Et joue ta main, tranquillement.",             lo:"Fanée… Mais ça repousse."},
-  {cls:"cool_trainer_m", t:"Topdresseur",    hi:"Je ne perds pas. Jamais deux fois.",                    lo:"Une fois. Tu ne l'auras qu'une fois."},
-  {cls:"cool_trainer_f", t:"Topdresseuse",   hi:"Tu es arrivé jusqu'ici ? Pas mal.",                     lo:"Bien joué. Vraiment."},
-  {cls:"expert_f",       t:"Experte",        hi:"Montre-moi ce que vaut ta lecture du jeu.",             lo:"Ta lecture était juste. La mienne, non."},
-  {cls:"dragon_tamer",   t:"Dompteur",       hi:"Mes cartes ont des crocs.",                             lo:"Les dragons sont rentrés dans leur antre."}
-];
-const PK_NAMES = ["Léo","Jules","Noé","Lina","Inès","Hugo","Zoé","Max","Théo","Luce","Arno","Mila","Sacha","Nina","Yanis","Elsa","Malo","Rose","Tom","Lou","Basile","Jade","Gaspard","Alba"];
-/* les verrous de secteur : un Champion d'arène par ante, sa règle à son image */
-const PK_LEADER_RULES = {
-  brock:   {r:"Défense Roc",   d:"Les cartes qui ne sont ni Roche ni Sol ne marquent que la moitié de leurs Jetons.", f:{half:[6, 5]},
-            hi:"Ma défense est solide comme le roc. Tes cartes vont s'y briser.", lo:"Je n'aurais pas cru… Ce badge est à toi."},
-  misty:   {r:"Torrent",       d:"Après chaque main, deux cartes de votre main sont emportées par le courant.", f:{wash:2},
-            hi:"Ma table est une piscine. Sais-tu seulement nager ?", lo:"Tu m'as noyée sous les combinaisons !"},
-  lt_surge:{r:"Paralysie",     d:"Une carte sur quatre arrive paralysée : impossible de la jouer ou de la défausser.", f:{para:0.25},
-            hi:"Tu tiens sur tes jambes ? Plus pour longtemps, soldat !", lo:"Wow ! Tu es électrisant, gamin."},
-  erika:   {r:"Poudre Dodo",   d:"Votre programme le plus à gauche dort pendant tout le verrou.", f:{sleep:1},
-            hi:"Oh… Bonjour. Je m'étais assoupie. Jouons doucement.", lo:"Vous jouez avec une grâce… florale."},
-  koga:    {r:"Toxik",         d:"Chaque main jouée empoisonne la suivante : −1 Mult de base à chaque fois.", f:{toxic:1},
-            hi:"Le poison agit lentement. Mais il agit toujours.", lo:"Fufufu… Tu as l'étoffe d'un ninja."},
-  sabrina: {r:"Prémonition",   d:"Vos cartes arrivent face cachée : on ne les découvre qu'en les touchant.", f:{faceDown:1},
-            hi:"J'ai vu ta défaite. Tu ne verras même pas tes cartes.", lo:"Je ne l'avais pas prévu… Je l'accepte."},
-  blaine:  {r:"Fournaise",     d:"Aucune défausse : tout brûle. En échange, une main de plus.", f:{noDisc:1},
-            hi:"Ouah ! Tu as osé entrer dans ma fournaise ? Brûlons ensemble !", lo:"J'ai fondu… Tu as gagné la partie !"},
-  giovanni:{r:"La Maison gagne toujours", d:"Score requis +60 %. Mais chaque main jouée vous rapporte un Octet.", f:{target:1.6, handOctet:1},
-            hi:"Cette salle de jeux m'appartient. Comme tout ce qui s'y gagne.", lo:"Hmph. Profite de ce badge. La maison se souviendra de toi."},
-  lorelei: {r:"Gel",           d:"La première carte de chaque main est gelée : elle ne marque pas.", f:{firstDead:1},
-            hi:"Personne ne joue au chaud contre moi.", lo:"Tu as fait fondre la glace."},
-  bruno:   {r:"Force brute",   d:"Les mains de moins de quatre cartes ne marquent rien.", f:{minCards:4},
-            hi:"Montre-moi des mains pleines ! Le reste, je l'écrase.", lo:"Ta force… Je la respecte."},
-  agatha:  {r:"Malédiction",   d:"La carte la plus forte de chaque main est maudite : elle ne marque pas.", f:{cursed:1},
-            hi:"Hé hé… Mes spectres adorent les belles cartes.", lo:"Tu as de la ressource, gamin. Ça me plaît."},
-  lance:   {r:"Colère",        d:"Chaque main doit battre la précédente, sinon elle ne marque rien.", f:{beat:1},
-            hi:"Les dragons ne reculent jamais. Chaque coup doit être plus fort.", lo:"Je me suis incliné. Le Champion t'attend."}
-};
-const PK_LEADER_ORDER = ["brock", "misty", "lt_surge", "erika", "koga", "sabrina", "blaine", "giovanni"];
-const PK_ELITE_ORDER = ["lorelei", "bruno", "agatha", "lance"];
-function pkLeaderInfo(key){
-  const L = (typeof LEADERS !== "undefined" ? LEADERS : []).find(l=>l[0] === key);
-  return L ? {key, cls:L[1], type:L[2], name:L[3]} : {key, cls:"cool_trainer_m", type:1, name:key};
-}
-/* un tirage stable : la même partie donne les mêmes adversaires */
-function pkHash(a, b, c){ let h = (Math.imul(a | 0, 2654435761) ^ Math.imul(b | 0, 40503) ^ Math.imul(c | 0, 2246822519)) >>> 0; h = Math.imul(h ^ (h >>> 15), 2246822507) >>> 0; return (h ^ (h >>> 13)) >>> 0; }
-/* l'adversaire d'un verrou */
-function pkOpp(P, blind){
-  P = P || S.poker;
-  const st = P.stage || "ante", b = blind === undefined ? P.blind : blind;
-  const key = st + ":" + (st === "elite" ? (P.eliteIdx || 0) : P.ante) + ":" + b;
-  P.opps = P.opps || {};
-  if(P.opps[key]) return P.opps[key];
-  let o;
-  const seed = P.seed || 7;
-  if(st === "champion"){
-    /* deux règles du Conseil, tirées au sort : il a tout appris de ses aînés */
-    const i = pkHash(seed, P.ante, 3) % 4, k = (i + 1 + pkHash(seed, P.ante, 9) % 3) % 4;
-    const a = PK_LEADER_RULES[PK_ELITE_ORDER[i]], c = PK_LEADER_RULES[PK_ELITE_ORDER[k]];
-    o = {kind:"champion", cls:"cool_trainer_m", name:"Régis", title:"Champion de la Couche", type:16, boss:true,
-      rule:{r:a.r + " + " + c.r, d:a.d + " Et : " + c.d.charAt(0).toLowerCase() + c.d.slice(1), f:Object.assign({}, a.f, c.f, {target:1.15})},
-      hi:"Alors c'est toi. Tout le monde parle de toi, dans la couche. Voyons si c'est mérité.", lo:"…Je n'ai rien à redire. Tu es le meilleur joueur de cette couche."};
-  } else if(st === "elite"){
-    const k = PK_ELITE_ORDER[(P.eliteIdx || 0) % 4], L = pkLeaderInfo(k), R = PK_LEADER_RULES[k];
-    o = {kind:"elite", cls:L.cls, name:L.name, title:"Conseil des Quatre", type:L.type, boss:true, rule:R, hi:R.hi, lo:R.lo, leader:k};
-  } else if(b === 2 && P.ante <= 8){
-    const k = PK_LEADER_ORDER[(P.ante - 1) % 8], L = pkLeaderInfo(k), R = PK_LEADER_RULES[k];
-    o = {kind:"leader", cls:L.cls, name:L.name, title:"Champion d'arène", type:L.type, boss:true, rule:R, hi:R.hi, lo:R.lo, leader:k, badge:P.ante - 1};
-  } else if(b === 2){
-    /* la Couche Zéro : un verrou générique, ou la revanche d'un Champion */
-    const h = pkHash(seed, P.ante, 77);
-    if(h % 2){
-      const k = PK_LEADER_ORDER[h % 8], L = pkLeaderInfo(k), R = PK_LEADER_RULES[k];
-      o = {kind:"leader", cls:L.cls, name:L.name, title:"Revanche", type:L.type, boss:true, rule:R, hi:"La revanche. J'attendais ce moment.", lo:R.lo, leader:k};
-    } else {
-      const B = BOSS_BLINDS[h % BOSS_BLINDS.length], F = PK_FOLKS[(h >>> 3) % PK_FOLKS.length];
-      o = {kind:"sector", cls:F.cls, name:PK_NAMES[(h >>> 5) % PK_NAMES.length], title:"Gardien du secteur", type:1, boss:true,
-        rule:{r:B.n, d:B.d, f:B.f, id:B.id}, hi:"Ce secteur est verrouillé. Et j'ai la clé.", lo:"Le verrou cède. Pour cette fois."};
-    }
-  } else {
-    /* les dresseurs ordinaires : des plus simples aux plus aguerris, au fil des antes */
-    const h = pkHash(seed, P.ante * 3 + b, 11);
-    const span = Math.min(PK_FOLKS.length, 6 + P.ante * 3), F = PK_FOLKS[h % span];
-    o = {kind:"folk", cls:F.cls, name:PK_NAMES[(h >>> 4) % PK_NAMES.length], title:F.t, type:1, boss:false, rule:null, hi:F.hi, lo:F.lo};
-  }
-  P.opps[key] = o;
-  return o;
-}
-/* le verrou de secteur, au format du moteur */
-function pkBossFor(P){
-  const o = pkOpp(P);
-  if(!o.rule) return null;
-  return {id:o.rule.id || ("L_" + (o.leader || o.kind)), n:o.rule.r, d:o.rule.d, f:o.rule.f, opp:true};
-}
-
-/* ---------- la suite Pokédex ---------- */
-/* Porygon · Raccourci : quatre cartes suffisent pour le Mono-Type et la Suite */
-function pkShortcut(){ try { return !!(S.poker && S.poker.jokers.some(j=>jokerDef(j) && jokerDef(j).passive === "shortcut")); } catch(e){ return false; } }
-function pkSuite(cs){
-  const need = pkShortcut() ? 4 : 5;
-  const byId = new Map(); for(const c of cs) if(!byId.has(c.id)) byId.set(c.id, c);
-  const ids = [...byId.keys()].sort((a, b)=>a - b);
-  for(let i = 0; i + need - 1 < ids.length; i++){
-    let ok = true;
-    for(let k = 1; k < need; k++) if(ids[i + k] !== ids[i] + k){ ok = false; break; }
-    if(ok){ const run = ids.slice(i, i + need); if(ids[i + need] === ids[i] + need) run.push(ids[i + need]); return run.slice(0, 5).map(id=>byId.get(id)); }
-  }
-  return null;
-}
-HANDS.splice(HANDS.findIndex(h=>h.id === "pokeball") + 1, 0,
-  {id:"suite", n:"Suite Pokédex", chips:65, mult:6,
-   d:"Cinq numéros du Pokédex qui se suivent (les lignées d'évolution se suivent dans le Pokédex).", f:pkSuite});
-HANDS_BY_ID.suite = HANDS.find(h=>h.id === "suite");
-PLANETS.push({id:"pl_suite", n:"Orbe Hauméa", hand:"suite", cost:7});
-/* le Mono-Type, avec Raccourci, se contente de quatre cartes */
-(function(){
-  const mono = HANDS.find(h=>h.id === "monotype"), f0 = mono.f;
-  mono.f = cs=>{
-    if(!pkShortcut()) return f0(cs);
-    if(cs.length < 4) return null;
-    for(let t = 1; t <= 18; t++){ const m = cs.filter(c=>POKE[c.id].types.includes(t)); if(m.length >= 4) return m.slice(0, 5); }
-    return null;
-  };
-})();
-
-/* ---------- des programmes aux couleurs de leur Pokémon ---------- */
-const PK_TY = (c, t)=>POKE[c.id].types.includes(t);
-const PK_NEW_JOKERS = [
-  {id:"j_ronflex",  n:"Ronflex · Repos",       rar:1, cost:7, spr:143, d:"×2 Mult tant qu'aucune défausse n'a été utilisée pendant la manche.",
-   onHand:x=>{ if(!x.st.discardedThisRound) x.mult *= 2; }},
-  {id:"j_metamorph",n:"Métamorph · Morphing",  rar:2, cost:9, spr:132, d:"La carte qui rapporte le plus de Jetons marque une seconde fois.",
-   onHand:x=>{ const b = x.scored.reduce((m, c)=>!m || cardChips(c) > cardChips(m) ? c : m, null); if(b) x.chips += cardChips(b); }},
-  {id:"j_leveinard",n:"Leveinard · Œuf Chance",rar:1, cost:6, spr:113, d:"+3 Octets à chaque verrou franchi.", passive:"econ3"},
-  {id:"j_miaouss",  n:"Miaouss · Jackpot",     rar:0, cost:5, spr:52,  d:"+1 Octet chaque fois qu'une main contenant une paire est jouée.",
-   onAfter:(res)=>{ try { const ids = res.played.map(c=>c.id); if(new Set(ids).size < ids.length) S.poker.octets++; } catch(e){} }},
-  {id:"j_onix",     n:"Onix · Armure",         rar:0, cost:5, spr:95,  d:"+60 Jetons si la main contient un Pokémon Roche ou Sol.",
-   onHand:x=>{ if(x.played.some(c=>PK_TY(c, 6) || PK_TY(c, 5))) x.chips += 60; }},
-  {id:"j_mime",     n:"M. Mime · Mur Lumière", rar:1, cost:7, spr:122, d:"×2 Mult pour la dernière main de la manche.",
-   onHand:x=>{ if(x.st.handsLeft === 1) x.mult *= 2; }},
-  {id:"j_smogo",    n:"Smogo · Purée",         rar:0, cost:4, spr:109, d:"+4 Mult par carte de type Poison.", onCard:(c, x)=>{ if(PK_TY(c, 4)) x.mult += 4; }},
-  {id:"j_insecateur",n:"Insécateur · Taillade",rar:0, cost:4, spr:123, d:"+4 Mult par carte de type Insecte.", onCard:(c, x)=>{ if(PK_TY(c, 7)) x.mult += 4; }},
-  {id:"j_machoc",   n:"Machoc · Poing Karaté", rar:0, cost:4, spr:66,  d:"+22 Jetons par carte de type Combat.", onCard:(c, x)=>{ if(PK_TY(c, 2)) x.chips += 22; }},
-  {id:"j_kangourex",n:"Kangourex · Portée",    rar:1, cost:6, spr:115, d:"Les cartes non évoluées rapportent deux fois leurs Jetons.",
-   onCard:(c, x)=>{ if(stageOf(c.id) === 0) x.chips += cardChips(c); }},
-  {id:"j_porygon",  n:"Porygon · Raccourci",   rar:2, cost:8, spr:137, d:"Le Mono-Type et la Suite Pokédex se forment avec quatre cartes.", passive:"shortcut"},
-  {id:"j_pikachu",  n:"Pikachu · Statik",      rar:1, cost:7, spr:25,  d:"+1 Mult par carte Électrik de votre deck.",
-   onHand:x=>{ x.mult += x.st.deck.filter(c=>PK_TY(c, 13)).length; }},
-  {id:"j_lokhlass", n:"Lokhlass · Chant",      rar:1, cost:7, spr:131, d:"+30 Jetons par main qu'il vous reste après celle-ci.",
-   onHand:x=>{ x.chips += 30 * Math.max(0, x.st.handsLeft - 1); }}
-];
-/* ---------- les programmes qui évoluent ----------
-   evo.need : la condition ; evo.gain(res, j) : ce que rapporte une main jouée ;
-   evo.round : ce que rapporte un verrou franchi. */
-const PK_COUNT = (res, t)=>res.scored.filter(c=>PK_TY(c, t)).length;
-const PK_EVO_JOKERS = [
-  {id:"j_salameche", n:"Salamèche.exe", rar:1, cost:6, spr:4, d:"+3 Mult par carte Feu.", onCard:(c, x)=>{ if(PK_TY(c, 10)) x.mult += 3; },
-   evo:{to:"j_reptincel", need:10, what:"cartes Feu marquées", gain:res=>PK_COUNT(res, 10)}},
-  {id:"j_reptincel", n:"Reptincel.exe", rar:2, cost:9, spr:5, evoOnly:1, d:"+6 Mult par carte Feu.", onCard:(c, x)=>{ if(PK_TY(c, 10)) x.mult += 6; },
-   evo:{to:"j_dracaufeu", need:18, what:"cartes Feu marquées", gain:res=>PK_COUNT(res, 10)}},
-  {id:"j_dracaufeu", n:"Dracaufeu.exe", rar:3, cost:14, spr:6, evoOnly:1, d:"×1.3 Mult par carte Feu.", onCard:(c, x)=>{ if(PK_TY(c, 10)) x.mult *= 1.3; }},
-  {id:"j_bulbizarre",n:"Bulbizarre.exe", rar:1, cost:6, spr:1, d:"+15 Jetons par carte Plante.", onCard:(c, x)=>{ if(PK_TY(c, 12)) x.chips += 15; },
-   evo:{to:"j_herbizarre", need:10, what:"cartes Plante marquées", gain:res=>PK_COUNT(res, 12)}},
-  {id:"j_herbizarre",n:"Herbizarre.exe", rar:2, cost:9, spr:2, evoOnly:1, d:"+30 Jetons par carte Plante.", onCard:(c, x)=>{ if(PK_TY(c, 12)) x.chips += 30; },
-   evo:{to:"j_florizarre", need:18, what:"cartes Plante marquées", gain:res=>PK_COUNT(res, 12)}},
-  {id:"j_florizarre",n:"Florizarre.exe", rar:3, cost:14, spr:3, evoOnly:1, d:"+45 Jetons et +3 Mult par carte Plante.", onCard:(c, x)=>{ if(PK_TY(c, 12)){ x.chips += 45; x.mult += 3; } }},
-  {id:"j_carapuce",  n:"Carapuce.exe", rar:1, cost:6, spr:7, d:"+2 Mult par carte Eau.", onCard:(c, x)=>{ if(PK_TY(c, 11)) x.mult += 2; },
-   evo:{to:"j_carabaffe", need:10, what:"cartes Eau marquées", gain:res=>PK_COUNT(res, 11)}},
-  {id:"j_carabaffe", n:"Carabaffe.exe", rar:2, cost:9, spr:8, evoOnly:1, d:"+4 Mult par carte Eau.", onCard:(c, x)=>{ if(PK_TY(c, 11)) x.mult += 4; },
-   evo:{to:"j_tortank", need:18, what:"cartes Eau marquées", gain:res=>PK_COUNT(res, 11)}},
-  {id:"j_tortank",   n:"Tortank.exe", rar:3, cost:14, spr:9, evoOnly:1, d:"×1.25 Mult par carte Eau.", onCard:(c, x)=>{ if(PK_TY(c, 11)) x.mult *= 1.25; }},
-  {id:"j_magicarpe", n:"Magicarpe.exe", rar:0, cost:3, spr:129, d:"Trempette. Il ne se passe rien… pour l'instant.",
-   onHand:()=>{}, evo:{to:"j_leviator", need:5, what:"verrous franchis", round:1}},
-  {id:"j_leviator",  n:"Léviator.exe", rar:3, cost:16, spr:130, evoOnly:1, d:"×3 Mult. Il a enfin compris.", onHand:x=>{ x.mult *= 3; }},
-  {id:"j_abra",      n:"Abra.exe", rar:1, cost:6, spr:63, d:"+6 Mult si la main contient un Pokémon Psy.", onHand:x=>{ if(x.played.some(c=>PK_TY(c, 14))) x.mult += 6; },
-   evo:{to:"j_kadabra", need:6, what:"mains jouées avec un Psy", gain:res=>res.played.some(c=>PK_TY(c, 14)) ? 1 : 0}},
-  {id:"j_kadabra",   n:"Kadabra.exe", rar:2, cost:9, spr:64, evoOnly:1, d:"+12 Mult si la main contient un Pokémon Psy.", onHand:x=>{ if(x.played.some(c=>PK_TY(c, 14))) x.mult += 12; },
-   evo:{to:"j_alakazam", need:10, what:"mains jouées avec un Psy", gain:res=>res.played.some(c=>PK_TY(c, 14)) ? 1 : 0}},
-  {id:"j_alakazam",  n:"Alakazam.exe", rar:3, cost:14, spr:65, evoOnly:1, d:"×2 Mult si la main contient un Pokémon Psy.", onHand:x=>{ if(x.played.some(c=>PK_TY(c, 14))) x.mult *= 2; }},
-  {id:"j_fantominus",n:"Fantominus.exe", rar:1, cost:6, spr:92, d:"+2 Mult par carte restée en main.", onHand:x=>{ x.mult += 2 * x.inHandLeft; },
-   evo:{to:"j_spectrum", need:8, what:"mains jouées", gain:()=>1}},
-  {id:"j_spectrum",  n:"Spectrum.exe", rar:2, cost:9, spr:93, evoOnly:1, d:"+3 Mult par carte restée en main.", onHand:x=>{ x.mult += 3 * x.inHandLeft; },
-   evo:{to:"j_ectoplasma", need:12, what:"mains jouées", gain:()=>1}},
-  {id:"j_ectoplasma",n:"Ectoplasma.exe", rar:3, cost:14, spr:94, evoOnly:1, d:"×(1 + 0,12 par carte restée en main) Mult.", onHand:x=>{ x.mult *= 1 + 0.12 * x.inHandLeft; }},
-  {id:"j_evoli",     n:"Évoli.exe", rar:2, cost:8, spr:133, d:"+3 Mult par type différent dans la main. Il évoluera selon votre jeu.",
-   onHand:x=>{ const t = new Set(); x.played.forEach(c=>POKE[c.id].types.forEach(v=>t.add(v))); x.mult += 3 * t.size; },
-   evo:{to:j=>{ const c = j.tc || {}; const best = [[10, "j_pyroli"], [11, "j_aquali"], [13, "j_voltali"]].sort((a, b)=>(c[b[0]] || 0) - (c[a[0]] || 0))[0]; return best[1]; },
-        need:6, what:"mains jouées avec trois types ou plus",
-        gain:(res, j)=>{ j.tc = j.tc || {}; for(const t of [10, 11, 13]) j.tc[t] = (j.tc[t] || 0) + PK_COUNT(res, t);
-          const s = new Set(); res.played.forEach(c=>POKE[c.id].types.forEach(v=>s.add(v))); return s.size >= 3 ? 1 : 0; }}},
-  {id:"j_pyroli",    n:"Pyroli.exe", rar:3, cost:14, spr:136, evoOnly:1, d:"×1.5 Mult par carte Feu.", onCard:(c, x)=>{ if(PK_TY(c, 10)) x.mult *= 1.5; }},
-  {id:"j_aquali",    n:"Aquali.exe", rar:3, cost:14, spr:134, evoOnly:1, d:"+60 Jetons par carte Eau.", onCard:(c, x)=>{ if(PK_TY(c, 11)) x.chips += 60; }},
-  {id:"j_voltali",   n:"Voltali.exe", rar:3, cost:14, spr:135, evoOnly:1, d:"+8 Mult par carte Électrik.", onCard:(c, x)=>{ if(PK_TY(c, 13)) x.mult += 8; }}
-];
-for(const j of PK_NEW_JOKERS.concat(PK_EVO_JOKERS)) JOKERS.push(j);
-
-/* une main jouée, un verrou franchi : les programmes avancent vers leur évolution */
-function pkEvoTick(P, res, round){
-  P.evoQ = P.evoQ || [];
-  for(const j of P.jokers){
-    const def = jokerDef(j);
-    if(!def || !def.evo) continue;
-    const g = round ? (def.evo.round || 0) : (def.evo.gain ? def.evo.gain(res, j) : 0);
-    if(!g) continue;
-    j.xp = (j.xp || 0) + g;
-    if(j.xp >= def.evo.need){
-      const to = typeof def.evo.to === "function" ? def.evo.to(j) : def.evo.to;
-      if(!JOKERS.find(x=>x.id === to)) continue;
-      P.evoQ.push({from:def.id, to});
-      j.id = to; j.xp = 0;
-      pkSeen(to);
-    }
-  }
-}
-/* la Programmathèque : ce qu'on a déjà vu passer */
-function pkSeen(id){
-  S.pokerMeta = S.pokerMeta || {};
-  const L = S.pokerMeta.seenJ = S.pokerMeta.seenJ || [];
-  if(!L.includes(id)) L.push(id);
-}
-/* la vitrine : les Champions battus, d'une partie à l'autre */
-function pkLeaderBeaten(key){
-  S.pokerMeta = S.pokerMeta || {};
-  const L = S.pokerMeta.leaders = S.pokerMeta.leaders || [];
-  if(L.includes(key)) return false;
-  L.push(key);
-  return true;
-}
-
-/* ===== 62-poker-table.js ===== */
-/* ============================================================
-   62 — POKÉ-POKER · LA TABLE
-   La refonte graphique : une salle de jeux de la couche, néons et tapis.
-     · l'ADVERSAIRE en haut, portrait et « PV » : l'objectif est la vie
-       du dresseur, chaque main la fait fondre comme dans un combat ;
-     · les PROGRAMMES en cartes, sur une étagère ; ils sursautent quand
-       ils agissent, dorment sous Poudre Dodo, montrent leur évolution ;
-     · les CARTES : de vraies cartes Pokémon, cadre aux couleurs du type,
-       numéro du Pokédex, Jetons en médaillon, feuille holographique pour
-       les chromatiques ; la main s'ouvre en éventail, se distribue ;
-     · la RÉSOLUTION : les cartes jouées montent sur le tapis, chacune
-       sursaute et lâche ses Jetons, les programmes s'allument, Jetons et
-       Mult s'enflamment, puis le total frappe l'adversaire ;
-     · la VICTOIRE : le dresseur est K.O., sa réplique, et les Octets
-       qui tombent ligne par ligne ; la DÉFAITE a sa scène aussi ;
-     · la CACHE : des boosters qu'on ouvre (le paquet se déchire, les
-       cartes se retournent), des programmes en vitrine.
-   ============================================================ */
-
-/* ---------- les cartes ---------- */
-/* les couleurs des types, celles des cartes à collectionner */
-const PK_TCOL = {1:"#a8a77a", 2:"#c22e28", 3:"#a98ff3", 4:"#a33ea1", 5:"#e2bf65", 6:"#b6a136", 7:"#a6b91a", 8:"#735797", 9:"#b7b7ce",
-  10:"#ee8130", 11:"#6390f0", 12:"#7ac74c", 13:"#f7d02c", 14:"#f95587", 15:"#96d9d6", 16:"#6f35fc", 17:"#705746", 18:"#d685ad"};
-function pkTypeCol(t){ return PK_TCOL[t] || "#8ea3bd"; }
+/* ---------- rendu ---------- */
 function pkCardHtml(c, selected, attrs, big, extraCls){
-  const p = POKE[c.id], t = p.types[0], t2 = p.types[1];
-  const ed = c.ed || c.e || "";
-  const st = stageOf(c.id);
-  if(c.fd) return `<div class="pkc fd ${big ? "big" : ""} ${extraCls || ""}" ${attrs || ""}><div class="pkc-back"><i></i></div></div>`;
-  return `<div class="pkc ${selected ? "sel" : ""} ${ed} ${c.shiny ? "shy" : ""} ${c.rb ? "rb" : ""} ${c.par ? "par" : ""} ${big ? "big" : ""} ${extraCls || ""}"
-      style="--tc:${pkTypeCol(t)};--tc2:${pkTypeCol(t2 || t)}" ${attrs || ""}>
-    <div class="pkc-in">
-      <div class="pkc-hd"><span class="pkc-nm">${esc(p.name)}</span></div>
-      <div class="pkc-art"><span class="sprbox">${sprite(c.id, c.shiny, "")}</span></div>
-      <div class="pkc-ft"><span class="pkc-no">#${String(c.id).padStart(3, "0")}</span>
-        <span class="pkc-st">${st ? "●".repeat(st) : ""}</span><span class="pkc-ty">${TYPE_NAMES[t].slice(0, 3)}</span>${t2 ? `<span class="pkc-ty b">${TYPE_NAMES[t2].slice(0, 3)}</span>` : ""}</div>
-      <span class="pkc-ch">${cardChips(c)}</span>
-      ${c.shiny ? `<i class="pkc-holo"></i><i class="pkc-spark"></i>` : ""}
-      ${ed === "gold" ? `<i class="pkc-gold"></i>` : ed === "glass" ? `<i class="pkc-glass"></i>` : ed === "corrupt" ? `<i class="pkc-corr"></i>` : ""}
-      ${c.rb ? `<span class="pkc-rb" title="Arc-en-ciel : copie l'espèce qui complète la main">◇</span>` : ""}
+  const p = POKE[c.id];
+  const t = p.types[0];
+  const ed = c.ed || "";
+  return `<div class="pcard ${selected?"sel":""} ${ed} ${c.shiny?"shy":""} ${c.rb?"rb":""} ${big?"big":""} ${extraCls||""} t${t}bg" ${attrs||""}>
+    <div class="pc-top">
+      <span class="pc-nm">${esc(p.name)}</span>
+      ${c.shiny?'<span class="pc-sh">◆</span>':""}
     </div>
-    ${c.par ? `<span class="pkc-para">⚡</span>` : ""}
+    <span class="sprbox pc-art">${sprite(c.id, c.shiny, "")}</span>
+    <div class="pc-bot">
+      <span class="tt t${t}">${TYPE_NAMES[t]}</span>
+      <span class="pc-ch">${cardChips(c)}</span>
+    </div>
+    ${stageOf(c.id)?`<span class="pc-st">${"·".repeat(stageOf(c.id))}</span>`:""}
+    ${c.rb?`<span class="pc-rb" title="Arc-en-ciel : copie l'espèce qui complète la main">◇</span>`:""}
   </div>`;
 }
-/* le dos des cartes : le deck, les boosters */
-function pkBackHtml(cls){ return `<div class="pkc back ${cls || ""}"><div class="pkc-back"><i></i></div></div>`; }
-
-/* ---------- les programmes ---------- */
-function pkJokerHtml(j, i, opts){
-  opts = opts || {};
-  const def = jokerDef(j); if(!def) return "";
-  const P = S.poker, f = P && P.boss ? P.boss.f : {};
-  const asleep = opts.live && f.sleep && i === 0;
-  const evo = def.evo ? Math.min(1, (j.xp || 0) / def.evo.need) : 0;
-  return `<div class="pkj r${def.rar} ${asleep ? "zz" : ""} ${def.evo ? "evo" : ""}" data-i="${i}" ${opts.act === false ? "" : `data-act="${opts.act || "pkjinfo"}"`}>
-    <span class="pkj-art"><span class="sprbox">${sprite(def.spr, false, "")}</span></span>
-    <span class="pkj-nm">${esc(def.n.split(" · ")[0].replace(".exe", ""))}</span>
-    ${def.evo ? `<span class="pkj-evo"><i style="width:${Math.round(evo * 100)}%"></i></span>` : ""}
-    ${asleep ? `<span class="pkj-z">Zzz</span>` : ""}
-    <span class="pkj-rar">${"◆".repeat(def.rar + 1)}</span>
-  </div>`;
-}
-function pkShelfHtml(P, live){
-  const slots = jokerSlots(), cells = [];
-  for(let i = 0; i < slots; i++) cells.push(P.jokers[i] ? pkJokerHtml(P.jokers[i], i, {live}) : `<div class="pkj empty"><span>+</span></div>`);
-  return `<div id="jokers" class="pk2-shelf">${cells.join("")}</div>`;
-}
-
-/* ---------- l'adversaire ---------- */
-function pkOppHtml(P){
-  const o = pkOpp(P), T = P.target || 1, left = Math.max(0, T - P.score), pct = left / T * 100;
-  const col = pct > 50 ? "#5ce07a" : pct > 20 ? "#ffd24a" : "#ff5470";
-  return `<div class="pk2-opp ${o.boss ? "boss" : ""} k-${o.kind}" style="--oc:${pkTypeCol(o.type)}">
-    <div class="pk2-port" id="pk2-port">${trainerArt(o.cls, 60)}</div>
-    <div class="pk2-oinfo">
-      <div class="pk2-oname"><small>${esc(o.title)}</small><b>${esc(o.name)}</b></div>
-      <div class="pk2-hp"><span class="pk2-hpk">PV</span><div class="pk2-hpbar"><i id="pk2-hpfill" style="width:${pct}%;background:${col}"></i></div></div>
-      <div class="pk2-hpn" id="pk2-hpn">${fmt(left)} <span>/ ${fmt(T)}</span></div>
-    </div>
-    <div class="pk2-side">
-      <span class="pk2-oct">${ic("coin")}<b>${P.octets}</b></span>
-      <button class="pk2-menu" data-act="pkmenu" aria-label="Menu">${ic("grid")}</button>
-    </div>
-  </div>
-  ${P.boss ? `<div class="pk2-rule" data-act="pkrule"><b>${esc(P.boss.n)}</b><span>${esc(P.boss.d)}</span></div>` : ""}`;
-}
-
-/* ---------- le tapis : nom de la main, Jetons × Mult ---------- */
+/* le tapis : le nom de la main, puis jetons x multiplicateur, en grand */
 function pkScoreLineHtml(res){
-  if(!res) return `<div class="pk2-hint">${ic("cards")}<span>Touchez jusqu'à cinq cartes</span></div>
-    <div class="pk2-calc"><span class="pk2-chips">0</span><span class="pk2-x">×</span><span class="pk2-mult">0</span></div>`;
+  if(!res) return `<div class="pk-hint">${ic("cards")}
+      <div>Touchez jusqu'à cinq cartes</div>
+      <div class="tiny dim">Le calcul de la main s'affiche ici avant de jouer.</div></div>`;
   const lv = (S.poker.levels && S.poker.levels[res.handKey]) || 0;
-  const hot = res.total >= (S.poker.target - S.poker.score);
-  return `<div class="pk2-hn">${esc(res.handName)}${lv ? ` <span class="pk2-lv">niv. ${lv + 1}</span>` : ""}</div>
-    <div class="pk2-calc ${hot ? "hot" : ""}"><span class="pk2-chips">${fmt(res.chips)}</span><span class="pk2-x">×</span>
-      <span class="pk2-mult">${res.mult.toFixed(res.mult % 1 ? 2 : 0)}</span></div>
-    <div class="pk2-eq">= <b>${fmt(res.total)}</b>${hot ? ` <em>K.O. !</em>` : ""}</div>`;
-}
-/* la main en éventail */
-function pkFanHtml(P, resolving){
-  const shown = resolving ? (P.resolvePlayed || []) : [];
-  const cards = P.hand.filter(c=>!shown.includes(c.u));
-  const n = cards.length, fresh = P.fresh || [];
-  let k = 0;
-  return `<div id="hand" class="pk2-fan ${resolving ? "resolving" : ""}" style="--n:${n}">${cards.map((c, i)=>{
-    const t = n > 1 ? i / (n - 1) : 0.5, rot = (t - 0.5) * Math.min(16, 3 + n * 1.6), dy = Math.pow((t - 0.5) * 2, 2) * 9;
-    const deal = fresh.includes(c.u) ? ` deal" style="--d:${(k++) * 70}ms;` : `" style="`;
-    return `<div class="pk2-slot${deal}--t:${t};--r:${rot.toFixed(1)}deg;--dy:${dy.toFixed(1)}px;--z:${i}">${pkCardHtml(c, P.sel.includes(c.u), `data-u="${c.u}"${resolving ? "" : ' data-act="pkcard"'}`)}</div>`;
-  }).join("")}</div>`;
+  return `<div class="pk-hn">${esc(res.handName)}${lv ? ` <span class="pk-lv">niv. ${lv + 1}</span>` : ""}</div>
+    <div class="pk-calc">
+      <span class="chips">${fmt(res.chips)}</span><span class="pk-x">×</span>
+      <span class="mult">${res.mult.toFixed(res.mult % 1 ? 2 : 0)}</span>
+    </div>
+    <div class="pk-total">= <b>${fmt(res.total)}</b></div>`;
 }
 function pkRenderLive(){
   const P = S.poker;
   const res = P.sel.length ? pkScore(true) : null;
   const line = document.getElementById("pk-score-line");
   if(line) line.innerHTML = pkScoreLineHtml(res);
-  document.querySelectorAll("#hand .pkc").forEach(el=>{
-    const u = +el.dataset.u, c = P.hand.find(x=>x.u === u);
-    el.classList.toggle("sel", P.sel.includes(u));
-    /* une carte découverte (Prémonition) se retourne sous le doigt */
-    if(c && !c.fd && el.classList.contains("fd")){ el.outerHTML = pkCardHtml(c, P.sel.includes(u), `data-u="${u}" data-act="pkcard"`); }
+  document.querySelectorAll("#hand .pcard").forEach(el=>{
+    el.classList.toggle("sel", P.sel.includes(+el.dataset.u));
   });
   const pb = document.getElementById("pk-play"), db = document.getElementById("pk-disc");
-  if(pb) pb.disabled = !P.sel.length || P.handsLeft <= 0;
-  if(db) db.disabled = !P.sel.length || P.discardsLeft <= 0;
-}
-/* une carte refuse : elle tremble */
-function pkNope(u, msg){
-  try { const el = document.querySelector(`#hand .pkc[data-u="${u}"]`);
-    if(el){ el.classList.remove("nope"); void el.offsetWidth; el.classList.add("nope"); } } catch(e){}
-  try { Sfx.glitch(); buzz(20); } catch(e){}
-  if(msg) toast(msg, "bad", "bolt");
-}
-ACTIONS.pksort = () => {
-  const P = S.poker; if(!P) return;
-  const order = ["fam", "type", "chips", "dex"];
-  P.sort = order[(order.indexOf(P.sort || "fam") + 1) % order.length];
-  pkSortHand(P); save(); refresh();
-};
-const PK_SORT_LABEL = {fam:"Famille", type:"Type", chips:"Valeur", dex:"N°"};
-/* la défausse : les cartes s'envolent, puis la main se reforme */
-ACTIONS.pkdiscard = () => {
-  const P = S.poker;
-  if(!P || P.state !== "play" || !P.sel.length || P.discardsLeft <= 0) return;
-  P.sel.forEach(u=>{ const el = document.querySelector(`#hand .pkc[data-u="${u}"]`); if(el) el.parentNode.classList.add("toss"); });
-  setTimeout(()=>pkDiscard(), 230);
-};
-
-/* ============================================================
-   LA RÉSOLUTION ANIMÉE
-   ============================================================ */
-function stepResolve(){
-  if(!RESOLVE) return;
-  const st = RESOLVE.res.steps[RESOLVE.i];
-  if(!st){ endResolveSteps(); return; }
-  RESOLVE.i++;
-  RESOLVE.chips = st.chips;
-  RESOLVE.mult = st.mult;
-  paintResolve(st);
-  RESOLVE.timer = setTimeout(stepResolve, st.kind === "base" ? 520 : st.kind === "joker" ? 380 : 300);
-}
-function paintResolve(st){
-  const line = document.getElementById("pk-score-line");
-  if(line){
-    const hot = RESOLVE.chips * RESOLVE.mult >= (S.poker.target - S.poker.score);
-    line.innerHTML = `<div class="pk2-hn">${esc(RESOLVE.res.handName)}</div>
-      <div class="pk2-calc ${hot ? "hot" : ""}"><span class="pk2-chips" id="pk-chips">${fmt(RESOLVE.chips)}</span><span class="pk2-x">×</span>
-      <span class="pk2-mult" id="pk-mult">${RESOLVE.mult.toFixed(RESOLVE.mult % 1 ? 2 : 0)}</span></div>`;
-    if(st.dc) pkBump(document.getElementById("pk-chips"));
-    if(Math.abs(st.dm) > 0.001) pkBump(document.getElementById("pk-mult"));
-  }
-  let target = null;
-  if(st.kind === "card") target = document.querySelector(`#pk2-stage .pkc[data-u="${st.ref}"]`);
-  if(st.kind === "joker") target = document.querySelector(`#jokers .pkj[data-i="${st.ref}"]`);
-  if(st.kind === "boss") target = document.querySelector(".pk2-rule") || document.getElementById("pk2-port");
-  if(st.kind === "base"){ const hn = document.querySelector("#pk-score-line .pk2-hn"); if(hn) hn.classList.add("pop"); }
-  if(target){
-    target.classList.remove("trigger"); void target.offsetWidth; target.classList.add("trigger");
-    floatDelta(target, st);
-  }
-  if(st.kind === "joker"){ Sfx.wobble(); buzz(8); }
-  else if(st.kind === "boss"){ Sfx.glitch(); }
-  else Sfx.click();
-}
-function pkBump(el){ if(!el) return; el.classList.remove("tick"); void el.offsetWidth; el.classList.add("tick"); }
-function floatDelta(target, st){
-  const host = document.getElementById("poker-felt");
-  if(!host) return;
-  const parts = [];
-  if(st.dc) parts.push({t:(st.dc > 0 ? "+" : "") + fmt(st.dc), c:"chips"});
-  if(Math.abs(st.dm) > 0.001)
-    parts.push(st.mulMode ? {t:"×" + (st.mult / Math.max(0.01, st.mult - st.dm)).toFixed(2), c:"xmult"}
-                          : {t:(st.dm > 0 ? "+" : "") + st.dm.toFixed(st.dm % 1 ? 1 : 0) + " Mult", c:"mult"});
-  if(st.kind === "boss" && !parts.length) parts.push({t:st.label, c:"boss"});
-  if(!parts.length) return;
-  const r = target.getBoundingClientRect(), h = host.getBoundingClientRect();
-  parts.forEach((p, k)=>{
-    const d = document.createElement("div");
-    d.className = "pk2-delta " + p.c;
-    d.textContent = p.t;
-    d.style.left = (r.left - h.left + r.width / 2) + "px";
-    d.style.top = (r.top - h.top + (st.kind === "joker" ? r.height : -4) + k * 16) + "px";
-    host.appendChild(d);
-    setTimeout(()=>d.remove(), 950);
-  });
-}
-function endResolveSteps(){
-  if(!RESOLVE || RESOLVE.done) return;
-  RESOLVE.done = true;
-  const P = S.poker, total = RESOLVE.res.total;
-  const line = document.getElementById("pk-score-line");
-  if(line){
-    line.innerHTML = `<div class="pk2-total">${fmt(total)}</div>`;
-    const el = line.firstElementChild; if(el) el.classList.add("burst");
-  }
-  const felt = document.getElementById("poker-felt");
-  if(felt && total > 0){
-    Sfx.win();
-    burstEl(felt, {n:total > P.target * 0.4 ? 30 : 14, spread:120, colors:["#35f0d6", "#ffc857", "#ff3d7f", "#ffffff"], dur:900});
-  }
-  /* le total frappe l'adversaire : sa jauge de PV fond */
-  const T = P.target || 1, left0 = Math.max(0, T - P.score), left1 = Math.max(0, T - P.score - total);
-  const fill = document.getElementById("pk2-hpfill"), num = document.getElementById("pk2-hpn"), port = document.getElementById("pk2-port");
-  setTimeout(()=>{
-    if(fill){ const pct = left1 / T * 100; fill.style.width = pct + "%"; fill.style.background = pct > 50 ? "#5ce07a" : pct > 20 ? "#ffd24a" : "#ff5470"; }
-    if(port){ port.classList.remove("hit"); void port.offsetWidth; port.classList.add(left1 <= 0 ? "ko" : "hit"); }
-    if(num){
-      const t0 = performance.now(), dur = 520;
-      const tick = now=>{ const k = Math.min(1, (now - t0) / dur), v = Math.round(left0 + (left1 - left0) * (1 - Math.pow(1 - k, 3)));
-        num.innerHTML = `${fmt(v)} <span>/ ${fmt(T)}</span>`; if(k < 1) requestAnimationFrame(tick); };
-      requestAnimationFrame(tick);
-    }
-    if(left1 <= 0){
-      const o = document.querySelector(".pk2-opp");
-      if(o){ const k2 = document.createElement("div"); k2.className = "pk2-ko"; k2.textContent = "K.O. !"; o.appendChild(k2); }
-      try { Sfx.shiny(); buzz([30, 40, 80]); } catch(e){}
-    }
-  }, 380);
-  RESOLVE.timer = setTimeout(commitResolve, left1 <= 0 ? 1500 : 1050);
-}
-/* un appui saute l'animation sans rien changer au résultat */
-function skipResolve(){
-  if(!RESOLVE || RESOLVE.done) return;
-  clearTimeout(RESOLVE.timer);
-  RESOLVE.i = RESOLVE.res.steps.length;
-  const last = RESOLVE.res.steps[RESOLVE.res.steps.length - 1];
-  if(last){ RESOLVE.chips = last.chips; RESOLVE.mult = last.mult; }
-  endResolveSteps();
-}
-ACTIONS.pkskipres = () => skipResolve();
-
-/* ---------- la victoire, la défaite : des scènes, plus des fenêtres ---------- */
-function pkWinScreen(info){ if(S.poker) S.poker.winInfo = info; refresh(); }
-function pkLoseScreen(info){ if(S.poker) S.poker.loseInfo = info; refresh(); }
-function pkWinHtml(P){
-  const w = P.winInfo; if(!w) return "";
-  const o = w.opp;
-  return `<div class="pk2-ov win">
-    <div class="pk2-ovc">
-      ${o ? `<div class="pk2-ovport beaten">${trainerArt(o.cls, 96)}</div>
-        <div class="pk2-ovk">${esc(o.title)} · ${esc(o.name)}</div>
-        <div class="pk2-say">« ${esc(o.lo || "Bien joué.")} »</div>` : ""}
-      <div class="pk2-ovt">VERROU FRANCHI</div>
-      <div class="pk2-ovs">${fmt(w.score)} <span>/ ${fmt(w.target)}</span></div>
-      <div class="pk2-rows">${w.rows.map((r, i)=>`<div style="--d:${400 + i * 220}ms"><span>${esc(r[0])}</span><b>+${r[1]}</b></div>`).join("")}
-        <div class="tot" style="--d:${400 + w.rows.length * 220}ms"><span>Octets</span><b>${ic("coin")} ${P.octets}</b></div></div>
-      ${w.firstLeader ? `<div class="pk2-first" style="--d:${700 + w.rows.length * 220}ms"><small>PREMIÈRE VICTOIRE CONTRE ${esc(o.name.toUpperCase())}</small><b>+${fmt(w.bonus)} PokéCoins</b></div>` : ""}
-      ${w.final ? `<div class="tiny cy center" style="margin:8px 0">Le Champion est tombé. La couche est stabilisée.</div>
-        <button class="btn pri wide" data-act="pkfinish">Terminer la partie</button>
-        <button class="btn wide" style="margin-top:7px" data-act="pkendless">Continuer en Couche Zéro</button>`
-        : `<button class="btn pri wide pk2-go" data-act="pkshop">Encaisser · la cache ${ic("arrow")}</button>`}
-    </div></div>`;
-}
-function pkLoseHtml(P){
-  const L = P.loseInfo; if(!L) return "";
-  const o = L.opp;
-  return `<div class="pk2-ov lose">
-    <div class="pk2-ovc">
-      ${o ? `<div class="pk2-ovport gloat">${trainerArt(o.cls, 96)}</div><div class="pk2-ovk">${esc(o.title)} · ${esc(o.name)}</div>
-        <div class="pk2-say">« Ta main était vide. La mienne, non. »</div>` : ""}
-      <div class="pk2-ovt bad">MANCHE PERDUE</div>
-      <div class="pk2-ovs">${fmt(L.score)} <span>/ ${fmt(L.target)} · Ante ${L.ante}</span></div>
-      <div class="pk2-rows">
-        <div style="--d:300ms"><span>Fragments</span><b class="cy">+${L.shards}</b></div>
-        <div style="--d:500ms"><span>PokéCoins</span><b class="gold-t">+${fmt(L.coins)}</b></div></div>
-      <button class="btn pri wide" data-act="pkquit">Quitter la table</button>
-    </div></div>`;
+  if(pb) pb.disabled = !P.sel.length || P.handsLeft<=0;
+  if(db) db.disabled = !P.sel.length || P.discardsLeft<=0;
 }
 
-/* ---------- l'évolution d'un programme ---------- */
-function pkEvoShow(){
-  const P = S.poker; if(!P || !P.evoQ || !P.evoQ.length || document.getElementById("pk2-evo")) return;
-  const e = P.evoQ.shift(); save();
-  const a = JOKERS.find(x=>x.id === e.from), b = JOKERS.find(x=>x.id === e.to);
-  if(!a || !b) return;
-  const el = document.createElement("div");
-  el.id = "pk2-evo"; el.className = "pk2-evo";
-  el.innerHTML = `<div class="pk2-evoc">
-      <div class="pk2-evot">Quoi ? <b>${esc(a.n)}</b> évolue !</div>
-      <div class="pk2-evos"><span class="a">${sprBox(a.spr, false, 96)}</span><span class="b">${sprBox(b.spr, false, 96)}</span></div>
-      <div class="pk2-evon" id="pk2-evon">…</div>
-      <button class="btn pri wide" data-act="pkevook" style="visibility:hidden" id="pk2-evok">Continuer</button></div>`;
-  document.body.appendChild(el);
-  requestAnimationFrame(()=>el.classList.add("on"));
-  try { Sfx.wobble(); Music.jingle && Music.jingle("j_evolution"); } catch(e2){}
-  setTimeout(()=>{
-    if(!el.isConnected) return;
-    el.classList.add("done");
-    const n = document.getElementById("pk2-evon"); if(n) n.innerHTML = `<b>${esc(a.n)}</b> est devenu <b class="gold-t">${esc(b.n)}</b> !<div class="tiny muted">${esc(b.d)}</div>`;
-    const ok = document.getElementById("pk2-evok"); if(ok) ok.style.visibility = "visible";
-    try { Sfx.win(); buzz([30, 40, 80]); } catch(e2){}
-  }, 2400);
-}
-ACTIONS.pkevook = () => { const el = document.getElementById("pk2-evo"); if(el) el.remove(); refresh(); setTimeout(pkEvoShow, 200); };
-
-/* ---------- les boosters : on ouvre vraiment le paquet ---------- */
-function pkShowBooster(){
-  const P = S.poker, B = P && P.pendingBooster;
-  if(!B) return;
-  const old = document.getElementById("pk2-pack"); if(old) old.remove();
-  const art = B.picks[0] || 25;
-  const el = document.createElement("div");
-  el.id = "pk2-pack"; el.className = "pk2-pack";
-  el.innerHTML = `<div class="pk2-packc">
-      <div class="pk2-packt">${esc(B.n)}</div>
-      <div class="pk2-wrap" id="pk2-wrap"><div class="pk2-foil">${sprBox(art, B.shiny, 92)}<b>POKÉ-POKER</b><small>${esc(B.n)}</small></div><i class="pk2-tear"></i></div>
-      <div class="pk2-picks">${B.picks.map((id, i)=>`<div class="pk2-pick" style="--d:${i * 160}ms">
-          <div class="pk2-flip">${pkBackHtml("big")}${pkCardHtml({u:-1, id, shiny:B.shiny, ed:""}, false, `data-act="pkpickb" data-id="${id}"`, true)}</div>
-          <div class="pk2-pickn">${esc(POKE[id].name)}<small>${POKE[id].types.map(t=>TYPE_NAMES[t]).join(" · ")} · ${cardChips({id, shiny:B.shiny})} Jetons</small></div></div>`).join("")}</div>
-      <div class="pk2-packh">Touchez une carte : elle rejoint votre deck pour la partie.</div>
-    </div>`;
-  document.body.appendChild(el);
-  requestAnimationFrame(()=>el.classList.add("on"));
-  try { Sfx.wobble(); } catch(e){}
-  setTimeout(()=>{ el.classList.add("open"); try { Sfx.coin(); } catch(e){} }, 900);
-  setTimeout(()=>{ el.classList.add("show"); try { Sfx.shiny(); } catch(e){} }, 1350);
-}
-ACTIONS.pkpickb = d => {
-  const P = S.poker, B = P && P.pendingBooster;
-  const el = document.getElementById("pk2-pack"); if(el) el.remove();
-  if(!B) return;
-  const maxU = P.deck.reduce((a, c)=>Math.max(a, c.u), 0);
-  P.deck.push({u:maxU + 1, id:+d.id, shiny:B.shiny, ed:""});
-  toast(POKE[+d.id].name + " rejoint le deck", "", "check");
-  delete P.pendingBooster;
-  closeSheet(); save(); refresh();
-};
-
-/* ---------- la fiche d'un programme : son effet, son rang, son évolution ---------- */
-ACTIONS.pkjinfo = d => {
-  const P = S.poker, i = +d.i, j = P.jokers[i], def = jokerDef(j);
-  if(!def) return;
-  const f = P.boss ? P.boss.f : {};
-  const evo = def.evo ? `<div class="pk2-evobox"><div class="tiny" style="color:#ffd24a;letter-spacing:1px">ÉVOLUTION</div>
-      <div class="tiny">${esc(def.evo.what.charAt(0).toUpperCase() + def.evo.what.slice(1))} : <b>${j.xp || 0} / ${def.evo.need}</b></div>
-      <div class="pk2-evobar"><i style="width:${Math.min(100, (j.xp || 0) / def.evo.need * 100)}%"></i></div></div>` : "";
-  sheet(`${sheetHead(def.n)}
-    <div class="row" style="gap:12px;align-items:flex-start">
-      ${pkJokerHtml(j, i, {act:false})}
-      <div class="grow">
-        <span class="tt rar r${def.rar}" style="--rc:${RARITY[def.rar].c}">${"◆".repeat(def.rar + 1)} ${RAR_NAME[def.rar]}</span>
-        <div class="tiny" style="margin-top:6px">${esc(def.d)}</div>
-        ${def.fragile ? `<div class="tiny bad" style="margin-top:4px">Utilisations : ${(j.uses || 0)}/${def.fragile}</div>` : ""}
-        ${f.sleep && i === 0 && P.state !== "shop" ? `<div class="tiny bad" style="margin-top:4px">Il dort pendant ce verrou (Poudre Dodo).</div>` : ""}
-        ${evo}
-      </div>
-    </div>
-    <div class="panel tight" style="margin-top:11px">
-      <div class="h sm">ORDRE D'EXÉCUTION — position ${i + 1} sur ${P.jokers.length}</div>
-      <div class="tiny muted">Les programmes s'appliquent de gauche à droite. Un multiplicateur
-        placé en dernier agit sur tout ce qui précède : l'ordre change le score.</div>
-      <div class="btn-grid c2" style="margin-top:8px">
-        <button class="btn sm" data-act="pkjmove" data-i="${i}" data-d="-1" ${i === 0 ? "disabled" : ""}>◀ Vers la gauche</button>
-        <button class="btn sm" data-act="pkjmove" data-i="${i}" data-d="1" ${i === P.jokers.length - 1 ? "disabled" : ""}>Vers la droite ▶</button>
-      </div>
-    </div>
-    <button class="btn dan wide" style="margin-top:9px" data-act="pkjsell" data-i="${i}">Revendre (+${Math.max(1, Math.floor(def.cost / 2))} Octets)</button>`, true);
-};
-ACTIONS.pkrule = () => {
-  const P = S.poker; if(!P || !P.boss) return;
-  const o = pkOpp(P);
-  sheet(`${sheetHead(P.boss.n)}<div class="row" style="gap:11px;align-items:center">${trainerArt(o.cls, 64)}
-    <div class="grow"><div class="tiny muted">${esc(o.title)} · <b>${esc(o.name)}</b></div><div class="tiny" style="margin-top:5px">${esc(P.boss.d)}</div></div></div>`, true);
-};
-
-/* ============================================================
-   LES ÉCRANS
-   ============================================================ */
 SCREENS.poker = {
   html(){
     const P = S.poker;
     if(!P) return this.lobby();
-    if(P.state === "blind") return this.blindView(P);
-    if(P.state === "shop") return this.shopView(P);
+    if(P.state === "blind")   return this.blindView(P);
+    if(P.state === "shop")    return this.shopView(P);
     if(P.state === "resolve") return this.playView(P, true);
     return this.playView(P);
   },
-  /* ---------- la salle de jeux ---------- */
   lobby(){
     const ok = moduleUnlocked("poker");
-    const M = S.pokerMeta || {}, beaten = M.leaders || [];
-    const show = [150, 6, 25, 130, 151];
-    return `<div class="pk2 lobby">
-      <div class="pk2-neon"><span>POKÉ</span><span class="b">POKER</span><small>salle de jeux de la couche</small></div>
-      <div class="pk2-show">${show.map((id, i)=>`<div class="pk2-sc" style="--i:${i}">${pkCardHtml({u:-1, id, shiny:i === 2, ed:i === 4 ? "gold" : ""}, false, "", true)}</div>`).join("")}</div>
-      <div class="pk2-pitch">Des mains de <b>Pokémon</b> : espèces identiques, familles d'évolution, types, <b>suites du Pokédex</b>, chromatiques.
-        Chaque verrou est tenu par un dresseur ; au bout de chaque ante, un <b>Champion d'arène</b> et sa règle.</div>
-      <div class="pk2-stats">
-        <div><b>${M.bestAnte || 0}</b><small>meilleure ante</small></div>
-        <div><b>${S.stats.pokerWins || 0}</b><small>parties gagnées</small></div>
-        <div><b>${fmt(S.stats.pokerBest || 0)}</b><small>meilleur score</small></div>
+    return `
+      <div class="h">${ic("cards")} POKÉ-POKER ${infoBtn("poker")}</div>
+      <div class="sub">Les données rares se rangent par motifs.</div>
+      ${moduleGoal("Composez des mains avec des Pokémon : espèces identiques, familles d'évolution, types, chromatiques. Les programmes achetés entre deux manches multiplient tout.",
+        "Beaucoup de Fragments, des Noyaux, et de l'intégrité en cas de partie complète.")}
+      <div class="panel bracket">
+        <div class="tiny">Un deck de 52 <b class="cy">Pokémon</b>. Les combinaisons ne se lisent pas en
+          couleurs et en rangs, mais en <b>espèces identiques</b>, <b>familles d'évolution</b>,
+          <b>types</b> et <b>chromatiques</b>. Chaque main marque
+          <b class="cy">Jetons</b> × <b class="bad">Multiplicateur</b>.</div>
+        <hr class="sep">
+        <div class="tiny">Trois verrous par ante, huit antes pour stabiliser la couche. Entre deux verrous,
+          la cache vend des <b>programmes</b>, des <b>licences</b> et des <b>boosters</b> qui ajoutent
+          des espèces de votre archive à votre deck.</div>
       </div>
-      <div class="pk2-case">
-        <div class="pk2-caseh">VITRINE DES CHAMPIONS <span>${beaten.length} / 13</span></div>
-        <div class="pk2-casel">${PK_LEADER_ORDER.concat(PK_ELITE_ORDER).map(k=>{ const L = pkLeaderInfo(k), on = beaten.includes(k);
-          return `<span class="pk2-ld ${on ? "on" : ""}" title="${esc(L.name)}">${trainerArt(L.cls, 40)}</span>`; }).join("")}
-          <span class="pk2-ld champ ${beaten.includes("champion") ? "on" : ""}" title="Régis">${trainerArt("cool_trainer_m", 40)}</span></div>
+      <div class="tiles" style="margin-bottom:10px">
+        <div class="tile accent"><div class="k">Meilleure ante</div><div class="v">${S.pokerMeta.bestAnte||0}</div></div>
+        <div class="tile gold"><div class="k">Parties gagnées</div><div class="v">${S.stats.pokerWins}</div></div>
+        <div class="tile"><div class="k">Meilleur score</div><div class="v">${fmt(S.stats.pokerBest||0)}</div></div>
+        <div class="tile"><div class="k">Archive</div><div class="v">${dexTotal()}</div></div>
       </div>
       ${ok ? pkDeckPicker() : ""}
-      <button class="pk2-play" data-act="pkstart" ${ok ? "" : "disabled"}><span>${ic("cards")} S'asseoir à la table</span></button>
-      <div class="btn-grid c2" style="margin-top:8px">
-        <button class="btn ghost" data-act="pkinfo">Combinaisons</button>
-        <button class="btn ghost" data-act="pkdex">Programmathèque</button>
-      </div>
-      <button class="btn ghost wide sm" style="margin-top:7px" data-act="goto" data-to="modules">Retour aux modules</button>
-    </div>`;
+      <button class="btn pri wide" data-act="pkstart" ${ok?"":"disabled"}>Lancer une partie</button>
+      <button class="btn ghost wide" style="margin-top:7px" data-act="pkinfo">Voir les combinaisons</button>
+      <button class="btn ghost wide" style="margin-top:7px" data-act="goto" data-to="modules">Retour aux modules</button>`;
   },
-  /* ---------- le tableau des verrous ---------- */
+  /* choix du verrou : meme grammaire que l'ecran de jeu — l'etat en haut,
+     le verrou au centre du tapis, les decisions sous le pouce */
   blindView(P){
-    const st = pkStage();
-    const blinds = st === "ante" ? [0, 1, 2] : [P.blind];
-    return `<div class="pk2 blinds">
-      <div class="pk2-bhead"><div><small>${esc(pkStageLabel())}</small><b>${st === "ante" ? "Le tableau des verrous" : esc(pkBlindLabel())}</b></div>
-        <span class="pk2-oct">${ic("coin")}<b>${P.octets}</b></span><button class="pk2-menu" data-act="pkmenu">${ic("grid")}</button></div>
-      ${this.badges(P)}
-      ${pkShelfHtml(P)}
-      <div class="pk2-bl n${blinds.length}">${blinds.map(b=>{
-        const o = pkOpp(P, b), cur = b === P.blind, done = b < P.blind && st === "ante";
-        const target = pkTargetPreview(P, b, o);
-        return `<div class="pk2-bc ${cur ? "cur" : ""} ${done ? "done" : ""} ${o.boss ? "boss" : ""}" style="--oc:${pkTypeCol(o.type)}">
-          <div class="pk2-bck">${b === 2 || st !== "ante" ? (o.kind === "leader" ? "CHAMPION D'ARÈNE" : esc(o.title.toUpperCase())) : BLIND_NAMES[b].toUpperCase()}</div>
-          <div class="pk2-bcp">${trainerArt(o.cls, cur ? 88 : 64)}</div>
-          <div class="pk2-bcn">${esc(o.name)}<small>${esc(o.title)}</small></div>
-          <div class="pk2-bct"><small>Score requis</small><b>${fmt(target)}</b></div>
-          <div class="pk2-bcr">${ic("coin")} ${3 + Math.min(2, b)}</div>
-          ${o.rule ? `<div class="pk2-bcrule"><b>${esc(o.rule.r)}</b>${cur ? `<span>${esc(o.rule.d)}</span>` : ""}</div>` : ""}
-          ${done ? `<div class="pk2-bcdone">FRANCHI</div>` : ""}
-        </div>`; }).join("")}</div>
-      ${(()=>{ const o = pkOpp(P); return `<div class="pk2-say big"><span class="pk2-who">${esc(o.name)}</span>« ${esc(o.hi)} »</div>`; })()}
-      <div class="pk2-acts">
-        ${P.blind === 2 || st !== "ante" ? "" : `<button class="pk2-btn ghost" data-act="pkskip">Contourner<small>+${3 + P.blind} Octets · niveau de main</small></button>`}
-        <button class="pk2-btn blue" data-act="pkstartblind">Affronter ${esc(pkOpp(P).name)}</button>
+    const boss = P.blind === 2 || pkStage() !== "ante";
+    return `<div class="pk-table">
+      <div class="pk-head">
+        <div class="grow"><div class="pk-stage">${esc(pkStageLabel())}</div>
+          <div class="pk-blind">Prochain verrou${P.deckId && P.deckId !== "std" && typeof pkDeckDef === "function" ? ` · <span class="gold-t">${esc(pkDeckDef(P.deckId).n)}</span>` : ""}</div></div>
+        <span class="pill">${ic("coin")} ${P.octets}</span>
+        <button class="pk-menu" data-act="pkmenu" aria-label="Menu">${ic("grid")}</button>
+      </div>
+      ${badgeRow()}
+      ${this.jokerRow(P)}
+      <div class="pk-felt">
+        <div class="pk-blindcard ${boss ? "boss" : ""}">
+          <div class="pb-kind">${boss ? "VERROU DE SECTEUR" : "VERROU"}</div>
+          <div class="pb-name">${esc(pkBlindLabel())}</div>
+          <div class="pb-row">
+            <div><div class="tiny dim">Score requis</div>
+              <div class="pb-big">${fmt(P.target || anteTarget(P.ante, P.blind))}</div></div>
+            <div><div class="tiny dim">Récompense</div>
+              <div class="pb-big gold-t">${3 + P.blind} <span class="tiny">Octets</span></div></div>
+          </div>
+          ${boss ? `<div class="tiny bad" style="margin-top:8px">Il impose une contrainte, révélée à l'entrée.
+            ${pkStage() === "ante" ? "Le vaincre délivre un badge." : ""}</div>`
+                 : `<div class="tiny dim" style="margin-top:8px">Contourner rapporte des Octets et améliore votre
+                    combinaison favorite, sans faire avancer le score.</div>`}
+        </div>
+      </div>
+      <div class="pk-actions ${boss ? "solo" : ""}">
+        ${boss ? "" : `<button class="btn" data-act="pkskip">Contourner</button>`}
+        <button class="btn pri" data-act="pkstartblind">Entrer</button>
       </div>
     </div>`;
   },
-  badges(P){
-    const got = P.badges || [], st = pkStage();
-    return `<div class="pk2-badges">${BADGES.map((b, i)=>{ const L = pkLeaderInfo(PK_LEADER_ORDER[i]);
-      return `<span class="pk2-bdg ${got.includes(i) ? "on" : ""}" style="--bc:${b.c}" title="Badge ${esc(b.n)} — ${esc(L.name)}">◆</span>`; }).join("")}
-      <span class="pk2-bsep"></span>
-      ${ELITE_NAMES.map((_, i)=>`<span class="pk2-bdg e4 ${st === "champion" || (st === "elite" && (P.eliteIdx || 0) > i) ? "on" : ""} ${st === "elite" && (P.eliteIdx || 0) === i ? "cur" : ""}">${i + 1}</span>`).join("")}
-      <span class="pk2-bdg champ ${st === "champion" ? "cur" : ""}">★</span></div>`;
-  },
-  /* ---------- la table ---------- */
+  /* Ecran de jeu, pense pour le pouce. Tout tenait dans le haut de l'ecran
+     et laissait le bas vide ; la main de huit cartes defilait de cote et se
+     coupait ; « Abandonner » voisinait avec « Jouer ». Desormais, de haut en
+     bas : l'etat de la manche, le tapis (le calcul de la main, en grand), la
+     main en deux rangees, et les actions a portee de pouce. */
   playView(P, resolving){
-    const shown = resolving ? (P.resolvePlayed || []) : [];
-    const played = shown.map(u=>P.hand.find(c=>c.u === u)).filter(Boolean);
-    const scoringU = resolving && RESOLVE ? RESOLVE.res.scored.map(c=>c.u) : [];
-    return `<div class="pk2 play ${resolving ? "resolving" : ""}" ${resolving ? 'data-act="pkskipres"' : ""}>
-      ${pkOppHtml(P)}
-      ${pkShelfHtml(P, true)}
-      <div class="pk2-felt" id="poker-felt">
-        <div class="pk2-stage" id="pk2-stage">${played.map((c, i)=>`<div class="pk2-sslot" style="--d:${i * 70}ms">${pkCardHtml(c, false, `data-u="${c.u}"`, true, scoringU.includes(c.u) ? "scoring" : "idle")}</div>`).join("")}</div>
-        <div class="pk2-line" id="pk-score-line">${pkScoreLineHtml(null)}</div>
+    const shown = resolving ? (P.resolvePlayed||[]) : null;
+    const pct = Math.min(100, P.score / P.target * 100);
+    return `<div class="pk-table">
+      <div class="pk-head">
+        <div class="grow">
+          <div class="pk-stage">${esc(pkStageLabel())}</div>
+          <div class="pk-blind">${esc(pkBlindLabel())}</div>
+        </div>
+        <span class="pill">${ic("coin")} ${P.octets}</span>
+        <button class="pk-menu" data-act="pkmenu" aria-label="Menu">${ic("grid")}</button>
       </div>
-      <div class="pk2-meta">
-        <span class="pk2-hands" title="Mains restantes">${Array.from({length:Math.max(P.hands + 1, P.handsLeft)}, (_, i)=>`<i class="${i < P.handsLeft ? "on" : ""}">${itemIcon("ball:poke", 16) || "●"}</i>`).join("")}</span>
-        <span class="pk2-disc" title="Défausses restantes">${ic("refresh")}<b>${P.discardsLeft}</b></span>
-        <button class="pk2-deck" data-act="pkdeck">${pkBackHtml("mini")}<b>${P.draw.length}</b></button>
+      ${badgeRow()}
+      ${P.boss?`<div class="blind-card"><b class="bad">${esc(P.boss.n)}</b>
+        <div class="tiny">${esc(P.boss.d)}</div></div>`:""}
+      <div class="pk-goal">
+        <div class="row between tiny"><span class="muted">Objectif</span>
+          <b class="mono-num">${fmt(P.score)} <span class="muted">/ ${fmt(P.target)}</span></b></div>
+        <div class="bar thick" style="margin-top:5px"><i style="width:${pct}%"></i></div>
       </div>
-      ${pkFanHtml(P, resolving)}
-      <div class="pk2-acts">
-        ${resolving ? `<button class="pk2-btn ghost wide" data-act="pkskipres">Passer l'animation</button>`
-          : `<button class="pk2-btn red" id="pk-disc" data-act="pkdiscard" ${P.sel.length && P.discardsLeft > 0 ? "" : "disabled"}>Défausser<small>${P.discardsLeft} restante${P.discardsLeft > 1 ? "s" : ""}</small></button>
-             <button class="pk2-btn sort" data-act="pksort">${ic("refresh")}<small>${PK_SORT_LABEL[P.sort || "fam"]}</small></button>
-             <button class="pk2-btn blue" id="pk-play" data-act="pkplay" ${P.sel.length && P.handsLeft > 0 ? "" : "disabled"}>Jouer<small>${P.handsLeft} main${P.handsLeft > 1 ? "s" : ""}</small></button>`}
-      </div>
-      ${P.state === "reward" ? pkWinHtml(P) : ""}
-      ${P.state === "over" ? pkLoseHtml(P) : ""}
-    </div>`;
-  },
-  /* ---------- la cache ---------- */
-  shopView(P){
-    const lic = P.shop.licence ? LICENCES.find(l=>l.id === P.shop.licence.id) : null;
-    const buyBtn = (cost, act, i) => `<button class="pk2-price ${P.octets >= cost ? "" : "no"}" data-act="${act}" ${i !== undefined ? `data-i="${i}"` : ""} ${P.octets >= cost ? "" : "disabled"}>${ic("coin")}${cost}</button>`;
-    return `<div class="pk2 shop">
-      <div class="pk2-bhead"><div><small>${esc(pkStageLabel())}</small><b>La cache d'échange</b></div>
-        <span class="pk2-oct">${ic("coin")}<b>${P.octets}</b></span><button class="pk2-menu" data-act="pkmenu">${ic("grid")}</button></div>
-      <div class="pk2-keeper">${typeof pzFace === "function" ? pzFace("Happy", 44) : ""}<div class="pk2-say">« ${esc(["Tout est à vendre. Même ce qui ne devrait pas l'être.", "Des programmes tout frais, à peine décompilés.", "Ouvre un booster. On ne sait jamais ce qui dort dedans.", "Un conseil : l'ordre des programmes change tout."][(P.ante + P.blind) % 4])} »</div></div>
-      ${pkShelfHtml(P)}
-      <div class="tiny dim" style="margin:-2px 0 8px">${P.jokers.length}/${jokerSlots()} emplacements · touchez un programme pour le déplacer ou le revendre</div>
-      <div class="pk2-sh">PROGRAMMES</div>
-      <div class="pk2-row">${P.shop.jokers.length ? P.shop.jokers.map((o, i)=>{
-        const j = JOKERS.find(x=>x.id === o.id);
-        return `<div class="pk2-item">${pkJokerHtml({id:o.id}, i, {act:false})}
-          <div class="pk2-itd"><b>${esc(j.n)}</b><span>${esc(j.d)}</span>${j.evo ? `<em>Évolue : ${esc(j.evo.need + " " + j.evo.what)}</em>` : ""}</div>${buyBtn(o.cost, "pkbuyj", i)}</div>`;
-      }).join("") : `<div class="empty">Stock épuisé.</div>`}</div>
-      <div class="pk2-sh">BOOSTERS</div>
-      <div class="pk2-packs">${P.shop.boosters.length ? P.shop.boosters.map((o, i)=>{
-        const b = BOOSTERS.find(x=>x.id === o.id), art = {b_index:25, b_evo:3, b_type:131, b_chroma:6, b_herit:150}[b.id] || 25;
-        return `<div class="pk2-packi k-${b.id}"><div class="pk2-foil sm">${sprBox(art, b.id === "b_chroma", 54)}<b>${esc(b.n.replace("Booster ", ""))}</b></div>
-          <div class="pk2-itd"><span>${esc(b.d)}</span></div>${buyBtn(o.cost, "pkbuyb", i)}</div>`;
-      }).join("") : `<div class="empty">Stock épuisé.</div>`}</div>
-      ${P.shop.consum ? (()=>{
-        const o = P.shop.consum, def = o.kind === "planet" ? PLANETS.find(x=>x.id === o.id) : SPECTRALS.find(x=>x.id === o.id);
-        const lv = o.kind === "planet" ? (P.levels[def.hand] || 0) : 0;
-        const desc = o.kind === "planet" ? `${HANDS_BY_ID[def.hand].n} passe au niveau ${lv + 2}` : def.d;
-        return `<div class="pk2-sh">${o.kind === "planet" ? "ORBE" : "SPECTRE"}</div>
-          <div class="pk2-item ${o.kind}"><span class="pk2-orb ${o.kind}"><i></i></span><div class="pk2-itd"><b>${esc(def.n)}</b><span>${esc(desc)}</span></div>${buyBtn(o.cost, "pkbuycon")}</div>`;
-      })() : ""}
-      ${lic ? `<div class="pk2-sh">LICENCE</div>
-        <div class="pk2-item lic"><span class="pk2-ticket">${ic("star")}</span><div class="pk2-itd"><b>${esc(lic.n)}</b><span>${esc(lic.d)} Pour toute la partie.</span></div>${buyBtn(lic.cost, "pkbuylic")}</div>` : ""}
-      <div class="pk2-acts">
-        <button class="pk2-btn ghost" data-act="pkreroll" ${P.octets >= P.shop.rerollCost ? "" : "disabled"}>Relancer<small>${ic("coin")} ${P.shop.rerollCost}</small></button>
-        <button class="pk2-btn blue" data-act="pknext">Verrou suivant ${ic("arrow")}</button>
-      </div>
-      <button class="btn ghost wide sm" style="margin-top:8px" data-act="pkdeck">Consulter le deck (${P.deck.length})</button>
-    </div>`;
-  },
-  after(){
-    const P = S.poker;
-    if(P && P.state === "play" && !RESOLVE) pkRenderLive();
-    /* la distribution ne se joue qu'une fois */
-    if(P && P.fresh && P.fresh.length) setTimeout(()=>{ if(S.poker) S.poker.fresh = []; }, 50);
-    if(P && P.washed){ const w = P.washed; P.washed = null; toast("Torrent : " + w.map(id=>POKE[id].name).join(" et ") + " emportés", "bad", "bolt"); }
-    /* une évolution attend que la victoire soit encaissée : elle se joue à la table ou à la cache */
-    if(P && P.evoQ && P.evoQ.length && (P.state === "play" || P.state === "shop" || P.state === "blind")) setTimeout(pkEvoShow, 350);
-  }
-};
+      ${this.jokerRow(P)}
 
-/* le score requis d'un verrou, avant d'y entrer (même calcul que pkStartRound) */
-function pkTargetPreview(P, b, o){
-  const st = pkStage(), f = (o && o.rule && o.rule.f) || {};
-  let base;
-  if(st === "elite") base = Math.round(anteTarget(9, 2) * (1 + (P.eliteIdx || 0) * 0.45) * (f.target || 1));
-  else if(st === "champion") base = Math.round(anteTarget(9, 2) * 3.4 * (f.target || 1));
-  else base = anteTarget(P.ante, b, b === 2 ? {f} : null);
-  return Math.round(base * (b === P.blind ? (P.discount || 1) : 1) * (typeof pkDeckTargetMul === "function" ? pkDeckTargetMul(P) : 1));
-}
-/* le choix du deck, sous le bouton de lancement */
-function pkDeckPicker(){
-  if(typeof PK_DECKS === "undefined") return "";
-  const cur = pkDeckOpen(S.pokerMeta.deck || "std") ? (S.pokerMeta.deck || "std") : "std";
-  return `<div class="pk2-sh">DECK</div>
-    <div class="pk-decks">${PK_DECKS.map(d=>{
-      const open = pkDeckOpen(d.id), t = d.card ? cardTier(d.card) : 0;
-      return `<button class="pk-deck ${cur === d.id ? "on" : ""} ${open ? "" : "locked"}" data-act="pkdecksel" data-id="${d.id}">
-        <span class="pkd-art">${d.card ? (open ? sprite(d.card, false, "") : `<span class="monunknown">?</span>`) : ic("cards")}</span>
-        <span class="grow"><b>${esc(d.n)}</b>${t ? ` <i class="cpw-t t${t}">${TIER_NAMES[t]}</i>` : ""}
-          <small>${open ? esc(pkDeckDesc(d)) : "Fermé · s'ouvre avec une carte de " + esc(d.card && monFound(d.card) ? POKE[d.card].name : "légendaire") + "."}</small></span>
-      </button>`;}).join("")}</div>`;
-}
-/* la Programmathèque : tous les programmes, ceux qu'on a vus, ceux qui restent à découvrir */
-ACTIONS.pkdex = () => {
-  if(S.poker) S.poker.jokers.forEach(j=>pkSeen(j.id));
-  const seen = (S.pokerMeta && S.pokerMeta.seenJ) || [];
-  const all = JOKERS.filter(j=>typeof jokerAvail !== "function" || jokerAvail(j) || seen.includes(j.id));
-  sheet(`${sheetHead(`Programmathèque — ${all.filter(j=>seen.includes(j.id)).length} / ${all.length}`)}
-    <div class="tiny muted" style="margin-bottom:9px">Chaque programme vu en cache s'inscrit ici. Les formes évoluées ne se trouvent qu'en faisant évoluer leur programme.</div>
-    <div class="pk2-dex">${all.map(j=>{ const on = seen.includes(j.id);
-      return `<div class="pk2-dexi ${on ? "" : "unk"}">${on ? pkJokerHtml({id:j.id}, 0, {act:false}) : `<div class="pkj r${j.rar}"><span class="pkj-art"><span class="monunknown">?</span></span><span class="pkj-nm">???</span></div>`}
-        <div><b>${on ? esc(j.n) : j.evoOnly ? "Forme évoluée" : "Inconnu"}</b><span>${on ? esc(j.d) : RAR_NAME[j.rar]}</span></div></div>`; }).join("")}</div>`);
+      <div class="pk-felt" id="poker-felt">
+        <div class="score-line big" id="pk-score-line">${pkScoreLineHtml(null)}</div>
+      </div>
+
+      <div class="handinfo">
+        <span>Mains <b class="cy">${P.handsLeft}</b></span>
+        <span>Défausses <b class="gold-t">${P.discardsLeft}</b></span>
+        <span>Pioche <b>${P.draw.length}</b></span>
+      </div>
+      <div id="hand" class="grid ${P.hand.length > 8 ? "g5" : ""} ${resolving?"resolving":""}">
+        ${P.hand.map(c=>{
+          const inPlay = resolving && shown.includes(c.u);
+          const dim = resolving && !inPlay;
+          return pkCardHtml(c, inPlay, `data-u="${c.u}"${resolving?"":' data-act="pkcard"'}`,
+            false, dim ? "dimmed" : "");
+        }).join("")}
+      </div>
+      <div class="pk-actions">
+        ${resolving
+          ? `<button class="btn wide ghost" data-act="pkskipres">Passer l'animation</button>`
+          : `<button class="btn" id="pk-disc" data-act="pkdiscard" ${P.sel.length&&P.discardsLeft>0?"":"disabled"}>
+               Défausser</button>
+             <button class="btn pri" id="pk-play" data-act="pkplay" ${P.sel.length&&P.handsLeft>0?"":"disabled"}>
+               Jouer la main</button>`}
+      </div>
+    </div>`;
+  },
+  shopView(P){
+    const lic = P.shop.licence ? LICENCES.find(l=>l.id===P.shop.licence.id) : null;
+    return `
+      <div class="row between"><div class="h" style="margin:0">ARCHIVE D'ÉCHANGE</div>
+        <span class="pill">${ic("coin")} ${P.octets} Octets</span></div>
+      ${badgeRow()}
+      ${this.jokerRow(P)}
+      <div class="tiny dim" style="margin:5px 0 9px">${P.jokers.length}/${jokerSlots()} emplacements utilisés</div>
+
+      <div class="h sm">PROGRAMMES</div>
+      <div class="list">
+        ${P.shop.jokers.length ? P.shop.jokers.map((o,i)=>{
+          const j = JOKERS.find(x=>x.id===o.id);
+          return `<div class="shopitem">
+            <span class="sprbox" style="width:38px;height:38px">${sprite(j.spr,false,"")}</span>
+            <div class="grow"><div>${esc(j.n)}
+              <span class="tt rar r${j.rar}" style="--rc:${RARITY[j.rar].c}">
+                ${"◆".repeat(j.rar+1)} ${RAR_NAME[j.rar]}</span></div>
+              <div class="tiny muted">${esc(j.d)}</div></div>
+            <button class="btn sm ${P.octets>=o.cost?"gold":""}" data-act="pkbuyj" data-i="${i}"
+              ${P.octets>=o.cost?"":"disabled"}>${o.cost}</button></div>`;}).join("")
+          : `<div class="empty">Stock épuisé.</div>`}
+      </div>
+
+      <div class="h sm" style="margin-top:11px">BOOSTERS</div>
+      <div class="list">
+        ${P.shop.boosters.length ? P.shop.boosters.map((o,i)=>{
+          const b = BOOSTERS.find(x=>x.id===o.id);
+          return `<div class="shopitem"><div class="ic">${ic("chest")}</div>
+            <div class="grow"><div>${esc(b.n)}</div><div class="tiny muted">${esc(b.d)}</div></div>
+            <button class="btn sm ${P.octets>=o.cost?"gold":""}" data-act="pkbuyb" data-i="${i}"
+              ${P.octets>=o.cost?"":"disabled"}>${o.cost}</button></div>`;}).join("")
+          : `<div class="empty">Stock épuisé.</div>`}
+      </div>
+
+      ${P.shop.consum ? (()=>{
+        const o = P.shop.consum;
+        const def = o.kind === "planet" ? PLANETS.find(x=>x.id===o.id) : SPECTRALS.find(x=>x.id===o.id);
+        const lv = o.kind === "planet" ? (P.levels[def.hand]||0) : 0;
+        const desc = o.kind === "planet"
+          ? `${HANDS_BY_ID[def.hand].n} passe au niveau ${lv+2}`
+          : def.d;
+        return `<div class="h sm" style="margin-top:11px">${o.kind==="planet"?"PLANÈTE":"SPECTRE"}</div>
+          <div class="shopitem ${o.kind==="spectral"?"spectral":"planet"}">
+            <div class="ic">${ic(o.kind==="planet"?"core":"shard2")}</div>
+            <div class="grow"><div>${esc(def.n)}</div><div class="tiny muted">${esc(desc)}</div></div>
+            <button class="btn sm ${P.octets>=o.cost?"gold":""}" data-act="pkbuycon"
+              ${P.octets>=o.cost?"":"disabled"}>${o.cost}</button></div>`;
+      })() : ""}
+      ${lic?`<div class="h sm" style="margin-top:11px">LICENCE</div>
+        <div class="shopitem"><div class="ic">${ic("star")}</div>
+          <div class="grow"><div>${esc(lic.n)}</div><div class="tiny muted">${esc(lic.d)}</div>
+            <div class="tiny dim">Amélioration permanente pour toute la partie.</div></div>
+          <button class="btn sm ${P.octets>=lic.cost?"gold":""}" data-act="pkbuylic"
+            ${P.octets>=lic.cost?"":"disabled"}>${lic.cost}</button></div>`:""}
+
+      <div class="btn-grid c2" style="margin-top:11px">
+        <button class="btn" data-act="pkreroll" ${P.octets>=P.shop.rerollCost?"":"disabled"}>
+          ${ic("refresh")} Relancer (${P.shop.rerollCost})</button>
+        <button class="btn pri" data-act="pknext">Verrou suivant</button>
+      </div>
+      <button class="btn ghost wide sm" style="margin-top:7px" data-act="pkdeck">Consulter le deck (${P.deck.length})</button>`;
+  },
+  jokerRow(P){
+    const slots = jokerSlots();
+    const cells = [];
+    for(let i=0;i<slots;i++){
+      const j = P.jokers[i];
+      if(j){
+        const def = jokerDef(j);
+        cells.push(`<div class="joker jr${def.rar}" data-i="${i}" data-act="pkjinfo">
+          <span class="jrar">${"◆".repeat(def.rar+1)}</span>
+          <span class="sprbox" style="width:28px;height:28px">${sprite(def.spr,false,"")}</span>
+          <div class="jn">${esc(def.n)}</div></div>`);
+      } else cells.push(`<div class="slot-empty">+</div>`);
+    }
+    return `<div id="jokers">${cells.join("")}</div>`;
+  },
+  after(){ if(S.poker && S.poker.state === "play" && !RESOLVE) pkRenderLive(); }
 };
 
 /* ===== 70-collection.js ===== */
@@ -35331,13 +34258,7 @@ const INFOS = {
     <p>· <b>Espèces identiques</b> — paire, brelan, carré.<br>
     · <b>Familles d'évolution</b> — duo, trio, lignée complète.<br>
     · <b>Types</b> — mono-type, duo-type, spectre complet.<br>
-    · <b>Suite Pokédex</b> — cinq numéros qui se suivent (les lignées se suivent dans le Pokédex).<br>
     · <b>Chromatiques</b> et <b>légendaires</b> — les combinaisons les plus riches.</p>
-    <p>Chaque verrou est tenu par un <b>dresseur</b> : l'objectif est sa jauge de PV, chaque main la fait fondre.
-    Au bout de chaque ante, un <b>Champion d'arène</b> impose sa règle (Défense Roc de Pierre, Torrent d'Ondine,
-    Paralysie de Major Bob…) et délivre son badge ; après les huit, le Conseil des Quatre puis le Champion.</p>
-    <p>Certains <b>programmes évoluent</b> à force d'être utilisés : Salamèche.exe devient Reptincel.exe puis
-    Dracaufeu.exe, Magicarpe.exe finit en Léviator.exe, Évoli.exe choisit sa forme selon votre jeu.</p>
     <p>Le score est <b class="cy">Jetons</b> × <b class="bad">Multiplicateur</b>. Les
     <b>programmes</b> s'empilent et transforment complètement une partie. Les <b>boosters</b>
     ajoutent à votre deck des espèces tirées de votre propre archive.</p>
@@ -35623,8 +34544,7 @@ const TUTOS = {
     {sel:"#screen", t:"Les données rares ne se rangent pas au hasard : elles se regroupent par motifs. Espèces identiques, familles, types."},
     {sel:"#hand", t:"Ce deck n'a ni couleur ni rang. Ce sont des Pokémon : espèces identiques, familles d'évolution, types, chromatiques."},
     {sel:"#pk-score-line", t:"Chaque motif reconnu stabilise une portion de couche. Jetons multipliés par Multiplicateur : les deux se travaillent séparément."},
-    {sel:"#jokers", t:"Les programmes s'empilent ici, de gauche à droite. Ce sont eux qui font les grosses parties, pas les cartes."},
-    {sel:".pk2-bl", t:"Chaque verrou est tenu par un dresseur : sa jauge de PV, c'est ton objectif. Au bout de l'ante, un Champion d'arène t'attend avec sa règle."}
+    {sel:"#jokers", t:"Les programmes s'empilent ici, de gauche à droite. Ce sont eux qui font les grosses parties, pas les cartes."}
   ]},
   dex:{steps:[
     {sel:".ring", t:"L'archive, secteur par secteur. Chaque ligne restaurée rend les lignes voisines plus stables — je ne sais toujours pas modéliser pourquoi."},
@@ -37946,7 +36866,6 @@ const MUSIC_TRACKS = {
   combat_boss:    {loop:1, n:"Combat de boss", d:"Champion, élite, noyau, gardiens.", fb:"combat"},
   legendaire:     {loop:1, n:"Légendaire", d:"Rencontre ou combat contre un légendaire, raid mondial.", fb:"combat_boss"},
   monde:          {loop:1, n:"Le Monde", d:"La carte du monde à restaurer.", fb:"accueil"},
-  rival:          {loop:1, n:"Rival", d:"Un archiviste rival vous défie : l'écran de rencontre.", fb:"combat_boss"},
   /* jingles (une fois) */
   j_victoire:     {n:"Victoire", d:"Fin d'un combat gagné (3 à 6 s)."},
   j_defaite:      {n:"Défaite", d:"Combat perdu (2 à 4 s)."},
