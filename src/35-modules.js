@@ -210,6 +210,7 @@ ACTIONS.openbox = () => {
   step();
 };
 function finishBox(id, shiny, lvl){
+  DEX_HOW = "box";
   const isNew = addToDex(id, lvl, shiny);
   addIntegrity(RARITY[POKE[id].rar].integ * (isNew?0.85:0.04));
   gain("coins", 150 + S.level*25);
@@ -252,7 +253,7 @@ SCREENS.daily = {
 
       <div class="h sm">QUÊTES DU JOUR</div>
       <div class="list">
-        ${(S.quests||[]).map((q,i)=>`
+        ${(S.quests||[]).map((q,i)=>[q,i]).sort((x,y)=>(y[0].pz?1:0)-(x[0].pz?1:0)).map(([q,i])=>q.pz && typeof pzAskRowHtml === "function" ? pzAskRowHtml(q, i) : `
           <div class="quest ${q.prog>=q.goal?"done":""}">
             <div class="grow">
               <div class="q-t">${esc(q.n)}</div>
@@ -323,6 +324,7 @@ function showOfflineReport(){
       </div>
       ${r.capped ? `<div class="tiny" style="margin-top:9px;color:var(--amber)">
         Ton équipe s'est arrêtée au bout de ${offlineHours()} h. « Plus de fouilles en attente » rallonge ce temps.</div>` : ""}
+      ${typeof storyRecapHtml === "function" ? storyRecapHtml(r.away) : ""}
       <button class="btn pri wide" style="margin-top:12px" data-act="closeandrefresh">Récupérer</button>
     </div>`, true);
   return true;

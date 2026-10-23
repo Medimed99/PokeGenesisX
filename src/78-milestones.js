@@ -228,7 +228,7 @@ function weekStamp(){
   const d = new Date();
   const day = (d.getDay() + 6) % 7;                  /* lundi = 0 */
   d.setDate(d.getDate() - day);
-  return d.toISOString().slice(0, 10);
+  return localYmd(d);
 }
 function reportSnapshot(){
   return {

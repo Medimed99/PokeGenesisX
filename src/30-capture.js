@@ -148,8 +148,10 @@ function newEncounter(force){
   else { rar = force?.rar ?? repelRarity(rollRarity()); id = force?.id ?? speciesForRarity(rar); rar = POKE[id].rar; }
   lureTick();
 
-  /* apparition rare de la faille */
-  const missChance = S.stats.catches > 60 && !S.flags.sawMissing ? 0.018 : 0.0016;
+  /* apparition rare de la faille. La première rencontre est la découverte du mythe :
+     elle ne peut pas être laissée au hasard — passé un seuil, elle vient forcément */
+  const missChance = !S.flags.sawMissing
+    ? (S.stats.catches >= 90 || S.bosses.length >= 1 ? 0.3 : S.stats.catches > 60 ? 0.018 : 0.0016) : 0.0016;
   if(!force && S.stats.catches > 40 && rng() < missChance){
     ENC = {id:0, level:0, shiny:false, rar:5, missing:true, attempts:0};
     S.shinyCharge = Math.max(0, S.shinyCharge-1);
@@ -381,7 +383,9 @@ function onCatch(ballKey){
   if(wasPerfect && S.dex[ENC.id] && !S.dex[ENC.id].perfect){
     S.dex[ENC.id].perfect = true;
     S.stats.perfects = (S.stats.perfects || 0) + 1;
-    setTimeout(()=>toast(`${POKE[ENC.id].name} est un exemplaire intègre ◈`, "warn", "star"), 500);
+    /* le nom est lu tout de suite : une demi-seconde plus tard, la rencontre suivante a remplacé ENC */
+    const perfName = POKE[ENC.id].name;
+    setTimeout(()=>toast(`${perfName} est un exemplaire intègre ◈`, "warn", "star"), 500);
   }
   researchTick(ENC.id, "catch", 1);
   rodDiscoveryTick();
@@ -432,6 +436,8 @@ function onCatch(ballKey){
   S.failStreak = 0;
   if(S.streak > S.stats.bestStreak) S.stats.bestStreak = S.streak;
   S.stats.catches++;
+  /* le premier Pokémon de la connexion : les pages diront que c'est toujours le même */
+  if(isNew && !S.flags.firstMon) S.flags.firstMon = ENC.id;
   if(ENC.shiny) S.stats.shinies++;
   S.daily.dayCatch++; questTick("dayCatch",1);
   questSet("dayStreak", S.streak);
@@ -516,6 +522,8 @@ function resolveMissing(ballKey){
     ENC = null; busy = false;
     gain("shards", 25); gain("cores", 1);
     toast("Fragments arrachés à la faille : +25", "warn", "shard");
+    /* la première fois, c'est la découverte du mythe ; ensuite seulement, il apprend */
+    if(!(S.story || []).includes("missingno_1")){ save(); if(!checkStoryTriggers()){ nextEncounter(); refresh(); } return; }
     if(riftTick()){ save(); return; }
     /* effet de bord historique : la faille recopie une ligne du sac */
     const g6 = glitchSixthItem();
@@ -679,6 +687,8 @@ function showCatchResult(c, rw){
       </div>
       <button class="btn pri wide" data-act="nextenc">Rencontre suivante</button>
     </div>`, true);
+  /* le temps de lire sa capture : les annonces attendent qu'on passe à la suivante */
+  try { const sh = document.querySelector("#sheet-root .sheet"); if(sh) sh.classList.add("catchres"); } catch(e){}
 }
 ACTIONS.nextenc = () => { closeSheet(); if(!checkStoryTriggers()){ nextEncounter(); refresh(); } };
 

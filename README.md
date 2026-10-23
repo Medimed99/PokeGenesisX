@@ -17,11 +17,14 @@ Les sources sont modulaires et concaténées dans cet ordre par `build.py` :
 | `src/_atlas.js` | Atlas PNG des 387 sprites, encodé en base64 et embarqué dans le fichier |
 | `src/00-slugs.js` | Identifiants anglais des espèces (réservés à l'enrichissement animé) |
 | `src/01-data.js` | Table des types, raretés, objets, attaques, succès, cosmétiques, quêtes, programmes (jokers), événements |
-| `src/02-story.js` | 17 scènes narratives, arc de Porygon-Z, réactions contextuelles |
+| `src/02-story.js` | 38 scènes en cinq actes, chaîne principale (`MAIN_ARC`), souvenirs de Porygon-Z, jetons du nom et des connexions (`pzFmt`), réactions contextuelles |
 | `src/10-core.js` | État, sauvegarde résiliente, économie, niveaux, intégrité, quêtes, succès |
 | `src/15-fx.js` | Particules, nombres flottants, montée de niveau, impulsions de la jauge |
 | `src/20-ui.js` | Icônes SVG, routeur d'écrans, modales, toasts, lecteur narratif, déclencheurs de récit |
 | `src/30-capture.js` | Rencontres, formule de capture, séries, chromatiques, vedette du jour |
+| `src/30c-onze.js` | Les Pokémon des onze : onze Pokémon surnommés par les archivistes d'avant, qui reviennent dans les rencontres une fois leur page trouvée |
+| `src/55h-histoire.js` | Ton équipe a une histoire : arrivée (quand, comment), combats, K.O., fins tenues presque à zéro, meilleur de l'équipe ; elle suit l'évolution ; Porygon-Z remarque les caps |
+| `src/39p-demandes.js` | Porygon-Z te demande quelque chose : une des quêtes du jour devient sa demande, exaucée d'elle-même, rappelée le lendemain |
 | `src/35-modules.js` | Hub, PokéBox, Pêche, Énergie Onirique (idle), journal quotidien |
 | `src/40-battle.js` | Moteur de combat partagé, sélecteur d'équipe, Data Guardians |
 | `src/50-expedition.js` | Roguelike à embranchements, reliques, événements, boutique de run |
@@ -35,7 +38,12 @@ Les sources sont modulaires et concaténées dans cet ordre par `build.py` :
 | `src/78-milestones.js` | Paliers de secteur, contrats, bonus de première victoire quotidienne |
 | `src/80-guide.js` | Tutoriels à projecteur, fiches d'information, directives, événements de Porygon-Z |
 | `src/95-online.js` | Client REST Supabase : authentification, sauvegarde distante, classements, échanges |
-| `src/85-journal.js` | Journal des scènes, crédits, Nouveau Cycle et avantages permanents |
+| `src/36-lore.js` | Les onze pages de journal (une par connexion passée) et l'arc de la faille |
+| `src/37-cine.js` | Moteur de cinématiques, ouverture, mise en scène automatique des scènes, souvenirs, silhouette, nom en octets |
+| `src/85-journal.js` | Journal des scènes par actes, crédits, Nouveau Cycle et avantages permanents |
+| `src/86-saga.js` | La saga : connexions, `choses_formidables.txt`, mémoire de Porygon-Z, Couche Zéro, entrée n° 387, générique |
+| `src/87-finale.js` | La fin : combat contre MissingNo, révélation, question (effacer ou écrire), écho ; les échos de tes réponses |
+| `src/88-share-mn.js` | La carte-image « entrée n° 000 » (1080 × 1350) : partage natif, enregistrement, Journal |
 | `src/90-admin.js` | Panneau de test (monnaies, niveaux, Pokédex, verrous, scènes, simulation de jour) |
 | `src/99-boot.js` | Écran de boot, boucles, cycle de vie, PWA, notifications |
 
@@ -49,10 +57,46 @@ Les sources sont modulaires et concaténées dans cet ordre par `build.py` :
     node smoke.js             # rendu de tous les écrans + parties simulées
     node battletest.js        # 200+ combats menés à terme (blocages, erreurs)
     node admintest.js         # atlas + chaque action du panneau de test
-    node pacing.js            # rythme des premières minutes, médiane sur 25 parties simulées
+    node pacing.js            # rythme des premières heures et des premières étapes du récit, médiane sur 25 parties
     node nettest.js           # couche en ligne, contre un serveur Supabase simulé
     node econ.js              # économie de capture, séries et taux par rareté
     node expsim.js            # difficulté de l'expédition, par type de nœud
+    node script.js            # exporte le texte intégral du récit vers SCRIPT.md
+
+## Le récit
+
+Un jeu Pokémon qui bugue, un programme d'entretien — Porygon-Z — qui devient le seul ami de l'Archiviste,
+un mythe qui ronge le monde — MissingNo — et des pages de journal laissées par d'autres archivistes. Porygon-Z
+retrouve la mémoire avec l'intégrité et avoue que les onze autres sont allés au bout, et ont **choisi** de tout
+effacer. Au fond de la Couche Zéro, MissingNo vaincu se lit : c'est **le nom du joueur**. Les onze, c'était lui ;
+il effaçait pour ne pas perdre Porygon-Z, que le système décharge à 100 %. Cette fois, il se souvient de tout,
+et une autre ligne apparaît : **écrire** Porygon-Z dans le Pokédex, à l'entrée n° 387.
+
+- **`RECIT.md`** — la bible : les retournements, les voix, la chaîne principale scène par scène, les pages,
+  la faille, la Couche Zéro (conditions, combat, équilibrage), la révélation, les deux réponses, les cycles.
+- **Les cinq questions** (`STORY_Q`, `02-story.js`) : au bout de cinq souvenirs, Porygon-Z pose une question,
+  on répond d'un toucher. Aucune n'est pénalisée ; il s'en souvient à la révélation, à la question finale,
+  dans l'épilogue et au générique (RECIT.md, 4.4). « Passer » file jusqu'à une question sans réponse.
+  Une ligne de scène `{q:"mem1"}` pose la question ; `{when:"mem1:pret", …}` réserve une réplique à une réponse ;
+  dans une cinématique écrite à la main, `fnEcho(q, {réponse: texte})` (87).
+- **Les Pokémon des onze** (`30c-onze.js`, RECIT.md 5 bis) : un Pokémon surnommé par archiviste d'avant, qui revient
+  dans une rencontre ordinaire une fois sa page trouvée ; surnom gardé au Pokédex et dans l'équipe ; nommés à la révélation.
+- **Ton équipe a une histoire** (`55h-histoire.js`) : chaque Pokémon garde la sienne (`S.dex[id].h`), lisible au Pokédex
+  (« Arrivé le 1er octobre : capturé dans les Routes ouvertes, à Kanto, en Salamèche. 10 combats · 9 victoires · 26 K.O. »).
+  Les chemins d'arrivée autres que la capture posent `DEX_HOW` juste avant `addToDex` (œuf, PokéBox, Forage, verrou,
+  Brèche, achat, évolution). Les combats s'inscrivent par deux crochets : `sqStrike`/`sqFinish` (Tour, verrous, fin)
+  et `handleKO`/`finishBattle` (combats au tour par tour). Porygon-Z dit au plus un cap par combat (dixième, cinquantième,
+  centième combat ; première fin tenue presque à zéro ; cent K.O.) ; le générique nomme « le plus fidèle ».
+- **Porygon-Z te demande quelque chose** (`39p-demandes.js`) : chaque jour, une quête facile devient une demande dans sa
+  voix (une espèce que tu connais déjà, trois Pokémon d'un type, d'un habitat ouvert, un lancer Excellent, une évolution…),
+  toujours faisable avec ce qui est ouvert. Exaucée, elle se règle d'elle-même et il répond ; le lendemain, il y revient
+  (« Le Psykokwak d'hier a toujours mal à la tête. J'ai vérifié ce matin. »). Il compte les oui (10, 30, 100) ; le générique
+  et la fin d'EFFACER s'en souviennent. Visible sur l'accueil et en tête des quêtes du jour.
+- **Ton entrée n° 000** (`88-share-mn.js`) : proposée une fois après la réponse finale, puis dans le Journal.
+- **Effets réduits** (Réglages, et une ligne au premier écran) : plus de flash plein écran, de secousse, de
+  clignotement rapide ni de bande inversée ; un fondu doux à la place. Actif d'office si le téléphone demande
+  moins d'animations. `calmFx()` / `applyCalm()` (10-core), classe `body.calm`.
+- **`SCRIPT.md`** — le texte intégral, généré depuis le code : `node script.js`.
 
 ## Mise en scène des illustrations
 
@@ -251,7 +295,9 @@ recrues à choisir — en version immersive. Première pierre : l'arène.
 
 ## Les pages des onze (`36-lore.js`)
 
-Les pages de journal des archivistes précédents ne surgissent plus d'elles-mêmes : elles se **trouvent là où
+Une page par **connexion passée** (01 à 11), signée d'un nom illisible — autant de signes que le nom du joueur —
+jusqu'à la révélation, où elles se signent de son nom. Porygon-Z se tait sur les pages tant qu'il n'a pas fait
+son premier aveu (`pz_mem3`). Les pages de journal des archivistes précédents ne surgissent plus d'elles-mêmes : elles se **trouvent là où
 leur auteur a travaillé** (`FRAG_META` : au fond d'une Ball à la capture, dans une paroi du Forage, au bout
 d'une Expédition, au sommet d'une aile de la Tour, au bord de la faille dans la Brèche). Si la salle n'est pas
 ouverte, ou après 80 captures d'attente, la page tombe dans les captures. Toujours dans l'ordre (`fragNext`).
@@ -714,22 +760,62 @@ des légendaires restent cachés, comme leurs noms dans la collection.
 
 Le profil est visible **en miniature dans l'en-tête de tous les écrans**, avec cadre, fond et effet.
 
-## Poké-Poker — écran pour le pouce
+## Poké-Poker — la salle de jeux (`60-poker.js`, `61-poker-content.js`, `62-poker-table.js`)
 
-Tout tenait dans le haut de l'écran et laissait le bas vide ; la main de huit cartes défilait de côté
-et se coupait ; « Abandonner » voisinait avec « Jouer ». L'écran est désormais une colonne qui occupe
-toute la hauteur : l'état de la manche en haut, **le tapis au centre** (le calcul jetons × multiplicateur
-en grand, qui prend tout l'espace libre), la main en **deux rangées de quatre**, puis les actions sous le
-pouce — « Jouer la main » plus large que « Défausser ». Combinaisons, Deck et Abandonner passent dans un
-menu. Le choix du verrou suit la même grammaire.
+Refondu au retour « pas assez attrayant, même constat qu'avant la refonte de la Brèche ».
 
-Mesuré dans Chromium sur trois formats (`tools/measure.py`) : aucun chevauchement ; tout tient à l'écran
-en 390 × 844 et 412 × 915 ; sur écran court, un léger défilement, rien de masqué.
+**La table** (`62`). En haut, l'**adversaire** : son portrait de dresseur, son nom, et une **jauge de PV**
+qui est l'objectif de la manche — chaque main la fait fondre comme une attaque, le portrait sursaute,
+le dresseur tombe K.O. Sous lui, la **règle** du Champion quand il y en a une. Les **programmes** sont des
+cartes sur une étagère (bordure de rareté, sprite, barre d'évolution, « Zzz » sous Poudre Dodo). Le
+**tapis** : un feutre vert, Jetons (bleu) × Mult (rouge) en grandes plaques qui s'embrasent quand la main
+suffit à gagner. Les **cartes** sont de vraies cartes Pokémon : cadre aux couleurs du type, numéro du
+Pokédex, Jetons en médaillon, feuille holographique pour les chromatiques, dorure, verre, corruption ; la
+main s'ouvre **en éventail** et se **distribue** depuis le deck ; on la trie par famille, type, valeur ou
+numéro. À la **résolution**, les cartes jouées montent sur le tapis, chacune sursaute et lâche ses Jetons,
+les programmes s'allument un à un, puis le total **frappe l'adversaire**. **Victoire** : sa réplique de
+défaite, et les Octets qui tombent ligne par ligne (verrou, mains restantes, programmes, intérêts).
+**Défaite** : sa scène aussi. La **cache** : programmes en vitrine, **boosters qu'on ouvre** (le paquet
+tremble, se déchire, les cartes se retournent), orbes, spectres, licences en tickets. La **salle** : enseigne
+au néon, cartes en éventail, vitrine des Champions battus.
 
-**Deux scènes** au moteur de cinématiques : le **badge** (le joyau se reconstruit, l'annonce système,
-Porygon-Z) et la **main secrète**, jouée une seule fois pour toute la sauvegarde (glitch, les Pokémon de
-la main, le titre en grand). Le moteur gagne une **file d'attente** — une main secrète qui gagne la manche
-enchaîne sur le badge au lieu de le couper — et un acteur **emblème**.
+**Le contenu** (`61`).
+- **Des adversaires** : 22 classes de dresseurs (Gamin, Jongleur, Cambrioleur, Médium, Topdresseuse…) avec
+  leurs répliques, de plus en plus aguerris au fil des antes, tirés de façon stable dans une partie.
+- **Un Champion d'arène de Kanto au bout de chaque ante**, avec une règle à son image : Pierre (*Défense
+  Roc* : hors Roche et Sol, moitié des Jetons), Ondine (*Torrent* : deux cartes emportées après chaque main),
+  Major Bob (*Paralysie* : une carte sur quatre injouable), Érika (*Poudre Dodo* : le premier programme dort),
+  Koga (*Toxik* : −1 Mult de base à chaque main), Morgane (*Prémonition* : cartes face cachée), Auguste
+  (*Fournaise* : pas de défausse, une main de plus), Giovanni (*La Maison gagne toujours* : +60 % à atteindre,
+  un Octet par main). Puis le **Conseil des Quatre** — Olga (*Gel*), Aldo (*Force brute*), Agatha
+  (*Malédiction*), Peter (*Colère* : chaque main doit battre la précédente) — et **Régis, Champion de la
+  Couche**, qui cumule deux de leurs règles. Les règles se lisent avant d'entrer.
+- **La Suite Pokédex** : cinq numéros consécutifs (les lignées se suivent dans le Pokédex), et son orbe.
+- **34 programmes de plus** : treize aux couleurs de leur Pokémon (Ronflex · Repos, Métamorph · Morphing,
+  Porygon · Raccourci qui forme Mono-Type et Suite à quatre cartes, Pikachu · Statik…) et **sept lignées
+  qui évoluent** à force de servir : Salamèche.exe → Reptincel.exe → Dracaufeu.exe (cartes Feu marquées),
+  Bulbizarre, Carapuce, Abra, Fantominus, **Magicarpe.exe** (inutile… jusqu'à Léviator.exe, ×3 Mult) et
+  **Évoli.exe**, qui devient Pyroli, Aquali ou Voltali selon le type que vous jouez le plus. Les formes
+  évoluées ne sont jamais en vente ; l'évolution a sa scène.
+- **D'une partie à l'autre** : la **vitrine des Champions** (première victoire contre chacun : un bonus de
+  PokéCoins) et la **Programmathèque** des programmes déjà croisés.
+
+Testé : chaque ante tombe sur son Champion, la Suite se forme, un programme évolue (et n'est jamais en
+vente sous sa forme évoluée), Paralysie, Torrent et Fournaise font ce qu'elles disent ; la partie simulée
+de 40 manches et toutes les règles s'évaluent sans valeur invalide.
+
+## Dresseurs rémanents (`39r-rival.js`)
+
+Un dresseur rémanent — un dresseur du jeu d'origine resté coincé dans son secteur — surgit, rarement, après une
+capture (ce ne sont plus des « archivistes » : dans le récit, tous les archivistes étaient le joueur). La rencontre se joue désormais comme dans les jeux
+d'origine : un « ! », la **transition en bandes noires**, puis l'**écran VS** — le rival entre par la droite
+en silhouette puis en couleurs, votre Pokémon de tête par la gauche, lignes de vitesse aux couleurs de ses
+types, VS qui frappe, ses trois Poké Balls (l'as en Hyper Ball) — sa réplique lettre par lettre, puis le
+choix, avec les gains annoncés. Relever le défi ferme l'écran en **iris de Poké Ball**. Au retour, le
+**verdict** : le rival vaincu chancelle, les gains apparaissent, le titre se dévoile. Chaque rival a son
+portrait, son **as** (Lokhlass, Florizarre, Magnéton, Arcanin, Ectoplasma, Dracolosse), trois répliques
+d'entrée selon le nombre de rencontres, et **se souvient de vous** : chaque victoire le rend plus fort de
+deux niveaux et paie davantage (un Noyau à la troisième). Une ambiance musicale dédiée, `rival`, est prévue.
 
 ## Icônes d'objets
 
@@ -817,8 +903,8 @@ l'activation par mégarde, pas une sécurité : le code s'exécute chez le joueu
 
 ## Le metteur en scène
 
-Les 27 scènes du récit et les 6 étapes de la faille passent **toutes** par le moteur de cinématiques,
-sans avoir été réécrites. `directStory()` les met en scène selon des règles fixes :
+Les 38 scènes du récit et les 6 étapes de la faille passent **toutes** par le moteur de cinématiques.
+Celles qui n'ont pas de cinématique écrite à la main, `directStory()` les met en scène selon des règles fixes :
 
 - **l'univers** découle des voix : la faille si elle parle, le laboratoire si le professeur parle, le
   système sinon ;
@@ -826,11 +912,17 @@ sans avoir été réécrites. `directStory()` les met en scène selon des règle
   à gauche, Porygon-Z à droite quand ils partagent la scène) ;
 - **la faille prend corps** — MissingNo apparaît — à sa première réplique ;
 - **le système** parle en console neutre, et en rouge **seulement** pour une erreur ;
-- **les scènes majeures** ont bandes et carton-titre, les mineures restent sobres.
+- **les scènes majeures** ont bandes et carton-titre, les mineures restent sobres ;
+- **les souvenirs** (répliques marquées `mem`) passent au sépia, avec la silhouette de l'archiviste d'avant
+  et son nom masqué ; au retour, le présent reprend sa couleur.
+
+Temps propres à la fin : `choice` (une ligne à maintenir, avec ses branches), `montage` (cartons de plus en
+plus rapides), `name` (le nom du joueur en octets, relu comme l'espèce n° 000), `dex` (une entrée du Pokédex
+qui s'écrit), `credits` (le générique), `music` (une ambiance imposée le temps d'une scène), `call`.
 
 Les scènes clés reçoivent une **piste de direction** (`DIRECTION`) : des temps insérés avant une
-réplique donnée, ou en fin de scène. Le climax s'y termine dans le décor chaud du monde d'avant :
-le monde réparé ressemble à l'ouverture, avant la panne.
+réplique donnée, ou en fin de scène. Après avoir écrit, l'épilogue se joue dans le décor chaud du
+monde d'avant : le monde réparé ressemble à l'ouverture, avant la panne.
 
 Une scène écrite à la main (`CINEMAS`) prime toujours sur la mise en scène automatique.
 

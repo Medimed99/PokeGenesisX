@@ -203,6 +203,7 @@ ACTIONS.egghatch = d => {
   const id = pick(pool);
   const shiny = rng() < Math.min(0.35, shinyOdds() * t.shinyMul * 4);
   const lvl = levelFor(POKE[id].rar);
+  DEX_HOW = "oeuf";
   const isNew = addToDex(id, lvl, shiny);
   addIntegrity(RARITY[POKE[id].rar].integ * (isNew ? 0.85 : 0.04));
   gain("coins", 200 + POKE[id].bst);

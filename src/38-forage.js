@@ -408,6 +408,7 @@ function digClaim(wall){
     if(g.crate !== undefined && typeof crateRoll === "function"){ row.crate = crateRoll(g.crate, wall.si); row.crateTier = g.crate; }
     if(g.mon){
       const lv = Math.max(5, Math.round(10 + wall.si * 7 + rng() * 6));
+      DEX_HOW = "roche";
       row.isNew = addToDex(g.mon, lv, rng() < 1 / 400);
       row.label = POKE[g.mon].name + (row.isNew ? " — nouvelle espèce !" : "");
     }
@@ -904,7 +905,7 @@ function digGainText(g){
   if(g.egg) return g.egg.startsWith("f_") ? "Un fossile : il éclora à la couveuse" : "Un œuf pour la couveuse";
   if(g.held) return "Objet tenu";
   if(g.mon) return "Il rejoint ton Pokédex";
-  if(g.page) return "Rangée dans le dossier des onze, au journal";
+  if(g.page) return "Rangée dans le journal, avec les autres pages";
   return "";
 }
 ACTIONS.fowallback = () => { DIG = null; go("idle"); if(typeof checkStoryTriggers === "function") checkStoryTriggers(); };
@@ -990,6 +991,7 @@ ACTIONS.botclaim = () => {
   for(let i = 0; i < n; i++){
     const id = botSpecies();
     const sh = rng() < 1/1000;                 /* aucune aide de chaine : la session ne fait que capturer */
+    DEX_HOW = "absence";
     const isNew = addToDex(id, levelFor(POKE[id].rar), sh);
     if(isNew) fresh++;
     if(sh) shinies++;

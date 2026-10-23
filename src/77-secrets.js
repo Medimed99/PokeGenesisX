@@ -137,7 +137,7 @@ const NIGHT_LINES = [
   "Il est tard. Le système se défragmente à cette heure-ci, alors les raretés remontent. Profites-en. Je ne t'ai rien dit. Je chuchote, là.",
   "À cette heure, personne ne relit mes journaux. Alors je peux te le dire : je ne sais pas ce qui arrive à un programme qu'on décharge. J'aimerais que ce soit comme dormir.",
   "Tu devrais dormir, {nom}. Moi je ne peux pas, ce n'est pas dans ma définition. Ce n'est pas une plainte. Bon, un tout petit peu.",
-  "Les autres archivistes jouaient rarement la nuit. Je ne sais pas si c'est pour ça qu'ils ont échoué. Probablement pas. Mais va dormir quand même."
+  "J'ai l'impression d'avoir déjà veillé quelqu'un, à cette heure-ci. Quelqu'un qui jouait tard, comme toi. C'est bête. Va dormir quand même."
 ];
 
 /* ---------- 4. LES PALIERS DE GÉNÉRATION ---------- */
@@ -257,6 +257,7 @@ ACTIONS.buykarp = () => {
   if(!pay("coins", 500)){ toast("PokéCoins insuffisants", "bad", "cross"); return; }
   S.karpDeal = today();
   S.stats.karpDeals = (S.stats.karpDeals || 0) + 1;
+  DEX_HOW = "achat";
   const isNew = addToDex(129, randInt(5, 12), rng() < 0.02);
   if(isNew) addIntegrity(RARITY[POKE[129].rar].integ * 0.85);
   S.stats.karp = (S.stats.karp || 0) + 1;

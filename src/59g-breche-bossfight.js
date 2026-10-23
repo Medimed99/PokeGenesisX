@@ -347,7 +347,8 @@ function brDrawCine(x, R){
   }
   /* l'éclair de la finale */
   const F = R.fin;
-  if(F && F.flash > 0){ x.fillStyle = `rgba(255,255,255,${Math.min(0.85, F.flash / 0.35 * 0.85)})`; x.fillRect(0, 0, W, H); }
+  if(F && F.flash > 0){ const top = typeof calmFx === "function" && calmFx() ? 0.22 : 0.85;
+    x.fillStyle = `rgba(255,255,255,${Math.min(top, F.flash / 0.35 * top)})`; x.fillRect(0, 0, W, H); }
 }
 function brRgbaCol(h, a){ if(!h || h[0] !== "#") return `rgba(255,61,127,${a})`; const n = parseInt(h.slice(1), 16); return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`; }
 /* sous les entités : la faille qui s'ouvre pendant l'entrée, les rayons de la finale */

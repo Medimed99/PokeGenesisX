@@ -51,17 +51,28 @@ function teamGiveXp(id, n){
   if(up){ TEAM_UPS[id] = e.lvl; teamUpsSoon(); }
   return up;
 }
+/* En début de partie, l'équipe monte presque à chaque capture : un bandeau par capture
+   recouvrait tout le reste. Les montées s'accumulent et s'annoncent ensemble, une fois par
+   minute au plus — sauf quand l'une d'elles ouvre une évolution, qui s'annonce aussitôt. */
+const TEAM_UPS_GAP = 60000;
+let TEAM_UPS_T = 0;
 function teamUpsSoon(){
-  clearTimeout(teamUpsSoon._t);
-  teamUpsSoon._t = setTimeout(()=>{
-    const ids = Object.keys(TEAM_UPS).map(Number);
-    if(!ids.length) return;
-    const txt = ids.slice(0, 3).map(id=>`${POKE[id].name} N.${TEAM_UPS[id]}`).join(" · ") + (ids.length > 3 ? ` et ${ids.length - 3} autre(s)` : "");
-    const evo = ids.filter(id=>typeof evoReady === "function" && evoReady(id));
-    TEAM_UPS = {};
+  clearTimeout(teamUpsSoon._r);
+  teamUpsSoon._r = setTimeout(()=>{
     if(typeof currentScreen !== "undefined" && currentScreen === "team" && !(typeof sheetOpen === "function" && sheetOpen())) try { refresh(); } catch(e){}
-    if(typeof banner === "function") banner({kicker:"TON ÉQUIPE PROGRESSE", title:txt, sub:evo.length ? `${POKE[evo[0]].name} peut évoluer !` : "Puissance d'équipe : " + fmt(teamPower()), spr:ids[0], c:"#5ce07a", dur:2800});
   }, 900);
+  const evo = Object.keys(TEAM_UPS).map(Number).some(id=>typeof evoReady === "function" && evoReady(id));
+  const wait = evo ? 900 : Math.max(900, TEAM_UPS_GAP - (Date.now() - TEAM_UPS_T));
+  clearTimeout(teamUpsSoon._t);
+  teamUpsSoon._t = setTimeout(teamUpsShow, wait);
+}
+function teamUpsShow(){
+  const ids = Object.keys(TEAM_UPS).map(Number).filter(id=>POKE[id]);
+  if(!ids.length) return;
+  const txt = ids.slice(0, 3).map(id=>`${POKE[id].name} N.${TEAM_UPS[id]}`).join(" · ") + (ids.length > 3 ? ` et ${ids.length - 3} autre(s)` : "");
+  const evo = ids.filter(id=>typeof evoReady === "function" && evoReady(id));
+  TEAM_UPS = {}; TEAM_UPS_T = Date.now();
+  if(typeof banner === "function") banner({kicker:"TON ÉQUIPE PROGRESSE", title:txt, sub:evo.length ? `${POKE[evo[0]].name} peut évoluer !` : "Puissance d'équipe : " + fmt(teamPower()), spr:ids[0], c:"#5ce07a", dur:2800});
 }
 /* toute expérience gagnée par l'Archiviste nourrit l'équipe */
 if(typeof addXp === "function"){
@@ -128,6 +139,8 @@ if(typeof teamFighters === "function"){
 
 /* quand un membre de l'équipe évolue, c'est lui qui change : la nouvelle forme prend sa place */
 function teamOnEvolve(id, to){
+  if(typeof onzeOnEvolve === "function") onzeOnEvolve(id, to);
+  if(typeof histOnEvolve === "function") histOnEvolve(id, to);
   const slot = (S.team || []).indexOf(id);
   if(slot >= 0 && !S.team.includes(to)) S.team[slot] = to;
 }
@@ -154,7 +167,7 @@ SCREENS.team = {
         return `<div class="tm-card ${i === 0 ? "lead" : ""} ${evo ? "evo" : ""}">
           <div class="tm-top">${starsHtml(id)}${i === 0 ? `<i class="tm-crown">♛</i>` : ""}</div>
           <div class="tm-spr" data-act="teamview" data-id="${id}">${typeof pmdCanvas === "function" ? pmdCanvas(id, 0, 64, {shiny:e.shiny}) : sprite(id, e.shiny, "")}</div>
-          <b class="tm-n">${esc(POKE[id].name)}</b>
+          <b class="tm-n">${esc(POKE[id].name)}</b>${typeof monNick === "function" && monNick(id) ? `<i class="tm-nick">« ${esc(monNick(id))} »</i>` : ""}
           <div class="tm-lv"><span>N.${e.lvl}</span><span class="tm-pp">${fmt(monPower(id))}</span></div>
           <div class="bar thin"><i style="width:${e.lvl >= 100 ? 100 : Math.min(100, (e.txp || 0) / need * 100).toFixed(0)}%"></i></div>
           ${evo ? `<button class="btn xs gold wide" data-act="teamview" data-id="${id}">Évoluer</button>`

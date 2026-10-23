@@ -84,6 +84,7 @@ function newState(){
     habitat: "route", weather: "clair", weatherUntil: 0,
     expMode: "classic", hall: [], tower: {buffs:{}, best:0, runs:0, points:0}, towerRun: null,
     zero: 0, perks: {}, cycle: {n:0, mods:[]}, nextMods: [], lifetime: {catches:0, shinies:0, cycles:0},
+    saga: {end:null, wrote:false, erased:0, mnWins:0, known:false}, pzlog: [], pzlogK: {}, storyT: 0,
     contract: null,
     regionTiers: {},
     login: {last:"", days:0, best:0, claimed:""},
@@ -139,6 +140,24 @@ function deepFill(obj, def){
 
 /* --- dates --- */
 function today(){ const d = new Date(); return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate(); }
+/* l'ouverture a-t-elle eu lieu ? Le drapeau « intro » n'était jamais posé : le bandeau
+   « Prochaine étape », les coffres de session et les passages légendaires restaient
+   invisibles. La scène d'ouverture, elle, est toujours notée dans le journal. */
+/* EFFETS RÉDUITS — flashs, secousses, distorsions : coupés ou adoucis partout.
+   Par défaut, on suit le réglage du téléphone (« réduire les animations »). */
+function calmFx(){
+  try {
+    if(S && S.settings && S.settings.calm !== undefined) return !!S.settings.calm;
+    return typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion: reduce)").matches;
+  } catch(e){ return false; }
+}
+function applyCalm(){
+  try { if(typeof document !== "undefined" && document.body && document.body.classList) document.body.classList.toggle("calm", calmFx()); } catch(e){}
+}
+function introSeen(){ return !!(S && ((S.flags && S.flags.intro) || (S.story || []).includes("intro"))); }
+/* une date locale AAAA-MM-JJ : toISOString() donne la date en UTC, qui n'est pas
+   encore la bonne entre minuit et deux heures du matin à l'heure de Paris */
+function localYmd(d){ return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); }
 function yesterdayStr(){ const d = new Date(Date.now()-864e5); return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate(); }
 
 /* --- monnaies --- */
@@ -198,6 +217,8 @@ function addIntegrity(n){
 function applyCorruption(){
   const c = clamp(1 - S.integrity/100, 0, 1);
   document.documentElement.style.setProperty("--corrupt", (c*0.9).toFixed(3));
+  /* appelée à chaque changement de partie (import, cycle, synchronisation) : le réglage suit */
+  applyCalm();
 }
 
 /* --- pokedex --- */
@@ -214,9 +235,14 @@ function dexRegionPct(key){
   return dexCount(key) / (r.to - r.from + 1) * 100;
 }
 
+/* d'où vient une entrée : la capture par défaut ; les autres chemins le disent juste avant (DEX_HOW = "oeuf") */
+let DEX_HOW = null;
 function addToDex(id, level, shiny){
+  const how = DEX_HOW; DEX_HOW = null;
   const isNew = !S.dex[id];
-  if(isNew) S.dex[id] = {c:0, s:0, lvl:level||5, shiny:false};
+  if(isNew) S.dex[id] = {c:0, s:0, lvl:level||5, shiny:false,
+    /* le début de son histoire : quand, et comment il est arrivé (55h) */
+    h:{t:Date.now(), how:how || (S.capMode === "fish" ? "peche" : S.habitat === "safari" ? "safari" : "capture"), r:S.region, hab:S.habitat}};
   const e = S.dex[id];
   e.c++;
   if(shiny){ e.s++; e.shiny = true; }

@@ -20,6 +20,13 @@
 function stageHold(){
   if(typeof MOMENT_ON !== "undefined" && MOMENT_ON) return true;
   if(typeof CINE !== "undefined" && CINE && !CINE.dead) return true;
+  /* un tutoriel en cours : ses bulles ne doivent pas être recouvertes */
+  if(typeof TUTO !== "undefined" && TUTO) return true;
+  const on = id => { const e = typeof document !== "undefined" && document.getElementById ? document.getElementById(id) : null; return !!(e && /\bon\b/.test(e.className || "")); };
+  /* une scène racontée, une page qu'on lit, un passage de niveau : les annonces attendent */
+  if(on("story") || on("fragread") || on("levelup")) return true;
+  /* le résultat d'une capture : on le lit d'abord */
+  try { if(document.querySelector && document.querySelector("#sheet-root.on .sheet.catchres")) return true; } catch(e){}
   const d = typeof document !== "undefined" && document.getElementById ? document.getElementById("discover") : null;
   if(d && /\bon\b/.test(d.className || "")) return true;
   /* un combat de la Tour en cours : les annonces attendent les résultats */
@@ -32,7 +39,7 @@ function stageFlush(){
   if(!STAGE_Q.length || stageHold()) return;
   const fn = STAGE_Q.shift();
   try { fn(); } catch(e){}
-  if(STAGE_Q.length) setTimeout(stageFlush, 650);
+  if(STAGE_Q.length) setTimeout(stageFlush, 900);
 }
 if(typeof setInterval === "function") setInterval(()=>{ try { stageFlush(); } catch(e){} }, 700);
 

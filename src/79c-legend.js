@@ -35,6 +35,11 @@ function legendNext(t){
   return legendOfBlock(b + 1);
 }
 function legState(){ S.legend = S.legend || {won:{}, seen:{}}; return S.legend; }
+/* les passages commencent quand on sait ce qu'est un légendaire : une fois la salle des
+   verrous ouverte (le boss de la première aile de la Tour battu). Avant, un nouveau
+   venu voyait « Sulfura traverse Kanto — Affronter » dès sa première minute, sans
+   équipe pour y répondre. */
+function legOpen(){ try { return typeof moduleUnlocked !== "function" || moduleUnlocked("boss"); } catch(e){ return false; } }
 function legWon(L){ return !!(L && legState().won[L.b]); }
 function legLevel(){
   const ids = typeof teamIds === "function" ? teamIds() : S.team;
@@ -45,6 +50,7 @@ function legHourTxt(t){ const d = new Date(t); return String(d.getHours()).padSt
 
 /* ---------- le combat ---------- */
 ACTIONS.legfight = () => {
+  if(!legOpen()) return;
   const L = legendNow();
   if(!L){ toast("Le passage est terminé", "", "clock"); refresh(); return; }
   const ids = typeof teamIds === "function" ? teamIds() : S.team;
@@ -92,7 +98,7 @@ function legEnd(L, win){
 
 /* ---------- l'annonce, à l'arrivée ---------- */
 function legTick(){
-  if(!S || !S.flags || !S.flags.intro) return;
+  if(!S || !S.flags || !introSeen() || !legOpen()) return;
   const L = legendNow(); if(!L) return;
   const st = legState();
   if(st.seen[L.b]) return;
@@ -107,6 +113,7 @@ if(typeof setInterval === "function") setInterval(()=>{ try { legTick(); } catch
 
 /* ---------- la carte de l'accueil ---------- */
 function legendCardHtml(){
+  if(!legOpen()) return "";
   const L = legendNow(), N = L ? null : legendNext();
   if(L){
     const won = legWon(L), left = L.end - Date.now();
@@ -132,13 +139,13 @@ if(SCREENS.capture){
   SCREENS.capture.html = function(){
     const h = _ch.apply(this, arguments);
     const L = legendNow();
-    if(!L || legWon(L) || S.region !== L.region) return h;
+    if(!L || legWon(L) || S.region !== L.region || !legOpen()) return h;
     return `<button class="lg-strip" data-act="legfight"><span class="lg-spr">${sprite(L.id, false, "")}</span>
       <span class="grow"><small>SIGNATURE MAJEURE</small><b>${esc(POKE[L.id].name)} traverse ${esc(regionDef(L.region).name)}</b></span><span class="lg-go">Affronter</span></button>` + h;
   };
 }
 if(typeof NEXTSTEP_HOOKS !== "undefined") NEXTSTEP_HOOKS.push(()=>{
-  const L = legendNow();
-  if(L && !legWon(L)) return {p:88, t:`${POKE[L.id].name} traverse ${regionDef(L.region).name} : affronte-le`, go:"modules", i:"star"};
+  const L = legOpen() ? legendNow() : null;
+  if(L && !legWon(L)) return {p:88, t:`Affronter ${POKE[L.id].name}, de passage`, go:"modules", i:"star"};
   return null;
 });

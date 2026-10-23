@@ -13,7 +13,7 @@ const MAP_ROWS = MAP_SHAPE.length;
 
 const NODE_TYPES = {
   fight:   {n:"Sauvage",    i:"battle", c:"var(--ink)"},
-  trainer: {n:"Archiviste", i:"user",   c:"var(--cyan)"},
+  trainer: {n:"Dresseur",   i:"user",   c:"var(--cyan)"},
   elite:   {n:"Élite",      i:"boss",   c:"var(--magenta)"},
   draft:   {n:"Recrutement",i:"heart",  c:"var(--green)"},
   swap:    {n:"Échange",    i:"refresh",c:"var(--violet)"},
@@ -148,7 +148,7 @@ const RELICS = [
   {id:"r_water",n:"Noyau hydrique",    d:"+35% de dégâts des attaques Eau.",       dmgType:11},
   {id:"r_elec",n:"Noyau électrique",   d:"+35% de dégâts des attaques Électrik.",  dmgType:13},
   {id:"r_psy", n:"Noyau psionique",    d:"+35% de dégâts des attaques Psy.",       dmgType:14},
-  {id:"r_rev", n:"Réindexation auto",  d:"Réanime un allié à 40% après un combat perdu par KO.", revive:1},
+  {id:"r_rev", n:"Réindexation auto",  d:"Une fois par parcours : après un combat perdu, un allié se relève à 40 % et le combat reprend.", revive:1},
   {id:"r_shard",n:"Extracteur",        d:"+8 Fragments par combat remporté.",      shard:8},
   {id:"r_xp",  n:"Compilateur",        d:"Niveau permanent supplémentaire à la fin du run.", xp:1},
   {id:"r_corr",n:"Affinité corrompue", d:"+8% de dégâts par palier de corruption du run.", corr:1}
@@ -169,7 +169,7 @@ const EXP_EVENTS = [
   {n:"Miroir de secteur", t:"Le couloir se dédouble. Une version de votre équipe avance en sens inverse.",
    opts:[{t:"Traverser", f:r=>{ r.corruption++; r.bits += 90; return "Corruption +1. Le butin s'améliore, les ennemis aussi."; }},
          {t:"Faire demi-tour", f:r=>{ healTeam(r,.15); return "L'équipe souffle un peu. +15% de PV."; }}]},
-  {n:"Sauvegarde orpheline", t:"Un fichier de sauvegarde daté d'une tentative antérieure. Il porte un autre nom que le vôtre.",
+  {n:"Sauvegarde orpheline", t:"Un fichier de sauvegarde daté d'une connexion antérieure. Le nom de l'utilisateur est illisible ; il compte autant de signes que le vôtre.",
    opts:[{t:"Le lire", f:r=>{ r.bits += 70; r.corruption++; return "Vous apprenez quelque chose d'utile. Et d'inquiétant."; }},
          {t:"Le supprimer", f:r=>{ healTeam(r,.4); return "Le couloir s'allège. L'équipe récupère 40% de ses PV."; }}]},
   {n:"Distributeur défectueux", t:"Une machine propose trois boutons non étiquetés.",
@@ -178,7 +178,7 @@ const EXP_EVENTS = [
   {n:"Colonne de bruit", t:"Une colonne de statique traverse le sol et le plafond. Elle chante presque.",
    opts:[{t:"Y plonger une main", f:r=>{ const rel = grantRelic(r); damageTeam(r,.15); return (rel?"Relique : "+rel.n:"Rien.")+" L'équipe est secouée."; }},
          {t:"L'écouter", f:r=>{ r.heals++; return "Vous repartez avec une trousse de restauration."; }}]},
-  {n:"Ancien archiviste", t:"Une silhouette assise contre un mur. Elle n'a plus de texture, seulement un contour.",
+  {n:"Ancien archiviste", t:"Une silhouette assise contre un mur. Elle n'a plus de texture, seulement un contour. Elle porte une casquette.",
    opts:[{t:"Lui parler", f:r=>{ healTeam(r,1); return "Elle ne répond pas, mais votre équipe est entièrement restaurée."; }},
          {t:"Prendre son sac", f:r=>{ r.bits += 100; r.heals += 2; r.corruption++; return "+100 Bits, 2 restaurations. Vous ne vous retournez pas."; }}]}
 ];
@@ -771,24 +771,38 @@ SCREENS.expedition = {
     }
     pmdWake();
     if(run){
+      expUnstick(run);
       /* une scene en attente (recrutement, coffre, combat...) reprend la ou elle etait */
       if(run.pend && !xsOpenNow()) setTimeout(()=>{ if(S.expedition === run && currentScreen === "expedition" && !xsOpenNow()) expResume(run); }, 60);
       else tutoMaybe("expedition");
     }
   }
 };
+/* Une partie restée sans issue (l'ancienne réindexation automatique comptait une défaite comme un
+   passage : un champion perdu au bout du secteur laissait la carte sans nœud accessible). Le combat
+   qui n'a pas été gagné se rejoue. */
+function expUnstick(run){
+  if(!run || run.pend || !run.map || run.row < 0 || run.row < run.map.length - 1) return false;
+  if(run.avail && run.avail.length) return false;
+  const n = run.map[run.row] && run.map[run.row][run.col];
+  if(!n || n.t === "boss") return false;
+  const kind = n.t === "champ" ? "champ" : "fight";
+  run.pend = {k:"enc", kind, foes:enemySpecFor(run, kind)};
+  save();
+  return true;
+}
 /* ce qu'un noeud promet, dit simplement */
 function expNodeInfo(n, run){
   const t = NODE_TYPES[n.t] || NODE_TYPES.fight;
   if(n.t === "champ") return {k:"CHAMPION", t:"Le Champion du secteur", d:"Son type reste secret jusqu'au combat. Trois Pokémon. Le vaincre donne un badge, trois niveaux à l'équipe et une relique à choisir.", c:"var(--amber)"};
   if(n.t === "trainer"){
     const tr = n.tr !== undefined && TRAINERS[n.tr] ? TRAINERS[n.tr] : null;
-    if(tr) return {k:"ARCHIVISTE", t:`${esc(tr.n)} <span class="tt t${tr.t}">${TYPE_NAMES[tr.t]}</span>`,
+    if(tr) return {k:"DRESSEUR", t:`${esc(tr.n)} <span class="tt t${tr.t}">${TYPE_NAMES[tr.t]}</span>`,
                    d:`Deux Pokémon de type ${TYPE_NAMES[tr.t]}. Préparez ce qui leur résiste.`, c:arCol(tr.t)};
   }
   const D = {
     fight:["RENCONTRE", "Pokémon sauvages", "Un ou deux adversaires de l'étage. Bits et 25% de soin après la victoire."],
-    trainer:["ARCHIVISTE", "Dresseur", "Deux Pokémon d'un même type."],
+    trainer:["DRESSEUR", "Dresseur", "Deux Pokémon d'un même type."],
     elite:["ÉLITE", "Signature élite", "Deux adversaires solides. Une relique garantie, parfois un objet tenu."],
     draft:["RECRUTEMENT", "Trois Poké Balls", "Trois candidats, un seul rejoint l'équipe."],
     swap:["ÉCHANGE", "Terminal d'échange", "Céder un membre contre un Pokémon trois niveaux au-dessus."],
@@ -980,18 +994,18 @@ function draftCard(c, action, extra){
    Les points de vie ne se regenerent pas : la menace est l'usure, pas la
    puissance brute d'un combat isole. Les adversaires restent donc proches
    du niveau de l'equipe, et c'est leur accumulation qui fait le defi. */
-/* Noms d'archivistes adverses : chacun est specialise dans un type,
+/* Noms des dresseurs adverses : chacun est specialise dans un type,
    ce qui rend le noeud lisible avant d'y entrer — on sait contre quoi
    on va se battre, donc on peut s'y preparer. */
 const TRAINERS = [
   {n:"Veilleur de strate",  t:7},  {n:"Sonde de surface",    t:11},
-  {n:"Archiviste de fer",   t:9},  {n:"Compilateur",         t:13},
+  {n:"Ferronnier",          t:9},  {n:"Compilateur",         t:13},
   {n:"Jardinier d'index",   t:12}, {n:"Fondeur",             t:10},
   {n:"Cartographe",         t:5},  {n:"Lecteur de mémoire",  t:14},
   {n:"Gardien de cache",    t:6},  {n:"Purgeur",             t:4},
   {n:"Analyste",            t:1},  {n:"Correcteur",          t:2},
   {n:"Veille de nuit",      t:17}, {n:"Trieur de flux",      t:3},
-  {n:"Archiviste gelé",     t:15}, {n:"Scribe spectral",     t:8},
+  {n:"Cryogéniste",         t:15}, {n:"Scribe spectral",     t:8},
   {n:"Copiste draconique",  t:16}, {n:"Relecteur",           t:18}
 ];
 function trainerFor(run){
@@ -1079,7 +1093,7 @@ function expFight(run, kind, spec){
   const allies = run.team.filter(m=>m.hp>0).map(m=>runFighter(run, m));
   if(!allies.length){ endExpedition(false); return; }
   const foes = enemyTeamFor(run, kind, spec);
-  const titles = {champ:"CHAMPION " + ((run.leader && run.leader.n) || "").toUpperCase(), fight:"RENCONTRE SAUVAGE", trainer:"ARCHIVISTE " + (TYPE_NAMES[trainerFor(run).t] || "").toUpperCase(),
+  const titles = {champ:"CHAMPION " + ((run.leader && run.leader.n) || "").toUpperCase(), fight:"RENCONTRE SAUVAGE", trainer:"DRESSEUR " + (TYPE_NAMES[trainerFor(run).t] || "").toUpperCase(),
                   elite:"SIGNATURE ÉLITE", boss:"NOYAU DE COUCHE", legend:"SANCTUAIRE LÉGENDAIRE"};
   createBattle(allies, foes, {
     ai: true, speed: S.settings.battleSpeed || 1,
@@ -1097,11 +1111,16 @@ function expFight(run, kind, spec){
         toast(lost > 1 ? `${lost} membres désindexés — définitif` : "Un membre désindexé — définitif",
               "bad", "cross");
       }
-      if(!win && relicVal(run,"revive") && run.team.some(m=>m.hp<=0)){
+      /* la relique de réindexation : une fois par parcours, un allié se relève et le combat reste à livrer.
+         Avant, la défaite comptait comme un passage : le nœud était franchi sans victoire, et un champion
+         perdu au bout d'un secteur laissait la carte sans aucune issue. */
+      if(!win && relicVal(run,"revive") && !run.autoRev && run.team.some(m=>m.hp<=0)){
         const m = run.team.find(x=>x.hp<=0);
         m.hp = Math.floor(m.maxHp*0.4);
-        toast("Réindexation automatique déclenchée", "warn", "heart");
-        go("expedition"); save(); return;
+        run.autoRev = true;
+        run.pend = {k:"enc", kind, foes:spec};
+        toast(`Réindexation automatique : ${POKE[m.id] ? POKE[m.id].name : "un allié"} se relève. Le combat reste à livrer.`, "warn", "heart");
+        save(); go("expedition"); expResume(run); return;
       }
       if(!win){ endExpedition(false); return; }
       /* l'entite vaincue est celle qu'on pourra recruter : c'est elle qu'on a affrontee */

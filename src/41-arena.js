@@ -674,6 +674,7 @@ function arFrame(now){
   x.imageSmoothingEnabled = false;
   /* la caméra : elle tremble sous les coups, elle se resserre sur un critique */
   AR.shake *= Math.pow(0.86, real / 16);
+  if(typeof calmFx === "function" && calmFx()){ AR.shake = 0; AR.flash = null; }
   if(!frozen) AR.zoom *= Math.pow(0.9, real / 16);
   const sx = (Math.random() - 0.5) * AR.shake, sy = (Math.random() - 0.5) * AR.shake, z = 1 + AR.zoom * 0.055;
   x.save();

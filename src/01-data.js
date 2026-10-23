@@ -283,12 +283,15 @@ const ACHIEVEMENTS = [
   {id:"contract10",n:"Sous contrat",          d:"Remplir 10 contrats de secteur.",hid:0,
    chk:s=>(s.stats.contracts||0)>=10, rw:{shards:70}},
   /* caches */
-  {id:"h_mn",    n:"Tu n'étais pas censé voir ça", d:"Rencontrer la faille.",                    hid:1, chk:s=>s.flags.sawMissing,        rw:{cos:"title_faille"}},
+  {id:"h_mn",    n:"Tu n'étais pas censé voir ça", d:"Rencontrer MissingNo.",                    hid:1, chk:s=>!!(s.flags.sawMissing || s.flags.mnBeaten || (s.saga && s.saga.mnWins)), rw:{cos:"title_faille"}},
   {id:"h_fail",  n:"Persévérance",           d:"Échouer 10 captures d'affilée.",                 hid:1, chk:s=>s.flags.fail10,            rw:{coins:400}},
   {id:"h_master",n:"Abus de privilège",      d:"Utiliser une Master Ball sur un Pokémon commun.",hid:1, chk:s=>s.flags.masterWaste,       rw:{cos:"title_gaspilleur"}},
   {id:"h_pzout", n:"Sortie forcée",          d:"Vaincre Porygon-Z au fond de la Brèche.",        hid:1, chk:s=>!!s.flags.brPorygon,       rw:{cores:3}},
   {id:"h_night", n:"Insomnie",               d:"Jouer entre 3h et 5h du matin.",                 hid:1, chk:s=>s.flags.night,             rw:{cos:"bg_night"}},
-  {id:"h_pz",    n:"Ami du programme",       d:"Voir toutes les scenes de Porygon-Z.",           hid:1, chk:s=>s.story.length>=14,        rw:{cos:"frame_pz"}},
+  {id:"h_pz",    n:"Ami du programme",       d:"Rendre à Porygon-Z tous ses souvenirs.",         hid:1,
+   chk:s=>["pz_mem1","pz_mem2","pz_mem3","pz_mem4","pz_twist","pz_mem5","pz_mem6"].every(id=>(s.story||[]).includes(id)), rw:{cos:"frame_pz"}},
+  {id:"h_pages", n:"Le journal entier",      d:"Retrouver les onze pages de journal.",           hid:1, chk:s=>(s.fragments||[]).length>=11, rw:{cores:6}},
+  {id:"h_onze",  n:"Ce qu'il en reste",      d:"Retrouver les onze Pokémon des connexions passées.", hid:1, chk:s=>Object.keys((s.saga&&s.saga.onzeMet)||{}).length>=11, rw:{cores:6}},
   {id:"h_konami", n:"Séquence reconnue",      d:"Entrer un code qui ne vient pas de ce monde.", hid:1,
    chk:s=>s.flags.konami, rw:{cores:5}},
   {id:"h_starters",n:"Le choix initial",       d:"Archiver les neuf premiers partenaires des trois secteurs.", hid:1,
@@ -331,7 +334,9 @@ const ACHIEVEMENTS = [
    chk:s=>s.flags.pokerNoDiscard, rw:{cores:4}},
   {id:"h_noheal", n:"Sans filet",             d:"Vaincre le noyau d'une Expédition sans aucun objet de soin.", hid:1,
    chk:s=>s.flags.expNoHeal, rw:{cores:3, shards:60}},
-  {id:"h_sac",   n:"Ce qu'il en coûte",      d:"Atteindre le climax du recit.",                  hid:1, chk:s=>s.flags.climax,            rw:{cores:30,cos:"title_archiviste"}}
+  {id:"h_sac",   n:"La Couche Zéro",         d:"Vaincre MissingNo.",                             hid:1, chk:s=>!!((s.saga && s.saga.mnWins) || s.flags.climax), rw:{cores:30,cos:"title_archiviste"}},
+  {id:"h_write", n:"L'Auteur",               d:"Écrire au lieu d'effacer.",                      hid:1, chk:s=>!!(s.saga && s.saga.wrote), rw:{cores:20,cos:"title_auteur"}},
+  {id:"h_erase", n:"La même main",           d:"Effacer, comme les onze autres fois.",           hid:1, chk:s=>!!(s.saga && s.saga.erased >= 1), rw:{cos:"title_douze"}}
 ];
 
 /* ---------- Cosmetiques ---------- */
@@ -345,6 +350,8 @@ const COSMETICS = {
   title_faille:    {t:"title", n:"A vu la faille"},
   title_gaspilleur:{t:"title", n:"Gaspilleur de privilèges"},
   title_archiviste:{t:"title", n:"L'Archiviste"},
+  title_auteur:    {t:"title", n:"Auteur du monde"},
+  title_douze:     {t:"title", n:"Connexion n° 12"},
   frame_base:  {t:"frame", n:"Cadre standard", cls:"", def:1},
   frame_gold:  {t:"frame", n:"Cadre doré",     cls:"f-gold"},
   frame_void:  {t:"frame", n:"Cadre du Vide",  cls:"f-void"},

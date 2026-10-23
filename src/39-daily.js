@@ -55,7 +55,7 @@ function todayRows(){
         firstWinAvailable("expedition") ? "Première victoire du jour : récompenses ×2." : "Bonus du jour utilisé.",
         "expedition", !!S.expedition || firstWinAvailable("expedition"));
   if((S.fragUnread || []).length)
-    add(false, "quest", "Page de journal", `${S.fragUnread.length} page${S.fragUnread.length > 1 ? "s" : ""} des onze, pas encore lue${S.fragUnread.length > 1 ? "s" : ""}`, "journal", true);
+    add(false, "quest", "Page de journal", `${S.fragUnread.length} page${S.fragUnread.length > 1 ? "s" : ""} de journal, pas encore lue${S.fragUnread.length > 1 ? "s" : ""}`, "journal", true);
   if(moduleUnlocked("tower")){
     const lk = typeof sqLockReady === "function" && sqLockReady();
     add(!firstWinAvailable("tower") && !lk, lk ? "lock" : "user", "La Tour",
@@ -264,86 +264,7 @@ function friendCheck(from, e){
   return null;
 }
 
-/* ============================================================
-   6. DÉFIS SURPRISES
-   La boucle la plus repetee du jeu avait besoin d'imprevu. Un
-   archiviste rival surgit parfois apres une capture.
-   ============================================================ */
-const RIVALS = [
-  {k:"r_iris",  n:"Iris, archiviste des nappes",   t:[11,15], title:"Plongeur d'index"},
-  {k:"r_moss",  n:"Moss, jardinier d'arborescence", t:[12,7],  title:"Élagueur"},
-  {k:"r_volt",  n:"Volt, compilateur",             t:[13,9],  title:"Survolté"},
-  {k:"r_cendre",n:"Cendre, fondeur",               t:[10,6],  title:"Porteur de braise"},
-  {k:"r_nox",   n:"Nox, veilleur de nuit",         t:[17,8],  title:"Veilleur"},
-  {k:"r_ayla",  n:"Ayla, copiste draconique",      t:[16,14], title:"Draconologue"}
-];
-for(const r of RIVALS) COSMETICS["title_" + r.k] = {t:"title", n:r.title};
-let RIVAL = null;
-function rivalTick(){
-  if(S.capMode === "fish" || S.level < 10 || S.team.length < 3) return false;
-  if(rng() > 0.012) return false;
-  RIVAL = pick(RIVALS);
-  setTimeout(()=>{
-    /* jamais par-dessus une autre fenetre : le defi attendra une autre capture */
-    const disc = document.getElementById("discover");
-    if(sheetOpen() || (disc && /\bon\b/.test(disc.className || ""))){ RIVAL = null; return; }
-    sheet(`<div class="center">
-      <div class="h" style="justify-content:center;color:var(--magenta)">DÉFI</div>
-      <div class="tiny" style="margin:8px 0 4px"><b>${esc(RIVAL.n)}</b></div>
-      <div class="tiny muted" style="margin-bottom:10px">« Tu travailles sur mon secteur. Montre-moi ce que
-        vaut ton équipe. »</div>
-      <div class="wrap" style="justify-content:center;margin-bottom:10px">
-        ${RIVAL.t.map(t=>`<span class="tt t${t}">${TYPE_NAMES[t]}</span>`).join("")}</div>
-      <div class="tiny dim" style="margin-bottom:10px">Refuser ne coûte rien. Gagner rapporte un titre,
-        la première fois.</div>
-      <div class="btn-grid c2">
-        <button class="btn ghost" data-act="rivalno">Refuser</button>
-        <button class="btn pri" data-act="rivalgo">Accepter</button>
-      </div>
-    </div>`, true);
-    Sfx.glitch(); buzz([20,30,20]);
-  }, 700);
-  return true;
-}
-ACTIONS.rivalno = () => { RIVAL = null; closeSheet(); };
-ACTIONS.rivalgo = () => {
-  const rv = RIVAL; if(!rv) return;
-  closeSheet();
-  const allies = teamFighters(S.team);
-  const avg = Math.round(allies.reduce((a,f)=>a + f.level, 0) / Math.max(1, allies.length));
-  const foes = [];
-  for(let i = 0; i < 3; i++){
-    const pool = [];
-    for(const r of unlockedRegions()) for(let j = r.from; j <= r.to; j++){
-      const p = POKE[j];
-      if(p && !p.leg && !isExclusive(j) && p.types.some(t=>rv.t.includes(t)) && p.bst >= 300) pool.push(j);
-    }
-    foes.push(makeFighter(pool.length ? pick(pool) : randInt(1,151), clamp(avg + 2, 5, 100), {boost:1.05}));
-  }
-  createBattle(allies, foes, {
-    ai: true, speed: S.settings.battleSpeed || 1, title: rv.n.split(",")[0].toUpperCase(), stage: "elite",
-    onEnd: win => {
-      S.stats.rivals = (S.stats.rivals || 0) + (win ? 1 : 0);
-      if(win){
-        const first = !(S.cos.owned || []).includes("title_" + rv.k);
-        gain("coins", 1500 + avg * 40); gain("shards", 20);
-        if(first) unlockCosmetic("title_" + rv.k);
-        sheet(`<div class="center"><div class="h" style="justify-content:center">DÉFI REMPORTÉ</div>
-          <div class="tiny muted" style="margin:8px 0">« Pas mal. Je reviendrai. »</div>
-          ${first?`<div class="tiny cy">Titre débloqué : ${esc(rv.title)}</div>`:""}
-          <button class="btn pri wide" style="margin-top:11px" data-act="closeandgo" data-to="capture">Reprendre</button>
-        </div>`, true);
-      } else {
-        sheet(`<div class="center"><div class="h" style="justify-content:center">DÉFI PERDU</div>
-          <div class="tiny muted" style="margin:8px 0">Rien n'est perdu. Il repassera.</div>
-          <button class="btn pri wide" style="margin-top:11px" data-act="closeandgo" data-to="capture">Reprendre</button>
-        </div>`, true);
-      }
-      save(); checkAchievements();
-    }
-  });
-  go("battle");
-};
+/* 6. DÉFIS SURPRISES : les dresseurs rémanents vivent dans 39r-rival.js */
 
 /* ============================================================
    7. CODES
@@ -397,7 +318,7 @@ EXCL_SOURCE[115] = "safari"; EXCL_SOURCE[128] = "safari";
 function isSafariDay(){ const d = new Date().getDay(); return d === 0 || d === 6; }
 function safariWeek(){
   const d = new Date(); d.setDate(d.getDate() - ((d.getDay() + 1) % 7));   /* samedi de reference */
-  return d.toISOString().slice(0, 10);
+  return localYmd(d);
 }
 function safariRollover(){
   if(isSafariDay()){
@@ -415,7 +336,7 @@ function safariSpecies(){
 
 /* ============================================================
    9. FACTIONS
-   Trois reponses a la question que pose la faille : « pourquoi tu
+   Trois reponses a la question que pose MissingNo : « pourquoi tu
    repares ? ». Choisir une faction, c'est choisir une reponse. Le
    choix debloque un rang et une specialite ; il ne ferme aucun
    contenu, il colore la facon de jouer.
@@ -423,15 +344,15 @@ function safariSpecies(){
 const FACTIONS = {
   restaurer: {n:"Les Restaurateurs", c:"#35f0d6", i:"check",
     motto:"Aller jusqu'à cent. Quoi qu'il en coûte.",
-    d:"Ceux qui suivent Porygon-Z : le monde doit être réparé, entièrement.",
+    d:"Ceux qui suivent Porygon-Z : le monde doit être réparé, entièrement, et on verra bien ce qui attend au bout.",
     perk:"Intégrité gagnée", per:0.05, key:"integ"},
   seuil:     {n:"Les Gardiens du Seuil", c:"#ffc857", i:"lock",
-    motto:"Quatre-vingt-seize pour cent, et pas une ligne de plus.",
-    d:"Ceux qui ont lu le onzième fragment et préfèrent un monde presque entier à un archiviste effacé.",
+    motto:"Ne jamais arriver au bout, c'est ne jamais avoir à choisir.",
+    d:"Ceux qui ont peur de la question qui attend à cent pour cent, et préfèrent un monde presque entier.",
     perk:"PokéCoins gagnés", per:0.04, key:"coins"},
   echo:      {n:"Les Échos", c:"#b06bff", i:"eye",
     motto:"Ce qui n'est pas indexé ne peut pas être supprimé.",
-    d:"Ceux qui écoutent la faille, et qui trouvent qu'elle n'a pas tort.",
+    d:"Ceux qui écoutent MissingNo, et qui trouvent qu'il n'a pas tort.",
     perk:"Fragments gagnés", per:0.06, key:"shards"}
 };
 const FACTION_RANKS = [0, 150, 600, 1800, 4500, 10000];

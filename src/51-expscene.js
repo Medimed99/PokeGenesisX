@@ -242,7 +242,7 @@ const XS_SCENES = {
         <div class="xs-trainer">${trainerArt(trainerClassOf(node), 160, "big")}</div>
         <div class="xs-balls">${p.foes.map((f, i)=>`<span style="--d:${600 + i * 120}ms">${itemIcon("ball:poke", 30)}</span>`).join("")}</div>
         <div class="xs-vs">VS</div>`;
-      panel = `<div class="xs-kicker" style="color:${color}">${kind === "elite" ? "ÉLITE" : "ARCHIVISTE"} · <span class="tt t${tr.t}">${TYPE_NAMES[tr.t]}</span></div>
+      panel = `<div class="xs-kicker" style="color:${color}">${kind === "elite" ? "ÉLITE" : "DRESSEUR"} · <span class="tt t${tr.t}">${TYPE_NAMES[tr.t]}</span></div>
         <div class="xs-title">${esc(tr.n)}</div>
         <div class="xs-say">« ${esc(line)} »</div>
         <button class="btn pri wide xs-go" data-act="xsgo">Combattre</button>`;
@@ -510,14 +510,14 @@ function xsEventArt(run, p, ev){
     case "mirror": return `<div class="xe-mirror ${chosen === 0 ? "cross" : ""}">${xsTeam(run, {walk:true, size:46, dir:2, cls:"xe-real"})}
         <div class="xe-glass"></div>${xsTeam(run, {walk:true, size:46, dir:6, cls:"xe-twin"})}</div>`;
     case "save": return `<div class="xe-save ${chosen === 1 ? "deleted" : chosen === 0 ? "read" : ""}"><div class="xe-file">
-        <b>SAUVEGARDE · CYCLE 07</b><small>Archiviste : <span class="xe-glitch" data-t="R▓IKA">R▓IKA</span></small>
+        <b>SAUVEGARDE · CONNEXION 07</b><small>Archiviste : <span class="xe-glitch" data-t="${esc(typeof sagaKnown === "function" && sagaKnown() ? pzName() : pzMask())}">${esc(typeof sagaKnown === "function" && sagaKnown() ? pzName() : pzMask())}</span></small>
         <small>Intégrité : 64,8 %</small><small>Dernière position : ici.</small></div></div>`;
     case "vend": return `<div class="xe-vend ${chosen === 0 ? (p.fx && p.fx.dmg ? "zap" : "pay") : ""}"><div class="xe-vtop">DISTRIB'</div>
         <div class="xe-vglass"><i></i><i></i><i></i><i></i><i></i><i></i></div>
         <div class="xe-vbtn"><span></span><span></span><span></span></div><div class="xe-vslot"></div></div>`;
     case "noise": return `<canvas class="xe-noise ${chosen === 0 ? "touched" : chosen === 1 ? "calm" : ""}" width="60" height="200"></canvas>
       ${xsTeam(run, {size:44, cls:"xe-low"})}`;
-    case "ghost": return `<div class="xe-ghost ${chosen === 0 ? "rest" : chosen === 1 ? "robbed" : ""}">${trainerArt("scientist", 150)}<span class="xe-bag">${xpxIcon("bag", 3)}</span></div>
+    case "ghost": return `<div class="xe-ghost ${chosen === 0 ? "rest" : chosen === 1 ? "robbed" : ""}">${typeof selfSprite === "function" ? `<img class="xe-self" src="${selfSprite()}" alt="">` : trainerArt("scientist", 150)}<span class="xe-bag">${xpxIcon("bag", 3)}</span></div>
       <div class="xe-wisps"><i></i><i></i><i></i><i></i></div>`;
   }
   return "";

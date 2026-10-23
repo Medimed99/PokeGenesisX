@@ -11,7 +11,8 @@ const BOOT_LINES = [
   {t:"lignes illisibles détectées : 386", c:"err"},
   {t:"intégrité du monde ................... 0.0%", c:"err"},
   {t:"recherche d'un utilisateur avec droit d'écriture…", c:""},
-  {t:"UTILISATEUR TROUVÉ", c:""}
+  {t:"UTILISATEUR TROUVÉ — connexion n° 12", c:""},
+  {t:"mémoire de l'utilisateur : vide", c:"err"}
 ];
 
 function bootScreen(done){
@@ -35,6 +36,14 @@ function bootScreen(done){
       btn.textContent = "Entrer dans l'archive";
       btn.onclick = () => { el.style.display = "none"; el.innerHTML = ""; done(); };
       el.appendChild(btn);
+      /* sous le bouton, une seule ligne : le jeu clignote et se distord, on peut l'adoucir */
+      const warn = document.createElement("div");
+      warn.className = "boot-warn";
+      const paint = () => { warn.innerHTML = `<span>Flashs et distorsions</span> · <button class="boot-calm ${calmFx() ? "on" : ""}" type="button">${calmFx() ? "effets réduits ✓" : "réduire les effets"}</button>`;
+        const b = warn.querySelector && warn.querySelector("button");
+        if(b) b.onclick = () => { S.settings.calm = !calmFx(); applyCalm(); paint(); }; };
+      paint();
+      el.appendChild(warn);
       /* tout premier ecran : proposer l'installation ne coute rien ici */
       if(pwaInstallable()){
         const a = document.createElement("button");
@@ -136,6 +145,7 @@ function boot(){
   S = loaded || newState();
 
   applyCorruption();
+  applyCalm();
   dailyRollover();
   checkNightFlag();
 

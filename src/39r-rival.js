@@ -1,5 +1,9 @@
 /* ============================================================
-   39r — LES ARCHIVISTES RIVAUX
+   39r — LES DRESSEURS RÉMANENTS
+   Des dresseurs du fichier d'origine, restés dans les données quand
+   tout s'est effacé. Ils ne peuvent rien écrire — seul l'Archiviste
+   le peut — mais ils se souviennent d'avoir été des personnes, et ils
+   se souviennent de toi d'un combat à l'autre.
    Retour de jeu : « ces rencontres ne sont pas du tout animées alors
    qu'elles le devraient, ça perd de sa superbe alors que c'est quelque
    chose de rare et de marquant ». Une rencontre se joue désormais comme
@@ -17,7 +21,7 @@
    se souvient de vous : chaque victoire le rend plus fort, et paie plus.
    ============================================================ */
 const RIVALS = [
-  {k:"r_iris",   n:"Iris",   role:"archiviste des nappes",     cls:"cool_trainer_f", t:[11,15], title:"Plongeur d'index",  ace:131,
+  {k:"r_iris",   n:"Iris",   role:"gardienne des nappes",     cls:"cool_trainer_f", t:[11,15], title:"Plongeur d'index",  ace:131,
    intro:["Tu travailles sur mon secteur. Les nappes, c'est chez moi.", "Encore toi ? L'eau a de la mémoire, tu sais.", "Cette fois, je ne te laisserai pas remonter."],
    win:"Pas mal. L'eau finit toujours par revenir.", lose:"Reviens quand tu sauras nager."},
   {k:"r_moss",   n:"Moss",   role:"jardinier d'arborescence",  cls:"aroma_lady",     t:[12,7],  title:"Élagueur",          ace:3,
@@ -81,7 +85,7 @@ function rivalScene(rv){
         <div class="rv-speed">${Array.from({length:14}, (_, i)=>`<i style="--i:${i};--y:${(i * 37) % 100}%"></i>`).join("")}</div>
         <div class="rv-trainer">${trainerArt(rv.cls, 172, "big")}</div>
         <div class="rv-plate">
-          <small>ARCHIVISTE RIVAL${rec.met > 1 ? ` · RENCONTRE N°${rec.met}` : ""}</small>
+          <small>DRESSEUR RÉMANENT${rec.met > 1 ? ` · RENCONTRE N°${rec.met}` : ""}</small>
           <b>${esc(rv.n.toUpperCase())}</b>
           <span>${esc(rv.role)}</span>
           <div class="rv-types">${rv.t.map(t=>`<span class="tt t${t}">${TYPE_NAMES[t]}</span>`).join("")}<em>N.${lv}</em></div>

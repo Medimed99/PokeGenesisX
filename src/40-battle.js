@@ -11,7 +11,8 @@ function createBattle(allies, foes, opts){
     a: 0, f: 0, log: [], over: false, result: null,
     onEnd: opts.onEnd || null, title: opts.title || "COMBAT",
     phase: 1, boss: opts.boss || null, busy: false, turn: 0,
-    stage: opts.stage || (opts.boss ? "boss" : null), skip: false
+    stage: opts.stage || (opts.boss ? "boss" : null), skip: false,
+    maxTurns: opts.maxTurns || 0, endText: opts.endText || null, retreat: opts.retreat || null
   };
   if(BATTLE.speed < 1) BATTLE.speed = 1;
   blog(opts.intro || `${foes[0].name} entre dans l'arène.`);
@@ -42,7 +43,7 @@ function bestMove(att, def){
   /* une manœuvre au premier tour si elle apporte quelque chose, sinon la frappe la plus rentable */
   const util = att.moves.find(m=>m.util);
   if(util && !att._used){
-    const useful = (util.st && !def.status && typeMult(util.type, def.types) > 0)
+    const useful = (util.st && !def.status && typeMult(util.type, def.types) > 0 && !(def.raid && (util.st === "slp" || util.st === "par")))
                 || (util.buff && att.buff.atk < 1.3)
                 || (util.heal && att.hp < att.maxHp*0.55);
     if(useful && rng() < 0.55){ att._used = true; return util; }
@@ -61,6 +62,7 @@ function bestMove(att, def){
 /* ---------- altérations d'état ---------- */
 function setStatus(f, k){
   if(f.status || f.hp <= 0) return false;
+  if(f.raid && (k === "slp" || k === "par")) return false;
   f.status = {k, turns: k === "slp" ? randInt(1,3) : 0, stack: 0};
   return true;
 }
@@ -80,8 +82,9 @@ function endOfTurnStatus(f, side){
   if(!f.status || f.hp <= 0) return;
   const st = f.status;
   let dmg = 0;
-  if(st.k === "brn") dmg = Math.max(1, Math.floor(f.maxHp/16));
-  if(st.k === "psn"){ st.stack = Math.min(6, (st.stack||0)+1); dmg = Math.max(1, Math.floor(f.maxHp*st.stack/24)); }
+  const ref = f.refHp || f.maxHp;
+  if(st.k === "brn") dmg = Math.max(1, Math.floor(ref/16));
+  if(st.k === "psn"){ st.stack = Math.min(6, (st.stack||0)+1); dmg = Math.max(1, Math.floor(ref*st.stack/24)); }
   if(!dmg) return;
   f.hp = Math.max(0, f.hp - dmg);
   blog(`<span style="color:${STATUS[st.k].c}">${esc(f.name)} subit ${dmg} — ${STATUS[st.k].n}.</span>`);
@@ -157,6 +160,13 @@ function resolveEndOfTurn(){
   }
   endOfTurnStatus(F, "foe");
   if(!BATTLE.over) endOfTurnStatus(A, "ally");
+  /* un combat limité (le raid) : passé le dernier tour, l'adversaire se retire */
+  if(!BATTLE.over && BATTLE.maxTurns && BATTLE.turn >= BATTLE.maxTurns){
+    BATTLE.busy = false;
+    if(BATTLE.retreat) blog(BATTLE.retreat);
+    finishBattle(false);
+    return;
+  }
   endTurn();
 }
 
@@ -181,7 +191,10 @@ function applyMove(side, att, def, mv){
       blog(`<span class="ok">${esc(att.name)} récupère ${h} points.</span>`);
       popDamage(side === "a" ? "ally" : "foe", -h, 1, "var(--green)");
     } else if(mv.st){
-      if(typeMult(mv.type, def.types) === 0){
+      if(def.raid && (mv.st === "slp" || mv.st === "par")){
+        blog(`<span class="muted">${esc(def.name)} ne se laisse ni endormir ni paralyser.</span>`);
+        arHook("miss", "SANS EFFET");
+      } else if(typeMult(mv.type, def.types) === 0){
         blog(`<span class="muted">${esc(mv.name)} n'a aucun effet sur ${esc(def.name)}.</span>`);
         arHook("miss", "SANS EFFET");
       } else if(setStatus(def, mv.st)){
@@ -331,7 +344,7 @@ function finishBattle(win){
       b.className = "phase-banner";
       b.style.color = win ? "var(--cyan)" : "var(--magenta)";
       b.style.textShadow = `0 0 18px ${win ? "var(--cyan)" : "var(--magenta)"},0 3px 0 #000`;
-      b.textContent = win ? "VICTOIRE" : "ÉCHEC";
+      b.textContent = B.endText || (win ? "VICTOIRE" : "ÉCHEC");
       ar.appendChild(b);
       if(win) burstEl(ar, {n:26, spread:140, colors:["#35f0d6","#ffc857","#ffffff"], dur:900});
       setTimeout(()=>b.remove(), 1400);
@@ -627,6 +640,7 @@ function onGuardianEnd(r, i, win){
     S.stats.bossWins++;
     const lvl = guardianLevel(r, i);
     if(first){
+      DEX_HOW = "verrou";
       addToDex(g.id, lvl, false);
       addIntegrity(g.core ? 5 : 2.5);
       /* un noyau emet une illustration ancienne : c'est la recompense de prestige */

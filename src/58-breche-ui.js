@@ -469,6 +469,7 @@ function brGuardianWin(g){
   if(first){
     S.bosses.push(guardianKey(r.key, g.id)); factionPts(50);
     /* il rejoint l'archive a peu pres au niveau ou on l'a affronte : il doit pouvoir servir */
+    DEX_HOW = "verrou";
     addToDex(g.id, Math.max(guardianLevel(r, i), typeof sqLockLevel === "function" ? sqLockLevel(r, i) - 4 : 0), false);
     addIntegrity(g.core ? 5 : 2.5);
     const cs = rollCardSeries(g.id, g.core ? 3.2 : 1.8);
@@ -500,7 +501,7 @@ function brFinish(R, won, quit){
   st.data += misData; gain("coins", misCoins);
   if(misAll) st.fullClears = (st.fullClears || 0) + 1;
   /* les captifs liberes rejoignent l'archive */
-  for(const id of (R.freed || [])) addToDex(id, 15, false);
+  for(const id of (R.freed || [])){ DEX_HOW = "breche"; addToDex(id, 15, false); }
   if(R.reaperDown) S.flags.brReaper = true;
   st.data += data; st.runs++; st.kills += R.kills;
   st.bestTime = Math.max(st.bestTime || 0, survived);
@@ -509,7 +510,7 @@ function brFinish(R, won, quit){
   Object.entries(R.killsBy).sort((a, b)=>b[1] - a[1]).slice(0, 8).forEach(([id])=>researchTick(+id, "battle", 1));
   /* quelques elites vaincus sont restaures au Pokedex */
   const restored = [];
-  for(const e of R.elitesDown) if(R.rng() < 0.3 || e.shiny){ addToDex(e.id, 20, !!e.shiny); restored.push(e); }
+  for(const e of R.elitesDown) if(R.rng() < 0.3 || e.shiny){ DEX_HOW = "breche"; addToDex(e.id, 20, !!e.shiny); restored.push(e); }
   for(const w of R.team) st.mastery[w.id] = (st.mastery[w.id] || 0) + 1;
   const bk = R.region + ":" + R.hab;
   const prev = st.best[bk] || {time:0, clear:false};

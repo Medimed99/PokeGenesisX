@@ -109,7 +109,13 @@ const INFOS = {
     <p>· <b>Espèces identiques</b> — paire, brelan, carré.<br>
     · <b>Familles d'évolution</b> — duo, trio, lignée complète.<br>
     · <b>Types</b> — mono-type, duo-type, spectre complet.<br>
+    · <b>Suite Pokédex</b> — cinq numéros qui se suivent (les lignées se suivent dans le Pokédex).<br>
     · <b>Chromatiques</b> et <b>légendaires</b> — les combinaisons les plus riches.</p>
+    <p>Chaque verrou est tenu par un <b>dresseur</b> : l'objectif est sa jauge de PV, chaque main la fait fondre.
+    Au bout de chaque ante, un <b>Champion d'arène</b> impose sa règle (Défense Roc de Pierre, Torrent d'Ondine,
+    Paralysie de Major Bob…) et délivre son badge ; après les huit, le Conseil des Quatre puis le Champion.</p>
+    <p>Certains <b>programmes évoluent</b> à force d'être utilisés : Salamèche.exe devient Reptincel.exe puis
+    Dracaufeu.exe, Magicarpe.exe finit en Léviator.exe, Évoli.exe choisit sa forme selon votre jeu.</p>
     <p>Le score est <b class="cy">Jetons</b> × <b class="bad">Multiplicateur</b>. Les
     <b>programmes</b> s'empilent et transforment complètement une partie. Les <b>boosters</b>
     ajoutent à votre deck des espèces tirées de votre propre archive.</p>
@@ -232,7 +238,10 @@ const INFOS = {
     <b>Signature</b> — la trace détectable d'une espèce, avant toute rencontre.</p>
     <p><b>Restaurer</b> — réussir la capture : reconstruire le lien qui manquait.<br>
     <b>Archiver</b> — l'effet de cette restauration sur le Pokédex, la première fois seulement.</p>
-    <p><b>Secteur</b> — une région du monde. <b>Couche</b> — une couches plus profonde, non cartographiée.</p>
+    <p><b>Secteur</b> — une région du monde. <b>Couche</b> — une couche plus profonde, non cartographiée.
+    <b>Couche Zéro</b> — celle qui est sous toutes les autres.</p>
+    <p><b>Connexion</b> — une tentative de restaurer le monde, du premier jour à la question finale.
+    La tienne porte un numéro ; les autres ont laissé des pages.</p>
     <p><b>Verrou</b> — un Data Guardian. <b>Noyau</b> — le dernier verrou d'un secteur, celui qui
     en ferme la sortie.</p>
     <p><b>Chaîne</b> — vos restaurations consécutives sans fuite. Le mot <b>série</b> ne désigne
@@ -263,10 +272,11 @@ const INFOS = {
     <b>Trésors</b> — sans usage, uniquement à revendre.</p>`},
 
   cycle:{n:"Le Nouveau Cycle", d:`
-    <p>Une fois l'épilogue atteint, vous pouvez boucler le cycle : le monde repart de zéro, et vous
-    gagnez des <b>Noyaux Zéro</b>.</p>
-    <p><b>Ce qui traverse</b> — cartes légendaires, cosmétiques, succès, journal des scènes, Noyaux Zéro
-    et avantages permanents.</p>
+    <p>Une fois MissingNo vaincu, au fond de la Couche Zéro, vous pouvez boucler le cycle : le monde repart
+    de zéro, et vous gagnez des <b>Noyaux Zéro</b>. Ce que devient la connexion suivante dépend de votre
+    réponse à la question finale.</p>
+    <p><b>Ce qui traverse</b> — cartes légendaires, cosmétiques, succès, journal des scènes, pages de journal,
+    le fichier de Porygon-Z, Noyaux Zéro et avantages permanents.</p>
     <p><b>Ce qui repart à zéro</b> — Pokédex, niveau, intégrité, monnaies, équipe, verrous, compagnon.</p>
     <p>Les <b>modificateurs</b> durcissent volontairement la partie et augmentent le gain final.
     Ils se cumulent : un cycle avec les cinq rapporte deux fois plus qu'un cycle sans.</p>`},
@@ -395,7 +405,8 @@ const TUTOS = {
     {sel:"#screen", t:"Les données rares ne se rangent pas au hasard : elles se regroupent par motifs. Espèces identiques, familles, types."},
     {sel:"#hand", t:"Ce deck n'a ni couleur ni rang. Ce sont des Pokémon : espèces identiques, familles d'évolution, types, chromatiques."},
     {sel:"#pk-score-line", t:"Chaque motif reconnu stabilise une portion de couche. Jetons multipliés par Multiplicateur : les deux se travaillent séparément."},
-    {sel:"#jokers", t:"Les programmes s'empilent ici, de gauche à droite. Ce sont eux qui font les grosses parties, pas les cartes."}
+    {sel:"#jokers", t:"Les programmes s'empilent ici, de gauche à droite. Ce sont eux qui font les grosses parties, pas les cartes."},
+    {sel:".pk2-bl", t:"Chaque verrou est tenu par un dresseur : sa jauge de PV, c'est ton objectif. Au bout de l'ante, un Champion d'arène t'attend avec sa règle."}
   ]},
   dex:{steps:[
     {sel:".ring", t:"L'archive, secteur par secteur. Chaque ligne restaurée rend les lignes voisines plus stables — je ne sais toujours pas modéliser pourquoi."},
@@ -604,7 +615,7 @@ const PZ_EVENTS = [
   {id:"e_poker", c:()=>S.stats.pokerWins>=1,
    t:"Tu as stabilisé une couche entière en jouant aux cartes. Je note que ça marche. Je ne comprends pas pourquoi. Je note aussi que je ne comprends pas."},
   {id:"e_dex150", c:()=>dexTotal()>=150,
-   t:"Cent cinquante entrées. À ce stade, les autres tentatives avaient déjà ralenti. Toi non. Je préfère ne pas expliquer pourquoi je surveille ça. Continue, c'est tout."},
+   t:"Cent cinquante entrées. Je ne sais pas pourquoi, j'ai l'impression que c'est ici que ça devient difficile. Une intuition. Je n'ai pas d'intuitions, normalement. Continue, c'est tout."},
   {id:"e_buddy", c:()=>buddyTier()>=3,
    t:"Ton compagnon a franchi trois paliers. Il se place toujours entre toi et la rencontre. Ce n'est pas dans sa définition. C'est dans autre chose."},
   {id:"e_buddyfind", c:()=>(S.buddy&&S.buddy.finds>=5),
