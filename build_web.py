@@ -13,6 +13,7 @@ La version embarquee reste construite par build.py : elle sert des qu'il n'y a
 pas d'hebergement (fichier ouvert localement, cadre restreint).
 """
 import base64, os, re, shutil, json, hashlib
+from buildver import read_label, source_version, version_js
 
 SRC, OUT = "src", "web"
 ASSETS = os.path.join(OUT, "assets")
@@ -21,7 +22,15 @@ ASSETS = os.path.join(OUT, "assets")
 ORDER = re.search(r"ORDER = \[([\s\S]*?)\]", open("build.py", encoding="utf-8").read()).group(1)
 ORDER = [x.strip().strip("'\"") for x in ORDER.split(",") if x.strip()]
 
+# --- la version : la date ecrite par build.py, l'empreinte des sources ------
+label = read_label()
+ver = source_version(SRC, ORDER, label)
+
 os.makedirs(ASSETS, exist_ok=True)
+# les fichiers a empreinte de la version precedente ne servent plus
+for f in os.listdir(ASSETS):
+    if re.fullmatch(r"[\w-]+\.[0-9a-f]{8}\.(png|webp)", f):
+        os.remove(os.path.join(ASSETS, f))
 
 # --- extraction des images embarquees vers de vrais fichiers ---------------
 def extract(js_file, const, out_name):
@@ -40,8 +49,17 @@ sizes = {
     "missingno.png": extract("_chars.js", "MISSING_SPRITE", "missingno.png"),
     "atlas_shiny.png": extract("_atlas_shiny.js", "ATLAS_SHINY_URL", "atlas_shiny.png"),
     "prof_full.png": extract("_chars.js", "PROF_FULL", "prof_full.png"),
-    "cardart.png":   extract("_cardart.js", "CARD_ATLAS", "cardart.png"),
 }
+
+# --- cartes : les deux atlas (pixel art et haute definition) sortent en fichiers
+card_js = open(os.path.join(SRC, "_cardart.js"), encoding="utf-8").read()
+card_files = {}
+for key, ext, b64 in re.findall(r'"(px|hd)":\{"u":"data:image/(png|webp);base64,([A-Za-z0-9+/=]+)"', card_js):
+    name = f"card_{key}.{ext}"
+    data = base64.b64decode(b64)
+    open(os.path.join(ASSETS, name), "wb").write(data)
+    sizes[name] = len(data)
+    card_files[key] = (name, b64)
 
 # --- empreintes : un nom de fichier change quand le contenu change ---------
 def fingerprint(name):
@@ -53,16 +71,14 @@ def fingerprint(name):
     return "assets/" + new
 
 paths = {n: fingerprint(n) for n in sizes if sizes[n]}
+for key, (name, b64) in card_files.items():
+    ext = name.rsplit(".", 1)[1]
+    card_js = card_js.replace(f"data:image/{ext};base64,{b64}", paths[name])
 
 # --- constantes de l'atlas, relues depuis le module embarque ---------------
 atlas_js = open(os.path.join(SRC, "_atlas.js"), encoding="utf-8").read()
 cols, rows, n, back0 = re.search(
     r"ATLAS_COLS=(\d+), ATLAS_ROWS=(\d+), ATLAS_N=(\d+), ATLAS_BACK0=(\d+)", atlas_js).groups()
-card_js = open(os.path.join(SRC, "_cardart.js"), encoding="utf-8").read()
-card_cols, card_rows, card_cell = re.search(
-    r"CARD_COLS=(\d+), CARD_ROWS=(\d+), CARD_CELL=(\d+)", card_js).groups()
-card_series = re.search(r"const CARD_SERIES=(\[.*?\]);", card_js, re.S).group(1)
-card_index  = re.search(r"const CARD_INDEX=(\{.*?\});", card_js, re.S).group(1)
 pz_js = open(os.path.join(SRC, "_pzportrait.js"), encoding="utf-8").read()
 pz_emos = re.search(r"const PZ_EMOS = (\[[^\]]+\]);", pz_js).group(1)
 pz_w, pz_h = re.search(r"const PZ_W = (\d+), PZ_H = (\d+);", pz_js).groups()
@@ -90,10 +106,6 @@ const PZ_STRIP="{paths['pz.png']}";
 const PROF_PORTRAIT="{paths['prof.png']}";
 const MISSING_SPRITE="{paths['missingno.png']}";
 const PROF_FULL="{paths.get('prof_full.png') or ''}";
-const CARD_COLS={card_cols}, CARD_ROWS={card_rows}, CARD_CELL={card_cell};
-const CARD_SERIES={card_series};
-const CARD_INDEX={card_index};
-const CARD_ATLAS="{paths['cardart.png']}";
 const MUSIC_AVAILABLE={json.dumps(music_keys)};
 """
 
@@ -114,7 +126,7 @@ for f in ORDER:
         continue
     parts.append(f"/* ===== {f} ===== */")
     parts.append(open(os.path.join(SRC, f), encoding="utf-8").read())
-js = assets_js + "\n" + "\n".join(parts)
+js = version_js(ver, label) + assets_js + "\n" + card_js + "\n" + "\n".join(parts)
 css = open(os.path.join(SRC, "style.css"), encoding="utf-8").read()
 
 tpl = open(os.path.join(SRC, "index.template.html"), encoding="utf-8").read()
@@ -137,6 +149,9 @@ if("serviceWorker" in navigator){
 </body>""")
 open(os.path.join(OUT, "index.html"), "w", encoding="utf-8").write(tpl)
 open(os.path.join(OUT, "config.js"), "w", encoding="utf-8").write(config_js)
+# relu par le jeu (sans cache) : une empreinte differente = une version plus recente en ligne
+open(os.path.join(OUT, "version.json"), "w", encoding="utf-8").write(
+    json.dumps({"v": ver, "label": label}, ensure_ascii=False))
 
 # --- manifeste PWA ---------------------------------------------------------
 manifest = {
@@ -204,6 +219,8 @@ self.addEventListener("fetch", e => {{
 
   /* les appels au service en ligne ne doivent jamais etre servis depuis le cache */
   if(url.pathname.startsWith("/rest/") || url.pathname.startsWith("/auth/")) return;
+  /* la version en ligne se lit toujours sur le serveur */
+  if(url.pathname.endsWith("/version.json")) return;
 
   if(url.pathname.includes("/assets/")){{
     /* on ne garde que les reponses valides : une erreur 404 mise en cache serait
@@ -235,6 +252,8 @@ vercel = {
          "headers": [{"key": "Cache-Control", "value": "public, max-age=0, must-revalidate"}]},
         {"source": "/index.html",
          "headers": [{"key": "Cache-Control", "value": "public, max-age=0, must-revalidate"}]},
+        {"source": "/version.json",
+         "headers": [{"key": "Cache-Control", "value": "no-store"}]},
         {"source": "/(.*)",
          "headers": [
              {"key": "X-Content-Type-Options", "value": "nosniff"},
@@ -247,6 +266,7 @@ open(os.path.join(OUT, "vercel.json"), "w", encoding="utf-8").write(
 
 html_size = os.path.getsize(os.path.join(OUT, "index.html"))
 total = html_size + sum(os.path.getsize(os.path.join(ASSETS, f)) for f in os.listdir(ASSETS))
+print("version du %s · %s" % (label, ver))
 print("web/index.html  %6.0f Ko" % (html_size / 1024))
 for f in sorted(os.listdir(ASSETS)):
     print("web/assets/%-22s %5.0f Ko" % (f, os.path.getsize(os.path.join(ASSETS, f)) / 1024))

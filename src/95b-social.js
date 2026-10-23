@@ -112,6 +112,7 @@ ACTIONS.raidclaim = d => {
   if(rw.card && typeof grantCardV === "function"){
     const s = rollCardSeries(raidBoss(), 2);
     if(typeof cardRevealExpect === "function") cardRevealExpect();
+    if(typeof cardHowSet === "function") cardHowSet("raid", {g:raidBoss()});
     card = {s, id:raidBoss(), fresh:grantCardV(s, raidBoss())};
     cardTxt = " · une carte de " + POKE[raidBoss()].name;
   }

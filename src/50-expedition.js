@@ -467,6 +467,7 @@ function endExpedition(win){
     /* le noyau emet une carte : la corruption prise en chemin ameliore la serie */
     const cw = randomCard(1 + run.corruption * 0.55);
     if(typeof cardRevealExpect === "function") cardRevealExpect();
+    if(typeof cardHowSet === "function") cardHowSet("exp", {c:run.corruption || 0, f:run.floor || 0});
     const cwNew = grantCardV(cw.s, cw.id);
     pendingBooster = [{s:cw.s, id:cw.id, fresh:cwNew}];
     if(rng() < 0.5){
@@ -591,7 +592,7 @@ SCREENS.expedition = {
         <div class="tmem ${m.hp<=0?"ko":""} ${TEAM_SEL===i?"sel":""}" data-act="teamtap" data-i="${i}">
           <span class="tpos">${i+1}</span>
           <span class="lv">${m.level}</span>
-          <span class="sprbox" style="width:40px;height:40px">${sprite(m.id, runShiny(m), "")}</span>
+          <span class="sprbox" style="width:40px;height:40px">${sprite(m.id, runShiny(m), "", {skin:true})}</span>
           <div class="nm">${esc(POKE[m.id].name)}</div>
           <div class="bar hp ${m.hp/m.maxHp>.5?"":m.hp/m.maxHp>.2?"mid":"low"}">
             <i style="width:${Math.max(0,m.hp/m.maxHp*100)}%"></i></div>
@@ -745,7 +746,7 @@ SCREENS.expedition = {
     /* le meneur de l'equipe, la ou elle se tient */
     const lead = run.team.find(m=>m.hp > 0) || run.team[0];
     const lx = cur ? X(run.map[run.row][run.col].c) : 50, ly = cur ? Y(run.row) - 30 : DOOR + 10;
-    const leader = lead ? `<div class="xleader" id="xleader" style="left:${lx}%;top:${ly}px">${pmdCanvas(lead.id, 0, 46, {shiny:S.dex[lead.id] && S.dex[lead.id].shiny})}</div>` : "";
+    const leader = lead ? `<div class="xleader" id="xleader" style="left:${lx}%;top:${ly}px">${pmdCanvas(lead.id, 0, 46, {shiny:S.dex[lead.id] && S.dex[lead.id].shiny, mine:true})}</div>` : "";
 
     let peek = "";
     if(pk){
@@ -880,7 +881,7 @@ function drawExpOrder(){
         return `<div class="tp-row ${ko?"ghost":""}" data-row="${i}">
           <span class="tp-grip" data-grip="1" aria-label="Déplacer">⋮⋮</span>
           <span class="tp-pos">${i+1}</span>
-          <span class="sprbox" style="width:38px;height:38px">${sprite(m.id, runShiny(m), "")}</span>
+          <span class="sprbox" style="width:38px;height:38px">${sprite(m.id, runShiny(m), "", {skin:true})}</span>
           <div class="grow">
             <div class="tiny">${esc(POKE[m.id].name)} <span class="dim">N.${m.level}</span></div>
             <div class="bar hp ${pct>50?"":pct>20?"mid":"low"}" style="margin-top:4px">
@@ -908,7 +909,7 @@ ACTIONS.exprevive = () => {
       ${down.map(m=>{
         const i = run.team.indexOf(m);
         return `<div class="tp-row">
-          <span class="sprbox" style="width:38px;height:38px">${sprite(m.id, runShiny(m), "ghosted")}</span>
+          <span class="sprbox" style="width:38px;height:38px">${sprite(m.id, runShiny(m), "ghosted", {skin:true})}</span>
           <div class="grow"><div class="tiny">${esc(POKE[m.id].name)}
             <span class="dim">N.${m.level}</span></div>
             <div class="tiny bad">désindexé</div></div>

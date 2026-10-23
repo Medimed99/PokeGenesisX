@@ -1,17 +1,27 @@
-Substituer l'illustration d'une carte
--------------------------------------
-Deposez un PNG a transparence nomme <serie>_<numero>.png, puis relancez :
+Substituer une illustration de carte
+------------------------------------
+Deux substitutions possibles, chacune par un PNG depose ici, puis :
 
     python3 build_cardart.py && python3 build.py && python3 build_web.py
 
-Series : art  g5  g3  g2  g1
-Exemples :
-    art_384.png    Rayquaza, serie Rendu courant
-    g1_150.png     Mewtwo, serie Rendu primordial
+1. Le sujet : <serie>_<numero>.png
+   Le legendaire lui-meme, detoure sur fond transparent (512x512 ou plus
+   conseille). Il remplace le sprite de la serie ; le script le recadre, le
+   centre et le lisse sans le deformer. La scene generee reste autour de lui.
 
-Le script recadre, centre et lisse sans deformer. Cadre conseille : 512x512 ou
-plus, le sujet detoure sur fond transparent. Une illustration fournie remplace
-celle du depot communautaire, sans aucune modification de code.
+2. La scene : <serie>_<numero>_scene.png
+   Une illustration pleine carte, au format 5:7 (300x420 ou plus). Elle
+   remplace la scene generee ; le sujet est pose par-dessus, comme d'habitude.
+
+Series : art  g5  g3  g2  g1
+La carte de Porygon-Z (fin ECRIRE) : art_474.png pour le sujet,
+pz_474_scene.png pour la scene.
+Avant de construire, python3 fetch_cardsprites.py telecharge ce que le
+depot ne contient pas (dos d'epoque, illustration de Porygon-Z).
+Exemples :
+    art_384.png         Rayquaza, Rendu courant : le sujet
+    g1_150.png          Mewtwo, Rendu primordial : le sujet
+    g2_249_scene.png    Lugia, Rendu fondateur : la scene
 
 Attention aux droits : les illustrations d'artistes identifies ne sont pas
 reutilisables sans leur accord. Ce dossier existe pour vos propres visuels,

@@ -27,7 +27,8 @@ const ORDER = fs.readFileSync(__dirname + "/build.py", "utf8").match(/ORDER = \[
   .split(",").map(x=>x.trim().replace(/'/g, "")).filter(Boolean);
 eval(ORDER.map(f=>fs.readFileSync(__dirname + "/src/" + f, "utf8")).join("\n") +
   "\n;global.G={newState,setS:v=>{S=v},STORY,STORY_ACTS,STORY_TITLES,MAIN_ARC,CINEMAS,FRAGMENTS,RIFT_ARC,PZ_FILE,PZ_FILE_OLD," +
-  "ROOM_MOMENTS,pzFmt,pzName,pzMask,sagaConn,nameBytes,hex2,FN_MONTAGE_BASE,STORY_Q,STORY_Q_ORDER,ONZE,POKE,creditsRollHtml:typeof creditsRollHtml==='function'?creditsRollHtml:null};");
+  "ROOM_MOMENTS,pzFmt,pzName,pzMask,sagaConn,nameBytes,hex2,FN_MONTAGE_BASE,STORY_Q,STORY_Q_ORDER,ONZE,POKE,creditsRollHtml:typeof creditsRollHtml==='function'?creditsRollHtml:null," +
+  "CARD_NOTES,CHRONO_ERA,CHRONO_END,CARD_MONS,CARD_SERIES_DEF,CARD_YEARS,REIDX_AT,cardVariants,grantCardV,cnewsItems,CNEWS_PZ,CNEWS_MIN};");
 
 /* ---------- l'état d'exemple ---------- */
 const S0 = G.newState(); S0.name = "‹nom›"; S0.flags.named = true; S0.flags.firstMon = 4;
@@ -130,7 +131,7 @@ for(const A of G.STORY_ACTS){
   const list = G.STORY.filter(sc=>A.act === null ? sc.act === undefined : sc.act === A.act);
   if(list.length) md.push(`- **${A.n} — ${A.t}** : ${list.map(sc=>G.STORY_TITLES[sc.id] || sc.id).join(" · ")}`);
 }
-md.push("- **Les pages de journal** · **La faille** · **choses_formidables.txt** · **Les salles** · **Le générique**\n");
+md.push("- **Les pages de journal** · **La faille** · **choses_formidables.txt** · **Les salles** · **Les cartes** · **Le générique**\n");
 
 for(const A of G.STORY_ACTS){
   const list = G.STORY.filter(sc=>A.act === null ? sc.act === undefined : sc.act === A.act);
@@ -196,6 +197,38 @@ for(const [c, d, t] of G.PZ_FILE_OLD) md.push(`- **C.${String(c).padStart(2, "0"
 
 md.push(`\n---\n\n## Les salles qui s'ouvrent\n`);
 for(const [k, m] of Object.entries(G.ROOM_MOMENTS)) md.push(`- **${m.n}** — *${m.sub}*  \n  **PORYGON-Z** — ${F(m.line)}`);
+
+md.push(`\n---\n\n## Les cartes\n\nLes cartes de collection ont leur propre fil : ce que les onze y ont écrit, ce que Porygon-Z en a gardé, et l'histoire de chaque légendaire, rejouée quand sa ligne est complète.\n`);
+md.push(`### La réindexation\n\nAu ${G.REIDX_AT === 6 ? "sixième" : G.REIDX_AT + "e"} doublon d'un légendaire, une illustration qui manquait réapparaît (la plus courante de celles qui manquent), révélée juste après le doublon.\n\n> *Le système avait cessé de la distribuer. Il ne l'avait jamais effacée.* (une illustration ancienne)\n>\n> *Elle était là, sous les doublons. Il suffisait de les comparer.* (celle d'aujourd'hui)\n`);
+md.push(`### Le cadeau de 1996\n\n*Déclencheur :* juste après le premier aveu (\`pz_mem3\`), à un moment calme. La carte : le Rendu primordial de Mew (sinon un autre Rendu primordial, sinon un Rendu fondateur).\n\n**PORYGON-Z** — ${F("Cette carte appartenait à la première connexion. Je l'ai gardée tout ce temps, je ne sais plus très bien pourquoi. Je crois qu'elle est à toi, {nom}.")}\n\n> *Elle appartenait à la première connexion. Porygon-Z l'a gardée pendant onze connexions.*\n`);
+md.push(`### Les cartes annotées\n\nUne fois la page d'une connexion trouvée, un doublon de son légendaire peut arriver annoté au dos, de la même main (deux chances sur cinq, et forcément au troisième). Signé \`${G.pzMask()} · connexion 0X\` jusqu'à la révélation, puis du nom du joueur. Porygon-Z ne commente qu'après \`pz_mem3\`.\n`);
+for(const n of G.CARD_NOTES){
+  md.push(`#### ${G.POKE[n.id].name} — connexion ${String(n.c).padStart(2, "0")}\n\n> ${F(n.t)}\n\n**PORYGON-Z** — ${F(n.pz)}\n`);
+}
+md.push(`### Les chronologies\n\nQuand la dernière illustration d'un légendaire rejoint la collection, la ligne se rejoue de la plus ancienne à celle d'aujourd'hui. Pour chaque époque, une phrase de Porygon-Z (l'une ou l'autre, selon le légendaire) ; à la fin, une phrase pour ce légendaire.\n`);
+const SER = ["g1", "g2", "g3", "g5", "art"];
+for(const s2 of SER){
+  const L = G.CHRONO_ERA[s2] || [];
+  md.push(`- **${G.CARD_SERIES_DEF[s2].n}${G.CARD_YEARS[s2] ? " · " + G.CARD_YEARS[s2] : ""}** — ` + L.map(t=>F(t)).join(" / *ou* / "));
+}
+md.push("");
+for(const id of G.CARD_MONS) md.push(`- **${G.POKE[id].name}** (${G.cardVariants(id).length} écritures) — « ${F(G.CHRONO_END[id])} »`);
+md.push(`\n### La carte de Porygon-Z\n\nÀ la fin ÉCRIRE, une carte que le système n'a jamais émise : le Rendu inédit, posé sur une page du journal, « Écrit par ‹nom› ».\n\n> **[ Une carte que personne n'a émise ]** — *Porygon-Z n'est dans aucune série : aucune époque ne l'a jamais dessiné. Cette carte, c'est toi qui l'as écrite.*\n`);
+{
+  /* la page montrée une fois à une partie qui avait déjà une collection : chaque ligne, dans ses variantes */
+  const s1 = G.newState(); G.setS(s1); s1.story.push("intro"); s1.fragments = [1, 2, 3];
+  for(const id of G.CARD_MONS) for(const s2 of G.cardVariants(id)) G.grantCardV(s2, id);
+  const full = G.cnewsItems();
+  delete s1.cards["g2:150"];
+  const part = G.cnewsItems();
+  const lines = full.map(x=>{
+    const y = part.find(z=>z.t === x.t);
+    const d = y && y.d !== x.d ? `${F(y.d)} *(collection incomplète)* / ${F(x.d)} *(collection complète)*` : F(x.d);
+    return `- **${x.t.replace(/^\d+ chronologies/, "N chronologies")}** — ${d}${x.b ? ` [${x.b.label.replace(/Mewtwo$/, "‹légendaire›")}]` : ""}`;
+  });
+  md.push(`### Ce qui a changé dans tes cartes\n\n*Déclencheur :* une partie qui avait déjà au moins ${G.CNEWS_MIN} cartes avant cette version, une fois, au premier moment calme ; les autres révélations attendent qu'elle soit passée. Au-dessus, le même légendaire à trois époques. Les lignes sans objet (pas de chronologie, pas d'affichage ouvert…) n'apparaissent pas.\n\n**PORYGON-Z** — ${F(G.CNEWS_PZ)}\n\n${lines.join("\n")}\n`);
+}
+md.push(`### Les modes d'affichage\n\n- **1996** (les cinq Rendus primordiaux) — **PORYGON-Z** — ${F("Quatre teintes de vert. Je me souviens de cet écran. Je ne sais pas comment, mais je m'en souviens.")}\n- **1999** (les onze Rendus fondateurs) — **PORYGON-Z** — ${F("La couleur, enfin. Pas beaucoup. Juste assez.")}\n`);
 
 if(G.creditsRollHtml){
   const html = G.creditsRollHtml();

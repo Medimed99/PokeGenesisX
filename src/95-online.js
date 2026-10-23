@@ -538,7 +538,7 @@ SCREENS.online = {
 
   trade(){
     if(!Net.signedIn()) return `<div class="empty">Connectez-vous pour échanger des cartes.</div>`;
-    const owned = Object.keys(S.cards||{}).filter(k=>(S.cards[k].dup||0) > 0);
+    const owned = Object.keys(S.cards||{}).filter(k=>(S.cards[k].dup||0) > 0 && !k.startsWith("pz:"));
     return `
       <div class="panel">
         <div class="h sm">RECEVOIR UNE CARTE</div>
@@ -727,6 +727,7 @@ ACTIONS.netclaim = () => {
     if(!row || !row.series || !row.species){ throw new Error("Code inconnu ou déjà utilisé"); }
     const srz = row.series;
     if(typeof cardRevealExpect === "function") cardRevealExpect();
+    if(typeof cardHowSet === "function") cardHowSet("trade", {});
     const fresh = grantCardV(srz, row.species);
     save();
     closeSheet();

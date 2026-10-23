@@ -32,9 +32,9 @@ function pmdLoop(now){
     x.imageSmoothingEnabled = false;
     /* au repos, un Pokemon respire ; en route, il marche */
     const t = walk ? now / 1000 : null;
-    const ok = pmdFitDraw(x, id, dir, t, W, !!c.dataset.shiny);
+    const ok = pmdFitDraw(x, id, dir, t, W, !!c.dataset.shiny, c.dataset.era || null);
     if(!ok && typeof brSprite === "function"){
-      const s = brSprite(id, c.dataset.shiny ? "s" : "n");
+      const s = brSprite(id, c.dataset.era ? "e" + c.dataset.era : c.dataset.shiny ? "s" : "n");
       if(s) x.drawImage(s, W * 0.1, W * 0.05, W * 0.8, W * 0.8);
     }
     if(c.dataset.shiny && Math.floor(now / 160) % 7 === 0){ x.fillStyle = "#ffe9a8"; x.fillRect(W * 0.72, W * 0.18, 3, 3); }
@@ -128,7 +128,7 @@ function xsTeam(run, opts){
   return `<div class="xs-team ${opts.cls || ""}">${run.team.map((m, i)=>`
     <div class="xs-mon ${m.hp <= 0 ? "ko" : ""}" style="--d:${i * 70}ms">
       ${opts.ups && opts.ups.find(u=>u.i === i) ? `<span class="xs-up" style="--d:${500 + i * 90}ms">+${opts.ups.find(u=>u.i === i).to - opts.ups.find(u=>u.i === i).from}</span>` : ""}
-      ${pmdCanvas(m.id, opts.dir === undefined ? 0 : opts.dir, opts.size || 40, {walk:opts.walk && m.hp > 0, shiny:runShiny(m)})}
+      ${pmdCanvas(m.id, opts.dir === undefined ? 0 : opts.dir, opts.size || 40, {walk:opts.walk && m.hp > 0, shiny:runShiny(m), mine:true})}
       ${opts.bars ? `<div class="bar hp ${m.hp / m.maxHp > .5 ? "" : m.hp / m.maxHp > .2 ? "mid" : "low"}"><i data-to="${Math.max(0, m.hp / m.maxHp * 100)}"
         style="width:${Math.max(0, (opts.from && opts.from[i] !== undefined ? opts.from[i] : m.hp) / m.maxHp * 100)}%"></i></div>` : ""}
     </div>`).join("")}</div>`;
@@ -624,7 +624,7 @@ function xsTeamPick(run, act, showItem){
   return `<div class="xs-pick">${run.team.map((m, i)=>{
     const cur = showItem ? itemOf(m) : null;
     return `<button class="xs-pm ${m.hp <= 0 ? "ko" : ""}" data-act="${act}" data-i="${i}">
-      ${pmdCanvas(m.id, 0, 40, {shiny:runShiny(m)})}
+      ${pmdCanvas(m.id, 0, 40, {shiny:runShiny(m), mine:true})}
       <b>${esc(POKE[m.id].name)}</b><small>${showItem ? (cur ? esc(cur.n) : "aucun objet") : `N.${m.level} · ${m.hp > 0 ? m.hp + " PV" : "hors ligne"}`}</small></button>`;
   }).join("")}</div>`;
 }

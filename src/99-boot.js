@@ -146,8 +146,11 @@ function boot(){
 
   applyCorruption();
   applyCalm();
+  if(typeof applyDisplayMode === "function") applyDisplayMode();
   dailyRollover();
   checkNightFlag();
+  /* la version : dire qu'elle a changé, puis surveiller celle qui est en ligne (96) */
+  if(typeof updAnnounce === "function"){ updAnnounce(); updStart(); }
 
   const enter = () => {
     startLoops();

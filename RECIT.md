@@ -178,6 +178,32 @@ Capturé (il se capture sans peine), il garde son surnom **au Pokédex et dans l
 
 Ils reviennent à chaque connexion (le Pokédex repart de zéro) ; le Journal garde ceux qu'on a déjà retrouvés.
 
+## 5 ter. Ce que les cartes racontent
+
+Les cartes de collection sont un fil discret du même récit (texte intégral : `SCRIPT.md`, « Les cartes »).
+
+**Les exemplaires annotés.** Les onze collectionnaient aussi. Une fois la page d'une connexion trouvée, un doublon de son légendaire peut arriver annoté au dos, de la même main que les pages (deux chances sur cinq, forcément au troisième), signé `▒▒▒▒ · connexion 0X` puis, après la révélation, du nom du joueur. Chaque annotation prolonge sa page et son Pokémon surnommé ; Porygon-Z ne commente qu'après `pz_mem3`, comme pour les pages.
+
+| Connexion | Carte | L'annotation, en une ligne | Ce qu'elle prolonge |
+|---|---|---|---|
+| 01 | Sulfura | « Je la garde pour la fin : Vitefait et moi, on l'encadrera quand on aura fini. » | l'optimisme du premier jour |
+| 02 | Latios | « Les meilleures cartes arrivent quand on devrait dormir. » | la note de méthode, Minuit |
+| 03 | Celebi | deux exemplaires la veille, un seul ce matin | quelque chose efface derrière lui |
+| 04 | Regirock | les points de son visage : autant que de lettres dans son nom | le nom gravé au fond |
+| 05 | Entei | « J'ai demandé au programme à qui elle appartenait avant moi. Il a changé de sujet. » | Porygon-Z a déjà perdu quelqu'un |
+| 06 | Mew | « Je commence toujours par un {premier Pokémon}, et je finis toujours par elle. » | c'est le même joueur |
+| 07 | Électhor | un seul mot, pour le verrou qui tient la porte : merci | Plume, les lettres aux verrous |
+| 08 | Deoxys | « On ne m'a pas donné cette carte : elle est sortie de la faille. » Les octets du bord sont ses lettres. | MissingNo est fait du nom |
+| 09 | Jirachi | le vœu : que le compteur n'arrive jamais à cent | la procédure de clôture, Demain |
+| 10 | Mewtwo | « J'ai essayé de m'effacer des fichiers. […] Ne faites pas ça. » | se désindexer soi-même |
+| 11 | Rayquaza | « Je la laisse ici, pour le prochain. Pour toi. […] Pour nous deux. » | le choix, annoncé |
+
+**Le cadeau de 1996.** Juste après « Pas le premier » (`pz_mem3`), Porygon-Z rend une carte qu'il a gardée depuis la connexion 01 : le Rendu primordial de Mew. « Cette carte appartenait à la première connexion. Je l'ai gardée tout ce temps, je ne sais plus très bien pourquoi. Je crois qu'elle est à toi, {nom}. » Il l'a gardée onze fois, à travers tout le reste : la preuve, avant toute révélation, qu'il a déjà connu l'Archiviste.
+
+**Les chronologies.** Chaque série de cartes est une version successive de la même entité : le système redessine sans jamais effacer. Quand une ligne est complète, elle se rejoue de 1996 à aujourd'hui, et Porygon-Z dit une phrase pour chaque légendaire (Rayquaza : « Dans chaque version, il surveillait le ciel en attendant quelqu'un. Trois versions à attendre. C'était toi. »). La réindexation des doublons suit la même idée : « Le système avait cessé de la distribuer. Il ne l'avait jamais effacée. »
+
+**La carte de Porygon-Z.** À la fin ÉCRIRE, une carte que le système n'a jamais émise : le Rendu inédit, posé sur une page du journal, « Écrit par {nom} », au liseré cyan d'un côté et magenta de l'autre, comme la silhouette de l'Archiviste d'avant. « Porygon-Z n'est dans aucune série : aucune époque ne l'a jamais dessiné. Cette carte, c'est toi qui l'as écrite. »
+
 ## 6. La faille — l'arc de MissingNo
 
 À chaque rencontre marquante avec MissingNo dans les hautes herbes, une étape. Il apprend à parler.
@@ -286,6 +312,7 @@ Puis l'épilogue `epilogue_write` (nouvelle ligne du fichier : « Aujourd'hui, {
 Conséquences en jeu :
 
 - **Porygon-Z devient un Pokémon** : entrée 387 du Pokédex (une case à part, « Hors des 386 définitions · écrit par {nom} »), dans l'équipe s'il y a de la place, au niveau moyen de l'équipe ; sur la carte de l'accueil, il flotte à côté du partenaire.
+- **Sa carte** : le Rendu inédit, « Écrit par {nom} », révélé après l'épilogue (section 5 ter).
 - Le fichier hérité et les pages deviennent lisibles, signés du nom du joueur.
 - Succès « L'Auteur » (titre « Auteur du monde »).
 
@@ -364,5 +391,8 @@ Tests automatiques : `node test.js` couvre la chaîne (ordre, paliers, événeme
 | `src/87-finale.js` | Le combat final, la descente, la révélation (avec les échos de tes réponses), la question, l'écho |
 | `src/30c-onze.js` | Les Pokémon des onze : rencontre, capture, surnom, Journal, révélation |
 | `src/88-share-mn.js` | La carte-image « entrée n° 000 », à partager ou à garder |
+| `src/73e-provenance.js` | Le dos des cartes, les exemplaires annotés des onze, le cadeau de 1996 |
+| `src/73f-chrono.js` | Les chronologies et leurs phrases |
+| `src/73g-pzcard.js` | La carte de Porygon-Z |
 | `src/85-journal.js` | Le journal par actes, les crédits, le nouveau cycle |
 | `SCRIPT.md` | Le texte intégral, généré (`node script.js`) |

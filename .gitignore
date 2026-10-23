@@ -12,3 +12,4 @@
 # donnees sources retelechargeables
 /data/
 /pmd/
+/__pycache__/

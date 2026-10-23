@@ -30,7 +30,14 @@ Les sources sont modulaires et concaténées dans cet ordre par `build.py` :
 | `src/50-expedition.js` | Roguelike à embranchements, reliques, événements, boutique de run |
 | `src/60-poker.js` | Deckbuilder : deck, évaluateur de mains, jokers, blinds, antes, boutique |
 | `src/70-collection.js` | Pokédex et évolutions, boutique, profil, succès, cartes légendaires |
-| `src/73-cards.js` | Cartes de collection : séries par génération, raretés, tirages |
+| `src/73-cards.js` | Cartes de collection : séries par génération, raretés, tirages, rendu des cartes |
+| `src/73d-reindex.js` | Réindexation : au sixième doublon d'un légendaire, l'illustration la plus courante qui manque réapparaît |
+| `src/73e-provenance.js` | Dos des cartes (provenance, équipe du jour), exemplaires annotés par les onze, cadeau de 1996 |
+| `src/73f-chrono.js` | Chronologie d'une ligne complète, de 1996 à aujourd'hui |
+| `src/73g-pzcard.js` | La carte de Porygon-Z, écrite à la fin ÉCRIRE |
+| `src/73h-eras.js` | Apparences d'époque : sprites d'origine, animations repeintes à la palette de l'époque, aura |
+| `src/73i-displaymodes.js` | Modes d'affichage 1996 et 1999 |
+| `src/73j-cardnews.js` | « Tes cartes ont changé » : la page montrée une fois à une partie qui avait déjà une collection |
 | `src/72-bag.js` | Sac : inventaire unifié, usage des objets sur place |
 | `src/74-eggs.js` | Œufs et incubation — éclosion par captures, pas par minuterie |
 | `src/75-extras.js` | Compagnon, objectifs hebdomadaires, séquence de révélation animée |
@@ -45,6 +52,7 @@ Les sources sont modulaires et concaténées dans cet ordre par `build.py` :
 | `src/87-finale.js` | La fin : combat contre MissingNo, révélation, question (effacer ou écrire), écho ; les échos de tes réponses |
 | `src/88-share-mn.js` | La carte-image « entrée n° 000 » (1080 × 1350) : partage natif, enregistrement, Journal |
 | `src/90-admin.js` | Panneau de test (monnaies, niveaux, Pokédex, verrous, scènes, simulation de jour) |
+| `src/96-pwa.js` | Installation de l'application ; version du jeu, mise à jour disponible (`version.json`) |
 | `src/99-boot.js` | Écran de boot, boucles, cycle de vie, PWA, notifications |
 
 ## Construire
@@ -98,74 +106,137 @@ et une autre ligne apparaît : **écrire** Porygon-Z dans le Pokédex, à l'entr
   moins d'animations. `calmFx()` / `applyCalm()` (10-core), classe `body.calm`.
 - **`SCRIPT.md`** — le texte intégral, généré depuis le code : `node script.js`.
 
-## Mise en scène des illustrations
-
-Les illustrations officielles sont détourées sur fond neutre. Les poser telles quelles donne une
-vignette ; les poser dans une **scène** donne une image. La fenêtre de chaque carte empile donc
-cinq couches — ciel, horizon en silhouette, atmosphère en mouvement, voile de brume devant le
-sujet, vignettage — et le type dominant choisit l'environnement parmi sept :
-
-| Environnement | Types | Traitement |
-|---|---|---|
-| Braise | Feu, Sol | horizon incandescent, escarbilles qui montent |
-| Abysse | Eau, Glace | rais de lumière venus de la surface, fond sombre |
-| Orage | Électrik, Vol | ciel bas, éclairs par intermittence |
-| Spores | Plante, Insecte, Poison | particules en suspension, lumière verte |
-| Vide | Psy, Spectre, Ténèbres | étoiles, pas d'horizon |
-| Monolithe | Roche, Acier, Combat | poussière ocre, crête basse |
-| Aurore | Dragon, Fée | voiles colorés en dérive |
-
-## Substituer une illustration
-
-`assets/cardart/<serie>_<numero>.png` remplace l'illustration du dépôt communautaire —
-par exemple `g1_150.png` pour Mewtwo en Rendu primordial. Relancer `build_cardart.py` suffit.
-Le script recadre, centre et lisse sans déformer.
-
-Ce dossier existe pour vos propres visuels ou ceux que vous commandez. Les illustrations
-d'artistes identifiés ne sont pas réutilisables sans leur accord.
-
-## Langage visuel des cartes
-
-Une carte n'est pas du carton : c'est un **enregistrement que le système a imprimé**. Elle emprunte
-la grammaire des cartes à collectionner — bandeau de nom, fenêtre d'illustration, routines chiffrées,
-pied d'index — mais son matériau est la donnée : trame de circuit, ligne de balayage qui descend,
-empreinte de contrôle, bande d'octets. Deux détails sont déterministes et propres à chaque carte :
-`cardChecksum()` et `cardBytes()`, dérivés de la série et du numéro.
-
-Chaque série reçoit un traitement qui raconte son ancienneté :
-
-| Série | Traitement |
-|---|---|
-| Rendu courant | net, sobre, foil lent — fraîchement compilé |
-| Rendu antérieur | entrelacement de lignes, foil bleu rapide — l'enregistrement bouge encore |
-| Rendu instable | aberration chromatique sur l'illustration, nom qui saute, octets qui clignotent |
-| Rendu fondateur | fond chaud gravé, cadre épais, foil doré large |
-| Rendu primordial | phosphore vert, lignes de balayage marquées, halo de tube cathodique |
-| Sans index | le cadre lui-même est désaligné, bordure pointillée, foil magenta bref |
-
-La vue agrandie s'incline au doigt (`installCardTilt`) avec un reflet qui suit le point de contact.
-
 ## Cartes de collection
 
 Seuls les 21 légendaires et fabuleux des trois premières générations sont émis, chacun en
-plusieurs illustrations — une par génération où il est apparu. Plus l'illustration est ancienne,
-plus elle est rare :
+plusieurs illustrations — une par génération qui l'a dessiné. Plus l'illustration est ancienne,
+plus elle est rare, et plus la matière de son cadre est précieuse :
 
-| Série | Source | Nombre | Rareté relative |
-|---|---|---|---|
-| Standard | illustration officielle | 21 | 100 |
-| Holographique | sprite Noir et Blanc | 21 | 45 |
-| Corrompue | sprite Émeraude | 21 | 18 |
-| Originelle | sprite Cristal | 9 | 6 |
-| Primordiale | sprite Rouge et Bleu | 4 | 1,5 |
+| Série | Sujet | Écriture de la scène | Cadre | Cartes | Rareté |
+|---|---|---|---|---|---|
+| Rendu courant | illustration officielle | image lisse, profondeur de champ | argent brossé | 21 | 100 |
+| Rendu antérieur · 2010 | sprite Noir et Blanc | 40 couleurs, à peine tramées | chrome bleu, reflet holographique | 21 | 45 |
+| Rendu instable · 2002 | sprite de 3ᵉ génération | 20 couleurs tramées, lignes qui ont glissé | graphite, dérive rouge et cyan | 21 | 18 |
+| Rendu fondateur · 1999 | sprite Or/Argent | 8 couleurs tramées | or gravé | 11 | 6 |
+| Rendu primordial · 1996 | sprite Rouge/Bleu | les quatre teintes du sprite lui-même | laque noire, or et os, paillettes | 5 | 1,5 |
 
-Soit 76 illustrations, plus une pièce secrète qui n'appartient à aucune série. Les quatre
-Primordiales n'existent que parce que quatre légendaires seulement figuraient en Rouge/Bleu :
-la rareté vient des données, pas d'un réglage arbitraire.
+Soit 79 illustrations, plus une pièce secrète, Sans index. Les cinq Primordiales sont les quatre
+légendaires déclarés en Rouge/Bleu, et Mew, qui ne figurait nulle part. (Les sprites de Mew et de
+Celebi, qui pèsent moins de 400 octets, étaient écartés par un test de taille : Mew primordial et
+les deux Rendus fondateurs manquants sont revenus.)
 
-`python3 build_cardart.py` régénère l'atlas depuis `sprites/cards/`.
+### Une carte est une pleine illustration
+
+Pas d'attaques, de PV ni de faiblesse : un nom, un sous-titre (le titre de gardien, sinon le nom
+de la scène), la série et son année, et la rareté en cinq facettes. Sous la carte agrandie, un
+cartel décrit l'image comme une œuvre, sans jargon technique : « La caverne d'origine » — Rendu
+primordial, « Le sprite de 1996, en quatre teintes. » (`cardSpec`).
+
+**Chaque époque peint son propre monde.** Le sujet est le sprite de la génération, détouré (le
+fond blanc des sprites Rouge/Bleu et Or/Argent est retiré par remplissage depuis les bords ; les
+blancs du corps, entourés d'un contour, restent). La scène autour de lui est régénérée dans les
+contraintes de la même époque : les quatre teintes du sprite tramées comme sur Game Boy pour 1996,
+huit couleurs pour 1999, et ainsi de suite jusqu'à l'image lisse d'aujourd'hui. Le sprite reste à
+une échelle entière — un pixel du sprite vaut un pixel du décor ; un petit sprite (Mew, Celebi,
+Jirachi) resserre la grille plutôt que d'être grossi.
+
+Chaque légendaire a sa scène, écrite une seule fois en coordonnées normalisées dans
+`cardthemes.py` (« Pics gelés à l'aube », « Cœur de l'orage », « La comète millénaire »…) et
+rendue à toutes les résolutions par `cardscene.py` : même composition, seule l'écriture change.
+
+**Le cadrage se fait sur le corps, pas sur la boîte.** Chaque pixel du sujet pèse sa distance au
+bord : un corps épais pèse lourd, une queue ou une aile fines pèsent peu. La carte se centre sur ce
+corps ; la queue de Rayquaza ou de Latias peut sortir de la carte (au plus 20 % du sujet de chaque
+côté), et un sujet étiré grandit un peu pour que son corps remplisse la carte. Quand l'automatique
+ne suffit pas, `FRAME` dans `cardsrc.py` retouche une carte à la main (échelle, décalage) — Sulfura,
+dont la tête est au bout de l'aile, en est le premier exemple.
+
+**La carte agrandie s'incline sous le doigt** (`installCardTilt`) : la scène recule, le sujet
+avance, le reflet glisse sur la matière, le holographique ne s'allume qu'en Rendu antérieur, les
+paillettes qu'en Rendu primordial. À l'ouverture, une seule lumière traverse la carte. Neige,
+braises, pluie ou poussière s'animent — en pas de pixel pour les époques anciennes. En effets
+réduits, rien ne bouge de lui-même.
+
+Le dos de carte porte une rosace de gravure, comme un titre ou un billet : la carte a été émise.
+Une carte non émise ne montre que la matière de sa série, et seulement si la série est connue.
+
+### Atlas et construction
+
+`python3 fetch_cardsprites.py` télécharge ce que le dépôt ne contient pas (le dossier `sprites/`
+n'est pas versionné) : les dos Rouge/Bleu et Cristal et l'illustration de Porygon-Z.
+`python3 build_cardart.py` produit deux atlas — `px` (pixel art, WebP sans perte) et `hd`
+(illustrations lisses, WebP) — et `src/_cardart.js` (atlas embarqués, manifeste, titres des
+scènes, années). `--apercu <dossier>` écrit en plus une image de chaque carte. `build_web.py` sort
+les deux atlas en fichiers à empreinte pour la version hébergée.
+
+### Substituer une illustration
+
+Dans `assets/cardart/` (détails dans `LISEZMOI.txt`) :
+
+- `<serie>_<numero>.png` remplace le **sujet** — par exemple `g1_150.png` pour Mewtwo en Rendu
+  primordial ; il est recadré, centré et lissé sans déformation ;
+- `<serie>_<numero>_scene.png` remplace la **scène** entière (format 5:7, 300 × 420 ou plus).
+
+Relancer `build_cardart.py` suffit. Ce dossier existe pour vos propres visuels ou ceux que vous
+commandez. Les illustrations d'artistes identifiés ne sont pas réutilisables sans leur accord.
+
 Les sauvegardes antérieures sont converties par `migrateCards()` : les quatre anciennes qualités
 correspondent exactement aux quatre premières séries.
+
+### Ce que deviennent les cartes
+
+Avant la collection complète, presque tout ce qu'on tire est un doublon (94 % sur une partie
+simulée). Les cartes servaient surtout à leur pouvoir ; elles ont désormais leur propre vie.
+
+- **Réindexation** (`73d-reindex.js`). Chaque doublon d'un légendaire est comparé aux autres
+  (`S.reidx`) : au sixième, l'illustration la plus courante qui manque encore est restaurée, et
+  révélée juste après le doublon qui l'a fait apparaître, avec sa jauge sous chaque doublon. Une
+  ligne complète décompose chaque doublon en 15 Fragments. Les restaurations qui n'ont pas trouvé
+  de scène attendent un moment calme (`S.reidxQ`). Simulation : la collection complète passe
+  d'environ 1 360 cartes tirées à environ 380. Une partie existante compte ses doublons d'avant,
+  une fois (`S.reidxV`), et voit d'un bloc ce qu'ils ont retrouvé.
+- **L'intégrité fait remonter les écritures anciennes** : à 100 %, chaque série plus ancienne pèse
+  1,3 fois plus au tirage (`cardIntegrityBias`).
+- **Le dos des cartes** (`73e-provenance.js`). Chaque obtention dit d'où elle vient
+  (`cardHowSet(kind, …)` juste avant `grantCardV`) : un verrou levé, une Expédition, un passage
+  légendaire, un coffre… La première carte garde cette provenance, la connexion et l'équipe du
+  moment (`S.cards[k].h`). La carte agrandie se retourne d'un toucher.
+- **Les exemplaires annotés.** Une fois la page d'une connexion trouvée, un doublon de son
+  légendaire peut arriver annoté au dos (deux chances sur cinq, forcément au troisième) : onze
+  annotations, signées `▒▒▒▒ · connexion 0X` puis du nom du joueur après la révélation
+  (`CARD_NOTES`, panneau du Journal). Le papier dépasse un peu derrière la carte.
+- **Le cadeau de 1996.** Après son premier aveu (`pz_mem3`), Porygon-Z rend le Rendu primordial de
+  Mew, gardé depuis la connexion 01 (sinon un autre primordial, sinon un fondateur).
+- **La chronologie** (`73f-chrono.js`). Une ligne complète se rejoue une fois, de la plus ancienne
+  écriture à celle d'aujourd'hui, chaque carte se posant sur la précédente ; une phrase par époque,
+  tirée du vrai sprite (taille, couleurs), et une phrase pour chaque légendaire.
+- **La carte de Porygon-Z** (`73g-pzcard.js`, `CARD_PZ`). À la fin ÉCRIRE : le Rendu inédit, sur
+  une page du journal, « Écrit par ‹nom› », cadre de nacre au liseré cyan et magenta. Elle ne
+  compte dans le total que quand elle existe.
+- **Les apparences d'époque** (`73h-eras.js`). Une carte de 1996, 1999 ou 2002 prête son époque au
+  légendaire, partout où il est au joueur (jamais aux adversaires) : le vrai sprite d'origine, face
+  et dos, là où le jeu dessine des sprites fixes (Pokédex, combat classique, listes d'équipe) ; les
+  sprites de Donjon Mystère (équipe, accueil, Tour, Brèche, Expédition, Forage) ne sont **pas**
+  redessinés : leur animation est repeinte avec la palette du sprite d'époque — les quatre teintes
+  de 1996 et 1999 dans les proportions du sprite d'origine, la couleur la plus proche pour 2002.
+  Les dos Rouge/Bleu et Cristal viennent de `fetch_cardsprites.py` ; `build_cardart.py` range faces,
+  dos, cadres d'origine (`o`, `ko`) et palettes (`q`) dans l'atlas et le manifeste.
+  Sur ces animations, une **aura** distingue le légendaire qui porte une autre époque : une lueur
+  qui épouse sa silhouette (cyan au large, couleur de la série au bord : os, or, magenta), un halo
+  qui respire et quelques fragments de données qui montent. La lueur est l'ombre de canvas de la
+  même image dessinée loin hors du cadre (`eraAuraGlow`) : pas de filtre, le même rendu partout,
+  et seulement pour les siens. En effets réduits, la lueur reste, immobile, sans fragments.
+- **Les modes d'affichage** (`73i-displaymodes.js`). Les cinq Rendus primordiaux ouvrent le mode
+  1996 (quatre verts, police de pixels), les onze Rendus fondateurs le mode 1999 (peu de couleurs,
+  saturées). Une seule passe de filtre CSS sur l'application, composée par le processeur graphique.
+- **Ce qui a changé dans tes cartes** (`73j-cardnews.js`). Une partie qui avait déjà au moins six
+  cartes avant cette version (`S.saga.cnews`, posé au premier passage) reçoit une fois, au premier
+  calme, une page de Porygon-Z : le même légendaire à trois époques, puis une ligne par nouveauté
+  (scènes, dos, doublons, chronologies avec un bouton, apparences, affichage d'époque s'il est
+  ouvert). Tant qu'elle n'est pas montrée, les autres révélations attendent (`reidxQuiet` ;
+  `reidxCalm` pour le seul calme) ; les modes d'affichage déjà ouverts y sont annoncés, sans
+  moment en plus. Une partie neuve ne la voit jamais. Le cadeau de 1996 reçu en double
+  (`reidxSkip`) n'est ni relu par la réindexation ni annoté par une autre connexion.
 
 ## Standard des cinématiques
 
@@ -1259,6 +1330,21 @@ sept vérifications à faire une fois en ligne.
 | `python3 build_web.py` | `web/` | version hébergée : images séparées et mises en cache, service worker, manifeste PWA, `vercel.json` |
 
 Le guide de déploiement complet est dans `web/README.md`.
+
+### La version du jeu (`buildver.py`)
+
+`build.py` date chaque build à l'heure de Paris dans `VERSION.txt` (versionné) ; les deux builds
+calculent la même empreinte sur les sources et la date (`BUILD_V`, `BUILD_LABEL`). Quand Vercel
+reconstruit `web/`, il relit `VERSION.txt` : la version en ligne porte la date de la livraison.
+
+- **Réglages**, tout en bas : « Version du 23 octobre 2026, 19 h 05 · 1a2b3c4d », et un bouton
+  **Vérifier** (version hébergée).
+- `web/version.json` publie la même chose, sans cache (en-tête `no-store`, ignoré par le service
+  worker). Le jeu le relit au lancement, au retour sur l'application et toutes les quinze minutes :
+  si l'empreinte diffère, un bandeau sous la barre du haut propose **Mettre à jour** (la partie est
+  enregistrée, puis la page rechargée). Jamais de rechargement forcé. À la première ouverture d'une
+  nouvelle version, un message le confirme une fois.
+- Après une mise en ligne, `https://<site>/version.json` dit en un coup d'œil ce qui est publié.
 
 ## Mise en ligne
 

@@ -73,7 +73,7 @@ function sqWorldHtml(){
     </div>
     <div class="sw-teambar">
       <div class="sw-tb-mons">${[0, 1, 2, 3].map(i=>{ const id = team[i];
-        return `<span class="sw-tb-m ${i === 0 ? "lead" : ""}">${id ? sprite(id, S.dex[id].shiny, "") : ""}${i === 0 ? `<i class="sw-crown">♛</i>` : ""}</span>`; }).join("")}</div>
+        return `<span class="sw-tb-m ${i === 0 ? "lead" : ""}">${id ? sprite(id, S.dex[id].shiny, "", {skin:true}) : ""}${i === 0 ? `<i class="sw-crown">♛</i>` : ""}</span>`; }).join("")}</div>
       <div class="grow tiny">${team.length ? `<b>Meneur :</b> ${esc(sqLeaderText(sqLeaderOf(team[0])))}` : "Archivez des Pokémon pour composer une équipe."}</div>
       <button class="btn xs ${sqCanUpgradeSomething(team) ? "gold" : ""}" data-act="sqskills" ${team.length ? "" : "disabled"}>${ic("bolt")} Compétences${sqCanUpgradeSomething(team) ? `<i class="badge"></i>` : ""}</button>
     </div>
@@ -278,7 +278,7 @@ ACTIONS.sqskback = () => { const b = SQ_SKV && SQ_SKV.back; SQ_SKV = null; b ===
 ACTIONS.sqskother = () => {
   const own = Object.keys(S.dex).map(Number).filter(id=>POKE[id]).sort((a, b)=>S.dex[b].lvl - S.dex[a].lvl || POKE[b].bst - POKE[a].bst);
   sheet(`${sheetHead("Choisir un Pokémon")}<div class="sq-skall">${own.map(id=>`<button class="sq-skallm ${sqCanUpgrade(id) ? "up" : ""}" data-act="sqskotherpick" data-id="${id}">
-    ${sprite(id, S.dex[id].shiny, "")}<small>${esc(POKE[id].name)}</small><i>N.${S.dex[id].lvl}</i></button>`).join("")}</div>`);
+    ${sprite(id, S.dex[id].shiny, "", {skin:true})}<small>${esc(POKE[id].name)}</small><i>N.${S.dex[id].lvl}</i></button>`).join("")}</div>`);
 };
 ACTIONS.sqskotherpick = d => { closeSheet(); if(!SQ_SKV) return; const id = +d.id; if(!SQ_SKV.ids.includes(id)) SQ_SKV.ids = SQ_SKV.ids.concat([id]); SQ_SKV.id = id; SQ_SKV.flash = null; refresh(); };
 function sqSkillsHtml(){
@@ -296,10 +296,10 @@ function sqSkillsHtml(){
       </div>
       <div class="sqk-strip">${V.ids.filter(i=>S.dex[i]).map(i=>{ const l2 = sqSkillLv(i);
         return `<button class="sqk-m ${i === id ? "on" : ""} ${sqCanUpgrade(i) ? "up" : ""}" data-act="sqskpick" data-id="${i}">
-          ${sprite(i, S.dex[i].shiny, "")}<small>${esc(POKE[i].name)}</small><i>${l2.reduce((a, b)=>a + b, 0)}/${SQ_SKILL_MAX * 3}</i></button>`; }).join("")}
+          ${sprite(i, S.dex[i].shiny, "", {skin:true})}<small>${esc(POKE[i].name)}</small><i>${l2.reduce((a, b)=>a + b, 0)}/${SQ_SKILL_MAX * 3}</i></button>`; }).join("")}
         <button class="sqk-m more" data-act="sqskother">${ic("plus") || "+"}<small>Autre</small></button></div>
       <div class="sqk-hero">
-        <span class="sqk-art">${pmdCanvas(id, 0, 88, {walk:false, shiny:e.shiny})}</span>
+        <span class="sqk-art">${pmdCanvas(id, 0, 88, {walk:false, shiny:e.shiny, mine:true})}</span>
         <div class="grow">
           <b class="sqk-name">${esc(POKE[id].name)}</b>
           <div class="row" style="gap:4px;margin:4px 0">${POKE[id].types.map(t=>`<span class="tt t${t}">${TYPE_NAMES[t]}</span>`).join("")}<span class="tiny dim">N.${e.lvl}</span></div>

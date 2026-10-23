@@ -102,6 +102,7 @@ function crateRoll(tier, si){
     if(r < 0.3 && typeof randomCard === "function"){
       const c = randomCard(1.5);
       if(typeof cardRevealExpect === "function") cardRevealExpect();
+      if(typeof cardHowSet === "function") cardHowSet("crate", {tier});
       CRATE_CARDS.push({s:c.s, id:c.id, fresh:grantCardV(c.s, c.id)});
       out.push("une carte de " + POKE[c.id].name + " !");
     }

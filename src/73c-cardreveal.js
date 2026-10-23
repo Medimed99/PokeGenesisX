@@ -20,6 +20,9 @@
    ============================================================ */
 
 let CRV = null;
+/* ce que d'autres modules ajoutent sous une carte révélée (la jauge de réindexation,
+   une annotation) : des fonctions c -> html */
+const CRV_EXTRA = [];
 /* les pouvoirs annoncés pendant qu'une révélation est prévue sont montrés dans la scène, pas par-dessus */
 let CARD_REVEAL_EXPECT = 0;
 const CARD_POWER_PENDING = {};
@@ -63,9 +66,9 @@ ACTIONS.crvgo = () => { if(CRV) crvPlay(); };
 function crvPlay(){
   crvClear();
   const c = CRV.cards[CRV.i], def = CARD_SERIES_DEF[c.s] || CARD_SERIES_DEF.art;
-  const rank = Math.max(0, CARD_ORDER.indexOf(c.s));
+  const rank = c.s === "pz" ? 4 : Math.max(0, CARD_ORDER.indexOf(c.s));
   const box = document.getElementById("discover");
-  box.className = `on crv play r${rank} ${c.s === "mn" ? "mn" : ""}`;
+  box.className = `on crv play r${rank} ${c.s === "mn" ? "mn" : ""} ${c.s === "pz" ? "pz" : ""}`;
   box.style.setProperty("--ac", def.c);
   box.innerHTML = `<div class="crv-bg"></div><div class="crv-rays"></div>
     <div class="crv-col">
@@ -83,9 +86,15 @@ function crvPlay(){
     </div>`;
   /* le terminal lit la signature, ligne par ligne */
   const term = document.getElementById("crv-term");
-  const lines = [
-    `> signature détectée · N°${c.s === "mn" ? "000" : String(c.id).padStart(3, "0")}`,
-    `> série · ${"◈".repeat(rank + 1)} ${seriesFound(c.s) ? def.n.toUpperCase() : "·····"}`,
+  const no = c.s === "mn" ? "000" : c.s === "pz" ? "387" : String(c.id).padStart(3, "0");
+  const ser = `${"◈".repeat(rank + 1)} ${seriesFound(c.s) ? def.n.toUpperCase() : "·····"}`;
+  const lines = c.reidx ? [
+    `> réindexation · N°${no} · ${typeof REIDX_AT !== "undefined" ? REIDX_AT : 6} exemplaires comparés`,
+    "> différence trouvée · illustration manquante",
+    `> série · ${ser}`
+  ] : c.lines || [
+    `> signature détectée · N°${no}`,
+    `> série · ${ser}`,
     "> décodage de l'illustration…"
   ];
   CRV.lines = lines;
@@ -139,16 +148,24 @@ function crvInfo(){
   CRV.done = true;
   const c = CRV.cards[CRV.i], def = CARD_SERIES_DEF[c.s] || CARD_SERIES_DEF.art;
   const el = document.getElementById("crv-info"); if(!el) return;
-  const pw = c.s === "mn" ? null : CARD_POWER_PENDING[c.id];
+  /* un doublon ne change pas le pouvoir : seule une carte nouvelle le montre */
+  const pw = c.s === "mn" || !c.fresh ? null : CARD_POWER_PENDING[c.id];
   if(pw) delete CARD_POWER_PENDING[c.id];
   const P = typeof CARD_POWERS !== "undefined" ? CARD_POWERS[c.id] : null;
   const last = CRV.i >= CRV.cards.length - 1;
   const e = typeof cardEntry === "function" ? cardEntry(c.s, c.id) : null;
+  const copies = c.rx && c.rx.copies ? c.rx.copies : e && e.dup ? e.dup + 1 : 0;
+  const tag = c.tag || (c.reidx ? "RÉINDEXATION · ILLUSTRATION RETROUVÉE" : c.fresh ? "NOUVELLE CARTE"
+    : `EXEMPLAIRE SUPPLÉMENTAIRE${copies > 1 ? " · ×" + copies : ""}`);
   el.innerHTML = `
-    <div class="crv-tag">${c.fresh ? "NOUVELLE CARTE" : `EXEMPLAIRE SUPPLÉMENTAIRE${e && e.dup ? " · ×" + (e.dup + 1) : ""}`}</div>
+    <div class="crv-tag">${esc(tag)}</div>
     <div class="crv-name">${esc(c.s === "mn" ? "Sans index" : POKE[c.id].name)}</div>
-    <div class="crv-series" style="color:${def.c}">${esc(seriesName(c.s))}</div>
-    <div class="crv-desc">${esc(seriesDesc(c.s))}</div>
+    ${typeof CARD_SCENES !== "undefined" && CARD_SCENES[c.s === "mn" ? 0 : c.id] ? `<div class="crv-scene">« ${esc(CARD_SCENES[c.s === "mn" ? 0 : c.id])} »</div>` : ""}
+    <div class="crv-series" style="color:${def.c}">${esc(seriesName(c.s))}${c.s !== "mn" && CARD_YEARS[c.s] ? " · " + CARD_YEARS[c.s] : ""}</div>
+    ${c.reidx ? `<div class="crv-why">${c.s === "art" ? "Elle était là, sous les doublons. Il suffisait de les comparer."
+      : "Le système avait cessé de la distribuer. Il ne l'avait jamais effacée."}</div>` : ""}
+    <div class="crv-desc">${esc(c.desc || seriesDesc(c.s))}</div>
+    ${CRV_EXTRA.map(f=>{ try { return f(c) || ""; } catch(err){ return ""; } }).join("")}
     ${P && pw ? `<div class="crv-power"><small>${pw.before ? "POUVOIR RENFORCÉ" : "POUVOIR DÉBLOQUÉ"} · ${esc(TIER_NAMES[pw.after])}</small><b>${esc(P.n)}</b><span>${esc(cardPowerDesc(c.id, pw.after))}</span>${typeof cardPowerWhere === "function" ? `<em>À utiliser : ${esc(cardPowerWhere(c.id))}</em>` : ""}</div>` : ""}
     <button class="btn pri wide crv-btn" data-act="crvnext">${last ? "Ranger dans la collection" : `Carte suivante (${CRV.i + 2}/${CRV.cards.length})`}</button>
     ${CRV.cards.length - CRV.i > 2 ? `<button class="btn ghost sm crv-all" data-act="crvall">Tout ranger sans les révéler</button>` : ""}`;

@@ -131,7 +131,7 @@ ACTIONS.worldbuild = d => {
   if(typeof teamCandyGain === "function") teamCandyGain(heart ? 15 : 3);
   if(heart && typeof grantCardV === "function"){
     const core = (regionDef(region).guardians.find(g=>g.core) || {}).id;
-    if(core){ const s = rollCardSeries(core, 3); if(typeof cardRevealExpect === "function") cardRevealExpect(); heartCard = {s, id:core, fresh:grantCardV(s, core)}; }
+    if(core){ const s = rollCardSeries(core, 3); if(typeof cardRevealExpect === "function") cardRevealExpect(); if(typeof cardHowSet === "function") cardHowSet("heart", {r:region}); heartCard = {s, id:core, fresh:grantCardV(s, core)}; }
     gain("cores", 3);
   }
   S.stats.restored = (S.stats.restored || 0) + 1;
@@ -550,7 +550,7 @@ SCREENS.modules = {
               <span class="wd-lbl">${op ? "" : ic("lock")}${esc(ok || k === "rift" ? name : name.replace(/[a-zA-Zéèêàçôûîœ]/g, (m, i)=>((i + dn) % 3 ? m : "▒")))}</span>${b ? `<i class="wd-b">${esc(b)}</i>` : ""}</button>`; }).join("")}
           ${projDone(region, 9) && core ? `<span class="wd-statue" style="left:${WORLD_SPOTS.heart.x}%;top:${WORLD_SPOTS.heart.y}%">${sprite(core, false, "")}</span>` : ""}
           ${dn < WORLD_PROJECTS.length ? `<span class="wd-lurk" id="wd-lurk" style="opacity:${(0.25 + 0.55 * (1 - dn / WORLD_PROJECTS.length)).toFixed(2)}"><img src="${MISSING_SPRITE}" alt=""></span>` : ""}
-          ${lead ? `<span class="wd-partner" id="wd-partner" style="left:${WORLD_SPOTS.pc.x + 4}%;top:${WORLD_SPOTS.pc.y + 6}%">${typeof pmdCanvas === "function" ? pmdCanvas(lead, 0, 40, {shiny:S.dex[lead] && S.dex[lead].shiny}) : sprite(lead, !!(S.dex[lead] && S.dex[lead].shiny), "")}${lead !== 474 && S.dex[474] && typeof pmdCanvas === "function" ? `<span class="wd-pzf">${pmdCanvas(474, 0, 30)}</span>` : ""}</span>` : ""}
+          ${lead ? `<span class="wd-partner" id="wd-partner" style="left:${WORLD_SPOTS.pc.x + 4}%;top:${WORLD_SPOTS.pc.y + 6}%">${typeof pmdCanvas === "function" ? pmdCanvas(lead, 0, 40, {shiny:S.dex[lead] && S.dex[lead].shiny, mine:true}) : sprite(lead, !!(S.dex[lead] && S.dex[lead].shiny), "")}${lead !== 474 && S.dex[474] && typeof pmdCanvas === "function" ? `<span class="wd-pzf">${pmdCanvas(474, 0, 30)}</span>` : ""}</span>` : ""}
           <i class="wd-scan"></i>
         </div>
         <div class="wd-hud bot"><span>INDEX ${Math.round(dn / WORLD_PROJECTS.length * 100)} %</span><span>${WORLD_PROJECTS.length - dn ? `${WORLD_PROJECTS.length - dn} ZONE${WORLD_PROJECTS.length - dn > 1 ? "S" : ""} ILLISIBLE${WORLD_PROJECTS.length - dn > 1 ? "S" : ""}` : "SECTEUR SAIN"}</span></div>

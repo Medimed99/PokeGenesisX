@@ -117,7 +117,7 @@ ACTIONS.dexopen = d => {
     <div class="row top" style="gap:12px">
       <div class="center">
         <span class="sprbox" style="width:116px;height:116px">
-          ${sprite(id, e&&e.shiny, e?"":"ghosted", {anim:!!e, eager:true})}<i class="sprshadow"></i></span>
+          ${sprite(id, e&&e.shiny, e?"":"ghosted", {anim:!!e, eager:true, skin:!!e})}<i class="sprshadow"></i></span>
         ${e&&e.shiny?'<div class="tiny gold-t">chromatique obtenu</div>':""}
       </div>
       <div class="grow">
@@ -129,6 +129,7 @@ ACTIONS.dexopen = d => {
               Sa ligne reste illisible.</div>`}
       </div>
     </div>
+    ${e && typeof skinRowHtml === "function" ? skinRowHtml(id) : ""}
     ${loreOf(id) ? `<div class="lore ${e?"":"sealed"}">
       ${e ? esc(loreOf(id))
           : "Notice illisible. Restaurez cette entité pour récupérer son entrée d'archive."}</div>` : ""}
@@ -707,6 +708,7 @@ function fxLayerHtml(){
       </div>
 
       <div class="panel">
+        ${typeof versionRowHtml === "function" ? versionRowHtml() : ""}
         <div class="tiny dim">Jeu de fan non officiel, sans but lucratif. Pokémon est une marque de
           Nintendo / Creatures Inc. / GAME FREAK inc. Sprites animés fournis par les dépôts communautaires
           PokeAPI et Pokémon Showdown.</div>

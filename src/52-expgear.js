@@ -111,7 +111,7 @@ ACTIONS.expitempick = d => {
       ${run.team.map((m,i)=>{
         const cur = itemOf(m);
         return `<div class="tp-row">
-          <span class="sprbox" style="width:38px;height:38px">${sprite(m.id, runShiny(m), "")}</span>
+          <span class="sprbox" style="width:38px;height:38px">${sprite(m.id, runShiny(m), "", {skin:true})}</span>
           <div class="grow"><div class="tiny">${esc(POKE[m.id].name)}
             <span class="dim">N.${m.level}</span></div>
             <div class="tiny ${cur?"vi":"dim"}">${cur ? "porte déjà " + esc(cur.n) : "aucun objet"}</div></div>
@@ -142,7 +142,7 @@ ACTIONS.expgear = () => {
       ${run.team.map(m=>{
         const it = itemOf(m);
         return `<div class="tp-row ${m.hp<=0?"ghost":""}">
-          <span class="sprbox" style="width:36px;height:36px">${sprite(m.id, runShiny(m), "")}</span>
+          <span class="sprbox" style="width:36px;height:36px">${sprite(m.id, runShiny(m), "", {skin:true})}</span>
           <div class="grow"><div class="tiny">${esc(POKE[m.id].name)} <span class="dim">N.${m.level}</span></div>
             ${it ? `<div class="tiny vi">${esc(it.n)}</div>
                     <div class="tiny muted">${esc(it.d)}</div>`
@@ -233,7 +233,7 @@ SCREENS.hall = {
             </div>
             <div class="hl-team">
               ${r.team.map(m=>`<span class="sprbox ${m.alive?"":"ghosted"}" style="width:26px;height:26px"
-                title="${esc(POKE[m.id].name)} N.${m.lvl}">${sprite(m.id,false,m.alive?"":"ghosted")}</span>`).join("")}
+                title="${esc(POKE[m.id].name)} N.${m.lvl}">${sprite(m.id,false,m.alive?"":"ghosted",{skin:true})}</span>`).join("")}
             </div>
             <div class="tiny dim">${r.corruption?`corruption ${r.corruption} · `:""}${r.lost?`${r.lost} perdu(s) · `:""}${fmtTime(Date.now()-r.t)}</div>
           </div>

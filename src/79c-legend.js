@@ -73,6 +73,7 @@ function legEnd(L, win){
     S.stats.legWins = (S.stats.legWins || 0) + 1;
     const s = typeof rollCardSeries === "function" ? rollCardSeries(L.id, 1.6) : "art";
     if(typeof cardRevealExpect === "function") cardRevealExpect();
+    if(typeof cardHowSet === "function") cardHowSet("legend", {g:L.id, r:L.region});
     const fresh = typeof grantCardV === "function" ? grantCardV(s, L.id) : false;
     const coins = 1500 + S.level * 80;
     gain("shards", 25); gain("coins", coins);

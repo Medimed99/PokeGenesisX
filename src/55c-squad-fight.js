@@ -481,7 +481,7 @@ function sqDrawUnit(x, u, t){
   if(u.mn && typeof fnDrawMN === "function"){ fnDrawMN(x, u, t, cx, cy, size, a); return; }
   const white = (v.flash && t - v.flash < 90) || (v.ko && t - v.ko < 120);
   /* un écho : ton Pokémon, aux couleurs de la faille */
-  const V = white ? "w" : u.echo ? "c" : u.shiny ? "s" : "n";
+  const V = white ? "w" : u.echo ? "c" : typeof eraVar === "function" ? eraVar(u.id, u.shiny ? "s" : "n", u.side === "ally") : u.shiny ? "s" : "n";
   x.globalAlpha = a;
   let ok = false;
   const pose = v.pose && t >= v.pose.t0 && t - v.pose.t0 < v.pose.len ? v.pose : v.pose2 && t >= v.pose2.t0 && t - v.pose2.t0 < v.pose2.len ? v.pose2 : null;
@@ -495,7 +495,7 @@ function sqDrawUnit(x, u, t){
     else if(typeof PMD_IDLE_WALK !== "undefined" && PMD_IDLE_WALK.includes(u.id)) ok = sqSprDraw(x, u.id, "walk", V, dir, tt * 0.7, cx, cy, size, true);
     else ok = sqSprDraw(x, u.id, "walk", V, dir, null, cx, cy + Math.sin(tt * 3) * 0.6, size, false);
   }
-  if(!ok && typeof brSprite === "function"){ const s = brSprite(u.id, u.shiny ? "s" : "n"); if(s) x.drawImage(s, cx - size / 2, cy - size * 0.8, size, size); }
+  if(!ok && typeof brSprite === "function"){ const s = brSprite(u.id, V[0] === "e" ? V : u.shiny ? "s" : "n"); if(s) x.drawImage(s, cx - size / 2, cy - size * 0.8, size, size); }
   x.globalAlpha = 1;
 }
 
@@ -718,8 +718,9 @@ function sqDrawCut(x, C, t){
   /* le portrait */
   const drawMon = (u, px, py, sz) => {
     if(!u) return;
-    const ok = sqSprDraw(x, u.id, sqHasAnim(u.id, "charge") ? "charge" : "idle", u.shiny ? "s" : "n", u.side === "ally" ? 2 : 6, (t - C.t0) / 1000, px, py, sz, true);
-    if(!ok && typeof brSprite === "function"){ const s = brSprite(u.id, u.shiny ? "s" : "n"); if(s) x.drawImage(s, px - sz / 2, py - sz * 0.9, sz, sz); }
+    const UV = typeof eraVar === "function" && !u.echo ? eraVar(u.id, u.shiny ? "s" : "n", u.side === "ally") : u.shiny ? "s" : "n";
+    const ok = sqSprDraw(x, u.id, sqHasAnim(u.id, "charge") ? "charge" : "idle", UV, u.side === "ally" ? 2 : 6, (t - C.t0) / 1000, px, py, sz, true);
+    if(!ok && typeof brSprite === "function"){ const s = brSprite(u.id, UV); if(s) x.drawImage(s, px - sz / 2, py - sz * 0.9, sz, sz); }
   };
   x.textBaseline = "middle";
   if(C.kind === "sync"){

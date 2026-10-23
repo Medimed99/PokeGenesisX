@@ -169,7 +169,18 @@ const INFOS = {
   cards:{n:"Les cartes légendaires", d:`
     <p>Une carte s'obtient en battant un Data Guardian pour la première fois, au bout d'une
     expédition réussie, dans les Archives du Vide ou avec les objectifs de la semaine.</p>
-    <p>Chaque légendaire existe en plusieurs <b>illustrations</b>, d'autant plus rares qu'elles sont anciennes.</p>
+    <p>Chaque légendaire existe en plusieurs <b>illustrations</b>, d'autant plus rares qu'elles sont anciennes.
+    Chacune est peinte dans l'écriture de son époque : les quatre teintes du sprite pour 1996, une image
+    lisse pour aujourd'hui. Plus le rendu est ancien, plus le cadre est précieux : argent, chrome, or, laque noire.</p>
+    <p>Touche une carte pour l'agrandir, puis fais-la pencher du doigt. Touche-la encore : elle se retourne.
+    Au dos : le jour où tu l'as obtenue, d'où elle vient et l'équipe que tu avais ce jour-là.</p>
+    <p><b>Les doublons ne sont jamais perdus.</b> Au sixième doublon d'un légendaire, une illustration qui te
+    manque réapparaît (c'est la <b>réindexation</b>). Quand tu as toutes ses illustrations, chaque doublon
+    rapporte 15 Fragments. Et plus l'intégrité du monde est haute, plus les illustrations anciennes sortent souvent.</p>
+    <p>Quand un légendaire est complet, sa <b>chronologie</b> se joue : toutes ses illustrations, de la plus ancienne
+    à celle d'aujourd'hui (à revoir depuis sa fiche). Une carte ancienne (1996, 1999 ou 2002) peut aussi lui
+    donner l'<b>apparence</b> de son époque : choisis-la au Pokédex. Enfin, les 5 Rendus primordiaux débloquent
+    le <b>mode d'affichage</b> 1996, et les 11 Rendus fondateurs le mode 1999 (Réglages).</p>
     <p><b>Chaque carte a un pouvoir.</b> Le légendaire peut t'attendre au <b>Sanctuaire</b> de
     l'Expédition, et il ouvre en plus un deck ou un programme au Poké-Poker, ou un objet chez Kecleon.
     1 illustration = <b>Éclat I</b>, 2 = <b>Éclat II</b>, 3 ou plus = <b>Éclat III</b>.</p>`},

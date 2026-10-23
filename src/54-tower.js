@@ -306,7 +306,7 @@ SCREENS.tower = {
         return `<div class="tmem ${m.hp<=0?"ko":""} ${TEAM_SEL===i?"sel":""}" data-act="teamtap" data-i="${i}">
           <span class="tpos">${i+1}</span>
           <span class="lv">${m.level}</span>
-          <span class="sprbox" style="width:40px;height:40px">${sprite(m.id, S.dex[m.id]?.shiny, "")}</span>
+          <span class="sprbox" style="width:40px;height:40px">${sprite(m.id, S.dex[m.id]?.shiny, "", {skin:true})}</span>
           <div class="nm">${esc(POKE[m.id].name)}</div>
           <div class="bar hp ${pct>50?"":pct>20?"mid":"low"}"><i style="width:${pct}%"></i></div>
           ${it?`<span class="tiny vi">${esc(it.n.split(" ")[0])}</span>`:""}
@@ -328,7 +328,7 @@ SCREENS.tower = {
       <div class="tp-sel">
         ${R.team.map((m,i)=>{ const cur = itemOf(m);
           return `<div class="tp-row ${m.hp<=0?"ghost":""}">
-            <span class="sprbox" style="width:38px;height:38px">${sprite(m.id, S.dex[m.id]?.shiny, "")}</span>
+            <span class="sprbox" style="width:38px;height:38px">${sprite(m.id, S.dex[m.id]?.shiny, "", {skin:true})}</span>
             <div class="grow"><div class="tiny">${esc(POKE[m.id].name)} <span class="dim">N.${m.level}</span></div>
               <div class="tiny ${cur?"vi":"dim"}">${cur ? "porte déjà " + esc(cur.n) : "aucun objet"}</div></div>
             <button class="btn xs ${cur?"dan":"pri"}" data-act="towergive" data-i="${i}">${cur?"Remplacer":"Donner"}</button>
@@ -342,7 +342,7 @@ SCREENS.tower = {
       <div class="sub">Par <b>${esc(POKE[id].name)}</b>, au niveau ${towerLevel(R.stage)}.</div>
       <div class="tp-sel">
         ${R.team.map((m,i)=>`<div class="tp-row">
-          <span class="sprbox" style="width:38px;height:38px">${sprite(m.id, S.dex[m.id]?.shiny, "")}</span>
+          <span class="sprbox" style="width:38px;height:38px">${sprite(m.id, S.dex[m.id]?.shiny, "", {skin:true})}</span>
           <div class="grow"><div class="tiny">${esc(POKE[m.id].name)} <span class="dim">N.${m.level}</span></div></div>
           <button class="btn xs" data-act="towerswapdo" data-i="${i}">Remplacer</button>
         </div>`).join("")}
@@ -421,7 +421,7 @@ function towerGiveItem(id){
       ${R.team.map((m,i)=>{
         const cur = itemOf(m);
         return `<div class="tp-row">
-          <span class="sprbox" style="width:38px;height:38px">${sprite(m.id, S.dex[m.id]?.shiny, "")}</span>
+          <span class="sprbox" style="width:38px;height:38px">${sprite(m.id, S.dex[m.id]?.shiny, "", {skin:true})}</span>
           <div class="grow"><div class="tiny">${esc(POKE[m.id].name)} <span class="dim">N.${m.level}</span></div>
             <div class="tiny ${cur?"vi":"dim"}">${cur?esc(cur.n):"aucun objet"}</div></div>
           <button class="btn xs pri" data-act="towergive" data-i="${i}" data-id="${id}">Donner</button>
@@ -443,7 +443,7 @@ function towerSwap(id){
       au niveau ${towerLevel(R.stage)}.</div>
     <div class="tp-sel">
       ${R.team.map((m,i)=>`<div class="tp-row">
-        <span class="sprbox" style="width:38px;height:38px">${sprite(m.id, S.dex[m.id]?.shiny, "")}</span>
+        <span class="sprbox" style="width:38px;height:38px">${sprite(m.id, S.dex[m.id]?.shiny, "", {skin:true})}</span>
         <div class="grow"><div class="tiny">${esc(POKE[m.id].name)} <span class="dim">N.${m.level}</span></div></div>
         <button class="btn xs" data-act="towerswapdo" data-i="${i}" data-id="${id}">Remplacer</button>
       </div>`).join("")}

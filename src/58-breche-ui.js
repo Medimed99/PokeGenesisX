@@ -474,6 +474,7 @@ function brGuardianWin(g){
     addIntegrity(g.core ? 5 : 2.5);
     const cs = rollCardSeries(g.id, g.core ? 3.2 : 1.8);
     if(typeof cardRevealExpect === "function") cardRevealExpect();
+    if(typeof cardHowSet === "function") cardHowSet("guardian", {g:g.id, r:r.key});
     const fresh = grantCardV(cs, g.id); out.card = cs; out.cardObj = {s:cs, id:g.id, fresh};
     gain("cores", g.core ? 4 : 2);
   }

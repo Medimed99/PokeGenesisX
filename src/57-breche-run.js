@@ -893,7 +893,7 @@ function brRender(R, cv){
     /* pendant une ruée ou un bond, le Pokémon quitte sa place */
     const p = typeof brMemberOff === "function" ? brMemberOff(w, p0) : p0, lift = p.z || 0;
     /* éveillé : il prend ses couleurs chromatiques */
-    const V = brIsShiny(w) ? "s" : "n";
+    const V = brIsShiny(w) ? "s" : typeof eraVar === "function" ? eraVar(brShownId(w), "n", true) : "n";
     const spr = brSprite(brShownId(w), V);
     const shk = 1 / (1 + lift / 60);
     x.fillStyle = "rgba(0,0,0,.4)"; x.beginPath(); x.ellipse(X(p.x), Y(p.y) + s * 0.34, s * 0.28 * shk, s * 0.09 * shk, 0, 0, 7); x.fill();

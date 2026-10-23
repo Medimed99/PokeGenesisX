@@ -94,7 +94,11 @@ function newState(){
     cos: {owned:["title_novice","frame_base","bg_base","fx_none"],
           title:"title_novice", frame:"frame_base", bg:"bg_base", fx:"fx_none"},
     ach: [],
-    cards: {},                     /* id -> {r:rarete 0-3} cartes legendaires */
+    cards: {},                     /* "serie:id" -> {t, dup, h:provenance} cartes legendaires */
+    reidx: {}, reidxQ: [],         /* reindexation : doublons comptes, restaurations a reveler */
+    cardNotes: {},                 /* connexion -> {s, id, t} : exemplaires annotes par les onze */
+    chrono: {},                    /* legendaires dont la chronologie a ete vue */
+    skins: {},                     /* id -> serie : apparence d'epoque choisie */
     offline: null,
     expedition: null,
     poker: null,

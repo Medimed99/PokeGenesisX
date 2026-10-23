@@ -93,7 +93,7 @@ function rivalScene(rv){
       </div>
       <div class="rv-vs"><span>V</span><span>S</span></div>
       <div class="rv-bot">
-        <div class="rv-me">${typeof pmdCanvas === "function" ? pmdCanvas(lead, 3, 132, {shiny:!!(S.dex[lead] && S.dex[lead].shiny)}) : sprBox(lead, false, 110)}</div>
+        <div class="rv-me">${typeof pmdCanvas === "function" ? pmdCanvas(lead, 3, 132, {shiny:!!(S.dex[lead] && S.dex[lead].shiny), mine:true}) : sprBox(lead, false, 110)}</div>
         <div class="rv-plate me">
           <small>VOUS</small>
           <b>${esc((S.name || "Archiviste").toUpperCase())}</b>

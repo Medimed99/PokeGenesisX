@@ -156,7 +156,7 @@ SCREENS.team = {
     return `
       <div class="tm-hero">
         <div class="tm-pw"><small>PUISSANCE D'ÉQUIPE</small><b>${fmt(pw)}</b>${delta > 0 ? `<em>+${fmt(delta)} depuis hier</em>` : ""}</div>
-        <div class="tm-lead">${lead ? (typeof pmdCanvas === "function" ? pmdCanvas(lead, 0, 120, {walk:true, shiny:S.dex[lead].shiny}) : sprite(lead, S.dex[lead].shiny, "")) : ""}</div>
+        <div class="tm-lead">${lead ? (typeof pmdCanvas === "function" ? pmdCanvas(lead, 0, 120, {walk:true, shiny:S.dex[lead].shiny, mine:true}) : sprite(lead, S.dex[lead].shiny, "")) : ""}</div>
         ${lead ? `<div class="tm-leadn">${esc(POKE[lead].name)} <span class="tiny dim">· ton partenaire</span></div>` : `<div class="tiny dim">Capture des Pokémon pour former ton équipe.</div>`}
         <div class="tm-candy">${ic("seed")} <b>${fmt(S.candy || 0)}</b> Bonbons d'équipe</div>
       </div>
@@ -166,7 +166,7 @@ SCREENS.team = {
         const e = S.dex[id], need = teamXpNeed(e.lvl), c = candyCost(e.lvl), evo = typeof evoReady === "function" && evoReady(id);
         return `<div class="tm-card ${i === 0 ? "lead" : ""} ${evo ? "evo" : ""}">
           <div class="tm-top">${starsHtml(id)}${i === 0 ? `<i class="tm-crown">♛</i>` : ""}</div>
-          <div class="tm-spr" data-act="teamview" data-id="${id}">${typeof pmdCanvas === "function" ? pmdCanvas(id, 0, 64, {shiny:e.shiny}) : sprite(id, e.shiny, "")}</div>
+          <div class="tm-spr" data-act="teamview" data-id="${id}">${typeof pmdCanvas === "function" ? pmdCanvas(id, 0, 64, {shiny:e.shiny, mine:true}) : sprite(id, e.shiny, "")}</div>
           <b class="tm-n">${esc(POKE[id].name)}</b>${typeof monNick === "function" && monNick(id) ? `<i class="tm-nick">« ${esc(monNick(id))} »</i>` : ""}
           <div class="tm-lv"><span>N.${e.lvl}</span><span class="tm-pp">${fmt(monPower(id))}</span></div>
           <div class="bar thin"><i style="width:${e.lvl >= 100 ? 100 : Math.min(100, (e.txp || 0) / need * 100).toFixed(0)}%"></i></div>

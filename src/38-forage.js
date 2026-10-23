@@ -651,9 +651,10 @@ function forShaftDraw(V, dt){
     x.fillStyle = "rgba(0,0,0,.25)"; x.beginPath(); x.ellipse(cx, cy + 4, 20, 6, 0, 0, 7); x.fill();
     const size = Math.min(70, W / n * 0.75), ph = (t + i * 0.37) % 1.1;
     let ok = false;
-    if(typeof brAnimDraw === "function") ok = brAnimDraw(x, id, "attack", S.dex[id] && S.dex[id].shiny ? "s" : "n", 0, ph, cx, cy, size);
-    if(!ok && typeof brPmdDraw === "function") ok = brPmdDraw(x, id, "n", 0, t * 0.6 + i, cx, cy, size);
-    if(!ok && typeof brSprite === "function"){ const s = brSprite(id, "n"); if(s) x.drawImage(s, cx - size / 2, cy - size * 0.8, size, size); }
+    const FV = typeof eraVar === "function" ? eraVar(id, S.dex[id] && S.dex[id].shiny ? "s" : "n", true) : S.dex[id] && S.dex[id].shiny ? "s" : "n";
+    if(typeof brAnimDraw === "function") ok = brAnimDraw(x, id, "attack", FV, 0, ph, cx, cy, size);
+    if(!ok && typeof brPmdDraw === "function") ok = brPmdDraw(x, id, FV === "s" ? "n" : FV, 0, t * 0.6 + i, cx, cy, size);
+    if(!ok && typeof brSprite === "function"){ const s = brSprite(id, FV === "s" ? "n" : FV); if(s) x.drawImage(s, cx - size / 2, cy - size * 0.8, size, size); }
     if(typeof forCrewTool === "function") forCrewTool(x, cx, cy, size, ph);
     /* des eclats de matiere, au rythme des coups */
     if(Math.random() < dt / 160) for(let k = 0; k < 3; k++) V.parts.push({x:cx + (Math.random() - 0.5) * 20, y:cy + 6, vx:(Math.random() - 0.5) * 0.12, vy:-0.08 - Math.random() * 0.12, life:0, max:500 + Math.random() * 400, c:st.pal[Math.floor(Math.random() * 3)]});

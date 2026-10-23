@@ -13,7 +13,7 @@
 - **Acte IV — La Couche Zéro** : Cent pour cent · La Couche Zéro · Le nom · La question
 - **Après — Les connexions suivantes** : Un écho · Sauvegardé · Connexion suivante · La page de trop · Trop tôt · Nouvelle partie · Jusqu'au bout de la phrase
 - **Moments — Ce qui arrive en chemin** : Une ébauche · Un objet · Nulle part écrit · Le silence · Pas au niveau · Mal encodée · Ce n'est pas toi · Un abus toléré
-- **Les pages de journal** · **La faille** · **choses_formidables.txt** · **Les salles** · **Le générique**
+- **Les pages de journal** · **La faille** · **choses_formidables.txt** · **Les salles** · **Les cartes** · **Le générique**
 
 ---
 
@@ -822,7 +822,7 @@
 
 **PORYGON-Z** — Nouvelle ligne : « Aujourd'hui, ‹nom› a écrit au lieu d'effacer. » Formidable. Le mot est trop faible. Je n'en ai pas de plus fort. Je vais en fabriquer un.
 
-**PORYGON-Z** — Je relis le début du fichier. Ta première ligne : Salamèche, le 11 septembre. 1 840 captures depuis, et Pikachu, qui ne t'a jamais lâché. Je n'en oublierai aucune.
+**PORYGON-Z** — Je relis le début du fichier. Ta première ligne : Salamèche, le 13 septembre. 1 840 captures depuis, et Pikachu, qui ne t'a jamais lâché. Je n'en oublierai aucune.
 
 **PORYGON-Z** — Le monde ne craint plus rien. Les chromatiques remontent de la Couche Zéro en nombre anormal, et je n'ai aucune intention de le signaler.
 
@@ -1304,15 +1304,163 @@ Le fichier de Porygon-Z. Il s'écrit de ce que le joueur fait réellement (une l
 
 ---
 
+## Les cartes
+
+Les cartes de collection ont leur propre fil : ce que les onze y ont écrit, ce que Porygon-Z en a gardé, et l'histoire de chaque légendaire, rejouée quand sa ligne est complète.
+
+### La réindexation
+
+Au sixième doublon d'un légendaire, une illustration qui manquait réapparaît (la plus courante de celles qui manquent), révélée juste après le doublon.
+
+> *Le système avait cessé de la distribuer. Il ne l'avait jamais effacée.* (une illustration ancienne)
+>
+> *Elle était là, sous les doublons. Il suffisait de les comparer.* (celle d'aujourd'hui)
+
+### Le cadeau de 1996
+
+*Déclencheur :* juste après le premier aveu (`pz_mem3`), à un moment calme. La carte : le Rendu primordial de Mew (sinon un autre Rendu primordial, sinon un Rendu fondateur).
+
+**PORYGON-Z** — Cette carte appartenait à la première connexion. Je l'ai gardée tout ce temps, je ne sais plus très bien pourquoi. Je crois qu'elle est à toi, ‹nom›.
+
+> *Elle appartenait à la première connexion. Porygon-Z l'a gardée pendant onze connexions.*
+
+### Les cartes annotées
+
+Une fois la page d'une connexion trouvée, un doublon de son légendaire peut arriver annoté au dos, de la même main (deux chances sur cinq, et forcément au troisième). Signé `▒▒▒▒▒ · connexion 0X` jusqu'à la révélation, puis du nom du joueur. Porygon-Z ne commente qu'après `pz_mem3`.
+
+#### Sulfura — connexion 01
+
+> Ma première carte, et c'est Sulfura ! Je la garde pour la fin : Vitefait et moi, on l'encadrera quand on aura fini. Dans deux semaines.
+
+**PORYGON-Z** — Deux semaines. Il a mis bien plus longtemps. Il est allé au bout quand même. Ils y sont tous allés.
+
+#### Latios — connexion 02
+
+> Latios, trouvée à trois heures du matin, avec Minuit sur l'épaule. Un conseil pour qui viendra après : les meilleures cartes arrivent quand on devrait dormir.
+
+**PORYGON-Z** — Trois heures du matin. Je me souviens de l'heure. Pas du visage. C'est souvent comme ça.
+
+#### Celebi — connexion 03
+
+> J'avais deux exemplaires de cette carte. Ce matin, il n'en reste qu'un, et je n'ai rien échangé. Quelque chose efface ce que je laisse derrière moi, même ici. Migraine se tient la tête. Moi aussi.
+
+**PORYGON-Z** — Ce n'était pas moi. Je vérifie chaque fois. Ce n'était pas moi.
+
+#### Regirock — connexion 04
+
+> J'ai compté les points sur son visage : il y en a autant que de lettres dans mon nom. Pioche refuse de regarder la carte.
+
+**PORYGON-Z** — Je les ai comptés aussi, les points. Je n'ai pas aimé le résultat.
+
+#### Entei — connexion 05
+
+> Braise dort contre cette carte, comme contre le feu éteint du campement. J'ai demandé au programme à qui elle appartenait avant moi. Il a changé de sujet.
+
+**PORYGON-Z** — J'ai changé de sujet. Je change toujours de sujet. Pardon encore, connexion 05.
+
+#### Mew — connexion 06
+
+> Mew. J'ai l'impression de l'avoir déjà eue, alors que c'est la première fois. Je commence toujours par un Salamèche, et je finis toujours par elle. Je ne sais pas comment je le sais.
+
+**PORYGON-Z** — Moi aussi, j'ai l'impression de l'avoir déjà vue. Combien de fois ? Je n'arrive pas à compter. C'est bien la première fois.
+
+#### Électhor — connexion 07
+
+> Je n'ai plus de papier, alors j'écris au dos de cette carte. C'est pour Électhor, qui garde sa porte depuis le début parce que je le lui ai demandé. Un seul mot : merci. Plume la lui portera.
+
+**PORYGON-Z** — Il a gardé la porte. Il l'a gardée onze fois. Il te reconnaîtra.
+
+#### Deoxys — connexion 08
+
+> On ne m'a pas donné cette carte : elle est sortie de la faille. J'ai décodé les octets écrits sur le bord. Ce sont les lettres de mon nom. Murmure les répète depuis une heure.
+
+**PORYGON-Z** — Ne décode pas les octets du bord. S'il te plaît. Pas tout de suite.
+
+#### Jirachi — connexion 09
+
+> Jirachi exauce un vœu tous les mille ans. Le mien : que le compteur n'arrive jamais à cent pour cent. Demain dort en travers du chemin. Ça m'arrange.
+
+**PORYGON-Z** — Le compteur, c'est moi qui le tiens. Je ne savais pas qu'on pouvait souhaiter qu'il s'arrête.
+
+#### Mewtwo — connexion 10
+
+> Mewtwo n'a pas demandé à exister. Moi non plus. J'ai essayé de m'effacer des fichiers. Depuis, Personne, mon Métamorph, n'arrive plus à prendre ma forme : il ne trouve plus rien à copier. Ne faites pas ça.
+
+**PORYGON-Z** — « Ne faites pas ça. » Il l'a écrit deux fois en tout : sur sa page, et ici. Je compte.
+
+#### Rayquaza — connexion 11
+
+> Je la laisse ici, pour le prochain. Pour toi. Regarde-la longtemps : c'est ce qu'on voyait au-dessus des nuages, la dernière fois. Souviens-toi. Pour nous deux.
+
+**PORYGON-Z** — Pour le prochain. Pour toi. Il savait que tu viendrais. Moi, je l'espérais.
+
+### Les chronologies
+
+Quand la dernière illustration d'un légendaire rejoint la collection, la ligne se rejoue de la plus ancienne à celle d'aujourd'hui. Pour chaque époque, une phrase de Porygon-Z (l'une ou l'autre, selon le légendaire) ; à la fin, une phrase pour ce légendaire.
+
+- **Rendu primordial · 1996** — 1996. Quatre teintes, pas une de plus : l'écran n'en savait pas davantage. Il fallait deviner le reste, et tout le monde devinait. / *ou* / 1996. Quatre teintes en tout. Personne ne trouvait ça pauvre : on n'avait jamais rien vu d'autre.
+- **Rendu fondateur · 1999** — 1999. Toujours quatre teintes, mais en couleur, cette fois. Il a l'air presque surpris. / *ou* / 1999. Les premières couleurs. Pas beaucoup, mais assez pour le reconnaître de loin.
+- **Rendu instable · 2002** — 2002. Plus de couleurs, plus de détails. Et déjà, les teintes commencent à dériver. / *ou* / 2002. Plus net, plus vif. Et un peu instable, comme tout ce qui allait vite à l'époque.
+- **Rendu antérieur · 2010** — 2010. Il bouge, maintenant. Il ne tient plus en place. / *ou* / 2010. Le sprite respire. On a cru que ce serait la dernière version.
+- **Rendu courant** — Aujourd'hui. Net et complet. « Sans histoire », dit le système. Il se trompe : tu viens de la voir, son histoire.
+
+- **Artikodin** (5 écritures) — « Cinq versions, et il a eu froid dans chacune. Il gelait tout pour que rien ne pourrisse. Même ses anciennes versions, on dirait : elles sont toutes intactes. »
+- **Électhor** (5 écritures) — « Quatre teintes en 1996, et déjà l'orage entier. On n'a jamais eu besoin de beaucoup de couleurs pour dessiner un éclair. »
+- **Sulfura** (5 écritures) — « Dans chaque version, il brûlait pour tenir sa porte. Dans la tienne, il a enfin pu se reposer. »
+- **Mewtwo** (5 écritures) — « On l'a créé, puis redessiné quatre fois, sans jamais lui demander son avis. Je crois que c'est la première fois que quelqu'un regarde toutes ses versions. »
+- **Mew** (5 écritures) — « Il n'était déclaré nulle part, et pourtant il était là dès le début. Il y a des entrées comme ça. Je commence à croire que ce sont les plus importantes. »
+- **Raikou** (4 écritures) — « Quatre versions, quatre façons de courir. Dans toutes, il tournait en rond. Avec toi, il court droit. »
+- **Entei** (4 écritures) — « Chaque époque lui a donné un feu différent. Le premier tenait en quelques couleurs. Il brûlait déjà comme aujourd'hui. »
+- **Suicune** (4 écritures) — « Dans chaque version, il rend l'eau plus claire. Regarde : même ses plus vieilles versions sont restées limpides. »
+- **Lugia** (4 écritures) — « Dans chaque version, il dormait sous les données pour que la tempête ne les emporte pas. Elles sont toutes là. C'est lui qui les a protégées. »
+- **Ho-Oh** (4 écritures) — « Il réécrivait le secteur chaque fois qu'il mourait, sans savoir quelle version était la vraie. Maintenant, tu les as toutes. Elles sont toutes vraies. »
+- **Celebi** (4 écritures) — « Il voyage dans le temps : ses anciennes versions, il les connaît déjà. C'est le seul à ne pas avoir l'air surpris. »
+- **Regirock** (3 écritures) — « Trois versions, et toujours les mêmes points sur le visage. Je préfère ne pas les recompter. »
+- **Regice** (3 écritures) — « Trois versions, et la même glace, qui ne fond dans aucune. Il y a des choses qui tiennent. »
+- **Registeel** (3 écritures) — « L'acier ne s'use dans aucune version. Je l'envie un peu. Correction : beaucoup. »
+- **Latias** (3 écritures) — « Dans chaque version, elle se cache. Elle a fini par se laisser voir. Par toi. »
+- **Latios** (3 écritures) — « Il sait montrer aux autres ce qu'il voit. Pour une fois, c'est nous qui avons tout vu de lui. Échange équitable. »
+- **Kyogre** (3 écritures) — « Elle retenait les marées pour qu'elles n'effacent rien. Regarde : rien n'a été effacé, pas même ses anciennes versions. »
+- **Groudon** (3 écritures) — « Dans chaque version, il portait le sol sur son dos. C'est grâce à lui que tout tient debout. »
+- **Rayquaza** (3 écritures) — « Dans chaque version, il surveillait le ciel en attendant quelqu'un. Trois versions à attendre. C'était toi. »
+- **Jirachi** (3 écritures) — « Il se réveille une fois tous les mille ans. Ses trois versions, pour lui, n'ont duré qu'une nuit. »
+- **Deoxys** (3 écritures) — « Il change de forme pour survivre. Alors changer de version, pour lui, ce n'est rien. »
+
+### La carte de Porygon-Z
+
+À la fin ÉCRIRE, une carte que le système n'a jamais émise : le Rendu inédit, posé sur une page du journal, « Écrit par ‹nom› ».
+
+> **[ Une carte que personne n'a émise ]** — *Porygon-Z n'est dans aucune série : aucune époque ne l'a jamais dessiné. Cette carte, c'est toi qui l'as écrite.*
+
+### Ce qui a changé dans tes cartes
+
+*Déclencheur :* une partie qui avait déjà au moins 6 cartes avant cette version, une fois, au premier moment calme ; les autres révélations attendent qu'elle soit passée. Au-dessus, le même légendaire à trois époques. Les lignes sans objet (pas de chronologie, pas d'affichage ouvert…) n'apparaissent pas.
+
+**PORYGON-Z** — Pendant ton absence, l'archive a relu toutes tes cartes. Elles ont changé. Je te montre.
+
+- **Une scène par époque** — Chaque carte montre le Pokémon dans un décor de son époque. Son cadre dit sa rareté.
+- **Le dos des cartes** — Agrandis une carte, puis touche-la : elle se retourne. Au dos, quand tu l'as obtenue et comment. Certains doublons arriveront avec un mot écrit par un archiviste d'avant.
+- **Tes doublons servent** — Au sixième doublon d'un légendaire, une illustration qui te manque réapparaît. Quand tu les as toutes, chaque doublon rapporte 15 Fragments. *(collection incomplète)* / Tu as toutes les illustrations : chaque nouveau doublon te rapporte 15 Fragments. *(collection complète)*
+- **N chronologies à voir** — Quand tu as toutes les illustrations d'un légendaire, tu peux le revoir à travers toutes ses époques. [Voir celle de ‹légendaire›]
+- **Les apparences d'époque** — Tes cartes anciennes peuvent donner à un légendaire l'apparence de leur époque, dans ton équipe et au Pokédex. Ça se choisit sur la carte agrandie.
+- **L'affichage d'époque** — Tu as les cartes qu'il faut : tout le jeu peut s'afficher comme en 1996 (Game Boy). *(collection incomplète)* / Tu as les cartes qu'il faut : tout le jeu peut s'afficher comme en 1996 (Game Boy) ou en 1999 (Game Boy Color). *(collection complète)* [Choisir dans les Réglages]
+
+### Les modes d'affichage
+
+- **1996** (les cinq Rendus primordiaux) — **PORYGON-Z** — Quatre teintes de vert. Je me souviens de cet écran. Je ne sais pas comment, mais je m'en souviens.
+- **1999** (les onze Rendus fondateurs) — **PORYGON-Z** — La couleur, enfin. Pas beaucoup. Juste assez.
+
+---
+
 ## Le générique
 
 POKÉMON · CODE GENESIS
 
-**L'ARCHIVISTE** — ‹nom›
+**L'ARCHIVISTE** — Archiviste
 
 **PORYGON-Z** — dans son propre rôle *programme d'entretien, version instable — entrée n° 387*
 
-**MISSINGNO** — ‹nom› *ton nom, lu de travers, onze fois*
+**MISSINGNO** — Archiviste *ton nom, lu de travers, onze fois*
 
 **PROF. RACINE** — trois phrases et demie
 
@@ -1320,11 +1468,9 @@ POKÉMON · CODE GENESIS
 
 **LES DRESSEURS RÉMANENTS** — Iris · Moss · Volt · Cendre · Nox · Ayla
 
-**CETTE CONNEXION** — Première ligne : Salamèche *le 11 septembre*Compagnon : Pikachu *il ne t'a jamais lâché*
+**CE MONDE, EN CHIFFRES** — 0 captures · 0 espèces · 0 chromatique
 
-**CE MONDE, EN CHIFFRES** — 1 840 captures · 0 espèces · 0 chromatique
-
-*41 jours · connexion n° 12 · 6 052 lignes dans choses_formidables.txt*
+*1 jour · connexion n° 12 · 4 212 lignes dans choses_formidables.txt*
 
 **SPRITES POKÉMON** — PokeAPI/sprites *données d'espèces : PokeAPI/pokeapi*
 

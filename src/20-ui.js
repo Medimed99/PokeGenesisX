@@ -78,7 +78,11 @@ function installSpriteVars(){
   r.setProperty("--atlas", `url("${ATLAS_URL}")`);
   if(typeof ATLAS_SHINY_URL !== "undefined") r.setProperty("--atlas-shiny", `url("${ATLAS_SHINY_URL}")`);
   if(typeof ITEMS_URL !== "undefined") r.setProperty("--items", `url("${ITEMS_URL}")`);
-  r.setProperty("--cardatlas", `url("${CARD_ATLAS}")`);
+  if(typeof CARD_ATLAS === "object"){
+    r.setProperty("--card-px", `url("${CARD_ATLAS.px.u}")`);
+    r.setProperty("--card-hd", `url("${CARD_ATLAS.hd.u}")`);
+  }
+  try { if(typeof cardGuilloche === "function") cardGuilloche(); } catch(e){}
   r.setProperty("--glitchtile", `url("${MISSING_SPRITE}")`);
 }
 /* teste une seule image ; en cas de succes les grandes vues passent en anime */

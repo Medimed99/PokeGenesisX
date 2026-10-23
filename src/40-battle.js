@@ -424,7 +424,7 @@ ACTIONS.bswitch = () => {
       ${BATTLE.allies.map((f,i)=>`
         <div class="item ${i===BATTLE.a?"on":""}" ${f.hp>0&&i!==BATTLE.a?`data-act="bswitchdo" data-i="${i}"`:""}
           style="${f.hp<=0?"opacity:.4":""}">
-          <span class="sprbox" style="width:40px;height:40px">${sprite(f.id, f.shiny, "")}</span>
+          <span class="sprbox" style="width:40px;height:40px">${sprite(f.id, f.shiny, "", {skin:true})}</span>
           <div class="grow"><div class="t">${esc(f.name)} <span class="dim tiny">N.${f.level}</span>
             ${f.status?`<span class="stbadge" style="--sc:${STATUS[f.status.k].c}">${STATUS[f.status.k].ab}</span>`:""}</div>
             <div class="bar hp ${hpCls(f)}" style="margin-top:4px"><i style="width:${f.hp/f.maxHp*100}%"></i></div>
@@ -480,7 +480,7 @@ function renderArena(){
     </div>
 
     <div class="side ally">
-      <div id="spr-ally" class="combatant back">${sprite(A.id, A.shiny, "", {anim:true, eager:true, back:true})}</div>
+      <div id="spr-ally" class="combatant back">${sprite(A.id, A.shiny, "", {anim:true, eager:true, back:true, skin:true})}</div>
       <div class="nmplate">
         <div class="row between">
           <span>${esc(A.name)} ${statusBadge(A)}</span>
@@ -524,7 +524,7 @@ function renderArena(){
 function teamStrip(list){
   return list.map((f,i)=>`<div class="tmem ${f.hp<=0?"ko":""} ${BATTLE&&i===BATTLE.a?"active":""}">
     <span class="lv">${f.level}</span>
-    <span class="sprbox" style="width:40px;height:40px">${sprite(f.id, f.shiny, "")}</span>
+    <span class="sprbox" style="width:40px;height:40px">${sprite(f.id, f.shiny, "", {skin:true})}</span>
     <div class="nm">${esc(f.name)}</div>
     <div class="bar hp ${hpCls(f)}"><i style="width:${Math.max(0,f.hp/f.maxHp*100)}%"></i></div>
     ${f.status?`<span class="stbadge tiny" style="--sc:${STATUS[f.status.k].c}">${STATUS[f.status.k].ab}</span>`:""}
@@ -646,6 +646,7 @@ function onGuardianEnd(r, i, win){
       /* un noyau emet une illustration ancienne : c'est la recompense de prestige */
       var cs = rollCardSeries(g.id, g.core ? 3.2 : 1.8);
       if(typeof cardRevealExpect === "function") cardRevealExpect();
+      if(typeof cardHowSet === "function") cardHowSet("guardian", {g:g.id, r:r.key});
       var cNew = grantCardV(cs, g.id);
       GUARD_CARD = {s:cs, id:g.id, fresh:cNew};
       gain("cores", g.core ? 4 : 2);

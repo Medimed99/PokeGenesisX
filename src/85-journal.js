@@ -69,6 +69,7 @@ SCREENS.journal = {
         <span class="grow"><b>choses_formidables.txt</b><small>${fmt(pzLineCount())} lignes · le fichier de Porygon-Z</small></span>${ic("arrow")}</button>
       ${fragmentsPanel()}
       ${typeof onzePanelHtml === "function" ? onzePanelHtml() : ""}
+      ${typeof cardNotesPanelHtml === "function" ? cardNotesPanelHtml() : ""}
       <button class="btn wide" style="margin-top:10px" data-act="cineplay" data-k="intro">${ic("eye")} Revoir l'ouverture — L'écriture interrompue</button>
       ${S.saga && S.saga.wrote ? `<button class="btn wide" style="margin-top:7px" data-act="cineplay" data-k="credits">${ic("star")} Revoir le générique</button>` : ""}
       <div class="btn-grid c2" style="margin-top:10px">
@@ -320,6 +321,9 @@ ACTIONS.cycledo = () => {
   if(S.flags.finalChoice === "erase"){ saga.erased = (saga.erased || 0) + 1; saga.end = "erase"; }
   const keep = {
     cards: S.cards, cos: S.cos, ach: S.ach, story: S.story, tutos: S.tutos,
+    /* ce qui tient aux cartes traverse le cycle avec elles */
+    reidx: S.reidx || {}, reidxQ: S.reidxQ || [], reidxV: S.reidxV || 0, cardNotes: S.cardNotes || {}, cardNoteTry: S.cardNoteTry || {},
+    chrono: S.chrono || {}, chronoV: S.chronoV || 0, skins: S.skins || {}, dmSeen: S.dmSeen || {},
     zero: (S.zero||0) + g, perks: S.perks || {}, name: S.name,
     netRev: S.netRev, netMail: S.netMail, settings: S.settings,
     saga, pzlog: S.pzlog || [], pzlogK: S.pzlogK || {},
