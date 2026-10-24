@@ -1163,11 +1163,7 @@ function expFight(run, kind, spec){
         run.autoRev = true;
         run.pend = {k:"enc", kind, foes:spec};
         toast(`Réindexation automatique : ${POKE[m.id] ? POKE[m.id].name : "un allié"} se relève. Le combat reste à livrer.`, "warn", "heart");
-<<<<<<< HEAD
         save(); if(expHere()){ go("expedition"); expResume(run); } return;
-=======
-        save(); go("expedition"); expResume(run); return;
->>>>>>> 413cfb3227eb5cc2782c5abf40c2f79acee89fa4
       }
       if(!win){ endExpedition(false); return; }
       /* l'entite vaincue est celle qu'on pourra recruter : c'est elle qu'on a affrontee */

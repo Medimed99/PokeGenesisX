@@ -215,11 +215,7 @@ function fnLine(who, t){
   if(!el){ el = document.createElement("div"); el.id = "fnline"; host.appendChild(el); }
   el.className = "fn-line on w-" + who;
   const label = who === "pz" ? "PORYGON-Z" : who === "me" ? pzName().toUpperCase() : "MISSINGNO";
-<<<<<<< HEAD
   el.innerHTML = `${who === "pz" ? pzFace("Determined", 34) : `<span class="fn-mn">${who === "me" ? `<img src="${nameSprite(pzName())}" alt="">` : mnSpriteHtml()}</span>`}
-=======
-  el.innerHTML = `${who === "pz" ? pzFace("Determined", 34) : `<span class="fn-mn"><img src="${who === "me" ? nameSprite(pzName()) : MISSING_SPRITE}" alt=""></span>`}
->>>>>>> 413cfb3227eb5cc2782c5abf40c2f79acee89fa4
     <div class="grow"><b>${esc(label)}</b><span>${esc(pzFmt(t))}</span></div>`;
   clearTimeout(fnLine._t);
   fnLine._t = setTimeout(()=>{ el.className = "fn-line w-" + who; }, 2600);
@@ -272,7 +268,6 @@ function fnImg(src){
   return i.complete && i.naturalWidth ? i : null;
 }
 function fnDrawMN(x, u, t, cx, cy, size, a){
-<<<<<<< HEAD
   /* avant son nom : la fêlure qui respire ; à « Regarde mon nom. », elle s'ouvre (0,7 s)
      et le L tiré du nom en sort, en fondu ; ensuite, le L seul (37-cine.js) */
   let open = -1;
@@ -281,9 +276,6 @@ function fnDrawMN(x, u, t, cx, cy, size, a){
   const src = opening ? mnSprite(0.3 + 0.1 * Math.min(7, Math.floor(open * 8)))
     : u.named ? nameSprite(pzName()) : (typeof mnFrame === "function" ? mnFrame(t) : MISSING_SPRITE);
   const v = u._v || {}, img = fnImg(src);
-=======
-  const v = u._v || {}, img = fnImg(u.named ? nameSprite(pzName()) : MISSING_SPRITE);
->>>>>>> 413cfb3227eb5cc2782c5abf40c2f79acee89fa4
   const s = size * 1.18, top = cy - s * 0.96;
   const g = x.createRadialGradient(cx, cy - s * 0.45, 0, cx, cy - s * 0.45, s);
   g.addColorStop(0, `rgba(255,61,127,${(0.34 * a).toFixed(3)})`); g.addColorStop(1, "rgba(255,61,127,0)");
@@ -303,13 +295,10 @@ function fnDrawMN(x, u, t, cx, cy, size, a){
                 cx - s / 2 + off + j * 0.3, top + i * s / slices, s, s / slices + 0.6);
   }
   if(v.flash && t - v.flash < 90){ x.globalCompositeOperation = "lighter"; x.globalAlpha = calm ? 0.25 : 0.75; x.drawImage(img, cx - s / 2, top, s, s); }
-<<<<<<< HEAD
   if(opening){
     const nm = fnImg(nameSprite(pzName()));
     if(nm){ x.globalCompositeOperation = "source-over"; x.globalAlpha = a * Math.min(1, open * 1.25); x.drawImage(nm, cx - s / 2, top, s, s); }
   }
-=======
->>>>>>> 413cfb3227eb5cc2782c5abf40c2f79acee89fa4
   x.restore();
   if(u.named){
     x.font = '8px "Press Start 2P",monospace'; x.textAlign = "center"; x.textBaseline = "middle";
@@ -441,7 +430,6 @@ if(typeof sqPaintScene === "function"){
 /* ============================================================
    4. LES CINÉMATIQUES DE LA FIN
    ============================================================ */
-<<<<<<< HEAD
 const CINE_DESCENT = () => ({id:"zero_descent", title:"La Couche Zéro", shots:[{beats:[
   {t:"bars", on:true},
   {t:"music", k:"couche_zero"},
@@ -461,42 +449,16 @@ const CINE_DESCENT = () => ({id:"zero_descent", title:"La Couche Zéro", shots:[
   {t:"say", who:"pz", text:"Reste près de ton équipe. Moi, je reste près de toi. C'est un système de proximité en chaîne. Je viens de l'inventer."},
   {t:"fx", k:"noise", lv:1},
   {t:"put", id:"mn", kind:"mn", at:"mn", enter:"assemble"},
-=======
-const CINE_DESCENT = {id:"zero_descent", title:"La Couche Zéro", shots:[{bg:"faille", beats:[
-  {t:"bars", on:true},
-  {t:"music", k:"couche_zero"},
-  {t:"card", text:"HOENN", sub:"couche 3 · l'extension", hold:1250},
-  {t:"fx", k:"glitch", lv:1, ms:300},
-  {t:"card", text:"JOHTO", sub:"couche 2 · la couche héritée", hold:1250},
-  {t:"fx", k:"glitch", lv:1, ms:300},
-  {t:"card", text:"KANTO", sub:"couche 1 · le fichier racine", hold:1250},
-  {t:"par", beats:[{t:"fx", k:"glitch", lv:2, ms:500}, {t:"fx", k:"shake", lv:1, ms:500}]},
-  {t:"bg", k:"zero"},
-  {t:"card", text:"COUCHE ZÉRO", sub:"avant le premier octet", hold:2300, big:true},
-  {t:"say", who:"", text:"Sous Kanto, il n'y a pas de sol. Il y a des données empilées sans être rangées. {Prev} fois les mêmes, presque."},
-  {t:"actor", id:"pz", kind:"pz", pos:"right", y:30, enter:"fade", mood:"Determined"},
-  {t:"say", who:"pz", text:"Reste près de ton équipe. Moi, je reste près de toi. C'est un système de proximité en chaîne. Je viens de l'inventer."},
-  {t:"fx", k:"noise", lv:1},
-  {t:"actor", id:"mn", kind:"missing", pos:"left", y:32, enter:"assemble"},
->>>>>>> 413cfb3227eb5cc2782c5abf40c2f79acee89fa4
   {t:"fx", k:"glitch", lv:2, ms:600},
   {t:"say", who:"bad", text:"TU REVIENS TOUJOURS ICI.", corrupt:0.05},
   {t:"say", who:"bad", text:"Tu ne te souviens jamais du chemin. Et tu le trouves quand même.", corrupt:0.05},
   {t:"mood", id:"pz", mood:"Angry"},
-<<<<<<< HEAD
   {t:"move", id:"pz", to:[0.56, 0.66], speed:40, face:"left", wait:false},
   {t:"say", who:"pz", text:"Ne l'écoute pas. Écoute-moi. Quatre Pokémon, les meilleurs. Garde la Synchro pour la fin."},
   {t:"say", who:"bad", text:"IL RESTE TOUJOURS DERRIÈRE.", corrupt:0.08},
   {t:"fx", k:"noise", on:false},
   {t:"par", beats:[{t:"gone", id:"mn", how:"tear"}, {t:"gone", id:"pz", how:"fade"}]}
 ]}]});
-=======
-  {t:"say", who:"pz", text:"Ne l'écoute pas. Écoute-moi. Quatre Pokémon, les meilleurs. Garde la Synchro pour la fin."},
-  {t:"say", who:"bad", text:"IL RESTE TOUJOURS DERRIÈRE.", corrupt:0.08},
-  {t:"fx", k:"noise", on:false},
-  {t:"par", beats:[{t:"leave", id:"mn", how:"tear"}, {t:"leave", id:"pz", how:"fade"}]}
-]}]};
->>>>>>> 413cfb3227eb5cc2782c5abf40c2f79acee89fa4
 
 /* les onze fins, puis celles que tu as choisies toi-même, en connaissance de cause */
 const FN_MONTAGE_BASE = [
@@ -527,7 +489,6 @@ function fnEcho(q, map, mood){
   return (mood ? [{t:"mood", id:"pz", mood}] : []).concat([].concat(say).map(text=>({t:"say", who:"pz", text})));
 }
 const CINE_REVEAL = () => ({id:"finale_reveal", title:"Le nom", shots:[
-<<<<<<< HEAD
   {beats:[
     {t:"bars", on:true},
     {t:"music", k:"verite"},
@@ -542,20 +503,6 @@ const CINE_REVEAL = () => ({id:"finale_reveal", title:"Le nom", shots:[
     {t:"name"},
     {t:"call", fn:c=>{ const a = c.actors.name; if(a && a.el) a.el.classList.add("aside"); }},
     {t:"put", id:"pz", kind:"pz", at:"pz", dir:"left", holo:!pzReal(), enter:"fade", mood:"Stunned"},
-=======
-  {bg:"zero", beats:[
-    {t:"bars", on:true},
-    {t:"music", k:"verite"},
-    {t:"actor", id:"mn", kind:"missing", pos:"center", y:34, enter:"fade"},
-    {t:"par", beats:[{t:"fx", k:"flash", lv:2}, {t:"fx", k:"shake", lv:2, ms:600}]},
-    {t:"say", who:"", text:"MissingNo s'effondre. Il ne disparaît pas : il se tasse, colonne de tuiles qui ne savent plus quoi représenter."},
-    {t:"say", who:"sys", text:"Entrée sans index : intégrité nulle. Lecture des données brutes…"},
-    {t:"code", lines:()=>["> lecture de l'entrée 000", "> octets : " + nameBytes(pzName()).concat([0x50]).map(hex2).join(" "), "> type de donnée : TEXTE", "✓ chaîne lisible trouvée"]},
-    {t:"leave", id:"mn", how:"tear"},
-    {t:"name"},
-    {t:"call", fn:c=>{ const a = c.actors.name; if(a && a.el) a.el.classList.add("aside"); }},
-    {t:"actor", id:"pz", kind:"pz", pos:"right", y:30, enter:"fade", mood:"Stunned"},
->>>>>>> 413cfb3227eb5cc2782c5abf40c2f79acee89fa4
     {t:"say", who:"pz", text:"…", auto:900},
     {t:"mood", id:"pz", mood:"Surprised"},
     {t:"say", who:"pz", text:"C'est ton nom."},
@@ -566,7 +513,6 @@ const CINE_REVEAL = () => ({id:"finale_reveal", title:"Le nom", shots:[
     {t:"leave", id:"name", how:"fade"},
     {t:"mood", id:"pz", mood:"Worried"},
     {t:"say", who:"pz", text:"Je comprends la rumeur, maintenant. La côte qui n'existe plus."},
-<<<<<<< HEAD
     /* la côte d'origine, en quatre teintes de vert : quelqu'un y marche, et le monde lit son nom */
     {t:"set", k:"cote"},
     {t:"put", id:"walker", kind:"swarm", pal:"gb", at:"walkA", enter:"cut", rate:0.05},
@@ -578,13 +524,6 @@ const CINE_REVEAL = () => ({id:"finale_reveal", title:"Le nom", shots:[
     {t:"put", id:"pz", kind:"pz", at:"pz", dir:"left", holo:!pzReal(), enter:"cut", mood:"Pain"},
     {t:"say", who:"pz", text:"C'est comme ça qu'il est né. MissingNo n'a jamais été une créature. C'est ton nom, lu de travers."},
     {t:"put", id:"mn2", kind:"mnname", at:"mn", enter:"assemble", wait:true},
-=======
-    {t:"say", who:"pz", text:"Dans la toute première version de ce monde, à Jadielle, un vieil homme montrait comment attraper un Pokémon. Pendant qu'il le faisait, le jeu rangeait ton nom à l'endroit où il range les Pokémon sauvages."},
-    {t:"say", who:"pz", text:"Et quand on longeait la côte de Cramois'Île, le monde lisait ce qu'il trouvait là. Il lisait ton nom… comme un Pokémon."},
-    {t:"mood", id:"pz", mood:"Pain"},
-    {t:"say", who:"pz", text:"C'est comme ça qu'il est né. MissingNo n'a jamais été une créature. C'est ton nom, lu de travers."},
-    {t:"actor", id:"mn2", kind:"mnname", pos:"left", y:34, enter:"assemble"},
->>>>>>> 413cfb3227eb5cc2782c5abf40c2f79acee89fa4
     {t:"fx", k:"rgb", lv:2, ms:600},
     {t:"say", who:"me", text:"Tu as compris. Enfin."},
     {t:"say", who:"me", text:"Je suis ce qui reste quand tu effaces. Chaque fois que tu as choisi d'effacer, tu t'es écrit ici, un peu plus grand."},
@@ -593,7 +532,6 @@ const CINE_REVEAL = () => ({id:"finale_reveal", title:"Le nom", shots:[
     ...fnEcho("mem3", {
       demander:["Tu m'avais demandé ce qu'ils étaient devenus. J'avais promis de te le dire en premier.", "Ils ne sont rien devenus. C'était toi. Chaque fois, c'était toi."],
       attendre:["Tu avais dit que tu attendrais la réponse. Elle est remontée.", "Ils ne sont rien devenus. C'était toi. Chaque fois, c'était toi."]}, "Pain"),
-<<<<<<< HEAD
     {t:"par", beats:[{t:"gone", id:"mn2", how:"fade"}, {t:"gone", id:"pz", how:"fade"}]}
   ]},
   /* le souvenir entier : la salle claire, l'archiviste d'alors — et ce qu'il devient quand il efface */
@@ -603,20 +541,10 @@ const CINE_REVEAL = () => ({id:"finale_reveal", title:"Le nom", shots:[
     {t:"music", k:"souvenir"},
     {t:"montage", items:fnMontage, ms:620},
     {t:"put", id:"self", kind:"swarm", at:"spot", enter:"form", wait:true},
-=======
-    {t:"par", beats:[{t:"leave", id:"mn2", how:"fade"}, {t:"leave", id:"pz", how:"fade"}]}
-  ]},
-  {bg:"souvenir", beats:[
-    {t:"mem", on:true},
-    {t:"music", k:"souvenir"},
-    {t:"montage", items:fnMontage, ms:620},
-    {t:"actor", id:"self", kind:"self", pos:"center", y:62, enter:"fade"},
->>>>>>> 413cfb3227eb5cc2782c5abf40c2f79acee89fa4
     {t:"say", who:"", text:"Tu te souviens.", mem:1},
     {t:"say", who:"", text:"Du laboratoire. De la barre bloquée à douze pour cent. Du premier Pokémon, toujours un {first}. D'une chaîne cassée à quatre-vingt-dix-neuf. De {prev} fins.", mem:1},
     ...(typeof onzeRevealBeats === "function" ? onzeRevealBeats() : []),
     {t:"say", who:"", text:"Et de la raison.", mem:1},
-<<<<<<< HEAD
     {t:"put", id:"pzp", kind:"pz", at:"back", dir:"down", enter:"fade"},
     {t:"wl", id:"q", k:"sysq", at:[0.5, 0.18], text:"> Retrait des processus d'entretien : PORYGON-Z."},
     {t:"say", who:"sys", text:"> Cohérence atteinte. Retrait des processus d'entretien : PORYGON-Z.", mem:1},
@@ -638,18 +566,6 @@ const CINE_REVEAL = () => ({id:"finale_reveal", title:"Le nom", shots:[
   {beats:[
     {t:"music", k:"verite"},
     {t:"put", id:"pz", kind:"pz", at:"pz", dir:"left", holo:!pzReal(), enter:"fade", mood:"Stunned"},
-=======
-    {t:"say", who:"sys", text:"> Cohérence atteinte. Retrait des processus d'entretien : PORYGON-Z.", mem:1},
-    {t:"say", who:"past", text:"Non. Pas lui.", mem:1},
-    {t:"say", who:"sys", text:"> Que souhaitez-vous faire ?", mem:1},
-    {t:"say", who:"past", text:"Effacer. Tout. On recommence, et il sera encore là.", mem:1},
-    {t:"leave", id:"self", how:"fade"},
-    {t:"mem", on:false}
-  ]},
-  {bg:"zero", beats:[
-    {t:"music", k:"verite"},
-    {t:"actor", id:"pz", kind:"pz", pos:"center", y:32, enter:"fade", mood:"Stunned"},
->>>>>>> 413cfb3227eb5cc2782c5abf40c2f79acee89fa4
     {t:"say", who:"pz", text:"…", auto:1000},
     {t:"mood", id:"pz", mood:"Sad"},
     {t:"say", who:"pz", text:"Oh."},
@@ -662,11 +578,7 @@ const CINE_REVEAL = () => ({id:"finale_reveal", title:"Le nom", shots:[
     {t:"say", who:"pz", text:"Et chaque fois, l'effacement m'a pris ma mémoire. Je t'ai dit bonjour comme à un inconnu. {Prev} fois, tu m'as perdu quand même."},
     {t:"mood", id:"pz", mood:"Sad"},
     {t:"say", who:"pz", text:"Je ne sais pas si je dois être touché ou furieux. Les deux. Je n'aime pas les phrases qui disent deux choses. Celle-là est vraie."},
-<<<<<<< HEAD
     {t:"par", beats:[{t:"gone", id:"pz", how:"fade"}, {t:"gone", id:"mnL", how:"fade"}]}
-=======
-    {t:"leave", id:"pz", how:"fade"}
->>>>>>> 413cfb3227eb5cc2782c5abf40c2f79acee89fa4
   ]}
 ]});
 
@@ -677,20 +589,12 @@ function fnPreset(){
   if(S.flags.finalChoice === "erase") return "erase";
   return null;
 }
-<<<<<<< HEAD
 const CINE_CHOICE = () => ({id:"finale_choice", title:"La question", shots:[{beats:[
   {t:"bars", on:true},
   {t:"music", k:"verite"},
   {t:"set", k:"zero"},
   {t:"put", id:"mn2", kind:"mnname", at:"mn", enter:"fade"},
   {t:"put", id:"pz", kind:"pz", at:"pz", dir:"left", holo:!pzReal(), enter:"fade", mood:"Determined"},
-=======
-const CINE_CHOICE = () => ({id:"finale_choice", title:"La question", shots:[{bg:"zero", beats:[
-  {t:"bars", on:true},
-  {t:"music", k:"verite"},
-  {t:"actor", id:"mn2", kind:"mnname", pos:"left", y:34, enter:"fade"},
-  {t:"actor", id:"pz", kind:"pz", pos:"right", y:30, enter:"fade", mood:"Determined"},
->>>>>>> 413cfb3227eb5cc2782c5abf40c2f79acee89fa4
   {t:"say", who:"sys", text:"Cohérence : 100 %. Retrait des processus d'entretien en attente de confirmation."},
   {t:"say", who:"sys", text:"> Que souhaitez-vous faire ?"},
   {t:"say", who:"pz", text:"Les autres fois, tu as toujours tapé la même ligne : effacer. Tout recommencer, pour que je sois encore là au début. Même si je ne me souvenais plus de toi."},
@@ -718,35 +622,24 @@ const CINE_CHOICE = () => ({id:"finale_choice", title:"La question", shots:[{bg:
        {t:"say", who:"pz", text:"Si tu me retrouves, dis-moi bonjour gentiment. Je dirai « version instable », tu riras. C'est notre blague. Je ne le saurai pas, mais c'est notre blague."},
        {t:"say", who:"me", text:"{NEXT}.", corrupt:0.1},
        {t:"par", beats:[{t:"fx", k:"glitch", lv:3, ms:1100}, {t:"fx", k:"shake", lv:3, ms:1100}]},
-<<<<<<< HEAD
        /* le monde s'en va, ligne après ligne, et le compteur avec lui */
        {t:"erase", ms:4200, from:100, to:0},
-=======
->>>>>>> 413cfb3227eb5cc2782c5abf40c2f79acee89fa4
        {t:"fx", k:"blackout"},
        {t:"card", text:"CONNEXION {nextd}", sub:"mémoire de l'utilisateur : intacte", hold:2600}
      ],
      write:[
        {t:"say", who:"sys", text:"> ÉCRIRE. Nouvelle entrée. Source des données : entrée 000."},
-<<<<<<< HEAD
        {t:"letters", at:[0.32, 0.42], text:()=>pzName(), clear:true, spread:4},
        {t:"say", who:"", text:"Les lettres de ton nom quittent MissingNo une à une. Elles ne tombent pas. Elles se rangent."},
        {t:"par", beats:[{t:"gone", id:"mn2", how:"fade", ms:1400}, {t:"letters", on:false}, {t:"fx", k:"flash", lv:1}]},
        {t:"dex"},
        {t:"say", who:"sys", text:"Entrée 387 enregistrée. Espèce : Porygon-Z. Statut : Pokémon."},
        {t:"anim", id:"pz", holo:false},
-=======
-       {t:"say", who:"", text:"Les lettres de ton nom quittent MissingNo une à une. Elles ne tombent pas. Elles se rangent."},
-       {t:"par", beats:[{t:"leave", id:"mn2", how:"fade"}, {t:"fx", k:"flash", lv:1}]},
-       {t:"dex"},
-       {t:"say", who:"sys", text:"Entrée 387 enregistrée. Espèce : Porygon-Z. Statut : Pokémon."},
->>>>>>> 413cfb3227eb5cc2782c5abf40c2f79acee89fa4
        {t:"say", who:"sys", text:"Retrait des processus d'entretien : aucun processus trouvé."},
        {t:"leave", id:"dex", how:"fade"},
        {t:"mood", id:"pz", mood:"Surprised"},
        {t:"say", who:"pz", text:"Je… je suis dans le Pokédex."},
        {t:"mood", id:"pz", mood:"Joyous"},
-<<<<<<< HEAD
        {t:"hop", id:"pz", n:2, h:8},
        {t:"say", who:"pz", text:"Je suis DANS LE POKÉDEX ! J'ai un numéro ! Trois cent quatre-vingt-sept ! J'ai une taille ! Zéro virgule neuf mètre ! Je suis immense !"},
        {t:"mood", id:"pz", mood:"Happy"},
@@ -754,12 +647,6 @@ const CINE_CHOICE = () => ({id:"finale_choice", title:"La question", shots:[{bg:
        /* le monde, sauvé : le laboratoire du premier jour, entier, de la couleur qu'il devrait avoir */
        {t:"set", k:"labo", v:"clean", light:"warm", keep:["pz"]},
        {t:"move", id:"pz", to:[0.6, 0.66], speed:30, face:"down", wait:false},
-=======
-       {t:"say", who:"pz", text:"Je suis DANS LE POKÉDEX ! J'ai un numéro ! Trois cent quatre-vingt-sept ! J'ai une taille ! Zéro virgule neuf mètre ! Je suis immense !"},
-       {t:"mood", id:"pz", mood:"Happy"},
-       {t:"say", who:"pz", text:"On ne décharge pas une entrée du Pokédex. On ne décharge pas un Pokémon. Il fallait se souvenir de tout pour y penser, et personne ne s'était jamais souvenu de tout."},
-       {t:"bg", k:"labo"},
->>>>>>> 413cfb3227eb5cc2782c5abf40c2f79acee89fa4
        {t:"say", who:"", text:"Là où se tenait MissingNo, il n'y a plus rien. Pas un vide : une place. Ce qui effaçait le monde est devenu une ligne de plus dans son index."},
        {t:"say", who:"pz", text:"Il n'est pas parti, tu sais. Il est là-dedans, dans mon entrée. Je suis écrit avec ton nom, {nom}. Je ne risque plus de t'oublier."},
        ...fnEcho("twist", {
@@ -768,7 +655,6 @@ const CINE_CHOICE = () => ({id:"finale_choice", title:"La question", shots:[{bg:
        ...fnEcho("mem1", {
          tout:"Tu voulais tout voir ? Regarde : un programme d'entretien dans le Pokédex. Ça, personne ne l'avait jamais vu.",
          pret:"Tu m'avais dit : « quand tu seras prêt ». Je crois que je le suis. Pour la suite, je veux dire."}),
-<<<<<<< HEAD
        {t:"wl", id:"save", k:"win", at:[0.5, 0.2], text:"SAUVEGARDE DU MONDE · OK"},
        {t:"say", who:"sys", text:"Intégrité du monde : 100,0 %. Sauvegarde du monde… effectuée."},
        {t:"wl", id:"save", on:false},
@@ -778,46 +664,24 @@ const CINE_CHOICE = () => ({id:"finale_choice", title:"La question", shots:[{bg:
        {t:"card", text:"POKÉMON CODE GENESIS", sub:"intégrité du monde : 100,0 % · sauvegardé", hold:3000},
        {t:"music", k:"generique"},
        {t:"plat", on:false},
-=======
-       {t:"say", who:"sys", text:"Intégrité du monde : 100,0 %. Sauvegarde du monde… effectuée."},
-       {t:"say", who:"", text:"Pour la première fois en {cxw} connexions, quelqu'un a sauvegardé."},
-       {t:"say", who:"pz", text:"On remonte ? Il y a trois secteurs entiers à regarder, et pour une fois, rien à réparer."},
-       {t:"leave", id:"pz", how:"fade"},
-       {t:"card", text:"POKÉMON CODE GENESIS", sub:"intégrité du monde : 100,0 % · sauvegardé", hold:3000},
-       {t:"music", k:"generique"},
->>>>>>> 413cfb3227eb5cc2782c5abf40c2f79acee89fa4
        {t:"credits"}
      ]
    }}
 ]}]});
 /* une connexion rejouée après avoir écrit : MissingNo n'est plus qu'un écho */
-<<<<<<< HEAD
 const CINE_ECHO = () => ({id:"finale_echo", title:"Un écho", shots:[{beats:[
   {t:"bars", on:true},
   {t:"set", k:"zero"},
   {t:"put", id:"mn2", kind:"mnname", at:"mn", enter:"fade", alpha:0.6},
   {t:"put", id:"pz", kind:"pz", at:"pz", dir:"left", holo:!pzReal(), enter:"fade", mood:"Happy"},
-=======
-const CINE_ECHO = {id:"finale_echo", title:"Un écho", shots:[{bg:"zero", beats:[
-  {t:"bars", on:true},
-  {t:"actor", id:"mn2", kind:"mnname", pos:"left", y:34, enter:"fade"},
-  {t:"actor", id:"pz", kind:"pz", pos:"right", y:30, enter:"fade", mood:"Happy"},
->>>>>>> 413cfb3227eb5cc2782c5abf40c2f79acee89fa4
   {t:"say", who:"pz", text:"Ce n'était qu'un écho. Le vrai MissingNo dort dans mon entrée, au chaud, avec ton nom."},
   {t:"say", who:"me", text:"Tu es revenu quand même."},
   {t:"mood", id:"pz", mood:"Joyous"},
   {t:"say", who:"pz", text:"Évidemment qu'on est revenus. C'est le meilleur endroit pour vérifier qu'on se souvient. Et on se souvient."},
-<<<<<<< HEAD
   {t:"gone", id:"mn2", how:"fade"},
   {t:"say", who:"sys", text:"Cohérence : 100 %. Cette copie de la sauvegarde d'origine peut être bouclée."},
   {t:"gone", id:"pz", how:"fade"}
 ]}]});
-=======
-  {t:"leave", id:"mn2", how:"fade"},
-  {t:"say", who:"sys", text:"Cohérence : 100 %. Cette copie de la sauvegarde d'origine peut être bouclée."},
-  {t:"leave", id:"pz", how:"fade"}
-]}]};
->>>>>>> 413cfb3227eb5cc2782c5abf40c2f79acee89fa4
 const CINE_CREDITS = {id:"credits", title:"Générique", shots:[{bg:"void", beats:[{t:"music", k:"generique"}, {t:"credits"}]}]};
 Object.assign(CINEMAS, {zero_descent:CINE_DESCENT, finale_reveal:CINE_REVEAL, finale_choice:CINE_CHOICE, finale_echo:CINE_ECHO, credits:CINE_CREDITS});
 

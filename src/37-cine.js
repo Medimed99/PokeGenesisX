@@ -187,14 +187,10 @@ async function runBeat(c, b){
     case "fx":    await cineFx(c, b, stage); return;
     case "code":  await cineCode(c, b); return;
     case "rain":  b.on ? startRain(c) : stopRain(c); return;
-<<<<<<< HEAD
     case "mem":
       stage.classList.toggle("mem", b.on !== false); c.mem = b.on !== false;
       if(c.pl && c.pl.on) plMem(c, c.mem);
       return;
-=======
-    case "mem":   stage.classList.toggle("mem", b.on !== false); c.mem = b.on !== false; return;
->>>>>>> 413cfb3227eb5cc2782c5abf40c2f79acee89fa4
     case "music":
       if(typeof Music !== "undefined"){ Music.ctxOverride = b.k; c.music = true; try { Music.sync(); } catch(e){} }
       return;
@@ -204,14 +200,11 @@ async function runBeat(c, b){
     case "dex":     await cineDex(c, b); return;
     case "credits": await cineCredits(c, b); return;
     case "call":    try { b.fn && b.fn(c); } catch(e){ console.error(e); } return;
-<<<<<<< HEAD
   }
   /* le reste du vocabulaire appartient au plateau (37d) */
   if(typeof PL_BEATS !== "undefined" && PL_BEATS.includes(b.t)){
     if(b.t === "put" && b.kind === "pz" && b.mood) c.pzMood = b.mood;
     await plBeat(c, b);
-=======
->>>>>>> 413cfb3227eb5cc2782c5abf40c2f79acee89fa4
   }
 }
 
@@ -261,11 +254,7 @@ async function cineActor(c, b){
   /* un embleme : badge, sceau, objet — un glyphe dans un joyau qui tourne */
   else if(b.kind === "emblem") el.innerHTML = `<div class="cn-emblem" style="--ec:${b.color || "#35f0d6"}">
       <i></i><i></i><span>${esc(b.glyph || "◆")}</span></div>`;
-<<<<<<< HEAD
   else if(b.kind === "missing") el.innerHTML = `<div class="cn-mn">${mnSpriteHtml()}</div>`;
-=======
-  else if(b.kind === "missing") el.innerHTML = `<div class="cn-mn"><img src="${MISSING_SPRITE}" alt=""></div>`;
->>>>>>> 413cfb3227eb5cc2782c5abf40c2f79acee89fa4
   /* MissingNo, une fois lu : le même bloc, mais fait des octets de ton nom */
   else if(b.kind === "mnname") el.innerHTML = `<div class="cn-mn named"><img src="${nameSprite(pzName())}" alt=""><i class="cn-mn-name">${esc(pzName())}</i></div>`;
   /* l'archiviste d'une connexion passée : une silhouette, jamais un visage */
@@ -307,7 +296,6 @@ async function cineSay(c, b){
   const who = document.getElementById("cn-who");
   const txt = document.getElementById("cn-text");
   /* le systeme ne parle en rouge que lorsqu'il signale une erreur */
-<<<<<<< HEAD
   /* « Aucune ligne illisible » est une bonne nouvelle : la négation ne compte pas comme une erreur */
   const sysErr = b.who === "sys" && /ERREUR|ÉCHEC|ILLISIBLE|INTROUVABLE/i.test(b.text) && !/aucune\s+\S+\s+illisible/i.test(b.text);
   dlg.className = "cn-dialog on w-" + (sysErr ? "syserr" : (b.who || "none")) + (b.corrupt > 0.3 ? " broken" : "") + (b.mem || c.mem ? " mem" : "");
@@ -319,15 +307,6 @@ async function cineSay(c, b){
   const full = corruptText(typeof pzFmt === "function" ? pzFmt(b.text) : b.text, b.corrupt || 0);
   txt.textContent = "";
   if(c.ff){ txt.textContent = full; c.typing = null; if(typeof plTalk === "function") plTalk(c, b.who, false); return; }
-=======
-  const sysErr = b.who === "sys" && /ERREUR|ÉCHEC|ILLISIBLE|INTROUVABLE/i.test(b.text);
-  dlg.className = "cn-dialog on w-" + (sysErr ? "syserr" : (b.who || "none")) + (b.corrupt > 0.3 ? " broken" : "") + (b.mem || c.mem ? " mem" : "");
-  void dlg.offsetWidth;
-  who.textContent = cineWho(b.who);
-  const full = corruptText(typeof pzFmt === "function" ? pzFmt(b.text) : b.text, b.corrupt || 0);
-  txt.textContent = "";
-  if(c.ff){ txt.textContent = full; c.typing = null; return; }
->>>>>>> 413cfb3227eb5cc2782c5abf40c2f79acee89fa4
   /* frappe caractere par caractere, completee d'un toucher */
   await new Promise(done=>{
     let i = 0, stopped = false;
@@ -642,7 +621,6 @@ async function cineCredits(c, b){
   if(host) host.classList.remove("credits");
 }
 
-<<<<<<< HEAD
 /* ---------- l'archiviste d'avant, en image fixe ----------
    La même forme de pixels que sur le plateau (SW_MAP, 37d) : quelqu'un debout, sans visage,
    fait des octets du nom, bordé de cyan et de magenta ; quelques pixels s'en détachent. */
@@ -669,36 +647,6 @@ function selfSprite(){
     url = cv.toDataURL();
   } catch(e){}
   return SELF_SPR[name] = url;
-=======
-/* ---------- l'archiviste, en silhouette ----------
-   Il n'a jamais de visage : seulement une casquette, un sac, une ligne de
-   lumière de chaque côté — cyan pour le système, magenta pour la faille. */
-let SELF_SPRITE = null;
-const SELF_MAP = [
-  ".......XXXXX........", "......XXXXXXX.......", ".....XXXXXXXXX......", ".....XXXXXXXXXXXX...",
-  "......XXXXXXX.......", "......XXXXXXX.......", "......XXXXXXX.......", ".......XXXXX........",
-  "........XXX.........", ".....XXXXXXXXX......", "....XXXXXXXXXXX.....", "...XXXXXXXXXXXXX....",
-  "...XXXXXXXXXXXXX....", "...XXX.XXXXXXX.XX...", "...XXX.XXXXXXX.XX...", "...XX..XXXXXXX..XX..",
-  "...XX..XXXXXXX..XX..", "...XX..XXXXXXX..XX..", "...XX...XXXXX...XX..", ".......XXXXXXX......",
-  ".......XXXXXXX......", ".......XXX.XXX......", ".......XXX.XXX......", ".......XXX.XXX......",
-  ".......XXX.XXX......", ".......XXX.XXX......", ".......XXX.XXX......", ".......XX...XX......",
-  "......XXX...XXX.....", "......XXXX..XXXX...."];
-function selfSprite(){
-  if(SELF_SPRITE) return SELF_SPRITE;
-  try {
-    const W = SELF_MAP[0].length, H = SELF_MAP.length, cv = document.createElement("canvas");
-    cv.width = W; cv.height = H;
-    const x = cv.getContext("2d");
-    const on = (X, Y) => Y >= 0 && Y < H && X >= 0 && X < W && SELF_MAP[Y][X] === "X";
-    for(let Y = 0; Y < H; Y++) for(let X = 0; X < W; X++){
-      if(!on(X, Y)) continue;
-      x.fillStyle = !on(X - 1, Y) ? "#35f0d6" : !on(X + 1, Y) ? "#ff3d7f" : !on(X, Y - 1) ? "#3a3058" : "#140d26";
-      x.fillRect(X, Y, 1, 1);
-    }
-    SELF_SPRITE = cv.toDataURL();
-  } catch(e){ SELF_SPRITE = MISSING_SPRITE; }
-  return SELF_SPRITE;
->>>>>>> 413cfb3227eb5cc2782c5abf40c2f79acee89fa4
 }
 /* ---------- ton nom, en octets, puis en tuiles ---------- */
 const GB_ACCENTS = {"é":0xBA, "è":0xBB, "ê":0xBC, "à":0xBD, "ç":0xBE, "ô":0xBF, "î":0xC0, "ù":0xC1, "û":0xC2, "ë":0xC3, "ï":0xC4, "â":0xC5};
@@ -751,7 +699,6 @@ function nameSpriteCanvas(name){
   } catch(e){ return null; }
 }
 
-<<<<<<< HEAD
 /* ---------- MissingNo avant son nom : une fêlure dans l'image ----------
    Ce n'est pas une créature : une fêlure verticale, dont on ne voit que les bords
    (cyan à gauche, magenta à droite, comme la silhouette de l'archiviste d'avant).
@@ -849,8 +796,6 @@ function mnApplyVar(){
   } catch(e){}
 }
 
-=======
->>>>>>> 413cfb3227eb5cc2782c5abf40c2f79acee89fa4
 /* ---------- pluie de données et bruit (canvas) ---------- */
 function startRain(c){
   const cv = document.getElementById("cn-rain"); if(!cv) return;
@@ -1004,16 +949,11 @@ const CINE_INTRO = {id:"intro", title:"L'écriture interrompue", shots:[
     {t:"mood", id:"pz", mood:"Happy"},
     {t:"wl", id:"reg", k:"file", at:[0.5, 0.24], title:"registre.sys", lines:["utilisateur : {nom}", "utilisateur : {nom}", "utilisateur : {nom}"]},
     {t:"say", who:"pz", text:"{nom}. Enregistré. Je l'ai écrit trois fois, au cas où."},
-<<<<<<< HEAD
     {t:"wl", id:"reg", on:false},
     {t:"mood", id:"pz", mood:"Surprised"},
     {t:"letters", at:[0.5, 0.44], ms:2800, spread:12},
     {t:"say", who:"pz", text:"…C'est drôle. J'ai eu l'impression de le reconnaître, ton nom. Le bruit de fond, sûrement. Ça m'arrive."},
     {t:"cam", to:[0.5, 0.55], z:1, ms:900},
-=======
-    {t:"mood", id:"pz", mood:"Surprised"},
-    {t:"say", who:"pz", text:"…C'est drôle. J'ai eu l'impression de le reconnaître, ton nom. Le bruit de fond, sûrement. Ça m'arrive."},
->>>>>>> 413cfb3227eb5cc2782c5abf40c2f79acee89fa4
     {t:"mood", id:"pz", mood:"Happy"},
     {t:"say", who:"pz", text:"Pour le système, tu seras l'Archiviste. Pour moi, tu seras {nom}. Le système n'a pas besoin de le savoir."},
     {t:"mood", id:"pz", mood:"Determined"},
@@ -1046,130 +986,8 @@ const MAJOR_SCENES = new Set(["missingno_1","kanto_done","johto_done","hoenn_don
   "pz_mem1","pz_mem2","pz_mem3","pz_mem4","pz_mem5","pz_mem6",
   "cy_e_open","cy_e_page","cy_e_mid","cy_w_open","cy_w_prof"]);
 
-<<<<<<< HEAD
 /* la table de mise en scène (STAGE) et le metteur en scène (directStory) : 37f-mise-en-scene.js */
 
-/* une question du récit, en temps de cinématique : les options, puis sa réaction à ta réponse */
-function storyQBeat(q){
-  const Q = STORY_Q[q];
-  const say = list => list.flatMap(l=>(l.m ? [{t:"mood", id:"pz", mood:l.m}] : []).concat([{t:"say", who:l.w || "", text:l.t}]));
-  const branches = {};
-  for(const k in Q.then) branches[k] = say(Q.then[k]);
-  return {t:"choice", quick:true, q, title:Q.title, preset:()=>storyAns(q), on:k=>storyAnswer(q, k),
-          opts:Q.opts.map(o=>({k:o.k, cmd:o.cmd, sub:o.sub})), branches};
-=======
-const DIRECTION = {
-  missingno_1: {
-    0:   [{t:"fx", k:"noise", lv:1}],
-    3:   [{t:"fx", k:"shake", lv:2, ms:450}],
-    7:   [{t:"fx", k:"noise", on:false}],
-    11:  [{t:"fx", k:"rgb", lv:1, ms:500}]
-  },
-  kanto_half: { 4: [{t:"fx", k:"rgb", lv:1, ms:420}] },
-  johto_done: {
-    1:   [{t:"par", beats:[{t:"fx", k:"glitch", lv:2, ms:520}, {t:"fx", k:"shake", lv:2, ms:520}]}],
-    end: [{t:"fx", k:"glitch", lv:1, ms:400}]
-  },
-  pz_twist: {
-    1:   [{t:"fx", k:"noise", lv:1}],
-    6:   [{t:"par", beats:[{t:"fx", k:"glitch", lv:2, ms:700}, {t:"fx", k:"flash", lv:2}]}],
-    7:   [{t:"fx", k:"noise", on:false}, {t:"wait", ms:CINE_T.mid}]
-  },
-  pz_mem3: { 6: [{t:"fx", k:"rgb", lv:1, ms:380}], 8: [{t:"fx", k:"rgb", lv:2, ms:520}] },
-  hoenn_mid: { 3: [{t:"fx", k:"rgb", lv:1, ms:420}] },
-  pz_mem5: { 4: [{t:"fx", k:"glitch", lv:1, ms:360}] },
-  /* le monde enfin propre : le décor chaud de l'ouverture revient — puis la faille, dessous */
-  finale_gate: {
-    0:   [{t:"fx", k:"flash", lv:1}],
-    2:   [{t:"bg", k:"labo"}, {t:"wait", ms:CINE_T.long}],
-    5:   [{t:"bg", k:"faille"}, {t:"fx", k:"noise", lv:1}, {t:"fx", k:"glitch", lv:2, ms:600}],
-    end: [{t:"fx", k:"noise", on:false}]
-  },
-  epilogue_write: { 0: [{t:"bg", k:"labo"}] },
-  cy_e_open: { 2: [{t:"wait", ms:CINE_T.mid}] },
-  cy_e_page: { 0: [{t:"bg", k:"souvenir"}, {t:"mem", on:true}], end: [{t:"mem", on:false}] }
-};
-
-function directStory(sc){
-  const lines = sc.lines || [];
-  const whos = new Set(lines.map(l=>l.w || ""));
-  const hasProf = whos.has("prof"), hasPz = whos.has("pz"), hasBad = whos.has("bad");
-  const universe = hasBad ? "faille" : hasProf ? "labo" : "terminal";
-  const rift = /^rift_/.test(sc.id || "");
-  const major = rift || MAJOR_SCENES.has(sc.id);
-  const memScene = !!sc.mem;
-  /* places fixees d'avance : personne ne doit en chevaucher un autre */
-  const pos = {
-    prof: hasPz ? "left" : "center",
-    mn:   hasPz ? "left" : "center",
-    pz:   (hasProf || hasBad || whos.has("past") || !!sc.mem) ? "right" : "center"
-  };
-  const dir = DIRECTION[sc.id] || {};
-  const beats = [], on = new Set();
-  /* le suivi des presences descend dans les temps simultanes, mais n'ajoute
-     que la liste de premier niveau : sinon chaque temps parallele etait joue
-     deux fois — une fois dans son groupe, une fois a plat */
-  const scan = list => {
-    for(const b of list){
-      if(b.t === "actor") on.add(b.id);
-      if(b.t === "leave") on.delete(b.id);
-      if(b.t === "par") scan(b.beats);
-    }
-  };
-  const track = list => { scan(list); beats.push(...list); };
-  if(major) beats.push({t:"bars", on:true});
-  const title = rift ? "LA FAILLE"
-    : (typeof STORY_TITLES !== "undefined" && STORY_TITLES[sc.id]) ? STORY_TITLES[sc.id].toUpperCase() : null;
-  if(major && title)
-    beats.push({t:"card", text:title,
-      sub: rift ? `MissingNo · étape ${sc.id.split("_")[1]} / ${RIFT_ARC.length}` : memScene ? "mémoire de Porygon-Z"
-         : hasBad ? "signal non indexé" : /^cy_/.test(sc.id || "") ? "connexion n° " + (typeof sagaConn === "function" ? sagaConn() : 12) : "journal de l'Archiviste",
-      hold:1600});
-
-  let badSeen = false, sysSeen = false, memOn = false;
-  lines.forEach((l, i)=>{
-    if(dir[i]) track(dir[i]);
-    /* une réplique réservée à une autre réponse que la tienne */
-    if(l.when && typeof storyWhen === "function" && !storyWhen(l.when)) return;
-    /* une question de Porygon-Z : il est déjà en scène, il attend */
-    if(l.q){ if(typeof STORY_Q !== "undefined" && STORY_Q[l.q]) beats.push(storyQBeat(l.q)); return; }
-    const w = l.w || "";
-    /* un souvenir : le décor passe au sépia, la silhouette de l'archiviste d'alors se tient là ;
-       au retour, le présent reprend sa couleur */
-    if(l.mem && !memOn){
-      memOn = true; beats.push({t:"mem", on:true}, {t:"bg", k:"souvenir"}, {t:"sfx", k:"wobble"});
-      /* chaque souvenir est celui d'une connexion passée : l'archiviste d'alors s'y tient */
-      if(!on.has("self")) track([{t:"actor", id:"self", kind:"self", pos:"left", y:66, enter:"fade"}]);
-    }
-    if(!l.mem && memOn){
-      memOn = false; beats.push({t:"mem", on:false}, {t:"bg", k:universe});
-      if(on.has("self")) track([{t:"leave", id:"self", how:"fade"}]);
-    }
-    if(w === "past" && !on.has("self")) track([{t:"actor", id:"self", kind:"self", pos: hasPz ? "left" : "center", y:66, enter:"fade"}]);
-    if(w === "prof" && !on.has("prof")) track([{t:"actor", id:"prof", kind:"prof", pos:pos.prof, enter:"fade"}]);
-    if(w === "pz"){
-      if(!on.has("pz")) track([{t:"actor", id:"pz", kind:"pz", pos:pos.pz, y:32,
-                                enter: major ? "assemble" : "fade", mood:l.m || "Normal"}]);
-      else if(l.m) beats.push({t:"mood", id:"pz", mood:l.m});
-    }
-    if(w === "bad"){
-      /* la faille prend corps a sa premiere replique */
-      if(!badSeen){
-        badSeen = true;
-        if(!on.has("mn")) track([{t:"actor", id:"mn", kind:"missing", pos:pos.mn, y:32, enter:"assemble"}]);
-        beats.push({t:"fx", k:"glitch", lv:2, ms:600});
-      } else beats.push({t:"fx", k:"rgb", lv:1, ms:380});
-    }
-    if(w === "sys" && !sysSeen){ sysSeen = true; beats.push({t:"fx", k:"flash", lv:1}); }
-    if(l.bad) beats.push({t:"fx", k:"shake", lv:1, ms:350});
-    beats.push({t:"say", who: (w in CINE_WHO) ? w : "", text:l.t, corrupt: w === "bad" ? 0.05 : 0, mem:!!l.mem});
-  });
-  if(memOn) beats.push({t:"mem", on:false});
-  if(dir.end) track(dir.end);
-  for(const id of [...on]) track([{t:"leave", id, how:"fade"}]);
-  return {id:sc.id, title, shots:[{bg:universe, beats}]};
->>>>>>> 413cfb3227eb5cc2782c5abf40c2f79acee89fa4
-}
 /* une question du récit, en temps de cinématique : les options, puis sa réaction à ta réponse */
 function storyQBeat(q){
   const Q = STORY_Q[q];

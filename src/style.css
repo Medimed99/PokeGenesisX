@@ -5541,14 +5541,9 @@ button.zc-card{cursor:pointer}
 .zc-h b{display:block;font-size:13.5px;line-height:1.3}
 .zc-h em{display:block;font-style:normal;font-size:11px;color:var(--ink2);margin-top:2px}
 .zc-mn{flex:0 0 auto;width:44px;height:44px;display:flex;align-items:center;justify-content:center}
-<<<<<<< HEAD
 .zc-mn img,.zc-mn .mnspr{width:40px;height:40px;image-rendering:pixelated;animation:cnMn 1.6s steps(1) infinite;
   filter:drop-shadow(2px 0 0 rgba(255,0,80,.75)) drop-shadow(-2px 0 0 rgba(0,240,255,.75))}
 .zc-mn .mnspr{animation:mnFrames 1.68s steps(4) infinite,cnMn 1.6s steps(1) infinite}
-=======
-.zc-mn img{width:40px;height:40px;image-rendering:pixelated;animation:cnMn 1.6s steps(1) infinite;
-  filter:drop-shadow(2px 0 0 rgba(255,0,80,.75)) drop-shadow(-2px 0 0 rgba(0,240,255,.75))}
->>>>>>> 413cfb3227eb5cc2782c5abf40c2f79acee89fa4
 .zc-pz{flex:0 0 auto}
 .zc-go{flex:0 0 auto;color:#ff86ad}.zc-go svg{width:16px;height:16px}
 .zc-reqs{margin-top:8px;display:flex;flex-direction:column;gap:4px}
@@ -5606,11 +5601,7 @@ button.zc-card{cursor:pointer}
 .fn-line.w-me{border-color:#fff;box-shadow:-4px 0 14px rgba(255,61,127,.4),4px 0 14px rgba(53,240,214,.4)}
 .fn-line.w-me b{color:#fff}
 .fn-mn{flex:0 0 auto;width:34px;height:34px;display:flex;align-items:center;justify-content:center}
-<<<<<<< HEAD
 .fn-mn img,.fn-mn .mnspr{width:32px;height:32px;image-rendering:pixelated;filter:drop-shadow(2px 0 0 rgba(255,0,80,.7)) drop-shadow(-2px 0 0 rgba(0,240,255,.7))}
-=======
-.fn-mn img{width:32px;height:32px;image-rendering:pixelated;filter:drop-shadow(2px 0 0 rgba(255,0,80,.7)) drop-shadow(-2px 0 0 rgba(0,240,255,.7))}
->>>>>>> 413cfb3227eb5cc2782c5abf40c2f79acee89fa4
 .fn-lose{display:flex;align-items:center;gap:10px;margin:6px 0;padding:9px 11px;border-radius:10px;background:rgba(3,14,22,.9);border:1px solid rgba(53,240,214,.4);font-size:12px;line-height:1.5;color:#dffcf7;text-align:left}
 .sq2-bossbar.mn i{border-color:#fff}
 .sq2-bossbar.mn s{background:linear-gradient(90deg,#ff3d7f,#9b6bff,#35f0d6)}
@@ -5692,11 +5683,7 @@ button.zc-card{cursor:pointer}
 .cn-flash.on.soft{background:#e8fbff;animation:calmGlow .42s ease-out forwards}
 body.calm :is(.shake, #story.jolt, .blind-card.trigger, .rv-chest.shaking, .rv-alert b, .streakbox.broken, .egg.crack,
   .bo-pack.tearing, .pp-slots.shake, .cn-ask input.shake, .cn-stage.sh1, .cn-stage.sh2, .cn-stage.sh3, .cn-stage.rgb2 .cn-actors,
-<<<<<<< HEAD
   .crv-stage.charge .crv-card:not(.flipped), .wd-lurk, .glitchart, .mnspr, .mn-strip .spr.missing,
-=======
-  .crv-stage.charge .crv-card:not(.flipped), .wd-lurk, .glitchart,
->>>>>>> 413cfb3227eb5cc2782c5abf40c2f79acee89fa4
   .glitch[data-t]::before, .glitch[data-t]::after, .cn-prof, .cn-mn, .zc-mn img, .xs-glitch, .xe-glitch, .xboss,
   .crv.play .crv-card:not(.flipped) .crv-face.back, .pkc-corr, .tcard .tc-fx, .xe-ghost .trn,
   .xe-ghost.robbed .trn, .xe-ghost.robbed .xe-self, #story[data-who="bad"] .story-bg::before, .cn-stage.mem .cn-bg::after,
@@ -6003,7 +5990,6 @@ body.era-g2 #xscene{filter:saturate(1.3) contrast(1.06)}
 #upd .btn,.ver-row .btn{white-space:nowrap;flex:none}
 @keyframes updIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
 .ver-row{gap:10px;align-items:center;margin-bottom:9px;padding-bottom:9px;border-bottom:1px solid var(--line)}
-<<<<<<< HEAD
 
 /* ---------- MissingNo avant son nom : la fêlure qui respire (37-cine.js) ---------- */
 .mnspr{display:inline-block;background-repeat:no-repeat;background-size:400% 100%;background-position:0 0;
@@ -6103,5 +6089,3 @@ body.era-g2 #xscene{filter:saturate(1.3) contrast(1.06)}
 .cn-stage.pl-on~.cn-dialog.w-none .cn-next{left:50%;right:auto;margin-left:-6px}
 @media (prefers-reduced-motion:reduce){.cn-face.pop{animation:none}.wl-file .wl-b div,.wl-log div{animation-duration:.01s;animation-delay:0s}}
 body.calm .cn-face.pop{animation:none}
-=======
->>>>>>> 413cfb3227eb5cc2782c5abf40c2f79acee89fa4
