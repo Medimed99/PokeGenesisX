@@ -167,3 +167,89 @@ function pwaSessionStart(){
   if(S.level < 3) return;
   setTimeout(()=>{ if(!overlayBusy() && currentScreen === "capture") pwaOffer("later"); }, 2500);
 }
+
+/* ---------- la version du jeu ----------
+   Chaque build porte sa date et son empreinte (BUILD_LABEL, BUILD_V, écrites par
+   buildver.py). La version hébergée publie les siennes dans version.json : si
+   l'empreinte en ligne diffère de celle qui tourne, une version plus récente est
+   publiée. On le dit dans un bandeau, sous la barre du haut, sans jamais recharger
+   de force : le joueur choisit son moment. Une application installée qu'on garde
+   ouverte des jours ne se recharge pas d'elle-même ; c'est pour elle surtout. */
+const UPD = {next:"", label:"", at:0, hide:false, timer:0};
+function buildV(){ return typeof BUILD_V !== "undefined" ? BUILD_V : ""; }
+function buildLabel(){ return typeof BUILD_LABEL !== "undefined" ? BUILD_LABEL : ""; }
+function versionText(){
+  const l = buildLabel(), v = buildV();
+  if(!l && !v) return "Version de développement";
+  return `Version du ${l || "?"}${v ? " · " + v : ""}`;
+}
+async function updCheck(force){
+  if(!pwaHosted() || !buildV() || typeof fetch !== "function") return null;
+  if(!force && Date.now() - UPD.at < 60000) return null;
+  UPD.at = Date.now();
+  try {
+    const r = await fetch("version.json", {cache:"no-store"});
+    if(!r.ok) return null;
+    const j = await r.json();
+    const was = UPD.next;
+    if(j && j.v && j.v !== buildV()){ UPD.next = j.v; UPD.label = j.label || ""; }
+    else UPD.next = "";
+    if(UPD.next !== was) UPD.hide = false;
+    updBar();
+    return j || null;
+  } catch(e){ return null; }
+}
+function updBar(){
+  if(typeof document === "undefined" || !document.getElementById) return;
+  let el = document.getElementById("upd");
+  if(!UPD.next || UPD.hide){ if(el) el.remove(); return; }
+  if(!el){
+    const top = document.getElementById("topbar");
+    if(!top || !top.parentNode) return;
+    el = document.createElement("div");
+    el.id = "upd";
+    el.setAttribute("role", "status");
+    top.parentNode.insertBefore(el, top.nextSibling);
+  }
+  el.innerHTML = `${ic("refresh")}<span>Une mise à jour du jeu est disponible.</span>
+    <button class="btn pri sm" data-act="updnow">Mettre à jour</button>
+    <button class="x" data-act="updlater" aria-label="Plus tard">${ic("cross")}</button>`;
+}
+ACTIONS.updnow = () => {
+  try { save(); } catch(e){}
+  try { if(typeof netAutoSync === "function") netAutoSync(); } catch(e){}
+  setTimeout(()=>{ try { location.reload(); } catch(e){} }, 150);
+};
+ACTIONS.updlater = () => { UPD.hide = true; updBar(); };
+ACTIONS.updcheck = async () => {
+  if(!pwaHosted()){ toast("Version locale : elle se met à jour en remplaçant le fichier", "", "eye"); return; }
+  const j = await updCheck(true);
+  if(!j) toast("Le serveur ne répond pas pour l'instant", "warn", "cross");
+  else if(UPD.next){ UPD.hide = false; updBar(); refresh(); }
+  else toast("Tu as la dernière version", "", "check");
+};
+/* au démarrage, au retour sur l'application, et toutes les quinze minutes */
+function updStart(){
+  if(!pwaHosted() || !buildV() || UPD.timer || typeof setInterval !== "function") return;
+  setTimeout(()=>updCheck(true), 5000);
+  UPD.timer = setInterval(()=>updCheck(true), 15 * 60000);
+  try { document.addEventListener("visibilitychange", ()=>{ if(!document.hidden) updCheck(false); }); } catch(e){}
+}
+/* la première ouverture d'une nouvelle version : on le dit, une fois */
+function updAnnounce(){
+  const v = buildV();
+  if(!v || !S || !S.flags) return;
+  const was = S.flags.buildV;
+  S.flags.buildV = v;
+  if(was && was !== v) setTimeout(()=>{ try { toast(`Jeu mis à jour : version du ${buildLabel()}`, "", "check"); } catch(e){} }, 1800);
+}
+/* dans les Réglages : la version qui tourne, et de quoi vérifier */
+function versionRowHtml(){
+  const btn = UPD.next ? `<button class="btn pri sm" data-act="updnow">Mettre à jour</button>`
+    : pwaHosted() && buildV() ? `<button class="btn sm" data-act="updcheck">Vérifier</button>` : "";
+  return `<div class="row between ver-row">
+    <div><div class="tiny">${esc(versionText())}</div>
+      ${UPD.next ? `<div class="tiny gold-t">Une version plus récente est en ligne${UPD.label ? ` (${esc(UPD.label)})` : ""}.</div>` : ""}</div>
+    ${btn}
+  </div>`;
+}

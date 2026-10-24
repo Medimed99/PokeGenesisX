@@ -31,7 +31,11 @@ const MUSIC_TRACKS = {
   combat_boss:    {loop:1, n:"Combat de boss", d:"Champion, élite, noyau, gardiens.", fb:"combat"},
   legendaire:     {loop:1, n:"Légendaire", d:"Rencontre ou combat contre un légendaire, raid mondial.", fb:"combat_boss"},
   monde:          {loop:1, n:"Le Monde", d:"La carte du monde à restaurer.", fb:"accueil"},
-  rival:          {loop:1, n:"Rival", d:"Un archiviste rival vous défie : l'écran de rencontre.", fb:"combat_boss"},
+  rival:          {loop:1, n:"Rival", d:"Un dresseur rémanent vous défie : l'écran de rencontre.", fb:"combat_boss"},
+  souvenir:       {loop:1, n:"Souvenir", d:"Les souvenirs de Porygon-Z, et la mémoire qui revient. Lent, doux, un peu abîmé.", fb:"accueil"},
+  couche_zero:    {loop:1, n:"Couche Zéro", d:"La descente sous les trois secteurs, et le combat contre MissingNo.", fb:"legendaire"},
+  verite:         {loop:1, n:"Le nom", d:"La révélation, puis la question. Le thème le plus important du jeu.", fb:"souvenir"},
+  generique:      {loop:1, n:"Générique", d:"Le générique de fin, après avoir écrit.", fb:"accueil"},
   /* jingles (une fois) */
   j_victoire:     {n:"Victoire", d:"Fin d'un combat gagné (3 à 6 s)."},
   j_defaite:      {n:"Défaite", d:"Combat perdu (2 à 4 s)."},

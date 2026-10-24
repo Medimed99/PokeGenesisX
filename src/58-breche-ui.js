@@ -152,6 +152,8 @@ function brHudTick(R){
     if(R.sitrusT > 0) b.push(`<span class="br-boost dim">● Sitrus ${Math.ceil(R.sitrusT)} s</span>`);
     if(R.revive) b.push(`<span class="br-boost">↺ Réindexation</span>`);
     if(R.buff) b.push(`<span class="br-boost gold">✧ ${esc(R.buff.n)} ${Math.ceil(R.buff.t)} s</span>`);
+    const fr = R.frag ? Object.values(R.frag).reduce((x, y)=>x + y, 0) : 0;
+    if(fr) b.push(`<span class="br-boost">◆ Code ×${fr}</span>`);
     if(R.missions){ const dn = R.missions.filter(m=>m.done).length;
       b.push(`<span class="br-boost ${dn === R.missions.length ? "gold" : ""}">◎ Missions ${dn}/${R.missions.length}</span>`); }
     const h = b.join("");
@@ -194,7 +196,8 @@ function brBuildHtml(R){
     ${R.team.map(w=>{ const st = brWeaponStats(w, R), A = brArch(brShownId(w));
       return `<div class="br-bw"><span class="sprbox" style="width:34px;height:34px">${sprite(brShownId(w), brIsShiny(w), "")}</span>
         <div class="grow"><div class="tiny">${esc(POKE[brShownId(w)].name)} <span class="dim">niv. ${w.lv}${w.stage >= 2 ? " · éveillé" : ""}</span></div>
-          <div class="tiny" style="color:${A.c}">${esc(brAttackName(w))} · ${Math.round(st.dmg)} dégâts${brSecOf(w) ? ` · ${esc(BR_SEC[brSecOf(w)].n)}` : ""}</div></div></div>`; }).join("")}
+          <div class="tiny" style="color:${A.c}">${esc(brAttackName(w))} · ${Math.round(st.dmg)} dégâts${brSecOf(w) ? ` · ${esc(BR_SEC[brSecOf(w)].n)}` : ""}</div>
+          ${A.sig && A.d ? `<div class="tiny muted">${esc(A.d)}</div>` : ""}</div></div>`; }).join("")}
   </div>`;
 }
 
@@ -250,6 +253,7 @@ function brChoiceHtml(R, o, idx){
       <span class="sprbox" style="width:56px;height:56px">${sprite(o.id, false, "")}</span>
       <div class="grow"><div class="br-on">${esc(p.name)} ${brMastery(o.id) ? `<span class="br-mast">${brMasteryStars(o.id)}</span>` : ""}</div>
         <div class="br-od"><span class="tt t${p.types[0]}">${TYPE_NAMES[p.types[0]]}</span> ${esc(A.n)}${A.sig ? ` <span class="br-sig">SIGNATURE</span>` : ""}</div>
+        ${A.sig && A.d ? `<div class="br-od2 br-sigd">${esc(A.d)}</div>` : ""}
         ${sec ? `<div class="br-od2"><span class="tt t${sec}">${TYPE_NAMES[sec]}</span> ${esc(BR_SEC[sec].n)} : ${esc(BR_SEC[sec].d)}</div>` : ""}
         ${syn.map(y=>`<div class="br-od2 syn">Synergie ${esc(TYPE_NAMES[y.t])} : ${esc(y.d)}</div>`).join("")}</div></div>`;
   }
@@ -327,7 +331,103 @@ function brNextEvo(id){
    COFFRES ET ÉVOLUTIONS
    Un Pokemon au niveau maximal, tenant le catalyseur de son type,
    evolue au coffre suivant. La condition se decouvre en jouant.
+
+   Le coffre de données lit la partie. Avant, il tirait deux ou trois
+   « +1 niveau » au hasard, puis, l'équipe au maximum, « +25 PV » à
+   chaque coffre : rien à attendre. Désormais il donne ce qui manque —
+   le catalyseur d'un Pokémon prêt à évoluer (il évolue aussitôt), un
+   niveau, un objet — et, quand tout est au maximum, des fragments de
+   code qui renforcent l'équipe pour toute la run, une surtension de
+   vingt secondes, des Données pour l'Archive. Un soin seulement quand
+   on en a besoin. Trois tailles : coffre (un trésor), coffre rare
+   (trois), coffre légendaire (cinq) ; le Flair les rend plus fréquents.
    ============================================================ */
+const BR_FRAGS = {
+  dmg:  {n:"Fragment de puissance", d:"+6 % de dégâts, pour toute la run",          g:"▲", c:"#ff5c5c"},
+  cd:   {n:"Fragment de cadence",   d:"attaques 5 % plus rapides, pour toute la run", g:"✦", c:"#ffe45e"},
+  area: {n:"Fragment de portée",    d:"+8 % de zone d'effet, pour toute la run",      g:"◎", c:"#b06bff"},
+  hp:   {n:"Fragment de coque",     d:"+15 PV max, pour toute la run",                g:"⬢", c:"#5ce07a"}
+};
+const BR_SURGES = [{k:"force", n:"FORCE", d:"+40 % de dégâts"}, {k:"hate", n:"HÂTE", d:"attaques 30 % plus rapides"},
+                   {k:"aimant", n:"ATTRACTION", d:"tous les octets viennent à toi"}];
+const BR_CHEST_TIERS = [
+  {n:"COFFRE DE DONNÉES", gifts:1, c:"#ffd24a"},
+  {n:"COFFRE RARE",       gifts:3, c:"#35f0d6"},
+  {n:"COFFRE LÉGENDAIRE", gifts:5, c:"#ff7ad0"}
+];
+function brChestTier(R){
+  const luck = brState().upg.luck || 0, r = R.rng();
+  return r < 0.05 + 0.02 * luck ? 2 : r < 0.27 + 0.06 * luck ? 1 : 0;
+}
+/* un Pokémon au maximum, à qui il ne manque que son catalyseur */
+function brChestWaiting(R){
+  if(Object.keys(R.items).length >= 6) return null;
+  return R.team.find(w=>w.lv >= BR_MAXLV && w.stage < 2 && !R.items["cat" + POKE[brShownId(w)].types[0]]) || null;
+}
+/* un trésor : ce qui sert maintenant, appliqué tout de suite (le suivant voit la partie à jour) */
+function brChestGift(R, tier, got){
+  const pool = [], add = (wt, g) => { if(wt > 0) pool.push({wt, g}); };
+  const has = k => got.some(x=>x.k === k);
+  const wait = !has("cat") && brChestWaiting(R);
+  if(wait) add(14, ()=>{
+    const t = POKE[brShownId(wait)].types[0];
+    R.items["cat" + t] = 1; brRecomputeMods(R);
+    R.chestsPending++;                                   /* l'évolution suit, au coffre d'après */
+    return {k:"cat", ic:itemIcon("br:cat" + t, 26) || `<span class="tt t${t}">${TYPE_NAMES[t].slice(0, 3)}</span>`,
+      t:BR_CATALYSTS[t], d:`${POKE[brShownId(wait)].name} va évoluer`};
+  });
+  const up = R.team.filter(w=>w.lv < BR_MAXLV);
+  if(up.length) add(9, ()=>{
+    const w = up[Math.floor(R.rng() * up.length)];
+    w.lv++;
+    return {k:"up", ic:`<span class="sprbox" style="width:26px;height:26px">${sprite(brShownId(w), brIsShiny(w), "")}</span>`,
+      t:POKE[brShownId(w)].name, d:w.lv >= BR_MAXLV ? "niveau maximal" : `niveau ${w.lv}`};
+  });
+  /* un même objet ne revient pas deux fois dans le même coffre */
+  const held = Object.keys(R.items).filter(k=>!k.startsWith("cat") && R.items[k] < brItemDef(k).max && !got.some(g=>g.key === k));
+  if(held.length) add(4, ()=>{
+    const k = held[Math.floor(R.rng() * held.length)], d = brItemDef(k);
+    R.items[k]++; brRecomputeMods(R);
+    return {k:"item", key:k, ic:itemIcon("br:" + k, 26) || `<span class="br-glyph sm" style="color:${d.c}">${d.g}</span>`, t:d.n, d:`niveau ${R.items[k]} · ${d.d(R.items[k])}`};
+  });
+  const fresh = Object.keys(R.items).length < 6 ? Object.keys(BR_ITEMS).filter(k=>!R.items[k]) : [];
+  if(fresh.length) add(2, ()=>{
+    const k = fresh[Math.floor(R.rng() * fresh.length)], d = BR_ITEMS[k];
+    R.items[k] = 1; brRecomputeMods(R);
+    return {k:"item", key:k, ic:itemIcon("br:" + k, 26) || `<span class="br-glyph sm" style="color:${d.c}">${d.g}</span>`, t:d.n, d:"nouvel objet · " + d.d(1)};
+  });
+  /* tout est au maximum : c'est ici que le coffre reste précieux */
+  const maxed = !up.length && !held.length;
+  add(maxed ? 10 : 3, ()=>{
+    const ks = Object.keys(BR_FRAGS), k = ks[Math.floor(R.rng() * ks.length)], F = BR_FRAGS[k];
+    R.frag = R.frag || {}; R.frag[k] = (R.frag[k] || 0) + 1;
+    if(k === "hp"){ brRecomputeMods(R); brHeal(R, 15, "reward"); } else brRecomputeMods(R);
+    return {k:"frag", ic:`<span class="br-glyph sm" style="color:${F.c}">${F.g}</span>`, t:F.n, d:F.d};
+  });
+  if(!R.buff && !has("surge")) add(maxed ? 4 : 2, ()=>{
+    const b = BR_SURGES[Math.floor(R.rng() * BR_SURGES.length)];
+    R.buff = {k:b.k, n:b.n, t:20}; brRecomputeMods(R);
+    return {k:"surge", ic:`<span class="br-glyph sm" style="color:#ffd24a">ϟ</span>`, t:"Surtension · " + b.n.charAt(0) + b.n.slice(1).toLowerCase(), d:b.d + " pendant 20 s"};
+  });
+  if(R.hp < R.maxHp * 0.5 && !has("heal")) add(7, ()=>{
+    brHeal(R, R.maxHp * 0.5, "reward");
+    return {k:"heal", ic:ic("heart"), t:"Réparation", d:"la moitié de tes PV"};
+  });
+  add(maxed ? 4 : 2, ()=>{
+    const n = 30 + 10 * tier;
+    R.bonusData = (R.bonusData || 0) + n;
+    return {k:"data", ic:ic("bolt"), t:`+${n} Données`, d:"pour l'Archive, à la fin de la run"};
+  });
+  if(tier >= 1 && !has("gold")) add(tier === 2 ? 4 : 1, ()=>{
+    const g = BR_GOLD[Math.floor(R.rng() * BR_GOLD.length)];
+    brApplyGold(R, g.k);
+    return {k:"gold", ic:`<span class="br-glyph sm" style="color:#ffd24a">★</span>`, t:g.n, d:g.d};
+  });
+  const tot = pool.reduce((a, o)=>a + o.wt, 0);
+  let x = R.rng() * tot;
+  for(const o of pool){ x -= o.wt; if(x <= 0) return o.g(); }
+  return pool[pool.length - 1].g();
+}
 function brChest(R){
   const ready = R.team.find(w=>w.lv >= BR_MAXLV && w.stage < 2 && R.items["cat" + POKE[brShownId(w)].types[0]]);
   if(ready){
@@ -335,39 +435,39 @@ function brChest(R){
     brEvolve(R, ready, to, 2);
     return;
   }
-  /* sinon, deux ou trois ameliorations tirees d'un coup, avec la roulette */
   R.modal = true;
-  const gifts = [], n = 2 + (R.rng() < 0.25 + 0.1 * (brState().upg.luck || 0) ? 1 : 0);
-  for(let k = 0; k < n; k++){
-    const up = R.team.filter(w=>w.lv < BR_MAXLV);
-    if(up.length && R.rng() < 0.7){ const w = up[Math.floor(R.rng() * up.length)]; w.lv++; gifts.push({id:brShownId(w), t:POKE[brShownId(w)].name + " niv. " + w.lv}); }
-    else { brHeal(R, 25, "reward"); gifts.push({t:"+25 PV"}); }
-  }
+  const tier = brChestTier(R), T = BR_CHEST_TIERS[tier], gifts = [];
+  for(let k = 0; k < T.gifts; k++) gifts.push(brChestGift(R, tier, gifts));
+  R.chestsOpened = (R.chestsOpened || 0) + 1;
   brHudTeam(R);
-  try { Sfx.shiny(); buzz([20, 30, 20]); } catch(e){}
+  try { Sfx.shiny(); buzz(tier ? [20, 30, 20, 30, 40] : [20, 30, 20]); } catch(e){}
   const m = document.getElementById("br-modal");
   if(!m) return;
   m.className = "on";
-  m.innerHTML = `<div class="br-card chest">
-    <div class="br-h" style="color:#ffd24a">COFFRE DE DONNÉES</div>
-    <div class="br-roll" id="br-roll">${sprite(R.team[0].id, false, "")}</div>
-    <div class="br-gifts" id="br-gifts" style="opacity:0">${gifts.map(g=>`<div>${g.id ? `<span class="sprbox" style="width:26px;height:26px">${sprite(g.id,false,"")}</span>` : ic("heart")}
-      <span>${esc(g.t)}</span></div>`).join("")}</div>
+  m.innerHTML = `<div class="br-card chest t${tier}" style="--cc:${T.c}">
+    <div class="br-h" style="color:${T.c}">${T.n}</div>
+    <div class="br-roll" id="br-roll"></div>
+    <div class="br-gifts" id="br-gifts">${gifts.map((g, i)=>`<div class="br-gift" style="--d:${i * 0.22}s">
+      <span class="br-gic">${g.ic}</span><span class="grow"><b>${esc(g.t)}</b><small>${esc(g.d)}</small></span></div>`).join("")}</div>
     <button class="btn pri wide" id="br-chestok" data-act="brclose" style="visibility:hidden">Continuer</button>
   </div>`;
-  /* roulette : les sprites de l'equipe defilent, ralentissent, s'arretent */
+  /* la roulette : les trésors défilent, ralentissent, et le premier s'arrête au centre */
   const roll = document.getElementById("br-roll");
-  let k = 0, delay = 50;
+  const faces = gifts.map(g=>g.ic).concat(Object.values(BR_FRAGS).map(F=>`<span class="br-glyph sm" style="color:${F.c}">${F.g}</span>`), [ic("heart"), ic("bolt")]);
+  let k = 0, delay = 45;
   const spin = () => {
     /* la fenetre a pu etre remplacee entre-temps (victoire, autre recompense) : on s'arrete */
     if(!roll || BR !== R || !roll.isConnected) return;
-    roll.innerHTML = sprite(brShownId(R.team[k++ % R.team.length]), false, "");
+    roll.innerHTML = `<span class="br-face">${faces[k++ % faces.length]}</span>`;
     try { Sfx.click(); } catch(e){}
-    delay *= 1.18;
-    if(delay < 320) setTimeout(spin, delay);
-    else { const gf = document.getElementById("br-gifts"), ok = document.getElementById("br-chestok");
-      if(gf) gf.style.opacity = 1; if(ok) ok.style.visibility = "visible";
-      roll.classList.add("done"); try { Sfx.win(); } catch(e){} }
+    delay *= 1.2;
+    if(delay < 300) setTimeout(spin, delay);
+    else {
+      roll.innerHTML = `<span class="br-face">${gifts[0].ic}</span>`;
+      const gf = document.getElementById("br-gifts"), ok = document.getElementById("br-chestok");
+      if(gf) gf.classList.add("on"); if(ok) ok.style.visibility = "visible";
+      roll.classList.add("done"); try { Sfx.win(); } catch(e){}
+    }
   };
   spin();
 }
@@ -469,10 +569,12 @@ function brGuardianWin(g){
   if(first){
     S.bosses.push(guardianKey(r.key, g.id)); factionPts(50);
     /* il rejoint l'archive a peu pres au niveau ou on l'a affronte : il doit pouvoir servir */
+    DEX_HOW = "verrou";
     addToDex(g.id, Math.max(guardianLevel(r, i), typeof sqLockLevel === "function" ? sqLockLevel(r, i) - 4 : 0), false);
     addIntegrity(g.core ? 5 : 2.5);
     const cs = rollCardSeries(g.id, g.core ? 3.2 : 1.8);
     if(typeof cardRevealExpect === "function") cardRevealExpect();
+    if(typeof cardHowSet === "function") cardHowSet("guardian", {g:g.id, r:r.key});
     const fresh = grantCardV(cs, g.id); out.card = cs; out.cardObj = {s:cs, id:g.id, fresh};
     gain("cores", g.core ? 4 : 2);
   }
@@ -500,7 +602,7 @@ function brFinish(R, won, quit){
   st.data += misData; gain("coins", misCoins);
   if(misAll) st.fullClears = (st.fullClears || 0) + 1;
   /* les captifs liberes rejoignent l'archive */
-  for(const id of (R.freed || [])) addToDex(id, 15, false);
+  for(const id of (R.freed || [])){ DEX_HOW = "breche"; addToDex(id, 15, false); }
   if(R.reaperDown) S.flags.brReaper = true;
   st.data += data; st.runs++; st.kills += R.kills;
   st.bestTime = Math.max(st.bestTime || 0, survived);
@@ -509,7 +611,7 @@ function brFinish(R, won, quit){
   Object.entries(R.killsBy).sort((a, b)=>b[1] - a[1]).slice(0, 8).forEach(([id])=>researchTick(+id, "battle", 1));
   /* quelques elites vaincus sont restaures au Pokedex */
   const restored = [];
-  for(const e of R.elitesDown) if(R.rng() < 0.3 || e.shiny){ addToDex(e.id, 20, !!e.shiny); restored.push(e); }
+  for(const e of R.elitesDown) if(R.rng() < 0.3 || e.shiny){ DEX_HOW = "breche"; addToDex(e.id, 20, !!e.shiny); restored.push(e); }
   for(const w of R.team) st.mastery[w.id] = (st.mastery[w.id] || 0) + 1;
   const bk = R.region + ":" + R.hab;
   const prev = st.best[bk] || {time:0, clear:false};
@@ -629,7 +731,7 @@ const BR_UPG = {
   speed:  {n:"Bus rapide",       max:5, base:40,  d:l=>`Vitesse +${5*l} %`},
   magnet: {n:"Aimantation",      max:5, base:30,  d:l=>`Ramassage +${20*l} %`},
   regen:  {n:"Autoréparation",   max:3, base:80,  d:l=>`${(0.2*l).toFixed(1)} PV / s`},
-  luck:   {n:"Flair",            max:3, base:90,  d:l=>`Coffres plus généreux (${l}/3)`},
+  luck:   {n:"Flair",            max:3, base:90,  d:l=>`Coffres rares et légendaires plus fréquents (${l}/3)`},
   reroll: {n:"Relance",          max:3, base:120, d:l=>`${l} relance(s) de choix par run`},
   choice: {n:"Quatrième voie",   max:1, base:420, d:()=>`Quatre choix à chaque niveau`},
   revive: {n:"Réindexation",     max:1, base:360, d:()=>`Une résurrection par run`}
@@ -648,7 +750,7 @@ let BR_LOBBY_TAB = "run";
 SCREENS.breche = {
   after(){
     const st = brState();
-    if(!S.flags.brecheIntro){ S.flags.brecheIntro = true; save(); playCine(CINEMAS.breche_intro, ()=>refresh()); }
+    if(!S.flags.brecheIntro){ S.flags.brecheIntro = true; save(); playCine(cineFor("breche_intro"), ()=>refresh()); }
   },
   html(){
     const st = brState(), dl = brDaily();
@@ -711,7 +813,8 @@ SCREENS.breche = {
         <div class="grow"><div class="tiny dim">Pokémon de départ</div>
           <div>${esc(POKE[st.starter].name)} <span class="tt t${POKE[st.starter].types[0]}">${TYPE_NAMES[POKE[st.starter].types[0]]}</span>
             ${brMastery(st.starter) ? `<span class="br-mast">${brMasteryStars(st.starter)}</span>` : ""}</div>
-          <div class="tiny" style="color:${brArch(st.starter).c}">${esc(brArch(st.starter).n)}</div></div>
+          <div class="tiny" style="color:${brArch(st.starter).c}">${esc(brArch(st.starter).n)}</div>
+          ${brArch(st.starter).sig && brArch(st.starter).d ? `<div class="tiny muted">${esc(brArch(st.starter).d)}</div>` : ""}</div>
         <span class="tiny cy">Changer</span>
       </div>
       <button class="br-go" data-act="brgo">ENTRER DANS LA BRÈCHE</button>
@@ -750,18 +853,25 @@ ACTIONS.brdaily = () => {
 };
 
 /* ---------- la scène d'accueil ---------- */
-CINEMAS.breche_intro = {id:"breche_intro", title:"La Brèche", shots:[{bg:"faille", beats:[
+CINEMAS.breche_intro = () => ({id:"breche_intro", title:"La Brèche", shots:[{beats:[
   {t:"bars", on:true},
+  {t:"set", k:"faille"},
   {t:"par", beats:[{t:"fx", k:"glitch", lv:2, ms:700}, {t:"sfx", k:"glitch"}]},
   {t:"card", text:"LA BRÈCHE", sub:"signal instable", hold:1500, big:true},
-  {t:"actor", id:"pz", kind:"pz", pos:"center", y:32, enter:"assemble", mood:"Worried"},
+  /* la horde : des Pokémon que la faille a recolorés, qui avancent */
+  {t:"put", id:"f1", kind:"mon", mon:19, variant:"c", at:[-0.1, 0.62], to:[0.2, 0.62], speed:16, face:"right", enter:"cut"},
+  {t:"put", id:"f2", kind:"mon", mon:41, variant:"c", at:[-0.15, 0.67], to:[0.12, 0.67], speed:14, face:"right", enter:"cut"},
+  {t:"put", id:"f3", kind:"mon", mon:92, variant:"c", at:[1.15, 0.6], to:[0.9, 0.61], speed:12, face:"left", enter:"cut"},
+  {t:"put", id:"pz", kind:"pz", at:"pz", dir:"left", holo:!pzReal(), enter:"assemble", mood:"Worried", wait:true},
   {t:"say", who:"pz", text:"Une Brèche. La faille déborde dans un secteur qu'on avait pourtant restauré."},
   {t:"mood", id:"pz", mood:"Determined"},
+  {t:"move", id:"pz", to:[0.56, 0.64], speed:30, face:"left", wait:false},
   {t:"say", who:"pz", text:"Glisse ton pouce pour te déplacer. Tes Pokémon attaquent seuls, chacun à sa manière."},
+  {t:"anim", id:"pz", a:"shoot"},
   {t:"say", who:"pz", text:"À chaque niveau, tu choisis. Tiens huit minutes, et ce qui garde la Brèche finira par se montrer."},
   {t:"say", who:"pz", text:"Et si tu perds : tout ce que tu as récolté reste acquis. Recommence."},
-  {t:"leave", id:"pz", how:"fade"}
-]}]};
+  {t:"par", beats:[{t:"gone", id:"pz", how:"fade"}, {t:"gone", id:"f1", how:"tear"}, {t:"gone", id:"f2", how:"tear"}, {t:"gone", id:"f3", how:"tear"}]}
+]}]});
 
 /* ---------- succès ---------- */
 ACHIEVEMENTS.push(

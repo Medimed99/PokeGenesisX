@@ -893,7 +893,7 @@ function brRender(R, cv){
     /* pendant une ruée ou un bond, le Pokémon quitte sa place */
     const p = typeof brMemberOff === "function" ? brMemberOff(w, p0) : p0, lift = p.z || 0;
     /* éveillé : il prend ses couleurs chromatiques */
-    const V = brIsShiny(w) ? "s" : "n";
+    const V = brIsShiny(w) ? "s" : typeof eraVar === "function" ? eraVar(brShownId(w), "n", true) : "n";
     const spr = brSprite(brShownId(w), V);
     const shk = 1 / (1 + lift / 60);
     x.fillStyle = "rgba(0,0,0,.4)"; x.beginPath(); x.ellipse(X(p.x), Y(p.y) + s * 0.34, s * 0.28 * shk, s * 0.09 * shk, 0, 0, 7); x.fill();
@@ -1015,9 +1015,12 @@ function brShownId(w){ return w.show || w.id; }
 function brIsShiny(w){ return !!w && (w.stage >= 2 || !!(S.dex && S.dex[w.id] && S.dex[w.id].shiny)); }
 
 /* MissingNo : son propre sprite, jamais stable, un halo qui ronge l'ecran */
-let BR_MISSING_IMG = null;
+const BR_MISSING = {};
 function brDrawReaper(x, R, f, fx, fy){
-  if(!BR_MISSING_IMG){ BR_MISSING_IMG = new Image(); BR_MISSING_IMG.src = MISSING_SPRITE; }
+  /* la fêlure qui respire (37-cine.js) : une image par instant, gardée une fois chargée */
+  const src = typeof mnFrame === "function" ? mnFrame(typeof performance !== "undefined" ? performance.now() : Date.now()) : MISSING_SPRITE;
+  if(!BR_MISSING[src]){ BR_MISSING[src] = new Image(); BR_MISSING[src].src = src; }
+  const BR_MISSING_IMG = BR_MISSING[src];
   const s = f.size, j = (R.rng() - .5) * 8;
   const gl = x.createRadialGradient(fx, fy, 0, fx, fy, s * 1.3);
   gl.addColorStop(0, "rgba(255,61,127,.45)"); gl.addColorStop(1, "rgba(255,61,127,0)");

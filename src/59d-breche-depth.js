@@ -201,6 +201,8 @@ function brDepthInfo(R){
    Conversion, la pluie de blocs, la téléportation, et Recyclage,
    qui recrache votre propre équipe en copies corrompues.
    ============================================================ */
+/* ce que Porygon-Z sait de la fin : il l'a vécue dans cette connexion, ou il se souvient depuis qu'on a écrit */
+function brPzKnows(){ try { return !!((S.flags && S.flags.mnBeaten) || (typeof sagaWrote === "function" && sagaWrote())); } catch(e){ return false; } }
 function brSummonPorygon(R){
   if(R.pzOn) return;
   R.pzOn = true;
@@ -218,7 +220,11 @@ function brSummonPorygon(R){
   brBanner(R, "PROFONDEUR " + BR_PZ_DEPTH, "#35f0d6", "SORTIE FORCÉE");
   brTicker(R, "PORYGON-Z ENTRE DANS LA FAILLE", "#35f0d6");
   if(typeof brCineStart === "function") brCineStart(R, f, {kicker:"PROFONDEUR " + BR_PZ_DEPTH + " · CONTRÔLE DE SORTIE", title:"PORYGON-Z", sub:"LE GUIDE NE VOUS LAISSE PAS ICI",
-    color:"#35f0d6", dur:6.2, pz:true, lines:[
+    color:"#35f0d6", dur:6.2, pz:true, lines: brPzKnows() ? [
+      [0.3, "pz", "Bon."],
+      [1.3, "pz", "Tu sais tout, maintenant. Ce n'est pas une raison pour rester là-dedans."],
+      [3.0, "pz", "On remonte. Je te ramène — de force, s'il le faut. J'ai l'habitude."]
+    ] : [
       [0.3, "pz", "Bon."],
       [1.3, "pz", "Ça fait trop longtemps que t'es là-dedans."],
       [3.0, "pz", "On a encore du boulot dehors. Je te ramène — de force, s'il le faut."]
@@ -332,7 +338,8 @@ function brPzDown(R, f){
   R.slowmo = 1.6; brShake(R, 14);
   if(typeof brFinaleStart === "function") brFinaleStart(R, f, "#35f0d6");
   brBanner(R, "PORYGON-Z S'INCLINE", "#35f0d6", "sortie forcée — avec les honneurs");
-  brSay(R, "pz", "…Bon. Tu m'as eu. On rentre quand même, d'accord ? Il y a quelque chose, plus bas. Je ne veux pas que tu le voies. Pas encore.", 5.5);
+  brSay(R, "pz", brPzKnows() ? "…Bon. Tu m'as eu. On rentre quand même ? Plus bas, il n'y a plus rien à aller voir. On y est déjà allés, tous les deux."
+    : "…Bon. Tu m'as eu. On rentre quand même, d'accord ? Il y a quelque chose, plus bas. Je ne veux pas que tu le voies. Pas encore.", 5.5);
   try { Sfx.win(); buzz([40, 50, 90]); } catch(e){}
   setTimeout(()=>{ if(BR === R) brFinish(R, true); }, 5200);
 }

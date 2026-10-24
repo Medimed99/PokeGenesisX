@@ -71,7 +71,7 @@ function sessProg(o){
 function sessDone(o){ return sessProg(o) >= o.goal; }
 /* surveillée régulièrement : un objectif rempli est salué, les trois ouvrent le coffre */
 function sessTick(){
-  if(!S || !S.flags || !S.flags.intro) return;
+  if(!S || !S.flags || !introSeen()) return;
   const s = sessState();
   if(!s.obj || s.ready) return;
   s.seen = s.seen || {};
@@ -197,7 +197,9 @@ function renderNextStep(){
   if(!dock || !dock.parentElement) return;
   let el = document.getElementById("nextstep");
   if(!el){ el = document.createElement("div"); el.id = "nextstep"; dock.parentElement.insertBefore(el, dock); }
-  const show = S && S.flags && S.flags.intro && NEXTSTEP_SCREENS.includes(currentScreen) && !(S.expedition && currentScreen === "expedition");
+  const show = S && S.flags && introSeen() && NEXTSTEP_SCREENS.includes(currentScreen) && !(S.expedition && currentScreen === "expedition");
+  /* les bulles de Porygon-Z se posent au-dessus du bandeau quand il est là */
+  try { const app = document.getElementById("app"); if(app && app.classList) app.classList.toggle("ns-on", !!show); } catch(e){}
   if(!show){ el.className = "off"; el.innerHTML = ""; return; }
   const n = nextStep(), s = sessState();
   const done = s.obj ? s.obj.filter(sessDone).length : 0;

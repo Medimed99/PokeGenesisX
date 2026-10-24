@@ -77,7 +77,7 @@ function ppSlots(){
     return `<div class="pp-slot ${PP.leader && i === 0 ? "lead" : ""} ${armed ? "armed" : ""}" data-ppslot="${i}">
       <span class="pp-n">${PP.leader && i === 0 ? "♛" : i + 1}</span>
       <i class="pp-x" data-ppx="${i}" aria-label="Retirer">×</i>
-      <span class="pp-spr">${sprite(id, e.shiny, "")}</span>
+      <span class="pp-spr">${sprite(id, e.shiny, "", {skin:true})}</span>
       <b>${esc(POKE[id].name)}</b>
       <small>N.${e.lvl}${typeof starsOf === "function" ? ` · ${"★".repeat(starsOf(id))}` : ""}</small>
     </div>`;
@@ -96,7 +96,7 @@ function ppBox(){
     return `<div class="pp-cell r${POKE[id].rar}" data-ppid="${id}">
       <span class="pp-lv">${e.lvl}</span>
       <span class="pp-k"></span>
-      <span class="pp-spr">${sprite(id, e.shiny, "")}</span>
+      <span class="pp-spr">${sprite(id, e.shiny, "", {skin:true})}</span>
       <span class="pp-nm">${esc(POKE[id].name)}</span>
       <span class="pp-td">${POKE[id].types.map(t=>`<i class="tt t${t}"></i>`).join("")}</span>
     </div>`; }).join("") + (pool.length > PP.show ? `<button class="btn ghost wide pp-more" data-ppmore="1">Voir ${Math.min(120, pool.length - PP.show)} de plus (${pool.length - PP.show} restants)</button>` : "")
@@ -224,7 +224,7 @@ function ppStartDrag(D){
   D.on = true;
   const g = document.createElement("div");
   g.className = "pp-ghost";
-  g.innerHTML = sprite(D.src.id, S.dex[D.src.id] && S.dex[D.src.id].shiny, "");
+  g.innerHTML = sprite(D.src.id, S.dex[D.src.id] && S.dex[D.src.id].shiny, "", {skin:true});
   document.body.appendChild(g);
   D.ghost = g;
   D.src.el.classList.add("lifted");

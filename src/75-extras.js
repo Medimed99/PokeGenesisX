@@ -332,6 +332,7 @@ ACTIONS.claimwk = d => {
   const items = openChest(rw.chest, true);
   const wc = randomCard(1 + S.weekly.tier * 0.6);
   if(typeof cardRevealExpect === "function") cardRevealExpect();
+  if(typeof cardHowSet === "function") cardHowSet("weekly", {tier:S.weekly.tier});
   const wcNew = grantCardV(wc.s, wc.id);
   chestBooster.unshift({s:wc.s, id:wc.id, fresh:wcNew});
   Sfx.win();
@@ -513,6 +514,7 @@ function openChest(key, silent){
     if(loot.card){
       const c2 = randomCard(c.tier >= 4 ? 2.2 : 1.4);
       if(typeof cardRevealExpect === "function") cardRevealExpect();
+      if(typeof cardHowSet === "function") cardHowSet("chest", {tier:c.tier});
       const fresh = grantCardV(c2.s, c2.id);
       chestBooster.push({s:c2.s, id:c2.id, fresh});
       delete loot.card;

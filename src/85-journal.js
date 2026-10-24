@@ -2,46 +2,76 @@
    85 — JOURNAL, CRÉDITS, NOUVEAU CYCLE
    ============================================================ */
 
-/* ---------- journal des scènes ---------- */
+/* ---------- journal des scènes ----------
+   Le récit se relit par actes. Ce qui n'a pas encore eu lieu reste scellé,
+   sans rien dévoiler : on voit seulement qu'il reste quelque chose. */
 const STORY_TITLES = {
   intro:"Contact", first_catch:"Première ligne", beat_early:"Trois pour cent",
+  missingno_1:"Le numéro manquant", kanto_half:"Les portes fermées", guardian_first:"Le premier verrou",
+  boss_first_done:"Il ne voulait pas", pz_mem1:"Déjà-vu", kanto_done:"Le socle tient",
+  pz_mem2:"Une voix", johto_mid:"Onze sauvegardes", pz_mem3:"Pas le premier", pz_mem4:"Au bout",
+  johto_done:"Douze", pz_twist:"Par choix",
+  hoenn_mid:"Ce qui est écrit", pz_mem5:"Un trou de ta taille", hoenn_done:"La porte", pz_mem6:"Le dernier souvenir",
+  finale_gate:"Cent pour cent", zero_descent:"La Couche Zéro", finale_reveal:"Le nom", finale_choice:"La question",
+  finale_echo:"Un écho", epilogue_write:"Sauvegardé",
+  cy_e_open:"Connexion suivante", cy_e_page:"La page de trop", cy_e_mid:"Trop tôt",
+  cy_w_open:"Nouvelle partie", cy_w_prof:"Jusqu'au bout de la phrase",
   pz_box:"Un abus toléré", pz_shiny:"Mal encodée", pz_fail:"Ce n'est pas toi",
-  kanto_half:"Les portes fermées", guardian_first:"Le premier verrou",
-  boss_first_done:"Il ne voulait pas", missingno_1:"Avant le premier octet",
-  kanto_done:"Le socle tient", johto_mid:"Onze sauvegardes",
-  johto_done:"Douze", hoenn_mid:"Ce que ça coûte", hoenn_done:"La faille",
-  climax:"Le condensateur", epilogue:"pz_journal.log",
   pz_egg:"Une ébauche", pz_treasure:"Un objet", pz_buddy:"Nulle part écrit",
-  pz_region_full:"Le silence", pz_first_guardian_fail:"Pas au niveau", pz_cycle:"Recommencer",
-  arc2_open:"Je devrais être vide", arc2_prof:"Mot pour mot",
-  arc2_zero:"Ce qui persiste", arc2_end:"Trois fois"
+  pz_region_full:"Le silence", pz_first_guardian_fail:"Pas au niveau"
 };
+const STORY_ACTS = [
+  {act:0, n:"Prologue", t:"L'écriture interrompue"},
+  {act:1, n:"Acte I", t:"L'arrivée"},
+  {act:2, n:"Acte II", t:"Les autres"},
+  {act:3, n:"Acte III", t:"La raison"},
+  {act:4, n:"Acte IV", t:"La Couche Zéro"},
+  {act:5, n:"Après", t:"Les connexions suivantes", hide:1},
+  {act:null, n:"Moments", t:"Ce qui arrive en chemin"}
+];
+function journalRow(sc){
+  const got = S.story.includes(sc.id);
+  return `<div class="item journal-row ${got?"":"sealed"}" ${got?`data-act="jread" data-id="${sc.id}"`:""}>
+    <div class="jn-ic">${got ? pzFace(sc.mem ? "Sad" : sc.id === "finale_choice" ? "Determined" : "Normal", 30) : ic("lock")}</div>
+    <div class="grow">
+      <div class="t">${got ? esc(STORY_TITLES[sc.id] || sc.id) : "Scène scellée"}</div>
+      <div class="d">${got ? (sc.mem ? "souvenir de Porygon-Z" : sc.cine ? "cinématique" : sc.lines.length + " répliques") : "Pas encore vécue"}${got && typeof storyQPending === "function" && storyQPending(sc) ? `<span class="jn-q">une question t'attend</span>` : ""}</div>
+    </div>
+    ${got ? ic("arrow") : ""}
+  </div>`;
+}
 SCREENS.journal = {
   html(){
-    const seen = S.story.length, tot = STORY.length;
+    const seen = S.story.filter(id=>STORY_BY_ID[id]).length, tot = STORY.length;
+    const acts = STORY_ACTS.map(A=>{
+      const list = STORY.filter(sc=>A.act === null ? sc.act === undefined : sc.act === A.act);
+      const got = list.filter(sc=>S.story.includes(sc.id));
+      if(!list.length || (A.hide && !got.length)) return "";
+      /* un acte pas encore commencé : une seule ligne, sans titres de scènes */
+      if(!got.length) return `<div class="jn-act sealed"><div class="jn-ah"><small>${esc(A.n)}</small><b>${esc(A.t)}</b><span>0 / ${list.length}</span></div></div>`;
+      return `<div class="jn-act"><div class="jn-ah"><small>${esc(A.n)}</small><b>${esc(A.t)}</b><span>${got.length} / ${list.length}</span></div>
+        <div class="list">${list.map(journalRow).join("")}</div></div>`;
+    }).join("");
     return `
       <div class="h">${ic("quest")} JOURNAL</div>
-      <div class="sub">Les scènes déjà vues restent consultables. Les autres attendent.</div>
+      <div class="sub">Le récit se relit ici, acte par acte. Ce qui n'a pas encore eu lieu attend.</div>
       <div class="panel bracket">
-        <div class="row between tiny"><span class="muted">Scènes découvertes</span>
-          <b>${seen} / ${tot}</b></div>
+        <div class="row between tiny"><span class="muted">Scènes vécues</span><b>${seen} / ${tot}</b></div>
         <div class="bar" style="margin-top:6px"><i style="width:${seen/tot*100}%"></i></div>
+        <div class="row between tiny" style="margin-top:8px"><span class="muted">Connexion</span><b>n° ${sagaConn()}</b></div>
       </div>
-      <div class="list">
-        ${STORY.map(sc=>{
-          const got = S.story.includes(sc.id);
-          return `<div class="item journal-row ${got?"":"sealed"}"
-              ${got?`data-act="jread" data-id="${sc.id}"`:""}>
-            <div class="jn-ic">${got?pzFace(sc.id==="climax"?"Determined":"Normal",30):ic("lock")}</div>
-            <div class="grow">
-              <div class="t">${got?esc(STORY_TITLES[sc.id]||sc.id):"Scène scellée"}</div>
-              <div class="d">${got?`${sc.lines.length} répliques`:"Non découverte"}</div>
-            </div>
-            ${got?ic("arrow"):""}
-          </div>`;}).join("")}
-      </div>
+      ${typeof sagaCardHtml === "function" ? sagaCardHtml() : ""}
+      ${typeof mnShareRowHtml === "function" ? mnShareRowHtml() : ""}
+      ${acts}
+      ${typeof memoryPanelHtml === "function" ? memoryPanelHtml() : ""}
+      <button class="pzf-open" data-act="pzfile">
+        <span class="pzf-ic">${pzFace(pzMood(), 34)}</span>
+        <span class="grow"><b>choses_formidables.txt</b><small>${fmt(pzLineCount())} lignes · le fichier de Porygon-Z</small></span>${ic("arrow")}</button>
       ${fragmentsPanel()}
+      ${typeof onzePanelHtml === "function" ? onzePanelHtml() : ""}
+      ${typeof cardNotesPanelHtml === "function" ? cardNotesPanelHtml() : ""}
       <button class="btn wide" style="margin-top:10px" data-act="cineplay" data-k="intro">${ic("eye")} Revoir l'ouverture — L'écriture interrompue</button>
+      ${S.saga && S.saga.wrote ? `<button class="btn wide" style="margin-top:7px" data-act="cineplay" data-k="credits">${ic("star")} Revoir le générique</button>` : ""}
       <div class="btn-grid c2" style="margin-top:10px">
         <button class="btn ghost" data-act="info" data-k="glossaire">Les mots du système</button>
         <button class="btn ghost" data-act="codeopen">Saisir un code</button>
@@ -170,7 +200,23 @@ function cycleReward(){
   const mult = 1 + (S.cycle && S.cycle.mods ? S.cycle.mods.reduce((a,k)=>a + CYCLE_MODS[k].bonus, 0) : 0);
   return Math.max(1, Math.round(base * mult));
 }
-function cycleReady(){ return !!(S.flags && S.flags.climax); }
+/* un cycle se boucle une fois MissingNo vaincu, au fond de la Couche Zéro (ou, pour une
+   partie d'avant le nouveau récit, une fois l'ancien épilogue atteint) */
+function cycleReady(){ return !!(S.flags && (S.flags.mnBeaten || S.flags.climax)); }
+function cycleCopy(){
+  if(S.flags && S.flags.finalChoice === "erase") return {
+    sub:"Tu as choisi d'effacer. Le monde repartira de zéro, et Porygon-Z avec lui : il ne se souviendra de rien. Toi, si.",
+    ask:"Le monde est remis à zéro, et Porygon-Z oublie tout. Tu conserves tes cartes, tes cosmétiques, tes succès, le journal, ses pages, et tes avantages permanents.",
+    go:"Effacer"};
+  if(S.saga && S.saga.wrote) return {
+    sub:"Le monde est sauvegardé. Un nouveau cycle rejoue une copie de la sauvegarde d'origine, en se souvenant de tout. Porygon-Z vient avec toi.",
+    ask:"Une copie de la sauvegarde d'origine est chargée : tout est à refaire, mais rien n'est oublié. Porygon-Z garde sa mémoire et repart avec toi, au niveau 5.",
+    go:"Recommencer"};
+  return {
+    sub:"Un cycle se boucle au fond de la Couche Zéro, une fois MissingNo vaincu. Rien n'empêche de recommencer — et de recommencer mieux.",
+    ask:"Le monde est remis à zéro. Vous conservez vos cartes, vos cosmétiques, vos succès, le journal et vos avantages permanents.",
+    go:"Boucler"};
+}
 
 SCREENS.cycle = {
   html(){
@@ -180,8 +226,7 @@ SCREENS.cycle = {
     const selBonus = sel.reduce((a,k)=>a + CYCLE_MODS[k].bonus, 0);
     return `
       <div class="h">${ic("refresh")} NOUVEAU CYCLE ${infoBtn("cycle")}</div>
-      <div class="sub">Le condensateur se vide lentement. Rien n'empêche de recommencer —
-        et de recommencer mieux.</div>
+      <div class="sub">${esc(cycleCopy().sub)}</div>
 
       <div class="panel bracket">
         <div class="tiles">
@@ -191,14 +236,14 @@ SCREENS.cycle = {
         ${ready
           ? `<div class="tiny ok" style="margin-top:8px">Ce cycle peut être bouclé.
              Il rapportera <b>${gain} Noyaux Zéro</b>.</div>`
-          : `<div class="tiny muted" style="margin-top:8px">Un cycle se boucle après l'épilogue :
-             intégrité à 100% et les neuf verrous levés.</div>`}
+          : `<div class="tiny muted" style="margin-top:8px">Un cycle se boucle une fois MissingNo vaincu, au fond de la
+             Couche Zéro : intégrité à 100 %, les neuf verrous levés, les trois secteurs réindexés.</div>`}
       </div>
 
       <div class="h sm">CE QUI TRAVERSE LE CYCLE</div>
       <div class="panel tight">
-        <div class="tiny ok">Conservé — cartes légendaires, cosmétiques, succès, journal des scènes,
-          Noyaux Zéro, avantages permanents${perkLv("p_keep")?", objets tenus":""}.</div>
+        <div class="tiny ok">Conservé — cartes légendaires, cosmétiques, succès, journal des scènes, pages de journal,
+          choses_formidables.txt, Noyaux Zéro, avantages permanents${perkLv("p_keep")?", objets tenus":""}.</div>
         <div class="tiny bad" style="margin-top:5px">Remis à zéro — Pokédex, niveau, intégrité, monnaies,
           équipe, verrous, compagnon, progression des modules.</div>
       </div>
@@ -230,7 +275,7 @@ SCREENS.cycle = {
       <div class="tiny" style="margin:8px 0">Bonus sélectionné : <b class="gold-t">+${Math.round(selBonus*100)}%</b></div>
 
       <button class="btn dan wide" data-act="cycleask" ${ready?"":"disabled"}>
-        Boucler le cycle et recommencer</button>
+        ${esc(cycleCopy().go)} et recommencer</button>
       <button class="btn ghost wide" style="margin-top:7px" data-act="goto" data-to="profile">Retour</button>`;
   }
 };
@@ -255,9 +300,9 @@ ACTIONS.buyperk = d => {
 ACTIONS.cycleask = () => {
   if(!cycleReady()) return;
   const g = cycleReward();
-  sheet(`${sheetHead("Boucler le cycle ?")}
-    <div class="tiny muted">Le monde est remis à zéro. Vous conservez vos cartes, vos cosmétiques,
-      vos succès, le journal et vos avantages permanents.</div>
+  const cc = cycleCopy();
+  sheet(`${sheetHead(cc.go + " ?")}
+    <div class="tiny muted">${esc(cc.ask)}</div>
     <div class="tiles" style="margin:10px 0">
       <div class="tile gold"><div class="k">Noyaux Zéro gagnés</div><div class="v">+${g}</div></div>
       <div class="tile accent"><div class="k">Prochain cycle</div><div class="v">${cycleN()+2}</div></div>
@@ -265,16 +310,25 @@ ACTIONS.cycleask = () => {
     <div class="tiny bad">Cette action est définitive.</div>
     <div class="btn-grid c2" style="margin-top:10px">
       <button class="btn ghost" data-act="closesheet">Annuler</button>
-      <button class="btn dan" data-act="cycledo">Boucler</button>
+      <button class="btn dan" data-act="cycledo">${esc(cc.go)}</button>
     </div>`, true);
 };
 ACTIONS.cycledo = () => {
   const g = cycleReward();
+  /* la réponse donnée au fond de la Couche Zéro décide de la connexion suivante */
+  const saga = typeof sagaState === "function" ? sagaState() : (S.saga || {});
+  const path = S.flags.finalChoice === "erase" ? "erase" : (S.flags.finalDone || saga.wrote) ? "write" : "erase";
+  if(S.flags.finalChoice === "erase"){ saga.erased = (saga.erased || 0) + 1; saga.end = "erase"; }
   const keep = {
     cards: S.cards, cos: S.cos, ach: S.ach, story: S.story, tutos: S.tutos,
+    /* ce qui tient aux cartes traverse le cycle avec elles */
+    reidx: S.reidx || {}, reidxQ: S.reidxQ || [], reidxV: S.reidxV || 0, cardNotes: S.cardNotes || {}, cardNoteTry: S.cardNoteTry || {},
+    chrono: S.chrono || {}, chronoV: S.chronoV || 0, skins: S.skins || {}, dmSeen: S.dmSeen || {},
     zero: (S.zero||0) + g, perks: S.perks || {}, name: S.name,
     netRev: S.netRev, netMail: S.netMail, settings: S.settings,
-    cycle: {n: cycleN() + 1, mods: (S.nextMods || []).slice()},
+    saga, pzlog: S.pzlog || [], pzlogK: S.pzlogK || {},
+    fragments: S.fragments || [], fragWhere: S.fragWhere || {}, fragUnread: S.fragUnread || [], rift: S.rift || {stage:0, seen:0},
+    cycle: {n: cycleN() + 1, mods: (S.nextMods || []).slice(), end: path},
     held: perkLv("p_keep") ? S.held : {owned:[], eq:null},
     lifetime: {
       catches: ((S.lifetime && S.lifetime.catches)||0) + S.stats.catches,
@@ -284,11 +338,15 @@ ACTIONS.cycledo = () => {
   };
   const fresh = newState();
   Object.assign(fresh, keep);
+  /* le nom traverse le cycle : on ne le redemande pas */
+  if(S.flags && S.flags.named) fresh.flags.named = true;
   /* avantages de départ */
   const startLv = 1 + 4*perkLv("p_start");
   if(startLv > 1){ fresh.level = startLv; }
   fresh.nextMods = [];
   S = fresh;
+  /* après avoir écrit, il repart avec toi — au niveau 5, et vexé de l'être */
+  if(path === "write" && typeof sagaWritePz === "function") sagaWritePz(5);
   applyCorruption();
   save();
   closeSheet();
@@ -298,5 +356,7 @@ ACTIONS.cycledo = () => {
     ...((S.cycle.mods||[]).map(k=>({icon:"bolt", label:CYCLE_MODS[k].n, sub:"modificateur actif",
       color:"var(--magenta)"}))),
     {icon:"dex", label:"Archive remise à zéro", color:"var(--cyan)"}
-  ], {icon:"refresh", sub:"Le condensateur est rempli. Le compteur repart."});
+  ], {icon:"refresh", sub:path === "write" ? `Connexion n° ${sagaConn()}. Copie de la sauvegarde d'origine : tout est à refaire, rien n'est oublié.`
+                                          : `Connexion n° ${sagaConn()}. Le compteur repart de zéro. Lui ne se souvient de rien. Toi, si.`});
+  try { checkAchievements(); } catch(e){}
 };

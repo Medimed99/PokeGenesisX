@@ -32,9 +32,9 @@ function pmdLoop(now){
     x.imageSmoothingEnabled = false;
     /* au repos, un Pokemon respire ; en route, il marche */
     const t = walk ? now / 1000 : null;
-    const ok = pmdFitDraw(x, id, dir, t, W, !!c.dataset.shiny);
+    const ok = pmdFitDraw(x, id, dir, t, W, !!c.dataset.shiny, c.dataset.era || null);
     if(!ok && typeof brSprite === "function"){
-      const s = brSprite(id, c.dataset.shiny ? "s" : "n");
+      const s = brSprite(id, c.dataset.era ? "e" + c.dataset.era : c.dataset.shiny ? "s" : "n");
       if(s) x.drawImage(s, W * 0.1, W * 0.05, W * 0.8, W * 0.8);
     }
     if(c.dataset.shiny && Math.floor(now / 160) % 7 === 0){ x.fillStyle = "#ffe9a8"; x.fillRect(W * 0.72, W * 0.18, 3, 3); }
@@ -128,9 +128,10 @@ function xsTeam(run, opts){
   return `<div class="xs-team ${opts.cls || ""}">${run.team.map((m, i)=>`
     <div class="xs-mon ${m.hp <= 0 ? "ko" : ""}" style="--d:${i * 70}ms">
       ${opts.ups && opts.ups.find(u=>u.i === i) ? `<span class="xs-up" style="--d:${500 + i * 90}ms">+${opts.ups.find(u=>u.i === i).to - opts.ups.find(u=>u.i === i).from}</span>` : ""}
-      ${pmdCanvas(m.id, opts.dir === undefined ? 0 : opts.dir, opts.size || 40, {walk:opts.walk && m.hp > 0, shiny:runShiny(m)})}
+      ${pmdCanvas(m.id, opts.dir === undefined ? 0 : opts.dir, opts.size || 40, {walk:opts.walk && m.hp > 0, shiny:runShiny(m), mine:true})}
       ${opts.bars ? `<div class="bar hp ${m.hp / m.maxHp > .5 ? "" : m.hp / m.maxHp > .2 ? "mid" : "low"}"><i data-to="${Math.max(0, m.hp / m.maxHp * 100)}"
         style="width:${Math.max(0, (opts.from && opts.from[i] !== undefined ? opts.from[i] : m.hp) / m.maxHp * 100)}%"></i></div>` : ""}
+      ${opts.items ? `<span class="xs-held ${m.item ? "" : "none"}" title="${m.item && EXP_ITEMS[m.item] ? esc(EXP_ITEMS[m.item].n) : "aucun objet"}">${m.item && EXP_ITEMS[m.item] ? (itemIcon("exp:" + m.item, 14) || "") : ""}</span>` : ""}
     </div>`).join("")}</div>`;
 }
 /* les barres montent après l'ouverture : on voit le soin se faire */
@@ -242,7 +243,7 @@ const XS_SCENES = {
         <div class="xs-trainer">${trainerArt(trainerClassOf(node), 160, "big")}</div>
         <div class="xs-balls">${p.foes.map((f, i)=>`<span style="--d:${600 + i * 120}ms">${itemIcon("ball:poke", 30)}</span>`).join("")}</div>
         <div class="xs-vs">VS</div>`;
-      panel = `<div class="xs-kicker" style="color:${color}">${kind === "elite" ? "ÉLITE" : "ARCHIVISTE"} · <span class="tt t${tr.t}">${TYPE_NAMES[tr.t]}</span></div>
+      panel = `<div class="xs-kicker" style="color:${color}">${kind === "elite" ? "ÉLITE" : "DRESSEUR"} · <span class="tt t${tr.t}">${TYPE_NAMES[tr.t]}</span></div>
         <div class="xs-title">${esc(tr.n)}</div>
         <div class="xs-say">« ${esc(line)} »</div>
         <button class="btn pri wide xs-go" data-act="xsgo">Combattre</button>`;
@@ -421,12 +422,14 @@ const XS_SCENES = {
       xsPanel(`<div class="xs-kicker" style="color:#ffd24a">${esc(it.n.toUpperCase())}</div>
         <div class="xs-title">Qui le porte ?</div>
         <div class="xs-say">${esc(it.d)}</div>
-        ${xsTeamPick(run, "xsshopgive", true)}`);
+        ${xsTeamPick(run, "xsshopgive", true)}
+        <button class="btn" data-act="xsshopbag">Le garder dans le sac</button>`);
       return;
     }
     const stage = `<div class="xs-shopbg"></div>
       <div class="xs-keeper">${pmdCanvas(352, 0, 120)}</div>
       <div class="xs-counter"></div>
+      ${xsTeam(run, {bars:true, items:true, size:36, cls:"shop"})}
       ${p.relic ? xsRelic(RELICS.find(r=>r.id === p.relic), 0) : ""}`;
     const panel = `<div class="row between"><div class="xs-kicker" style="color:#ffc857">BOUTIQUE KECLEON</div>
         <span class="pill">${ic("coin")} <b id="xs-purse">${run.bits}</b></span></div>
@@ -435,7 +438,15 @@ const XS_SCENES = {
           ${itemIcon(it.ic, 30) || (it.spr ? sprBox(it.spr, false, 30) : ic("star"))}<span class="grow"><b>${esc(it.n)}</b><small>${esc(it.d)}</small></span>
           <span class="xs-price">${it.p}</span></button>`).join("") || `<div class="tiny muted">Étagères vides.</div>`}</div>
       <button class="btn pri wide" data-act="xsok">Repartir</button>`;
-    xsOpen("shop", "#ffc857", p.keepStage && xsOpenNow() ? null : stage, panel, true);
+    const kept = p.keepStage && xsOpenNow();
+    xsOpen("shop", "#ffc857", kept ? null : stage, panel, true);
+    /* le plateau reste (l'achat s'y voit) : seule l'équipe se met à jour, PV et objets */
+    if(kept && typeof document.querySelector === "function"){
+      const tm = document.querySelector("#xscene .xs-team.shop");
+      if(tm){ const w = document.createElement("div"); w.innerHTML = xsTeam(run, {bars:true, items:true, size:36, cls:"shop", from:p.hpBefore});
+        if(w.firstElementChild){ tm.replaceWith(w.firstElementChild); if(p.hpBefore) xsBars(150); } }
+    }
+    p.hpBefore = null;
     p.keepStage = false;
   },
 
@@ -448,7 +459,10 @@ const XS_SCENES = {
         <div class="xs-title">Qui le porte ?</div>
         <div class="xs-say">${esc(it.d)}</div>
         ${xsTeamPick(run, "xsitemgive", true)}
-        <button class="btn ghost wide" data-act="xsdraftback">Revenir au coffre</button>`);
+        <div class="btn-grid c2">
+          <button class="btn ghost" data-act="xsdraftback">Revenir au coffre</button>
+          <button class="btn" data-act="xsitembag">Le garder dans le sac</button>
+        </div>`);
       return;
     }
     const stage = `<div class="xs-rays"></div>
@@ -510,14 +524,14 @@ function xsEventArt(run, p, ev){
     case "mirror": return `<div class="xe-mirror ${chosen === 0 ? "cross" : ""}">${xsTeam(run, {walk:true, size:46, dir:2, cls:"xe-real"})}
         <div class="xe-glass"></div>${xsTeam(run, {walk:true, size:46, dir:6, cls:"xe-twin"})}</div>`;
     case "save": return `<div class="xe-save ${chosen === 1 ? "deleted" : chosen === 0 ? "read" : ""}"><div class="xe-file">
-        <b>SAUVEGARDE · CYCLE 07</b><small>Archiviste : <span class="xe-glitch" data-t="R▓IKA">R▓IKA</span></small>
+        <b>SAUVEGARDE · CONNEXION 07</b><small>Archiviste : <span class="xe-glitch" data-t="${esc(typeof sagaKnown === "function" && sagaKnown() ? pzName() : pzMask())}">${esc(typeof sagaKnown === "function" && sagaKnown() ? pzName() : pzMask())}</span></small>
         <small>Intégrité : 64,8 %</small><small>Dernière position : ici.</small></div></div>`;
     case "vend": return `<div class="xe-vend ${chosen === 0 ? (p.fx && p.fx.dmg ? "zap" : "pay") : ""}"><div class="xe-vtop">DISTRIB'</div>
         <div class="xe-vglass"><i></i><i></i><i></i><i></i><i></i><i></i></div>
         <div class="xe-vbtn"><span></span><span></span><span></span></div><div class="xe-vslot"></div></div>`;
     case "noise": return `<canvas class="xe-noise ${chosen === 0 ? "touched" : chosen === 1 ? "calm" : ""}" width="60" height="200"></canvas>
       ${xsTeam(run, {size:44, cls:"xe-low"})}`;
-    case "ghost": return `<div class="xe-ghost ${chosen === 0 ? "rest" : chosen === 1 ? "robbed" : ""}">${trainerArt("scientist", 150)}<span class="xe-bag">${xpxIcon("bag", 3)}</span></div>
+    case "ghost": return `<div class="xe-ghost ${chosen === 0 ? "rest" : chosen === 1 ? "robbed" : ""}">${typeof selfSprite === "function" ? `<img class="xe-self" src="${selfSprite()}" alt="">` : trainerArt("scientist", 150)}<span class="xe-bag">${xpxIcon("bag", 3)}</span></div>
       <div class="xe-wisps"><i></i><i></i><i></i><i></i></div>`;
   }
   return "";
@@ -624,7 +638,7 @@ function xsTeamPick(run, act, showItem){
   return `<div class="xs-pick">${run.team.map((m, i)=>{
     const cur = showItem ? itemOf(m) : null;
     return `<button class="xs-pm ${m.hp <= 0 ? "ko" : ""}" data-act="${act}" data-i="${i}">
-      ${pmdCanvas(m.id, 0, 40, {shiny:runShiny(m)})}
+      ${pmdCanvas(m.id, 0, 40, {shiny:runShiny(m), mine:true})}
       <b>${esc(POKE[m.id].name)}</b><small>${showItem ? (cur ? esc(cur.n) : "aucun objet") : `N.${m.level} · ${m.hp > 0 ? m.hp + " PV" : "hors ligne"}`}</small></button>`;
   }).join("")}</div>`;
 }
@@ -741,6 +755,7 @@ ACTIONS.xsbuy = d => {
   if(!it) return;
   if(run.bits < it.p){ toast("Pas assez de Bits", "bad", "coin"); return; }
   run.bits -= it.p;
+  if(it.k === "heal" || it.k === "full" || it.k === "hp") run.pend.hpBefore = run.team.map(m=>m.hp);
   if(it.k === "heal") healTeam(run, .45);
   if(it.k === "full") healTeam(run, 1);
   if(it.k === "relic"){ const r = grantRelic(run); run.pend.relic = r ? r.id : null; if(!r) toast("Plus rien à acheter", "warn", "shard2"); }
@@ -768,21 +783,36 @@ ACTIONS.xsitemgive = d => {
   const run = xsRun(); if(!run || !run.pend) return;
   const id = run.pend.pick, m = run.team[+d.i];
   if(!m || !EXP_ITEMS[id]) return;
-  const old = m.item;
-  m.item = id;
+  const old = expEquip(run, +d.i, id);
   save();
   xsGain(`<span class="xg-give">${itemIcon("exp:" + id, 40) || ""}${pmdCanvas(m.id, 0, 80)}</span>`, POKE[m.id].name + " porte " + EXP_ITEMS[id].n,
-    old && EXP_ITEMS[old] ? EXP_ITEMS[old].n + " est abandonné" : EXP_ITEMS[id].d, ()=>xsDone(run));
+    old ? EXP_ITEMS[old].n + " est rangé dans le sac" : EXP_ITEMS[id].d, ()=>xsDone(run));
+};
+/* l'objet choisi au coffre part dans le sac : on le donnera plus tard, depuis la carte */
+ACTIONS.xsitembag = () => {
+  const run = xsRun(); if(!run || !run.pend || !EXP_ITEMS[run.pend.pick]) return;
+  const id = run.pend.pick;
+  if(!expBagAdd(run, id)){ xsDone(run); return; }
+  save();
+  xsGain(`<span class="xg-give">${itemIcon("exp:" + id, 48) || ""}${itemIcon("chest:big", 40) || ""}</span>`, EXP_ITEMS[id].n + " est dans le sac",
+    "Donne-le quand tu veux : bouton « Sac », sur la carte.", ()=>xsDone(run));
 };
 ACTIONS.xsshopgive = d => {
   const run = xsRun(); if(!run || !run.pend || run.pend.k !== "shop") return;
   const id = run.pend.give, m = run.team[+d.i];
   if(!m || !EXP_ITEMS[id]) return;
-  const old = m.item;
-  m.item = id; run.pend.give = null; run.pend.keepStage = true;
+  const old = expEquip(run, +d.i, id);
+  run.pend.give = null; run.pend.keepStage = true;
   save();
   xsGain(`<span class="xg-give">${sprBox(EXP_ITEMS[id].spr, false, 40)}${pmdCanvas(m.id, 0, 80)}</span>`, POKE[m.id].name + " porte " + EXP_ITEMS[id].n,
-    old && EXP_ITEMS[old] ? EXP_ITEMS[old].n + " est abandonné" : EXP_ITEMS[id].d, ()=>expResume(run));
+    old ? EXP_ITEMS[old].n + " est rangé dans le sac" : EXP_ITEMS[id].d, ()=>expResume(run));
+};
+ACTIONS.xsshopbag = () => {
+  const run = xsRun(); if(!run || !run.pend || run.pend.k !== "shop" || !EXP_ITEMS[run.pend.give]) return;
+  const id = run.pend.give;
+  run.pend.give = null; run.pend.keepStage = true;
+  if(expBagAdd(run, id)) toast(`${EXP_ITEMS[id].n} rangé dans le sac`, "", "box");
+  save(); expResume(run);
 };
 ACTIONS.xsev = d => {
   const run = xsRun(); if(!run || !run.pend || run.pend.k !== "event" || run.pend.res) return;

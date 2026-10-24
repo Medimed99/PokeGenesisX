@@ -97,6 +97,10 @@ const INFOS = {
     Champion, soigne tout.</p>
     <p>Les <b>reliques</b> modifient toute l'équipe pour le reste du run. Les <b>Bits</b> ne
     servent qu'à l'intérieur du parcours.</p>
+    <p>Les <b>objets</b> (coffres, boutique Kecleon) se portent : un par Pokémon, actif pendant ses combats.
+    Le bouton <b>Sac</b>, sous la carte, montre qui porte quoi ; on y garde un objet pour plus tard, on le
+    donne, on le reprend.</p>
+    <p>Le menu du bas met le parcours en pause : on le reprend depuis l'accueil, carte « L'Expédition ».</p>
     <p>La <b>corruption</b> monte quand vous prenez des risques : meilleur butin, ennemis plus forts.
     Elle ne redescend jamais.</p>
     <p>Si tu possèdes des <b>cartes de légendaires</b>, un <b>Sanctuaire</b> doré peut se cacher dans le
@@ -169,7 +173,18 @@ const INFOS = {
   cards:{n:"Les cartes légendaires", d:`
     <p>Une carte s'obtient en battant un Data Guardian pour la première fois, au bout d'une
     expédition réussie, dans les Archives du Vide ou avec les objectifs de la semaine.</p>
-    <p>Chaque légendaire existe en plusieurs <b>illustrations</b>, d'autant plus rares qu'elles sont anciennes.</p>
+    <p>Chaque légendaire existe en plusieurs <b>illustrations</b>, d'autant plus rares qu'elles sont anciennes.
+    Chacune est peinte dans l'écriture de son époque : les quatre teintes du sprite pour 1996, une image
+    lisse pour aujourd'hui. Plus le rendu est ancien, plus le cadre est précieux : argent, chrome, or, laque noire.</p>
+    <p>Touche une carte pour l'agrandir, puis fais-la pencher du doigt. Touche-la encore : elle se retourne.
+    Au dos : le jour où tu l'as obtenue, d'où elle vient et l'équipe que tu avais ce jour-là.</p>
+    <p><b>Les doublons ne sont jamais perdus.</b> Au sixième doublon d'un légendaire, une illustration qui te
+    manque réapparaît (c'est la <b>réindexation</b>). Quand tu as toutes ses illustrations, chaque doublon
+    rapporte 15 Fragments. Et plus l'intégrité du monde est haute, plus les illustrations anciennes sortent souvent.</p>
+    <p>Quand un légendaire est complet, sa <b>chronologie</b> se joue : toutes ses illustrations, de la plus ancienne
+    à celle d'aujourd'hui (à revoir depuis sa fiche). Une carte ancienne (1996, 1999 ou 2002) peut aussi lui
+    donner l'<b>apparence</b> de son époque : choisis-la au Pokédex. Enfin, les 5 Rendus primordiaux débloquent
+    le <b>mode d'affichage</b> 1996, et les 11 Rendus fondateurs le mode 1999 (Réglages).</p>
     <p><b>Chaque carte a un pouvoir.</b> Le légendaire peut t'attendre au <b>Sanctuaire</b> de
     l'Expédition, et il ouvre en plus un deck ou un programme au Poké-Poker, ou un objet chez Kecleon.
     1 illustration = <b>Éclat I</b>, 2 = <b>Éclat II</b>, 3 ou plus = <b>Éclat III</b>.</p>`},
@@ -238,7 +253,10 @@ const INFOS = {
     <b>Signature</b> — la trace détectable d'une espèce, avant toute rencontre.</p>
     <p><b>Restaurer</b> — réussir la capture : reconstruire le lien qui manquait.<br>
     <b>Archiver</b> — l'effet de cette restauration sur le Pokédex, la première fois seulement.</p>
-    <p><b>Secteur</b> — une région du monde. <b>Couche</b> — une couches plus profonde, non cartographiée.</p>
+    <p><b>Secteur</b> — une région du monde. <b>Couche</b> — une couche plus profonde, non cartographiée.
+    <b>Couche Zéro</b> — celle qui est sous toutes les autres.</p>
+    <p><b>Connexion</b> — une tentative de restaurer le monde, du premier jour à la question finale.
+    La tienne porte un numéro ; les autres ont laissé des pages.</p>
     <p><b>Verrou</b> — un Data Guardian. <b>Noyau</b> — le dernier verrou d'un secteur, celui qui
     en ferme la sortie.</p>
     <p><b>Chaîne</b> — vos restaurations consécutives sans fuite. Le mot <b>série</b> ne désigne
@@ -269,10 +287,11 @@ const INFOS = {
     <b>Trésors</b> — sans usage, uniquement à revendre.</p>`},
 
   cycle:{n:"Le Nouveau Cycle", d:`
-    <p>Une fois l'épilogue atteint, vous pouvez boucler le cycle : le monde repart de zéro, et vous
-    gagnez des <b>Noyaux Zéro</b>.</p>
-    <p><b>Ce qui traverse</b> — cartes légendaires, cosmétiques, succès, journal des scènes, Noyaux Zéro
-    et avantages permanents.</p>
+    <p>Une fois MissingNo vaincu, au fond de la Couche Zéro, vous pouvez boucler le cycle : le monde repart
+    de zéro, et vous gagnez des <b>Noyaux Zéro</b>. Ce que devient la connexion suivante dépend de votre
+    réponse à la question finale.</p>
+    <p><b>Ce qui traverse</b> — cartes légendaires, cosmétiques, succès, journal des scènes, pages de journal,
+    le fichier de Porygon-Z, Noyaux Zéro et avantages permanents.</p>
     <p><b>Ce qui repart à zéro</b> — Pokédex, niveau, intégrité, monnaies, équipe, verrous, compagnon.</p>
     <p>Les <b>modificateurs</b> durcissent volontairement la partie et augmentent le gain final.
     Ils se cumulent : un cycle avec les cinq rapporte deux fois plus qu'un cycle sans.</p>`},
@@ -383,6 +402,7 @@ const TUTOS = {
     {sel:"#map-scroll", t:"Une couche non cartographiée : le système y a improvisé sa propre géographie quand il a manqué de place."},
     {sel:"#map-scroll", t:"Tu pars de la porte, en haut, vers le Champion du secteur, en bas. Touche un nœud lointain : je te dis ce qu'il cache."},
     {sel:".team-strip", t:"Ton équipe repart au niveau 5. Hautes herbes +1, dresseurs +2, le reste rien. C'est ta route qui fait ta force."},
+    {sel:'[data-act="expgear"]', t:"Les objets que tu trouves se portent : un par Pokémon. Le Sac montre qui porte quoi, et garde le reste pour plus tard."},
     {sel:"#screen", t:"Deux badges, puis le noyau. Ce qui survit en revient renforcé pour de bon. Ramène-les-moi entiers, s'il te plaît. J'ai commencé à leur donner des surnoms."}
   ]},
   tower:{steps:[
@@ -611,7 +631,7 @@ const PZ_EVENTS = [
   {id:"e_poker", c:()=>S.stats.pokerWins>=1,
    t:"Tu as stabilisé une couche entière en jouant aux cartes. Je note que ça marche. Je ne comprends pas pourquoi. Je note aussi que je ne comprends pas."},
   {id:"e_dex150", c:()=>dexTotal()>=150,
-   t:"Cent cinquante entrées. À ce stade, les autres tentatives avaient déjà ralenti. Toi non. Je préfère ne pas expliquer pourquoi je surveille ça. Continue, c'est tout."},
+   t:"Cent cinquante entrées. Je ne sais pas pourquoi, j'ai l'impression que c'est ici que ça devient difficile. Une intuition. Je n'ai pas d'intuitions, normalement. Continue, c'est tout."},
   {id:"e_buddy", c:()=>buddyTier()>=3,
    t:"Ton compagnon a franchi trois paliers. Il se place toujours entre toi et la rencontre. Ce n'est pas dans sa définition. C'est dans autre chose."},
   {id:"e_buddyfind", c:()=>(S.buddy&&S.buddy.finds>=5),

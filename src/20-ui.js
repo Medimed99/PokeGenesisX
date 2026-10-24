@@ -78,7 +78,11 @@ function installSpriteVars(){
   r.setProperty("--atlas", `url("${ATLAS_URL}")`);
   if(typeof ATLAS_SHINY_URL !== "undefined") r.setProperty("--atlas-shiny", `url("${ATLAS_SHINY_URL}")`);
   if(typeof ITEMS_URL !== "undefined") r.setProperty("--items", `url("${ITEMS_URL}")`);
-  r.setProperty("--cardatlas", `url("${CARD_ATLAS}")`);
+  if(typeof CARD_ATLAS === "object"){
+    r.setProperty("--card-px", `url("${CARD_ATLAS.px.u}")`);
+    r.setProperty("--card-hd", `url("${CARD_ATLAS.hd.u}")`);
+  }
+  try { if(typeof cardGuilloche === "function") cardGuilloche(); } catch(e){}
   r.setProperty("--glitchtile", `url("${MISSING_SPRITE}")`);
 }
 /* teste une seule image ; en cas de succes les grandes vues passent en anime */
@@ -308,6 +312,8 @@ function topbarMe(need){
   </div>`;
 }
 function renderTopbar(){
+  /* la texture « sans index » suit le nom du joueur (37-cine.js) */
+  if(typeof mnApplyVar === "function") mnApplyVar();
   const ev = currentEvent();
   const need = xpForLevel(S.level);
   const cur = [["coins","coin"],["shards","shard"],["cores","core"]];
@@ -454,8 +460,10 @@ function showLine(){
   if(l.w === "bad" && box){
     box.classList.remove("jolt"); void box.offsetWidth; box.classList.add("jolt");
   }
-  const names = {sys:"SYSTÈME", pz:"PORYGON-Z", prof:"PROF. RACINE", bad:"?????"};
-  who.className = "who " + (l.w==="sys"?"sys":l.w==="bad"?"bad":"");
+  const names = {sys:"SYSTÈME", pz:"PORYGON-Z", prof:"PROF. RACINE", bad:"?????",
+    past: typeof sagaKnown === "function" && sagaKnown() ? pzName().toUpperCase() : (typeof pzMask === "function" ? pzMask() : "?????"),
+    me: pzName().toUpperCase()};
+  who.className = "who " + (l.w==="sys"?"sys":l.w==="bad"||l.w==="me"?"bad":"");
   who.textContent = names[l.w] || "";
   const nx0 = document.getElementById("story-nx");
   if(nx0) nx0.classList.remove("ready");
@@ -465,7 +473,7 @@ function showLine(){
   if(pr) pr.style.width = ((storyIdx+1) / storyQueue.length * 100) + "%";
   txt.innerHTML = "";
   let i = 0;
-  const full = l.t;
+  const full = typeof pzFmt === "function" ? pzFmt(l.t) : l.t;
   clearInterval(storyTyping);
   storyTyping = setInterval(()=>{
     i += 2;
@@ -484,8 +492,9 @@ function showLine(){
 function storyAdvance(){
   const l = storyQueue[storyIdx];
   const txt = document.getElementById("story-txt");
-  if(l && txt && txt.textContent.replace("▌","").length < l.t.length){
-    clearInterval(storyTyping); txt.textContent = l.t; return;
+  const full = l ? (typeof pzFmt === "function" ? pzFmt(l.t) : l.t) : "";
+  if(l && txt && txt.textContent.replace("▌","").length < full.length){
+    clearInterval(storyTyping); txt.textContent = full; return;
   }
   storyIdx++;
   if(storyIdx >= storyQueue.length) endStory(); else showLine();
@@ -500,17 +509,33 @@ function endStory(){
   if(cb) cb(); else refresh();
 }
 
-/* --- declencheurs narratifs --- */
+/* --- declencheurs narratifs ---
+   Trois sortes de scènes, dans cet ordre de priorité :
+   · la CHAÎNE PRINCIPALE (MAIN_ARC, 02-story.js) : le récit, dans un ordre
+     fixe ; un événement (verrou, rencontre) se joue tout de suite, un
+     seuil attend son tour et laisse respirer le joueur ;
+   · les CONNEXIONS SUIVANTES (après un cycle) ;
+   · les MOMENTS liés aux systèmes (Box, chromatique, œuf…), au premier
+     déclencheur venu.
+   Une seule scène par appel : le reste attend le prochain point sûr. */
 function seen(id){ return S.story.includes(id); }
 function checkStoryTriggers(){
   if(document.getElementById("story").className === "on") return false;
+  if(typeof CINE !== "undefined" && CINE && !CINE.dead) return false;
   /* une salle qui vient de s'ouvrir : un moment plein ecran, qui ne bloque rien */
   if(typeof roomMomentsTick === "function") roomMomentsTick();
-  const K = dexCount("kanto"), J = dexCount("johto"), H = dexCount("hoenn");
   const beat = (id, cond) => (!seen(id) && cond);
 
-  if(beat("first_catch", S.stats.catches >= 1)) return playStory("first_catch"), true;
-  if(beat("beat_early", S.integrity >= 3)) return playStory("beat_early"), true;
+  const main = typeof mainArcNext === "function" ? mainArcNext() : null;
+  if(main){
+    if(!main.ev) S.storyT = Date.now();
+    if(main.mem && typeof pzLog === "function") pzLog("mem");
+    playStory(main.id, ()=>{ S.storyT = Date.now(); saveSoon(); try { refresh(); } catch(e){} });
+    return true;
+  }
+  const cyc = typeof sagaCycleBeat === "function" ? sagaCycleBeat() : null;
+  if(cyc) return playStory(cyc), true;
+
   if(beat("pz_box", S.stats.boxOpens >= 1)) return playStory("pz_box"), true;
   if(beat("pz_shiny", S.stats.shinies >= 1)) return playStory("pz_shiny"), true;
   if(beat("pz_first_guardian_fail", S.flags.guardFail)) return playStory("pz_first_guardian_fail"), true;
@@ -526,25 +551,5 @@ function checkStoryTriggers(){
   if(beat("pz_treasure", (S.stats.treasures||0) >= 1)) return playStory("pz_treasure"), true;
   if(beat("pz_buddy", buddyTier() >= 2)) return playStory("pz_buddy"), true;
   if(beat("pz_region_full", REGIONS.some(r=>dexRegionPct(r.key) >= 99.9))) return playStory("pz_region_full"), true;
-  if(beat("pz_cycle", cycleN() >= 1)) return playStory("pz_cycle"), true;
-  /* second arc : il ne se declenche qu'a partir du deuxieme cycle */
-  if(beat("arc2_open", cycleN() >= 1)) return playStory("arc2_open"), true;
-  if(beat("arc2_prof", cycleN() >= 1 && S.stats.catches >= 20)) return playStory("arc2_prof"), true;
-  if(beat("arc2_zero", cycleN() >= 1 && S.integrity >= 40)) return playStory("arc2_zero"), true;
-  if(beat("arc2_end",  cycleN() >= 2)) return playStory("arc2_end"), true;
-  if(beat("kanto_half", K >= 45)) return playStory("kanto_half"), true;
-  if(beat("guardian_first", moduleUnlocked("boss"))) return playStory("guardian_first"), true;
-  if(beat("boss_first_done", S.bosses.length >= 1)) return playStory("boss_first_done"), true;
-  if(beat("missingno_1", S.flags.sawMissing)) return playStory("missingno_1"), true;
-  if(beat("kanto_done", S.bosses.includes("kanto:150"))) return playStory("kanto_done"), true;
-  if(beat("johto_mid", J >= 45)) return playStory("johto_mid"), true;
-  if(beat("johto_done", S.bosses.includes("johto:249"))) return playStory("johto_done"), true;
-  if(beat("hoenn_mid", H >= 60)) return playStory("hoenn_mid"), true;
-  if(beat("hoenn_done", S.bosses.includes("hoenn:384"))) return playStory("hoenn_done"), true;
-  if(beat("climax", S.integrity >= 100 && S.bosses.length >= 9)){
-    S.flags.climax = true;
-    playStory("climax", ()=>{ playStory("epilogue", ()=>{ S.flags.zero = true; refresh(); }); });
-    return true;
-  }
   return false;
 }

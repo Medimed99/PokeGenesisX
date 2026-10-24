@@ -148,8 +148,10 @@ function newEncounter(force){
   else { rar = force?.rar ?? repelRarity(rollRarity()); id = force?.id ?? speciesForRarity(rar); rar = POKE[id].rar; }
   lureTick();
 
-  /* apparition rare de la faille */
-  const missChance = S.stats.catches > 60 && !S.flags.sawMissing ? 0.018 : 0.0016;
+  /* apparition rare de la faille. La première rencontre est la découverte du mythe :
+     elle ne peut pas être laissée au hasard — passé un seuil, elle vient forcément */
+  const missChance = !S.flags.sawMissing
+    ? (S.stats.catches >= 90 || S.bosses.length >= 1 ? 0.3 : S.stats.catches > 60 ? 0.018 : 0.0016) : 0.0016;
   if(!force && S.stats.catches > 40 && rng() < missChance){
     ENC = {id:0, level:0, shiny:false, rar:5, missing:true, attempts:0};
     S.shinyCharge = Math.max(0, S.shinyCharge-1);
@@ -260,17 +262,17 @@ function lockAim(){
     }
   }
   refresh();
-  aimFreeze(pos, zone, g);
+  aimFreeze(pos, zone, g, throwChance(selBall(), g ? g.mul : 1));
   if(g) ringPop(g); else { try { Sfx.click(); } catch(e){} }
   throwBall(selBall(), g ? g.mul : 1);
 }
 /* la barre reste un instant figee la ou on l'a arretee : on voit ce qu'on a fait */
-function aimFreeze(pos, zone, g){
+function aimFreeze(pos, zone, g, fin){
   const host = document.getElementById("aim-slot"); if(!host) return;
-  host.innerHTML = aimBarHtml({pos, zone}, true, g);
+  host.innerHTML = aimBarHtml({pos, zone}, true, g, fin);
   setTimeout(()=>{ const h = document.getElementById("aim-slot"); if(h && !AIM) h.innerHTML = ""; }, 900);
 }
-function aimBarHtml(A, frozen, g){
+function aimBarHtml(A, frozen, g, fin){
   const [lo, hi] = A.zone, mid = (lo + hi) / 2, half = (hi - lo) / 2;
   const band = k => `left:${mid - half * k}%;width:${half * 2 * k}%`;
   return `<div class="aimbar ${frozen ? "frozen" : ""}">
@@ -278,8 +280,15 @@ function aimBarHtml(A, frozen, g){
       <div class="aim-z z2" style="${band(0.5)}"></div>
       <div class="aim-z z3" style="${band(0.2)}"></div>
       <div class="aim-cursor ${g ? "hot" : ""}" id="${frozen ? "aim-frozen" : "aim-cursor"}" style="left:${A.pos}%"></div>
-      ${frozen ? `<span class="aim-res" style="color:${g ? g.c : "#9fb0c8"}">${g ? `${g.n} +${Math.round((g.mul - 1) * 100)} %` : "À côté — +0 %"}</span>` : ""}
+      ${frozen ? `<span class="aim-res" style="color:${g ? g.c : "#9fb0c8"}">${aimResText(g, fin)}</span>` : ""}
     </div>`;
+}
+/* ce que le lancer a donné, et la chance qui en résulte : un bon lancer se voit dans le pourcentage */
+function aimResText(g, fin){
+  const pct = typeof fin === "number" ? Math.round(fin * 100) : null;
+  if(!g) return pct === null ? "À côté — +0 %" : `À côté — ${pct} %`;
+  if(pct !== null && fin >= 1) return `${g.n} — capture assurée`;
+  return `${g.n} +${Math.round((g.mul - 1) * 100)} %${pct !== null ? ` — ${pct} %` : ""}`;
 }
 function ringPop(g){
   const st = document.getElementById("enc-stage");
@@ -294,7 +303,14 @@ function ringPop(g){
   else { try { Sfx.wobble(); buzz(12); } catch(e){} }
 }
 
-/* --- lancer --- */
+/* --- lancer ---
+   La chance affichée plafonne à 98 % ; un lancer réussi la multiplie, jusqu'à 100 %.
+   « 98 % » puis « Excellent +25 % » ne doit jamais laisser ressortir le Pokémon :
+   le bonus annoncé est tenu, sans plafond caché à 99 %. */
+function throwChance(ballKey, skill){
+  if(!ENC || ENC.missing) return 0;
+  return Math.min(1, catchChance(ballKey) * (skill || 1));
+}
 function throwBall(ballKey, skill){
   if(busy || !ENC) return;
   if((S.balls[ballKey]||0) <= 0){ toast("Plus de " + BALLS[ballKey].name, "bad", "cross"); return; }
@@ -304,7 +320,7 @@ function throwBall(ballKey, skill){
 
   if(ENC.missing){ resolveMissing(ballKey); return; }
 
-  const chance = Math.min(0.99, catchChance(ballKey) * (skill || 1));
+  const chance = throwChance(ballKey, skill);
   const success = rng() < chance;
   const wobbles = success ? 3 : (chance > 0.6 ? 3 : chance > 0.3 ? 2 : randInt(0,2));
   animateThrow(ballKey, wobbles, success, ()=>{
@@ -381,7 +397,9 @@ function onCatch(ballKey){
   if(wasPerfect && S.dex[ENC.id] && !S.dex[ENC.id].perfect){
     S.dex[ENC.id].perfect = true;
     S.stats.perfects = (S.stats.perfects || 0) + 1;
-    setTimeout(()=>toast(`${POKE[ENC.id].name} est un exemplaire intègre ◈`, "warn", "star"), 500);
+    /* le nom est lu tout de suite : une demi-seconde plus tard, la rencontre suivante a remplacé ENC */
+    const perfName = POKE[ENC.id].name;
+    setTimeout(()=>toast(`${perfName} est un exemplaire intègre ◈`, "warn", "star"), 500);
   }
   researchTick(ENC.id, "catch", 1);
   rodDiscoveryTick();
@@ -432,6 +450,8 @@ function onCatch(ballKey){
   S.failStreak = 0;
   if(S.streak > S.stats.bestStreak) S.stats.bestStreak = S.streak;
   S.stats.catches++;
+  /* le premier Pokémon de la connexion : les pages diront que c'est toujours le même */
+  if(isNew && !S.flags.firstMon) S.flags.firstMon = ENC.id;
   if(ENC.shiny) S.stats.shinies++;
   S.daily.dayCatch++; questTick("dayCatch",1);
   questSet("dayStreak", S.streak);
@@ -516,6 +536,8 @@ function resolveMissing(ballKey){
     ENC = null; busy = false;
     gain("shards", 25); gain("cores", 1);
     toast("Fragments arrachés à la faille : +25", "warn", "shard");
+    /* la première fois, c'est la découverte du mythe ; ensuite seulement, il apprend */
+    if(!(S.story || []).includes("missingno_1")){ save(); if(!checkStoryTriggers()){ nextEncounter(); refresh(); } return; }
     if(riftTick()){ save(); return; }
     /* effet de bord historique : la faille recopie une ligne du sac */
     const g6 = glitchSixthItem();
@@ -679,6 +701,8 @@ function showCatchResult(c, rw){
       </div>
       <button class="btn pri wide" data-act="nextenc">Rencontre suivante</button>
     </div>`, true);
+  /* le temps de lire sa capture : les annonces attendent qu'on passe à la suivante */
+  try { const sh = document.querySelector("#sheet-root .sheet"); if(sh) sh.classList.add("catchres"); } catch(e){}
 }
 ACTIONS.nextenc = () => { closeSheet(); if(!checkStoryTriggers()){ nextEncounter(); refresh(); } };
 

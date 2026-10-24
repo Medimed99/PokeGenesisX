@@ -13,7 +13,7 @@ const MAP_ROWS = MAP_SHAPE.length;
 
 const NODE_TYPES = {
   fight:   {n:"Sauvage",    i:"battle", c:"var(--ink)"},
-  trainer: {n:"Archiviste", i:"user",   c:"var(--cyan)"},
+  trainer: {n:"Dresseur",   i:"user",   c:"var(--cyan)"},
   elite:   {n:"Élite",      i:"boss",   c:"var(--magenta)"},
   draft:   {n:"Recrutement",i:"heart",  c:"var(--green)"},
   swap:    {n:"Échange",    i:"refresh",c:"var(--violet)"},
@@ -148,7 +148,7 @@ const RELICS = [
   {id:"r_water",n:"Noyau hydrique",    d:"+35% de dégâts des attaques Eau.",       dmgType:11},
   {id:"r_elec",n:"Noyau électrique",   d:"+35% de dégâts des attaques Électrik.",  dmgType:13},
   {id:"r_psy", n:"Noyau psionique",    d:"+35% de dégâts des attaques Psy.",       dmgType:14},
-  {id:"r_rev", n:"Réindexation auto",  d:"Réanime un allié à 40% après un combat perdu par KO.", revive:1},
+  {id:"r_rev", n:"Réindexation auto",  d:"Une fois par parcours : après un combat perdu, un allié se relève à 40 % et le combat reprend.", revive:1},
   {id:"r_shard",n:"Extracteur",        d:"+8 Fragments par combat remporté.",      shard:8},
   {id:"r_xp",  n:"Compilateur",        d:"Niveau permanent supplémentaire à la fin du run.", xp:1},
   {id:"r_corr",n:"Affinité corrompue", d:"+8% de dégâts par palier de corruption du run.", corr:1}
@@ -169,7 +169,7 @@ const EXP_EVENTS = [
   {n:"Miroir de secteur", t:"Le couloir se dédouble. Une version de votre équipe avance en sens inverse.",
    opts:[{t:"Traverser", f:r=>{ r.corruption++; r.bits += 90; return "Corruption +1. Le butin s'améliore, les ennemis aussi."; }},
          {t:"Faire demi-tour", f:r=>{ healTeam(r,.15); return "L'équipe souffle un peu. +15% de PV."; }}]},
-  {n:"Sauvegarde orpheline", t:"Un fichier de sauvegarde daté d'une tentative antérieure. Il porte un autre nom que le vôtre.",
+  {n:"Sauvegarde orpheline", t:"Un fichier de sauvegarde daté d'une connexion antérieure. Le nom de l'utilisateur est illisible ; il compte autant de signes que le vôtre.",
    opts:[{t:"Le lire", f:r=>{ r.bits += 70; r.corruption++; return "Vous apprenez quelque chose d'utile. Et d'inquiétant."; }},
          {t:"Le supprimer", f:r=>{ healTeam(r,.4); return "Le couloir s'allège. L'équipe récupère 40% de ses PV."; }}]},
   {n:"Distributeur défectueux", t:"Une machine propose trois boutons non étiquetés.",
@@ -178,7 +178,7 @@ const EXP_EVENTS = [
   {n:"Colonne de bruit", t:"Une colonne de statique traverse le sol et le plafond. Elle chante presque.",
    opts:[{t:"Y plonger une main", f:r=>{ const rel = grantRelic(r); damageTeam(r,.15); return (rel?"Relique : "+rel.n:"Rien.")+" L'équipe est secouée."; }},
          {t:"L'écouter", f:r=>{ r.heals++; return "Vous repartez avec une trousse de restauration."; }}]},
-  {n:"Ancien archiviste", t:"Une silhouette assise contre un mur. Elle n'a plus de texture, seulement un contour.",
+  {n:"Ancien archiviste", t:"Une silhouette assise contre un mur. Elle n'a plus de texture, seulement un contour. Elle porte une casquette.",
    opts:[{t:"Lui parler", f:r=>{ healTeam(r,1); return "Elle ne répond pas, mais votre équipe est entièrement restaurée."; }},
          {t:"Prendre son sac", f:r=>{ r.bits += 100; r.heals += 2; r.corruption++; return "+100 Bits, 2 restaurations. Vous ne vous retournez pas."; }}]}
 ];
@@ -467,6 +467,7 @@ function endExpedition(win){
     /* le noyau emet une carte : la corruption prise en chemin ameliore la serie */
     const cw = randomCard(1 + run.corruption * 0.55);
     if(typeof cardRevealExpect === "function") cardRevealExpect();
+    if(typeof cardHowSet === "function") cardHowSet("exp", {c:run.corruption || 0, f:run.floor || 0});
     const cwNew = grantCardV(cw.s, cw.id);
     pendingBooster = [{s:cw.s, id:cw.id, fresh:cwNew}];
     if(rng() < 0.5){
@@ -481,69 +482,58 @@ function endExpedition(win){
   save();
 
   const relicList = run.relics.map(id=>RELICS.find(x=>x.id===id)).filter(Boolean);
-  /* le sachet s'ouvre apres le recapitulatif : une chose a la fois */
-  sheet(`<div class="center exprecap">
-    <div class="h" style="justify-content:center;color:${win?"var(--cyan)":"var(--magenta)"}">
-      ${win?"NOYAU ATTEINT":"EXPÉDITION INTERROMPUE"}</div>
-    <div class="tiny muted">${run.maps ? `Secteur ${(run.mapIdx||0)+1} sur ${run.maps} · ${(run.badges||[]).length} badge(s)` : `Étage ${run.floor+1} sur ${EXP_ROWS}`}${run.corruption?` · corruption ${run.corruption}`:""}</div>
-
-    <div class="tiles" style="margin:10px 0">
-      <div class="tile accent"><div class="k">Fragments</div><div class="v">+${shards}</div></div>
-      <div class="tile gold"><div class="k">PokéCoins</div><div class="v">+${fmt(coins)}</div></div>
-      <div class="tile"><div class="k">Expérience</div><div class="v">+${fmt(xp)}</div></div>
-      <div class="tile"><div class="k">${win?"Noyaux":"Intégrité"}</div>
-        <div class="v ${win?"vi":"dim"}">${win?"+1":"—"}</div></div>
-    </div>
-
-    ${loot.length?`<div class="h sm">BUTIN EXCLUSIF</div>
-      <div class="baglist" style="margin-bottom:11px">
-        ${loot.map(it=>`<div class="bagrow">
-          <div class="bag-ic" style="color:${it.color}">${ic(it.icon)}</div>
-          <div class="grow" style="text-align:left">
-            <div class="bag-n">${esc(it.label)}</div>
-            <div class="bag-d">${esc(it.sub)}</div></div>
-        </div>`).join("")}
-      </div>`:""}
-
-    <div class="h sm">NIVEAUX PERMANENTS</div>
-    ${gains.length?`<div class="lvlist">
-      ${gains.map(g=>`<div class="lvrow ${g.alive?"":"ko"}">
-        <span class="sprbox" style="width:34px;height:34px">${sprite(g.id, S.dex[g.id].shiny, "")}</span>
-        <span class="grow tiny" style="text-align:left">${esc(POKE[g.id].name)}</span>
-        <span class="lv-before">N.${g.before}</span>
-        ${g.after > g.before
-          ? `<span class="lv-arrow">▸</span><span class="lv-after">N.${g.after}</span>
-             <span class="lv-delta">+${g.after-g.before}</span>`
-          : `<span class="tiny bad">hors ligne</span>`}
-      </div>`).join("")}
-    </div>`:`<div class="empty" style="padding:14px">Aucun membre de votre archive n'a survécu.</div>`}
-
-    ${gains.filter(g=>!g.alive).length?`
-      <div class="h sm" style="margin-top:11px">DÉSINDEXÉS</div>
-      <div class="tiny muted" style="margin-bottom:6px">Ils restent intacts dans votre archive,
-        mais n'ont rien gagné de ce parcours.</div>
-      <div class="wrap" style="justify-content:center">
-        ${gains.filter(g=>!g.alive).map(g=>`<span class="fallenchip">
-          <span class="sprbox" style="width:22px;height:22px">${sprite(g.id, false, "ghosted")}</span>
-          ${esc(POKE[g.id].name)}</span>`).join("")}
-      </div>`:""}
-
-    ${relicList.length?`<div class="h sm" style="margin-top:11px">RELIQUES DU PARCOURS</div>
-      <div class="wrap" style="justify-content:center">
-        ${relicList.map(r=>`<span class="chip">${ic("shard2")} ${esc(r.n)}</span>`).join("")}
-      </div>`:""}
-
-    <button class="btn pri wide" style="margin-top:12px" data-act="expdone">
-      ${(pendingEgg || pendingBooster) ? "Examiner le butin" : "Retour"}</button>
-  </div>`);
-  checkAchievements();
-  guideTick();
+  /* ce que le camp retiendra : affiché en tête de l'Expédition au retour */
+  S.expLast = {win, t:Date.now(), sec:(run.mapIdx || 0) + 1, maps:run.maps || 3,
+    gains:gains.map(g=>({id:g.id, add:g.after - g.before, alive:g.alive})), egg:win ? pendingEgg : null};
+  save();
+  EXP_END = {run, win, gains, shards, coins, xp, loot, relicList};
+  /* parti en plein combat (menu du bas) : la fin attend qu'on revienne à l'Expédition.
+     Les succès et les fenêtres du guide passent après le butin, pas par-dessus la fin. */
+  const shown = expHere() && expEndScene(EXP_END);
+  if(!shown){ checkAchievements(); guideTick(); }
 }
+/* la fin d'une expédition : une scène plein écran, comme le reste du parcours. Elle dit
+   clairement que c'est fini, ce qui a été gagné, ce qui reste ; elle attend le joueur. */
+let EXP_END = null;
+function expHere(){ return typeof currentScreen === "undefined" || currentScreen === "expedition" || currentScreen === "battle"; }
+function expEndScene(v){
+  const run = v.run, win = v.win, c = win ? "#35f0d6" : "#ff3d7f";
+  const ups = [];
+  run.team.forEach((m, i)=>{ const g = v.gains.find(x=>x.id === (m.base || m.id)); if(g && g.after > g.before) ups.push({i, from:g.before, to:g.after}); });
+  const fallenN = v.gains.filter(g=>!g.alive).map(g=>POKE[g.id].name);
+  const add = ups.length ? ups[0].to - ups[0].from : 0;
+  const lvTxt = ups.length ? `${ups.length} Pokémon gagne${ups.length > 1 ? "nt" : ""} ${add} niveau${add > 1 ? "x" : ""} pour de bon` : "Aucun niveau gagné cette fois";
+  const loot = !!(pendingEgg || pendingBooster);
+  const stage = `<div class="xs-sun"></div>
+    <div class="xs-endhead" style="--xc:${c}"><small>${win ? "EXPÉDITION RÉUSSIE" : "EXPÉDITION TERMINÉE"}</small>
+      <b>${win ? "Le noyau est atteint" : `Arrêtée au secteur ${(run.mapIdx || 0) + 1} sur ${run.maps || 3}`}</b></div>
+    ${xsTeam(run, {walk:win, size:52, ups})}`;
+  const panel = `<div class="xs-kicker" style="color:${c}">${win ? "FIN DU PARCOURS" : "RETOUR AU CAMP"}</div>
+    <div class="xs-title">${win ? "Ton équipe rentre victorieuse" : "Ton équipe rentre plus tôt"}</div>
+    <div class="xs-say">${esc(lvTxt)}.${win ? " Ces niveaux restent, inscrits dans ton archive." : " Les récompenses du parcours sont gardées, en plus petit."}${fallenN.length ? ` Désindexés en route, sans rien gagner : ${esc(fallenN.join(", "))}.` : ""}</div>
+    <div class="xs-endtiles">
+      <span><small>Fragments</small><b>+${v.shards}</b></span>
+      <span><small>PokéCoins</small><b>+${fmt(v.coins)}</b></span>
+      <span><small>Expérience</small><b>+${fmt(v.xp)}</b></span>
+      <span><small>${win ? "Noyaux" : "Secteur"}</small><b>${win ? "+1" : `${(run.mapIdx || 0) + 1}/${run.maps || 3}`}</b></span>
+    </div>
+    ${v.loot.length ? `<div class="xs-say">Butin : ${v.loot.map(l=>esc(l.label) + (l.sub ? ` (${esc(l.sub)})` : "")).join(", ")}${v.relicList.length ? ` · ${v.relicList.length} relique${v.relicList.length > 1 ? "s" : ""} rendue${v.relicList.length > 1 ? "s" : ""} au système` : ""}.</div>` : ""}
+    <button class="btn pri wide" data-act="expenddone">${loot ? "Ouvrir le butin" : "Retour au camp"}</button>`;
+  if(typeof xsOpen === "function" && xsOpen("end", c, stage, panel)){
+    try { (win ? Sfx.win : Sfx.lose)(); } catch(e){}
+    return true;
+  }
+  return false;
+}
+ACTIONS.expenddone = () => { EXP_END = null; if(typeof xsClose === "function") xsClose(); expLootChain(); };
 /* le butin se deroule un objet a la fois : oeuf, puis sachet, puis retour */
 function expLootChain(){
   if(pendingEgg){
     const t = pendingEgg; pendingEgg = null;
-    if(showEggFind(t, expLootChain)) return;
+    /* la toute première ébauche ouvre la Couveuse : on le dit ici, sans quitter l'Expédition */
+    const first = !!(S.flags && S.flags.eggReveal);
+    if(first){ S.flags.eggReveal = null; saveSoon(); }
+    if(showEggFind(t, expLootChain, first)) return;
   }
   if(pendingBooster){
     const cards = pendingBooster; pendingBooster = null;
@@ -553,9 +543,59 @@ function expLootChain(){
         onDone:expLootChain})) return;
   }
   go("expedition");
+  try { checkAchievements(); guideTick(); } catch(e){}
   checkStoryTriggers();
 }
 ACTIONS.expdone = () => { closeSheet(); expLootChain(); };
+
+/* ---------- partir en pleine expédition ----------
+   Le menu du bas reste accessible pendant le parcours : on demande d'abord, et on dit
+   que rien n'est perdu. Un combat en cours se termine sans le joueur ; sa suite attend
+   qu'il revienne. */
+function expRunning(){ const r = typeof S !== "undefined" && S && S.expedition; return !!(r && !r.ended); }
+function expFighting(){
+  const r = S && S.expedition;
+  return currentScreen === "battle" && !!(r && r.pend && r.pend.k === "enc") && typeof BATTLE !== "undefined" && !!BATTLE && !BATTLE.over;
+}
+function expLeaveNeedsAsk(to){
+  return expRunning() && to && to !== "expedition" && (currentScreen === "expedition" || expFighting());
+}
+function expLeaveAsk(to){
+  const fight = expFighting();
+  sheet(`${sheetHead("Quitter l'Expédition ?")}
+    <div class="tiny" style="line-height:1.65;margin-bottom:14px">${fight
+      ? "Le combat se termine sans toi. Ton parcours t'attendra juste après, au même endroit."
+      : "Ton parcours est mis en pause : rien n'est perdu."}
+      Tu le reprendras depuis l'accueil, carte « L'Expédition ».${to === "bag" ? "<br><br>Les objets de l'Expédition sont dans son propre sac : bouton « Sac », sous la carte." : ""}</div>
+    <div class="btn-grid c2">
+      <button class="btn" data-act="expleave" data-to="${esc(to)}">Quitter pour l'instant</button>
+      <button class="btn pri" data-act="closesheet">Continuer</button>
+    </div>`, true);
+}
+const EXP_NAV = {nav:ACTIONS.nav, goto:ACTIONS.goto};
+if(EXP_NAV.nav) ACTIONS.nav = (d, el, ev) => expLeaveNeedsAsk(d && d.to) ? expLeaveAsk(d.to) : EXP_NAV.nav(d, el, ev);
+if(EXP_NAV.goto) ACTIONS.goto = (d, el, ev) => expLeaveNeedsAsk(d && d.to) ? expLeaveAsk(d.to) : EXP_NAV.goto(d, el, ev);
+ACTIONS.expleave = d => {
+  closeSheet();
+  if(typeof toast === "function") toast("Expédition en pause : reprends-la depuis l'accueil", "", "map");
+  (EXP_NAV.nav || EXP_NAV.goto)({to:d.to});
+};
+
+/* le retour au camp : ce que la dernière expédition a laissé (24 h) */
+function expLastHtml(){
+  const L = S.expLast;
+  if(!L || Date.now() - L.t > 24 * 3600 * 1000) return "";
+  const up = (L.gains || []).filter(g=>g.add > 0);
+  const names = up.map(g=>POKE[g.id] ? POKE[g.id].name : "").filter(Boolean);
+  const eggOk = L.egg && typeof moduleUnlocked === "function" && moduleUnlocked("eggs");
+  return `<div class="panel xlast ${L.win ? "win" : "lose"}">
+    <div class="row between"><b>${L.win ? "Dernière expédition : réussie" : "Dernière expédition : terminée plus tôt"}</b>
+      <span class="tiny dim">il y a ${fmtTime(Date.now() - L.t)}</span></div>
+    <div class="tiny muted" style="margin-top:4px">${L.win ? "Le noyau a été atteint." : `Arrêtée au secteur ${L.sec} sur ${L.maps}.`}
+      ${names.length ? `${esc(names.join(", "))} : +${up[0].add} niveau${up[0].add > 1 ? "x" : ""} pour de bon.` : "Aucun niveau gagné."}</div>
+    ${eggOk ? `<button class="btn sm" style="margin-top:8px" data-act="goto" data-to="eggs">${ic("box")} Voir l'œuf à la Couveuse</button>` : ""}
+  </div>`;
+}
 
 /* ---------- ecran ---------- */
 let EXP_PEEK = null;          /* le noeud que le joueur examine sur la carte */
@@ -591,7 +631,7 @@ SCREENS.expedition = {
         <div class="tmem ${m.hp<=0?"ko":""} ${TEAM_SEL===i?"sel":""}" data-act="teamtap" data-i="${i}">
           <span class="tpos">${i+1}</span>
           <span class="lv">${m.level}</span>
-          <span class="sprbox" style="width:40px;height:40px">${sprite(m.id, runShiny(m), "")}</span>
+          <span class="sprbox" style="width:40px;height:40px">${sprite(m.id, runShiny(m), "", {skin:true})}</span>
           <div class="nm">${esc(POKE[m.id].name)}</div>
           <div class="bar hp ${m.hp/m.maxHp>.5?"":m.hp/m.maxHp>.2?"mid":"low"}">
             <i style="width:${Math.max(0,m.hp/m.maxHp*100)}%"></i></div>
@@ -602,7 +642,7 @@ SCREENS.expedition = {
         <button class="btn sm" data-act="expheal" ${run.heals?"":"disabled"}>${ic("heart")} Soin ${run.heals}</button>
         <button class="btn sm ${(run.revives>0&&down)?"dan":""}" data-act="exprevive"
           ${(run.revives>0&&down)?"":"disabled"}>Réindexer ${run.revives||0}</button>
-        <button class="btn sm" data-act="expgear">${ic("box")} Objets</button>
+        <button class="btn sm" data-act="expgear">${ic("box")} Sac${typeof expBag === "function" && expBag(run).length ? ` · ${expBag(run).length}` : ""}</button>
         <button class="btn sm ghost" data-act="expabandon">Abandon</button>
       </div>`;
   },
@@ -612,6 +652,7 @@ SCREENS.expedition = {
     return `
       <div class="h">${ic("map")} EXPÉDITION ${infoBtn("expedition")}</div>
       <div class="sub">Une sonde profonde dans une couche non cartographiée.</div>
+      ${expLastHtml()}
       ${moduleGoal("Trois cartes, trois Champions. Vos Pokémon repartent de leur <b>forme de base, au niveau 5</b>, et grandissent en route : ce sont vos choix de chemin qui font leur niveau.",
         "Des niveaux de combat permanents pour les survivants, des œufs, et des cartes de collection.")}
 
@@ -745,7 +786,7 @@ SCREENS.expedition = {
     /* le meneur de l'equipe, la ou elle se tient */
     const lead = run.team.find(m=>m.hp > 0) || run.team[0];
     const lx = cur ? X(run.map[run.row][run.col].c) : 50, ly = cur ? Y(run.row) - 30 : DOOR + 10;
-    const leader = lead ? `<div class="xleader" id="xleader" style="left:${lx}%;top:${ly}px">${pmdCanvas(lead.id, 0, 46, {shiny:S.dex[lead.id] && S.dex[lead.id].shiny})}</div>` : "";
+    const leader = lead ? `<div class="xleader" id="xleader" style="left:${lx}%;top:${ly}px">${pmdCanvas(lead.id, 0, 46, {shiny:S.dex[lead.id] && S.dex[lead.id].shiny, mine:true})}</div>` : "";
 
     let peek = "";
     if(pk){
@@ -763,6 +804,8 @@ SCREENS.expedition = {
 
   after(){
     const run = S.expedition;
+    /* une fin d'expédition qui s'est jouée pendant qu'on était ailleurs */
+    if(!run && EXP_END){ const v = EXP_END; setTimeout(()=>{ if(EXP_END === v && currentScreen === "expedition") expEndScene(v); }, 80); }
     const sc = document.getElementById("map-scroll");
     if(sc && run){
       xmapPaint(document.getElementById("xterr"), run);
@@ -771,24 +814,38 @@ SCREENS.expedition = {
     }
     pmdWake();
     if(run){
+      expUnstick(run);
       /* une scene en attente (recrutement, coffre, combat...) reprend la ou elle etait */
       if(run.pend && !xsOpenNow()) setTimeout(()=>{ if(S.expedition === run && currentScreen === "expedition" && !xsOpenNow()) expResume(run); }, 60);
       else tutoMaybe("expedition");
     }
   }
 };
+/* Une partie restée sans issue (l'ancienne réindexation automatique comptait une défaite comme un
+   passage : un champion perdu au bout du secteur laissait la carte sans nœud accessible). Le combat
+   qui n'a pas été gagné se rejoue. */
+function expUnstick(run){
+  if(!run || run.pend || !run.map || run.row < 0 || run.row < run.map.length - 1) return false;
+  if(run.avail && run.avail.length) return false;
+  const n = run.map[run.row] && run.map[run.row][run.col];
+  if(!n || n.t === "boss") return false;
+  const kind = n.t === "champ" ? "champ" : "fight";
+  run.pend = {k:"enc", kind, foes:enemySpecFor(run, kind)};
+  save();
+  return true;
+}
 /* ce qu'un noeud promet, dit simplement */
 function expNodeInfo(n, run){
   const t = NODE_TYPES[n.t] || NODE_TYPES.fight;
   if(n.t === "champ") return {k:"CHAMPION", t:"Le Champion du secteur", d:"Son type reste secret jusqu'au combat. Trois Pokémon. Le vaincre donne un badge, trois niveaux à l'équipe et une relique à choisir.", c:"var(--amber)"};
   if(n.t === "trainer"){
     const tr = n.tr !== undefined && TRAINERS[n.tr] ? TRAINERS[n.tr] : null;
-    if(tr) return {k:"ARCHIVISTE", t:`${esc(tr.n)} <span class="tt t${tr.t}">${TYPE_NAMES[tr.t]}</span>`,
+    if(tr) return {k:"DRESSEUR", t:`${esc(tr.n)} <span class="tt t${tr.t}">${TYPE_NAMES[tr.t]}</span>`,
                    d:`Deux Pokémon de type ${TYPE_NAMES[tr.t]}. Préparez ce qui leur résiste.`, c:arCol(tr.t)};
   }
   const D = {
     fight:["RENCONTRE", "Pokémon sauvages", "Un ou deux adversaires de l'étage. Bits et 25% de soin après la victoire."],
-    trainer:["ARCHIVISTE", "Dresseur", "Deux Pokémon d'un même type."],
+    trainer:["DRESSEUR", "Dresseur", "Deux Pokémon d'un même type."],
     elite:["ÉLITE", "Signature élite", "Deux adversaires solides. Une relique garantie, parfois un objet tenu."],
     draft:["RECRUTEMENT", "Trois Poké Balls", "Trois candidats, un seul rejoint l'équipe."],
     swap:["ÉCHANGE", "Terminal d'échange", "Céder un membre contre un Pokémon trois niveaux au-dessus."],
@@ -866,7 +923,7 @@ function drawExpOrder(){
         return `<div class="tp-row ${ko?"ghost":""}" data-row="${i}">
           <span class="tp-grip" data-grip="1" aria-label="Déplacer">⋮⋮</span>
           <span class="tp-pos">${i+1}</span>
-          <span class="sprbox" style="width:38px;height:38px">${sprite(m.id, runShiny(m), "")}</span>
+          <span class="sprbox" style="width:38px;height:38px">${sprite(m.id, runShiny(m), "", {skin:true})}</span>
           <div class="grow">
             <div class="tiny">${esc(POKE[m.id].name)} <span class="dim">N.${m.level}</span></div>
             <div class="bar hp ${pct>50?"":pct>20?"mid":"low"}" style="margin-top:4px">
@@ -894,7 +951,7 @@ ACTIONS.exprevive = () => {
       ${down.map(m=>{
         const i = run.team.indexOf(m);
         return `<div class="tp-row">
-          <span class="sprbox" style="width:38px;height:38px">${sprite(m.id, runShiny(m), "ghosted")}</span>
+          <span class="sprbox" style="width:38px;height:38px">${sprite(m.id, runShiny(m), "ghosted", {skin:true})}</span>
           <div class="grow"><div class="tiny">${esc(POKE[m.id].name)}
             <span class="dim">N.${m.level}</span></div>
             <div class="tiny bad">désindexé</div></div>
@@ -980,18 +1037,18 @@ function draftCard(c, action, extra){
    Les points de vie ne se regenerent pas : la menace est l'usure, pas la
    puissance brute d'un combat isole. Les adversaires restent donc proches
    du niveau de l'equipe, et c'est leur accumulation qui fait le defi. */
-/* Noms d'archivistes adverses : chacun est specialise dans un type,
+/* Noms des dresseurs adverses : chacun est specialise dans un type,
    ce qui rend le noeud lisible avant d'y entrer — on sait contre quoi
    on va se battre, donc on peut s'y preparer. */
 const TRAINERS = [
   {n:"Veilleur de strate",  t:7},  {n:"Sonde de surface",    t:11},
-  {n:"Archiviste de fer",   t:9},  {n:"Compilateur",         t:13},
+  {n:"Ferronnier",          t:9},  {n:"Compilateur",         t:13},
   {n:"Jardinier d'index",   t:12}, {n:"Fondeur",             t:10},
   {n:"Cartographe",         t:5},  {n:"Lecteur de mémoire",  t:14},
   {n:"Gardien de cache",    t:6},  {n:"Purgeur",             t:4},
   {n:"Analyste",            t:1},  {n:"Correcteur",          t:2},
   {n:"Veille de nuit",      t:17}, {n:"Trieur de flux",      t:3},
-  {n:"Archiviste gelé",     t:15}, {n:"Scribe spectral",     t:8},
+  {n:"Cryogéniste",         t:15}, {n:"Scribe spectral",     t:8},
   {n:"Copiste draconique",  t:16}, {n:"Relecteur",           t:18}
 ];
 function trainerFor(run){
@@ -1079,7 +1136,7 @@ function expFight(run, kind, spec){
   const allies = run.team.filter(m=>m.hp>0).map(m=>runFighter(run, m));
   if(!allies.length){ endExpedition(false); return; }
   const foes = enemyTeamFor(run, kind, spec);
-  const titles = {champ:"CHAMPION " + ((run.leader && run.leader.n) || "").toUpperCase(), fight:"RENCONTRE SAUVAGE", trainer:"ARCHIVISTE " + (TYPE_NAMES[trainerFor(run).t] || "").toUpperCase(),
+  const titles = {champ:"CHAMPION " + ((run.leader && run.leader.n) || "").toUpperCase(), fight:"RENCONTRE SAUVAGE", trainer:"DRESSEUR " + (TYPE_NAMES[trainerFor(run).t] || "").toUpperCase(),
                   elite:"SIGNATURE ÉLITE", boss:"NOYAU DE COUCHE", legend:"SANCTUAIRE LÉGENDAIRE"};
   createBattle(allies, foes, {
     ai: true, speed: S.settings.battleSpeed || 1,
@@ -1097,11 +1154,16 @@ function expFight(run, kind, spec){
         toast(lost > 1 ? `${lost} membres désindexés — définitif` : "Un membre désindexé — définitif",
               "bad", "cross");
       }
-      if(!win && relicVal(run,"revive") && run.team.some(m=>m.hp<=0)){
+      /* la relique de réindexation : une fois par parcours, un allié se relève et le combat reste à livrer.
+         Avant, la défaite comptait comme un passage : le nœud était franchi sans victoire, et un champion
+         perdu au bout d'un secteur laissait la carte sans aucune issue. */
+      if(!win && relicVal(run,"revive") && !run.autoRev && run.team.some(m=>m.hp<=0)){
         const m = run.team.find(x=>x.hp<=0);
         m.hp = Math.floor(m.maxHp*0.4);
-        toast("Réindexation automatique déclenchée", "warn", "heart");
-        go("expedition"); save(); return;
+        run.autoRev = true;
+        run.pend = {k:"enc", kind, foes:spec};
+        toast(`Réindexation automatique : ${POKE[m.id] ? POKE[m.id].name : "un allié"} se relève. Le combat reste à livrer.`, "warn", "heart");
+        save(); if(expHere()){ go("expedition"); expResume(run); } return;
       }
       if(!win){ endExpedition(false); return; }
       /* l'entite vaincue est celle qu'on pourra recruter : c'est elle qu'on a affrontee */
@@ -1138,8 +1200,7 @@ function afterFightRewards(run, kind, beaten){
     const offer = shuffle(avail.slice()).slice(0, 3).map(x => x.id);
     run.pend = {k:"badge", leader:L, bits, ups:lv.ups, evos:lv.evos, relics:offer};
     save();
-    if(typeof closeSheet === "function") closeSheet();
-    expResume(run);
+    if(expHere()){ if(typeof closeSheet === "function") closeSheet(); expResume(run); }
     return;
   }
 
@@ -1149,8 +1210,8 @@ function afterFightRewards(run, kind, beaten){
   /* la victoire se vit : l'equipe, les gains, la relique — dans une scene (51) */
   run.pend = {k:"loot", kind, bits, heal, back:back || 0, before, relic:relic ? relic.id : null, held:held || null, ups:lv.ups, evos:lv.evos};
   save();
-  if(typeof closeSheet === "function") closeSheet();
-  expResume(run);
+  /* parti pendant le combat : la scène attend son retour (la carte la rouvre) */
+  if(expHere()){ if(typeof closeSheet === "function") closeSheet(); expResume(run); }
 }
 
 ACTIONS.expcontinue = () => { closeSheet(); go("expedition"); };

@@ -13,13 +13,13 @@ global.window={addEventListener:noop}; global.navigator={}; global.requestAnimat
 global.URL={createObjectURL:()=>""}; global.Blob=function(){}; global.Image=function(){};
 global.setTimeout=()=>0; global.setInterval=()=>0; global.clearInterval=noop; global.clearTimeout=noop;
 const fs=require("fs");
-const ORDER=['_dexblob.js','_atlas.js','_atlas_shiny.js','_pmd.js','_items.js','_lore.js','_pzportrait.js','_chars.js','_trainers.js','_cardart.js','00-slugs.js','01-data.js','02-story.js','10-core.js','15-fx.js','20-ui.js',
- '30-capture.js','30b-stakes.js','30c-bonus.js','32-world.js','33-fishing.js','34-research.js','36-lore.js','37-cine.js','37b-moments.js','37c-stage.js','38-forage.js','38b-forge.js','38c-dig-plus.js','39-daily.js','39b-events.js','39c-session.js','39r-rival.js','35-modules.js','40-battle.js','40b-picker.js','41-arena.js','42-team.js','50-expedition.js','51-expscene.js','51m-expmap.js','52-expgear.js','54-tower.js','55-squad.js','55b-squad-ui.js','55c-squad-fight.js','56-breche.js','57-breche-run.js','58-breche-ui.js','59-breche-plus.js','59m-breche-map.js','59a-breche-attacks.js','59p-breche-pmd.js','59f-breche-feel.js','59g-breche-bossfight.js','59s-breche-share.js','59d-breche-depth.js','59k-breche-fx.js','59w-breche-world.js','60-poker.js','61-poker-content.js','62-poker-table.js','70-collection.js','72-bag.js','73-cards.js','73b-cardpowers.js','73c-cardreveal.js','74-eggs.js','75-extras.js','76-items.js','77-secrets.js','78-milestones.js','79-ux.js','79b-world.js','79c-legend.js','80-guide.js','81-cosmetics.js','85-journal.js',
+const ORDER=['_dexblob.js','_atlas.js','_atlas_shiny.js','_pmd.js','_items.js','_lore.js','_pzportrait.js','_pzanim.js','_chars.js','_trainers.js','_cardart.js','00-slugs.js','01-data.js','02-story.js','10-core.js','15-fx.js','20-ui.js',
+ '30-capture.js','30b-stakes.js','30c-onze.js','30c-bonus.js','32-world.js','33-fishing.js','34-research.js','36-lore.js','37-cine.js','37b-moments.js','37c-stage.js','37d-plateau.js','37e-decors.js','37f-mise-en-scene.js','38-forage.js','38b-forge.js','38c-dig-plus.js','39-daily.js','39b-events.js','39c-session.js','39p-demandes.js','39r-rival.js','35-modules.js','40-battle.js','40b-picker.js','41-arena.js','42-team.js','50-expedition.js','51-expscene.js','51m-expmap.js','52-expgear.js','54-tower.js','55-squad.js','55b-squad-ui.js','55c-squad-fight.js','55h-histoire.js','56-breche.js','57-breche-run.js','58-breche-ui.js','59-breche-plus.js','59m-breche-map.js','59a-breche-attacks.js','59p-breche-pmd.js','59f-breche-feel.js','59g-breche-bossfight.js','59s-breche-share.js','59d-breche-depth.js','59k-breche-fx.js','59w-breche-world.js','59l-breche-legends.js','60-poker.js','61-poker-content.js','62-poker-table.js','70-collection.js','72-bag.js','73-cards.js','73b-cardpowers.js','73c-cardreveal.js','73d-reindex.js','73e-provenance.js','73f-chrono.js','73g-pzcard.js','73h-eras.js','73i-displaymodes.js','73j-cardnews.js','74-eggs.js','75-extras.js','76-items.js','77-secrets.js','78-milestones.js','79-ux.js','79b-world.js','79c-legend.js','80-guide.js','81-cosmetics.js','85-journal.js','86-saga.js','87-finale.js','88-share-mn.js',
  '90-admin.js','95-online.js','95b-social.js','96-pwa.js','96b-music.js','99-boot.js'];
 eval(ORDER.map(f=>fs.readFileSync("src/"+f,"utf8")).join("\n")+
  "\n;global.G={newState:newState,setS:v=>S=v,getS:()=>S,newEncounter:newEncounter,onCatch:onCatch,onFail:onFail,"+
  "getENC:()=>ENC,setENC:v=>ENC=v,dailyRollover:dailyRollover,guideTick:guideTick,moduleUnlocked:moduleUnlocked,"+
- "currentDirective:currentDirective,dexTotal:dexTotal,DIRECTIVES:DIRECTIVES,xpForLevel:xpForLevel};");
+ "currentDirective:currentDirective,dexTotal:dexTotal,DIRECTIVES:DIRECTIVES,xpForLevel:xpForLevel,dexCount:dexCount};");
 
 /* une capture = environ 6 secondes de jeu reel (choix + animation + resultat) */
 const SEC = 6, RUNS = 25;
@@ -29,9 +29,12 @@ for(let r=0; r<RUNS; r++){
   const S = G.getS();
   let lastLvl = 1;
   const open_ = {};
-  for(let i=0;i<500;i++){
+  const story = {};
+  const mark = (k, ok) => { if(!story[k] && ok){ story[k] = true; (agg[k] = agg[k] || []).push(S.stats.catches); } };
+  for(let i=0;i<1600;i++){
     G.newEncounter();
     const e = G.getENC();
+    if(e && e.missing) mark("récit : MissingNo surgit", true);
     if(!e || e.missing){ G.setENC(null); continue; }
     if(Math.random() < 0.15) G.onFail("poke"); else G.onCatch("poke");
     G.guideTick();
@@ -45,7 +48,11 @@ for(let r=0; r<RUNS; r++){
         (agg["module "+m] = agg["module "+m] || []).push(S.stats.catches);
       }
     }
-    if(lastLvl >= 12) break;
+    /* les étapes du récit qui tiennent aux captures : la chaîne principale les attend dans cet ordre */
+    mark("récit : 3 % d'intégrité", S.integrity >= 3);
+    mark("récit : 45 espèces de Kanto", G.dexCount("kanto") >= 45);
+    mark("récit : 1er souvenir (10 %)", S.integrity >= 10);
+    if(lastLvl >= 12 && S.integrity >= 10) break;
   }
 }
 const fmtT = c => { const m = Math.floor(c*SEC/60), s2 = Math.round(c*SEC%60);

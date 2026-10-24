@@ -20,6 +20,13 @@
 function stageHold(){
   if(typeof MOMENT_ON !== "undefined" && MOMENT_ON) return true;
   if(typeof CINE !== "undefined" && CINE && !CINE.dead) return true;
+  /* un tutoriel en cours : ses bulles ne doivent pas être recouvertes */
+  if(typeof TUTO !== "undefined" && TUTO) return true;
+  const on = id => { const e = typeof document !== "undefined" && document.getElementById ? document.getElementById(id) : null; return !!(e && /\bon\b/.test(e.className || "")); };
+  /* une scène racontée, une page qu'on lit, un passage de niveau : les annonces attendent */
+  if(on("story") || on("fragread") || on("levelup")) return true;
+  /* le résultat d'une capture : on le lit d'abord */
+  try { if(document.querySelector && document.querySelector("#sheet-root.on .sheet.catchres")) return true; } catch(e){}
   const d = typeof document !== "undefined" && document.getElementById ? document.getElementById("discover") : null;
   if(d && /\bon\b/.test(d.className || "")) return true;
   /* un combat de la Tour en cours : les annonces attendent les résultats */
@@ -32,7 +39,7 @@ function stageFlush(){
   if(!STAGE_Q.length || stageHold()) return;
   const fn = STAGE_Q.shift();
   try { fn(); } catch(e){}
-  if(STAGE_Q.length) setTimeout(stageFlush, 650);
+  if(STAGE_Q.length) setTimeout(stageFlush, 900);
 }
 if(typeof setInterval === "function") setInterval(()=>{ try { stageFlush(); } catch(e){} }, 700);
 
@@ -89,9 +96,27 @@ function bannerNext(){
 
 /* les succès deviennent des bannières (le cosmétique qu'ils donnent n'a pas son propre bandeau) */
 let STAGE_MUTE_COS = false;
+/* plusieurs succès d'un coup (un retour après une absence, une grosse fouille) : une seule
+   bannière qui les nomme, au lieu d'une file de bannières qui défile pendant vingt secondes */
+let ACH_BATCH = [];
+function achFlush(){
+  const L = ACH_BATCH; ACH_BATCH = [];
+  if(L.length) banner(achBanner(L));
+}
+function achBanner(L){
+  if(L.length === 1){
+    const a = L[0];
+    return {kicker:"SUCCÈS", title:a.n, sub:(a.d || "") + (a.rw && Object.keys(a.rw).length ? " · " + rewardText(a.rw) : ""), icon:"trophy", c:"#ffd24a"};
+  }
+  const names = L.map(a=>a.n);
+  return {kicker:`${L.length} SUCCÈS`, title:names.slice(0, 2).join(", ") + (names.length > 2 ? ` et ${names.length - 2} autre${names.length > 3 ? "s" : ""}` : ""),
+    sub:names.length > 2 ? names.slice(2, 6).join(" · ") + (names.length > 6 ? " · …" : "") : "Récompenses dans Profil › Succès",
+    icon:"trophy", c:"#ffd24a", dur:4600};
+}
 if(typeof achToast === "function"){
   achToast = function(a){
-    banner({kicker:"SUCCÈS", title:a.n, sub:(a.d || "") + (a.rw && Object.keys(a.rw).length ? " · " + rewardText(a.rw) : ""), icon:"trophy", c:"#ffd24a"});
+    ACH_BATCH.push(a);
+    if(ACH_BATCH.length === 1){ if(typeof setTimeout === "function") setTimeout(achFlush, 60); else achFlush(); }
   };
 }
 if(typeof checkAchievements === "function"){

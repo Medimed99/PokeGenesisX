@@ -60,7 +60,7 @@ function numPopEl(el, text, color){
 /* secousse de l'application entiere */
 function shakeApp(){
   const a = document.getElementById("app");
-  if(!a) return;
+  if(!a || (typeof calmFx === "function" && calmFx())) return;
   a.classList.remove("shake"); void a.offsetWidth; a.classList.add("shake");
   setTimeout(()=>a.classList.remove("shake"), 400);
 }

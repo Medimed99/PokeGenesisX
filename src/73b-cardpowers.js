@@ -322,6 +322,7 @@ function sanctJoin(run, id){
     run.pend = {k:"draft", list:[{id, lvl}], legend:1, seen:false};
   }
   save();
+  if(typeof expHere === "function" && !expHere()) return;
   if(typeof closeSheet === "function") closeSheet();
   expResume(run);
 }

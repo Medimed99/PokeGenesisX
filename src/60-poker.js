@@ -686,33 +686,34 @@ function pkWinBlind(){
    ============================================================ */
 function badgeCine(b, n){
   const B = BADGES[b];
-  return {id:"badge_" + b, title:"Badge " + B.n, shots:[{bg:"terminal", beats:[
+  return {id:"badge_" + b, title:"Badge " + B.n, shots:[{beats:[
     {t:"bars", on:true},
+    {t:"set", k:"terminal"},
     {t:"code", lines:["> contrôle du verrou " + (b + 1) + " / 8", "✓ couche stabilisée", "> émission du badge"], speed:16},
     {t:"actor", id:"b", kind:"emblem", glyph:"◆", color:B.c, pos:"center", y:36, enter:"assemble"},
     {t:"par", beats:[{t:"fx", k:"flash", lv:1}, {t:"sfx", k:"win"}]},
     {t:"say", who:"sys", text:`Badge ${B.n} — ${n} / 8`, auto:1200},
+    {t:"put", id:"pz", kind:"pz", at:"pz", holo:!pzReal(), enter:"fade", mood:n >= 8 ? "Determined" : "Happy"},
     {t:"say", who:"pz", text: n >= 8 ? "Huit. Le Conseil t'attend, et il ne joue pas comme les verrous."
                                   : B.d + (n === 1 ? " Il en reste sept." : ""), auto:1800},
     {t:"card", text:"BADGE " + B.n.toUpperCase(), sub:n + " / 8", hold:1400},
-    {t:"leave", id:"b", how:"fade"}
+    {t:"par", beats:[{t:"leave", id:"b", how:"fade"}, {t:"gone", id:"pz", how:"fade"}]}
   ]}]};
 }
 function secretCine(key, ids){
   const h = HANDS_BY_ID[key];
   const mons = (ids || []).slice(0, 5);
-  const layout = {1:["center"], 2:["left","right"], 3:["left","center","right"],
-                  4:["farleft","left","right","farright"], 5:["farleft","left","center","right","farright"]}[mons.length] || [];
-  return {id:"secret_" + key, title:h.n, shots:[{bg:"faille", beats:[
+  const xs = {1:[0.5], 2:[0.35, 0.65], 3:[0.24, 0.5, 0.76], 4:[0.18, 0.39, 0.61, 0.82], 5:[0.12, 0.31, 0.5, 0.69, 0.88]}[mons.length] || [];
+  return {id:"secret_" + key, title:h.n, shots:[{beats:[
     {t:"bars", on:true},
+    {t:"set", k:"faille"},
     {t:"fx", k:"glitch", lv:1, ms:450},
     {t:"code", lines:["> lecture de la main", "! combinaison non documentée", "✓ signature reconnue"], speed:16},
-    {t:"par", beats: mons.map((id,i)=>({t:"actor", id:"m" + i, kind:"mon", mon:id, pos:layout[i], y:34, enter:"pop",
-                                         size: mons.length > 3 ? 84 : 118}))},
+    {t:"par", beats: mons.map((id, i)=>({t:"put", id:"m" + i, kind:"mon", mon:id, at:[xs[i], 0.62 + (i % 2) * 0.03], dir:"down", enter:"assemble"}))},
     {t:"par", beats:[{t:"fx", k:"flash", lv:2}, {t:"sfx", k:"shiny"}]},
     {t:"card", text:h.n.toUpperCase(), sub:"combinaison secrète découverte", hold:1600, big:true},
     {t:"say", who:"pz", text:h.d, auto:1900},
-    {t:"par", beats: mons.map((id,i)=>({t:"leave", id:"m" + i, how:"fade"}))}
+    {t:"par", beats: mons.map((id, i)=>({t:"gone", id:"m" + i, how:"fade"}))}
   ]}]};
 }
 function pkLose(){

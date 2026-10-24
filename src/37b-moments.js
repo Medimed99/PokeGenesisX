@@ -58,11 +58,12 @@ function momentShow(m){
       <div class="mo-art">${page || art}${zz}</div>
       <div class="mo-title">${esc(m.title || "")}</div>
       ${m.sub ? `<div class="mo-sub">${esc(m.sub)}</div>` : ""}
+      ${m.quote && m.quoteFirst ? `<div class="mo-quote">« ${esc(m.quote)} »</div>` : ""}
       ${m.line ? `<div class="mo-line">${typeof pzFace === "function" ? pzFace(m.lineMood || "Happy", 26) : ""}<span>${esc(typeof pzFmt === "function" ? pzFmt(m.line) : m.line)}</span></div>` : ""}
-      ${m.quote ? `<div class="mo-quote">« ${esc(m.quote)} »</div>` : ""}
+      ${m.quote && !m.quoteFirst ? `<div class="mo-quote">« ${esc(m.quote)} »</div>` : ""}
     </div>
     <div class="mo-skip">${esc(m.tapText || "toucher pour continuer")}</div>`;
-  try { ({door:()=>Sfx.win(), depth:()=>Sfx.win(), wing:()=>Sfx.win(), release:()=>Sfx.shiny(), awake:()=>Sfx.coin(), page:()=>Sfx.wobble()})[m.kind](); } catch(e){}
+  try { ({door:()=>Sfx.win(), depth:()=>Sfx.win(), wing:()=>Sfx.win(), release:()=>Sfx.shiny(), awake:()=>Sfx.coin(), page:()=>Sfx.wobble(), onze:()=>Sfx.wobble()})[m.kind](); } catch(e){}
   if(typeof buzz === "function") buzz(m.kind === "release" ? [30, 60, 30, 60, 120] : [20, 40, 60]);
   const t0 = Date.now();
   box.onclick = () => { if(Date.now() - t0 > 700) momentEnd(true); };

@@ -87,34 +87,46 @@ def prof_portrait():
 
 
 def missingno():
-    """Colonne de tuiles non resolues. Motif deterministe, pas du bruit."""
+    """Une fêlure verticale dans l'image : on ne voit que ses bords, cyan à gauche,
+    magenta à droite. C'est l'image de secours : le jeu dessine la même au moment
+    voulu, avec le nom du joueur à peine visible au fond, et la fait respirer
+    (src/37-cine.js, mnCrackCanvas)."""
     im = Image.new("RGBA", (64, 64), (0, 0, 0, 0))
-    d = ImageDraw.Draw(im)
-    rnd = random.Random(4741)
-    cols = [(255, 61, 127, 255), (139, 92, 246, 255), (53, 240, 214, 255), (26, 15, 46, 255)]
-
-    d.rectangle([0, 0, 63, 63], fill=(10, 7, 19, 255))
-    for y in range(2, 63, 3):                                  # lignes de balayage
-        d.line([(0, y), (63, y)], fill=(42, 27, 70, 255))
-
-    # corps : barres horizontales decalees, largeur decroissante par blocs
-    bars = [(12, 8, 40, 5), (6, 14, 50, 4), (16, 19, 34, 6), (4, 26, 54, 5),
-            (14, 32, 38, 4), (8, 37, 46, 6), (18, 44, 30, 4), (10, 49, 42, 5),
-            (20, 55, 24, 4)]
-    for i, (x, y, w, h) in enumerate(bars):
-        d.rectangle([x, y, x + w, y + h], fill=cols[i % 3])
-        # decalage caracteristique : un morceau glisse d'un cran
-        d.rectangle([x + 4, y + h, x + 4 + w // 3, y + h + 1], fill=cols[(i + 1) % 3])
-
-    # fragments detaches : ce qui deborde de la definition
-    for _ in range(16):
-        x, y = rnd.randrange(0, 60), rnd.randrange(0, 60)
-        d.rectangle([x, y, x + 3, y + 2], fill=cols[rnd.randrange(0, 3)])
-
-    # noyau instable
-    d.rectangle([25, 28, 38, 37], fill=(255, 255, 255, 245))
-    d.rectangle([28, 31, 35, 34], fill=cols[0])
-    d.rectangle([25, 28, 38, 29], fill=cols[2])
+    px = im.load()
+    rnd = random.Random(387)
+    W, O = 56, 4                                               # la fêlure tient dans 56 px, centrée
+    mask = [[False] * W for _ in range(W)]
+    knots = [(1, 31), (7, 27), (13, 33), (21, 24), (27, 31), (33, 26), (41, 33), (48, 26), (55, 29)]
+    def cx_at(y):
+        for (y0, x0), (y1, x1) in zip(knots, knots[1:]):
+            if y0 <= y <= y1:
+                return x0 + (x1 - x0) * (y - y0) / (y1 - y0)
+        return 28
+    for y in range(1, 55):
+        t = (y - 1) / 54.0
+        w = 0.6 + 9.5 * (4 * t * (1 - t)) ** 1.1 + rnd.choice([-1, 0, 0, 1]) * 0.7
+        c = cx_at(y)
+        for x in range(int(round(c - w)), int(round(c + w)) + 1):
+            if 0 <= x < W:
+                mask[y][x] = True
+    for (x, y, w, h) in [(13, 14, 2, 2), (41, 19, 3, 2), (14, 37, 2, 3), (40, 44, 2, 2)]:
+        for yy in range(y, y + h):
+            for xx in range(x, x + w):
+                mask[yy][xx] = True
+    on = lambda x, y: 0 <= x < W and 0 <= y < W and mask[y][x]
+    for y in range(W):
+        for x in range(W):
+            if not on(x, y):
+                continue
+            if not on(x - 1, y):
+                c = (53, 240, 214, 255)
+            elif not on(x + 1, y):
+                c = (255, 61, 127, 255)
+            elif not on(x, y - 1) or not on(x, y + 1):
+                c = (58, 48, 88, 255)
+            else:
+                c = (20, 13, 38, 255) if y % 3 else (29, 20, 53, 255)
+            px[x + O, y + O] = c
     return im
 
 

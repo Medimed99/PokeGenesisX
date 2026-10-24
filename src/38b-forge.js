@@ -254,17 +254,17 @@ function forSitesHtml(){
       <small>${S1.id === cur ? "ici · " + fmt(Math.floor(dep.m)) + " m" : open ? fmt(Math.floor(dep.m)) + " m" : reach ? "à ouvrir" : "dès " + fmt(S1.need) + " m"}</small>
     </button>`; }).join("")}</div>`;
 }
-/* le moment où un chantier devient accessible (une seule fois) */
+/* les chantiers qui deviennent accessibles (une seule fois) : renvoyés, l'annonce
+   est faite avec la couche qui les a ouverts (38-forage.js, forAnnounceNew) */
 function forSitesCheck(){
-  const f = forage();
+  const f = forage(), out = [];
   f.sitesSeen = f.sitesSeen || {};
   for(const S1 of FOR_SITES){
     if(S1.id === "main" || f.sitesSeen[S1.id] || !siteReachable(S1.id)) continue;
     f.sitesSeen[S1.id] = true;
-    if(typeof moment === "function") moment({kind:"door", c:S1.tint, icon:"map", kicker:"FORAGE · CHANTIER REPÉRÉ", title:S1.n,
-      sub:"Un autre puits est accessible. Ouvre-le depuis « Les chantiers », en bas du Forage.",
-      line:"Le puits principal est assez profond pour voir à côté. Il y a d'autres trous dans le rêve, {nom}."});
+    out.push(S1.id);
   }
+  return out;
 }
 
 /* ---------- la forge, à l'écran ---------- */

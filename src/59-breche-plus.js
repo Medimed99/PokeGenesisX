@@ -76,9 +76,11 @@ function brPlusMods(R){
   const I = R.items, syn = brSynCount(R), T = t => brSynTier(syn[t] || 0);
   R.syn = syn;
   const m = R.mods;
-  m.dmg   *= (1 + 0.12 * (I.orbe || 0)) * [1, 1.10, 1.25][T(16)] * (1 + (R.bonusDmg || 0));
-  m.cd    *= [1, 0.92, 0.82][T(13)] * (R.bonusCd || 1);
-  m.area  *= [1, 1.12, 1.28][T(14)];
+  /* les fragments de code des coffres : de petits gains qui valent pour toute la run (58) */
+  const FR = R.frag || {};
+  m.dmg   *= (1 + 0.12 * (I.orbe || 0)) * [1, 1.10, 1.25][T(16)] * (1 + (R.bonusDmg || 0)) * (1 + 0.06 * (FR.dmg || 0));
+  m.cd    *= [1, 0.92, 0.82][T(13)] * (R.bonusCd || 1) * Math.pow(0.95, FR.cd || 0);
+  m.area  *= [1, 1.12, 1.28][T(14)] * (1 + 0.08 * (FR.area || 0));
   m.speed *= [1, 1.10, 1.22][T(3)];
   m.regen += [0, 0.6, 1.8][T(11)];
   m.armor *= [1, 0.92, 0.82][T(5)] * [1, 0.92, 0.82][T(9)];
@@ -102,7 +104,7 @@ function brPlusMods(R){
   /* PV max : Roche et Orbe Vie les modifient, on garde la proportion de vie */
   const U = (S.breche && S.breche.upg) || {};
   const base = 150 * (1 + 0.10 * (U.hp || 0));
-  const newMax = base * [1, 1.15, 1.35][T(6)] * Math.max(0.5, 1 - 0.06 * (I.orbe || 0));
+  const newMax = (base * [1, 1.15, 1.35][T(6)] + 15 * (FR.hp || 0)) * Math.max(0.5, 1 - 0.06 * (I.orbe || 0));
   if(R.maxHp && Math.abs(newMax - R.maxHp) > 0.5){ const k = R.hp / R.maxHp; R.maxHp = newMax; R.hp = newMax * k; }
 }
 

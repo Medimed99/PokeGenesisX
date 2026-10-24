@@ -15,6 +15,20 @@
 
 /* ---------- le raid ---------- */
 const RAID_TRIES = 3;
+const RAID_TURNS = 30;          /* une attaque dure trente tours au plus : ensuite, le boss se retire */
+const RAID_DMG_CAP = 15000;     /* garde-fou : une très forte équipe fait environ 6 000 en trente tours */
+/* l'expérience d'une attaque suit les dégâts, plafonnés : au plus 3 200 points */
+function raidXp(dmg){ return 200 + Math.round(Math.min(RAID_DMG_CAP, Math.max(0, dmg)) / 5); }
+function raidBossFighter(){
+  const id = raidBoss();
+  const boss = makeFighter(id, raidLevel(), {boost:1});
+  /* il ne cherche pas à gagner : il encaisse. L'équipe doit tenir assez pour frapper longtemps */
+  boss.atk = Math.round(boss.atk * 0.35); boss.spa = Math.round(boss.spa * 0.35);
+  /* les brûlures et le poison se calculent sur ses PV ordinaires, pas sur ses deux millions */
+  boss.refHp = boss.maxHp;
+  boss.maxHp = 2000000; boss.hp = boss.maxHp; boss.raid = true;
+  return boss;
+}
 /* paliers par joueur : avec N joueurs, il en faut N fois plus */
 const RAID_TIERS = [
   {pp:1500,   n:"Palier 1", rw:{coins:3000, shards:20}},
@@ -60,12 +74,10 @@ ACTIONS.raidfight = () => {
   R.tries++; save();
   const id = raidBoss();
   const allies = teamFighters(ids, typeof allyBoost === "function" ? allyBoost() : 1);
-  const boss = makeFighter(id, raidLevel(), {boost:1});
-  /* il ne cherche pas à gagner : il encaisse. L'équipe doit tenir assez pour frapper longtemps */
-  boss.atk = Math.round(boss.atk * 0.35); boss.spa = Math.round(boss.spa * 0.35);
-  boss.maxHp = 2000000; boss.hp = boss.maxHp; boss.raid = true;
+  const boss = raidBossFighter();
   createBattle(allies, [boss], {
-    ai:true, title:"RAID DE LA SEMAINE", stage:"boss",
+    ai:true, title:"RAID DE LA SEMAINE", stage:"boss", maxTurns:RAID_TURNS, endText:"FIN DE L'ATTAQUE",
+    retreat:`<span class="gold-t">${esc(POKE[id].name)}</span> se retire dans la faille. Il reviendra.`,
     intro:`<span class="gold-t">${esc(POKE[id].name)}</span> ne tombera pas aujourd'hui. Frappe aussi fort que tu peux.`,
     onEnd: () => raidEnd(boss)
   });
@@ -73,14 +85,14 @@ ACTIONS.raidfight = () => {
 };
 function raidEnd(boss){
   const R = raidState();
-  const dmg = Math.max(0, Math.round(boss.maxHp - Math.max(0, boss.hp)));
+  const dmg = Math.min(RAID_DMG_CAP, Math.max(0, Math.round(boss.maxHp - Math.max(0, boss.hp))));
   R.dmg += dmg; R.attacks++; R.best = Math.max(R.best || 0, dmg);
   S.stats.raidDmg = (S.stats.raidDmg || 0) + dmg;
   if(typeof teamCandyGain === "function") teamCandyGain(1);
-  addXp(200 + Math.round(dmg / 5));
+  addXp(raidXp(dmg));
   save();
   if(typeof Net !== "undefined" && Net.signedIn())
-    Net.call("/rest/v1/rpc/add_raid", {method:"POST", body:{p_week:raidWeek(), p_name:S.name || "Archiviste", p_dmg:Math.min(dmg, 400000)}}).then(()=>raidRefresh()).catch(()=>{});
+    Net.call("/rest/v1/rpc/add_raid", {method:"POST", body:{p_week:raidWeek(), p_name:S.name || "Archiviste", p_dmg:Math.min(dmg, RAID_DMG_CAP)}}).then(()=>raidRefresh()).catch(()=>{});
   setTimeout(()=>{
     if(typeof moment === "function") moment({kind:"release", c:"#ff8a3d", spr:raidBoss(), kicker:"RAID DE LA SEMAINE",
       title:`${fmt(dmg)} dégâts`, sub:`Total ${raidPlayers() > 1 ? "de tous les joueurs" : "de la semaine"} : ${fmt(raidTotal())} · ${RAID_TRIES - R.tries} attaque(s) encore aujourd'hui`,
@@ -100,6 +112,7 @@ ACTIONS.raidclaim = d => {
   if(rw.card && typeof grantCardV === "function"){
     const s = rollCardSeries(raidBoss(), 2);
     if(typeof cardRevealExpect === "function") cardRevealExpect();
+    if(typeof cardHowSet === "function") cardHowSet("raid", {g:raidBoss()});
     card = {s, id:raidBoss(), fresh:grantCardV(s, raidBoss())};
     cardTxt = " · une carte de " + POKE[raidBoss()].name;
   }

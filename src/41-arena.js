@@ -622,7 +622,8 @@ function arDrawActor(x, a){
       x.fillStyle = g; x.beginPath(); x.arc(p.x, p.y - size * 0.2, size * 0.6, 0, 7); x.fill(); }
   }
   const white = t - a.flashT < 75;
-  const variant = white ? "w" : f.shiny ? "s" : "n";
+  /* les siens portent leur apparence d'epoque (73h) ; les adversaires, jamais */
+  const variant = white ? "w" : typeof eraVar === "function" ? eraVar(id, f.shiny ? "s" : "n", a.side === "ally") : f.shiny ? "s" : "n";
   const moving = a.mv || a.dash || (a.enter && t < a.enter.t0 + a.enter.dur);
   const draw = (cx, cy, alpha) => {
     if(a.pose){
@@ -631,7 +632,7 @@ function arDrawActor(x, a){
       else if(typeof brAnimDraw === "function" && brAnimDraw(x, id, a.pose.anim, variant, dir, pt / 1000 * (a.pose.anim === "hurt" ? 0.5 : 1), cx, cy, size, alpha)) return;
     }
     if(typeof brPmdDraw === "function" && brPmdDraw(x, id, variant, dir, moving ? t / 1000 : null, cx, cy, size, alpha)) return;
-    const spr = typeof brSprite === "function" ? brSprite(id, white ? "w" : f.shiny ? "s" : "n") : null;
+    const spr = typeof brSprite === "function" ? brSprite(id, variant) : null;
     if(spr){ x.globalAlpha = alpha; x.drawImage(spr, cx - size * 0.5, cy - size * 0.8, size, size); x.globalAlpha = 1; }
   };
   if(a.koT !== null){
@@ -674,6 +675,7 @@ function arFrame(now){
   x.imageSmoothingEnabled = false;
   /* la caméra : elle tremble sous les coups, elle se resserre sur un critique */
   AR.shake *= Math.pow(0.86, real / 16);
+  if(typeof calmFx === "function" && calmFx()){ AR.shake = 0; AR.flash = null; }
   if(!frozen) AR.zoom *= Math.pow(0.9, real / 16);
   const sx = (Math.random() - 0.5) * AR.shake, sy = (Math.random() - 0.5) * AR.shake, z = 1 + AR.zoom * 0.055;
   x.save();

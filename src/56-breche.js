@@ -317,7 +317,7 @@ function brText(R, x, y, txt, color, size){
   t.x = x + (R.rng() - .5) * 10; t.y = y; t.txt = txt; t.color = color; t.size = size || 11;
   t.life = t.max = 0.7;
 }
-function brShake(R, amt){ R.shake = Math.min(14, R.shake + amt); }
+function brShake(R, amt){ if(typeof calmFx === "function" && calmFx()) return; R.shake = Math.min(14, R.shake + amt); }
 /* l'arrêt sur image ponctue un coup ; enchaîné à chaque critique, il figeait la partie
    (en profondeur, une seconde de jeu durait trois secondes). Les petits arrêts ont un délai. */
 function brHitstop(R, ms){

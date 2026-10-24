@@ -203,15 +203,48 @@ function forageTick(dt){
       toast("Forage : des fouilles t'attendent", "warn", "stone");
     FOR_LAST_WALLS = f.walls;
   }
-  for(const si of r.strata) forStratumReached(si);
+  if(r.strata.length) forStrataReached(r.strata);
   saveSoon();
 }
-function forStratumReached(si){
-  const s = STRATA[si];
-  if(typeof forSitesCheck === "function") forSitesCheck();
-  if(typeof momentStratum === "function") momentStratum(si);
-  else toast(`Forage : ${s.n} atteinte — ${s.mat}`, "warn", "bolt");
-  if(si === 2 && !S.flags.firstFossil){ S.flags.firstFossil = true; forage().walls = Math.min(wallCap(), forage().walls + 1); }
+/* ---------- une couche atteinte : une seule annonce, au bon endroit ----------
+   Plusieurs couches d'un coup, un chantier qui s'ouvre en même temps : un seul moment.
+   Atteinte pendant qu'on joue ailleurs, la couche n'interrompt rien : elle attend
+   qu'on revienne au Forage pour se montrer. */
+function forStrataReached(list){
+  const f = forage();
+  for(const si of list) if(si === 2 && !S.flags.firstFossil){ S.flags.firstFossil = true; f.walls = Math.min(wallCap(), f.walls + 1); }
+  const sites = typeof forSitesCheck === "function" ? forSitesCheck(true) : [];
+  f.newStrata = (f.newStrata || []).concat(list);
+  f.newSites = (f.newSites || []).concat(sites);
+  if(typeof currentScreen !== "undefined" && currentScreen === "idle") forAnnounceNew();
+}
+function forAnnounceNew(){
+  const f = forage();
+  const strata = [...new Set(f.newStrata || [])].sort((a, b)=>a - b), sites = [...new Set(f.newSites || [])];
+  if(!strata.length && !sites.length) return false;
+  /* au tout premier passage, le tutoriel du Forage passe d'abord */
+  if(typeof tutoSeen === "function" && !tutoSeen("idle")) return false;
+  f.newStrata = []; f.newSites = [];
+  saveSoon();
+  const m = forNewMoment(strata, sites);
+  if(typeof moment === "function") moment(m);
+  else toast(m.title, "warn", "bolt");
+  return true;
+}
+/* le moment unique : la couche la plus profonde, les autres traversées, les chantiers ouverts */
+function forNewMoment(strata, sites){
+  const siteNames = (sites || []).map(id=>typeof siteDef === "function" && siteDef(id) ? siteDef(id).n : "").filter(Boolean);
+  const siteTxt = siteNames.length ? (siteNames.length > 1 ? `Nouveaux chantiers : ${siteNames.join(" et ")}` : `Nouveau chantier : ${siteNames[0]}`) + ", à ouvrir depuis « Les chantiers »." : "";
+  if(!strata.length){
+    const S1 = siteDef(sites[0]);
+    return {kind:"door", c:S1.tint, icon:"map", kicker:"FORAGE · CHANTIER REPÉRÉ", title:siteNames.join(" · "), sub:siteTxt,
+      line:"Le puits principal est assez profond pour voir à côté. Il y a d'autres trous dans le rêve, {nom}."};
+  }
+  const s = STRATA[strata[strata.length - 1]], before = strata.slice(0, -1).map(i=>STRATA[i].n);
+  return {kind:"depth", kicker:`${strata.length > 1 ? strata.length + " NOUVELLES COUCHES" : "NOUVELLE COUCHE"} · ${fmt(s.need)} M`, title:s.n, c:s.c, band:s.pal,
+    sub:[s.d, before.length ? `Traversée${before.length > 1 ? "s" : ""} en chemin : ${before.join(", ")}.` : "", siteTxt].filter(Boolean).join(" "),
+    line:s.good.length ? `Ici, les types ${s.good.map(t=>TYPE_NAMES[t]).join(", ").replace(/, ([^,]*)$/, " et $1")} creusent deux fois plus vite. Je dis ça, je ne dis rien.` : "",
+    dur:siteTxt || before.length ? 6200 : undefined};
 }
 
 /* ============================================================
@@ -408,6 +441,7 @@ function digClaim(wall){
     if(g.crate !== undefined && typeof crateRoll === "function"){ row.crate = crateRoll(g.crate, wall.si); row.crateTier = g.crate; }
     if(g.mon){
       const lv = Math.max(5, Math.round(10 + wall.si * 7 + rng() * 6));
+      DEX_HOW = "roche";
       row.isNew = addToDex(g.mon, lv, rng() < 1 / 400);
       row.label = POKE[g.mon].name + (row.isNew ? " — nouvelle espèce !" : "");
     }
@@ -432,6 +466,8 @@ SCREENS.idle = {
   after(host, arg){
     if(arg === "wall" && DIG){ digAfter(); return; }
     tutoMaybe("idle");
+    /* ce qui a changé pendant qu'on était ailleurs : une seule annonce */
+    if(typeof forAnnounceNew === "function") setTimeout(()=>{ try { if(currentScreen === "idle") forAnnounceNew(); } catch(e){} }, 600);
     forShaftStart();
     if(typeof pmdWake === "function") pmdWake();
   },
@@ -650,9 +686,10 @@ function forShaftDraw(V, dt){
     x.fillStyle = "rgba(0,0,0,.25)"; x.beginPath(); x.ellipse(cx, cy + 4, 20, 6, 0, 0, 7); x.fill();
     const size = Math.min(70, W / n * 0.75), ph = (t + i * 0.37) % 1.1;
     let ok = false;
-    if(typeof brAnimDraw === "function") ok = brAnimDraw(x, id, "attack", S.dex[id] && S.dex[id].shiny ? "s" : "n", 0, ph, cx, cy, size);
-    if(!ok && typeof brPmdDraw === "function") ok = brPmdDraw(x, id, "n", 0, t * 0.6 + i, cx, cy, size);
-    if(!ok && typeof brSprite === "function"){ const s = brSprite(id, "n"); if(s) x.drawImage(s, cx - size / 2, cy - size * 0.8, size, size); }
+    const FV = typeof eraVar === "function" ? eraVar(id, S.dex[id] && S.dex[id].shiny ? "s" : "n", true) : S.dex[id] && S.dex[id].shiny ? "s" : "n";
+    if(typeof brAnimDraw === "function") ok = brAnimDraw(x, id, "attack", FV, 0, ph, cx, cy, size);
+    if(!ok && typeof brPmdDraw === "function") ok = brPmdDraw(x, id, FV === "s" ? "n" : FV, 0, t * 0.6 + i, cx, cy, size);
+    if(!ok && typeof brSprite === "function"){ const s = brSprite(id, FV === "s" ? "n" : FV); if(s) x.drawImage(s, cx - size / 2, cy - size * 0.8, size, size); }
     if(typeof forCrewTool === "function") forCrewTool(x, cx, cy, size, ph);
     /* des eclats de matiere, au rythme des coups */
     if(Math.random() < dt / 160) for(let k = 0; k < 3; k++) V.parts.push({x:cx + (Math.random() - 0.5) * 20, y:cy + 6, vx:(Math.random() - 0.5) * 0.12, vy:-0.08 - Math.random() * 0.12, life:0, max:500 + Math.random() * 400, c:st.pal[Math.floor(Math.random() * 3)]});
@@ -871,7 +908,7 @@ function digEnd(left){
     <div class="tiny muted" style="margin-bottom:8px">${rows.filter(r=>!r.ore).length ? `${rows.filter(r=>!r.ore).length} objet${rows.filter(r=>!r.ore).length > 1 ? "s" : ""} sur ${digBig().length}` : "Aucun objet dégagé à temps."}</div>
     <div class="dg-loot">${rows.map((r, i)=>`<div class="dg-li" style="--d:${i * 140}ms">
       ${r.ore ? oreSvg(r.ore, 30) : r.it.k === "mon" ? sprite(r.it.mon, false, "") : r.def.art && typeof digArtOf === "function" ? digArtSvg(digArtOf(r.it.k, DIG.si), 32) : itemIcon(r.def.ic, 34)}
-      <div class="grow"><b>${esc(r.label)}</b><small>${esc(digGainText(r.g))}</small></div></div>`).join("")}</div>
+      <div class="grow"><b>${esc(r.label)}${r.ore && r.fresh ? ` <span class="dg-new">Nouveau</span>` : ""}</b><small>${esc(r.ore && r.fresh ? digNewOreText(r.ore) : digGainText(r.g))}</small></div></div>`).join("")}</div>
     <div class="dg-rb">
       <button class="btn" data-act="fowallback">Retour au Forage</button>
       ${f.walls ? `<button class="btn pri" data-act="fowallnext">Fouille suivante (${f.walls})</button>` : ""}
@@ -880,13 +917,12 @@ function digEnd(left){
   if(rows.length) try { Sfx.win(); } catch(e){}
   /* les caisses s'ouvrent après le bilan, une par une */
   for(const r of rows) if(r.crate && typeof crateShow === "function") crateShow(r.crateTier, r.crate);
-  /* un minerai jamais vu : on dit a quoi il sert */
-  for(const r of rows) if(r.ore && r.fresh && typeof moment === "function"){
-    const o = oreDef(r.ore), i = ORE_IDS.indexOf(r.ore);
-    moment({kind:"release", c:o.pal[1], html:oreSvg(r.ore, 64), kicker:"NOUVEAU MINERAI", title:o.n,
-      sub:`Il sert à forger des outils ${TOOL_TIERS[i + 1].adj}. Va voir « La Forge », dans le Forage.`});
-  }
+  /* un minerai jamais vu : son usage est dit dans le bilan lui-même, sans fenêtre de plus */
   if(typeof checkAchievements === "function") checkAchievements();
+}
+function digNewOreText(ore){
+  const i = ORE_IDS.indexOf(ore), t = TOOL_TIERS[i + 1];
+  return t ? `Nouveau minerai : il sert à forger des outils ${t.adj}, dans « La Forge ».` : "Nouveau minerai, pour la forge";
 }
 function digGainText(g){
   if(g.ore) return "Minerai, pour la forge";
@@ -904,7 +940,7 @@ function digGainText(g){
   if(g.egg) return g.egg.startsWith("f_") ? "Un fossile : il éclora à la couveuse" : "Un œuf pour la couveuse";
   if(g.held) return "Objet tenu";
   if(g.mon) return "Il rejoint ton Pokédex";
-  if(g.page) return "Rangée dans le dossier des onze, au journal";
+  if(g.page) return "Rangée dans le journal, avec les autres pages";
   return "";
 }
 ACTIONS.fowallback = () => { DIG = null; go("idle"); if(typeof checkStoryTriggers === "function") checkStoryTriggers(); };
@@ -915,6 +951,9 @@ function forageOffline(sec){
   if(typeof moduleUnlocked === "function" && !moduleUnlocked("idle")) return {m:0, e:0, w:0, strata:[]};
   const r = forageAdvance(sec);
   forageQuest(r.e);
+  /* annoncé une fois, à l'entrée du Forage (le rapport d'absence le dit déjà en une ligne) */
+  if(r.strata && r.strata.length) forStrataReached(r.strata);
+  else if(typeof forSitesCheck === "function"){ const f = forage(); f.newSites = (f.newSites || []).concat(forSitesCheck(true)); }
   return r;
 }
 
@@ -990,6 +1029,7 @@ ACTIONS.botclaim = () => {
   for(let i = 0; i < n; i++){
     const id = botSpecies();
     const sh = rng() < 1/1000;                 /* aucune aide de chaine : la session ne fait que capturer */
+    DEX_HOW = "absence";
     const isNew = addToDex(id, levelFor(POKE[id].rar), sh);
     if(isNew) fresh++;
     if(sh) shinies++;

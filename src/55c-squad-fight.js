@@ -20,7 +20,8 @@
    ============================================================ */
 function sqFightHtml(){
   const B = SQB, Z = SQ_ZONES[B.z], q = sqState();
-  const name = B.lock ? `VERROU <i style="color:#ff3d7f">${esc(regionDef(B.lock.r).name)}</i>`
+  const name = B.final ? `COUCHE ZÉRO <i style="color:#ff3d7f">ENTRÉE 000</i>`
+    : B.lock ? `VERROU <i style="color:#ff3d7f">${esc(regionDef(B.lock.r).name)}</i>`
     : `${esc(Z.n)} · ${B.s === SQ_STAGES - 1 ? "BOSS" : "palier " + (B.s + 1)} <i style="color:${SQ_DIFFS[B.d].c}">${SQ_DIFFS[B.d].n}</i>`;
   return `<div class="sq2" style="--zc:${Z.c}">
     <div class="sq2-arena" id="sqarena">
@@ -68,7 +69,9 @@ ACTIONS.sqquit = () => {
     <div class="btn-grid c2" style="margin-top:10px"><button class="btn pri" data-act="closesheet">Reprendre</button>
     <button class="btn dan" data-act="sqquit2">Abandonner</button></div>`, true);
 };
-ACTIONS.sqquit2 = () => { closeSheet(); const lk = SQB && SQB.lock; SQB = null; SQV = null; lk ? go("boss") : go("tower", "zone"); };
+ACTIONS.sqquit2 = () => { closeSheet(); const lk = SQB && SQB.lock, fin = SQB && SQB.final; SQB = null; SQV = null;
+  if(fin && typeof Music !== "undefined") Music.ctxOverride = null;
+  fin ? go("modules") : lk ? go("boss") : go("tower", "zone"); };
 
 /* lancer un combat depuis la préparation */
 ACTIONS.sqfight = () => {
@@ -343,7 +346,7 @@ function sqFightAfter(){
   const d = Math.min(3, window.devicePixelRatio || 1);
   cv.width = W * d; cv.height = H * d; cv.style.height = H + "px"; host.style.height = H + "px";
   SQV.cv = cv; SQV.W = W; SQV.H = H; SQV.d = d;
-  const biome = SQB.lock ? "lock" : SQ_ZONES[SQB.z].biome;
+  const biome = SQB.final ? "zero" : SQB.lock ? "lock" : SQ_ZONES[SQB.z].biome;
   SQV.scene = sqPaintScene(biome, W, H, SQB.z * 131 + 7);
   cv.addEventListener("pointerdown", e=>{ const r = cv.getBoundingClientRect(); sqTap(e.clientX - r.left, e.clientY - r.top); });
   sqDrawSkills(); sqOrder();
@@ -357,7 +360,7 @@ function sqUnitPos(u, i, list){
   else if(list.some(f=>f.boss)) p = i === 0 ? [0.50, 0.46] : i === 2 ? [0.92, 0.50] : [0.60, 0.25];
   else p = SQ_POS_F[i] || SQ_POS_F[0];
   /* la profondeur : ce qui est plus bas est plus proche, donc plus grand */
-  const s = (u.guardian ? 128 : u.boss ? 108 : 68) * (0.74 + p[1] * 0.5) * Math.max(0.74, Math.min(1.08, H / 500));
+  const s = (u.mn ? 146 : u.guardian ? 128 : u.boss ? 108 : 68) * (0.74 + p[1] * 0.5) * Math.max(0.74, Math.min(1.08, H / 500));
   return {x:p[0] * W, y:p[1] * H, s};
 }
 
@@ -409,6 +412,7 @@ function sqFrame(now){
   x.setTransform(SQV.d, 0, 0, SQV.d, 0, 0);
   x.imageSmoothingEnabled = false;
   SQV.shake *= Math.pow(0.86, real / 16);
+  if(typeof calmFx === "function" && calmFx()) SQV.shake = 0;
   x.save(); x.translate((Math.random() - 0.5) * SQV.shake, (Math.random() - 0.5) * SQV.shake);
   x.drawImage(SQV.scene.cv, -6, -6, W + 12, H + 12);
   sqAmbient(x, t, dt, false);
@@ -473,8 +477,11 @@ function sqDrawUnit(x, u, t){
   }
   if(v.glow && t - v.glow.t0 < 500){ const k = (t - v.glow.t0) / 500, gr = x.createRadialGradient(cx, cy - size * 0.35, 0, cx, cy - size * 0.35, size * 0.6);
     gr.addColorStop(0, sqRgba(v.glow.c, 0.5 * (1 - k))); gr.addColorStop(1, sqRgba(v.glow.c, 0)); x.fillStyle = gr; x.beginPath(); x.arc(cx, cy - size * 0.35, size * 0.6, 0, 7); x.fill(); }
+  /* MissingNo n'a pas de planche : il se dessine lui-même, en se déchirant */
+  if(u.mn && typeof fnDrawMN === "function"){ fnDrawMN(x, u, t, cx, cy, size, a); return; }
   const white = (v.flash && t - v.flash < 90) || (v.ko && t - v.ko < 120);
-  const V = white ? "w" : u.shiny ? "s" : "n";
+  /* un écho : ton Pokémon, aux couleurs de la faille */
+  const V = white ? "w" : u.echo ? "c" : typeof eraVar === "function" ? eraVar(u.id, u.shiny ? "s" : "n", u.side === "ally") : u.shiny ? "s" : "n";
   x.globalAlpha = a;
   let ok = false;
   const pose = v.pose && t >= v.pose.t0 && t - v.pose.t0 < v.pose.len ? v.pose : v.pose2 && t >= v.pose2.t0 && t - v.pose2.t0 < v.pose2.len ? v.pose2 : null;
@@ -488,7 +495,7 @@ function sqDrawUnit(x, u, t){
     else if(typeof PMD_IDLE_WALK !== "undefined" && PMD_IDLE_WALK.includes(u.id)) ok = sqSprDraw(x, u.id, "walk", V, dir, tt * 0.7, cx, cy, size, true);
     else ok = sqSprDraw(x, u.id, "walk", V, dir, null, cx, cy + Math.sin(tt * 3) * 0.6, size, false);
   }
-  if(!ok && typeof brSprite === "function"){ const s = brSprite(u.id, u.shiny ? "s" : "n"); if(s) x.drawImage(s, cx - size / 2, cy - size * 0.8, size, size); }
+  if(!ok && typeof brSprite === "function"){ const s = brSprite(u.id, V[0] === "e" ? V : u.shiny ? "s" : "n"); if(s) x.drawImage(s, cx - size / 2, cy - size * 0.8, size, size); }
   x.globalAlpha = 1;
 }
 
@@ -711,8 +718,9 @@ function sqDrawCut(x, C, t){
   /* le portrait */
   const drawMon = (u, px, py, sz) => {
     if(!u) return;
-    const ok = sqSprDraw(x, u.id, sqHasAnim(u.id, "charge") ? "charge" : "idle", u.shiny ? "s" : "n", u.side === "ally" ? 2 : 6, (t - C.t0) / 1000, px, py, sz, true);
-    if(!ok && typeof brSprite === "function"){ const s = brSprite(u.id, u.shiny ? "s" : "n"); if(s) x.drawImage(s, px - sz / 2, py - sz * 0.9, sz, sz); }
+    const UV = typeof eraVar === "function" && !u.echo ? eraVar(u.id, u.shiny ? "s" : "n", u.side === "ally") : u.shiny ? "s" : "n";
+    const ok = sqSprDraw(x, u.id, sqHasAnim(u.id, "charge") ? "charge" : "idle", UV, u.side === "ally" ? 2 : 6, (t - C.t0) / 1000, px, py, sz, true);
+    if(!ok && typeof brSprite === "function"){ const s = brSprite(u.id, UV); if(s) x.drawImage(s, px - sz / 2, py - sz * 0.9, sz, sz); }
   };
   x.textBaseline = "middle";
   if(C.kind === "sync"){
@@ -740,12 +748,12 @@ function sqDrawCut(x, C, t){
 function sqBossBar(){
   const el = document.getElementById("sqtitle"); if(!el || !SQV) return;
   const b = SQV.foes.find(f=>f.boss && f._v && !f._v.ko && f._v.hp > 0 && (!f._v.enter || SQV.t - f._v.enter.t0 > 300));
-  const key = b ? b.id + ":" + Math.round(b._v.hp) + ":" + Math.round(b._v.trail) + ":" + (b.phased ? 1 : 0) : "";
+  const key = b ? b.id + ":" + Math.round(b._v.hp) + ":" + Math.round(b._v.trail) + ":" + (b.phased ? 1 : 0) + (b.p2 ? 2 : 0) + (b.p3 ? 3 : 0) + b.name : "";
   if(key === SQV.bossKey) return;
   SQV.bossKey = key;
   if(!b){ if(el.dataset.boss){ el.dataset.boss = ""; el.innerHTML = el.dataset.name || el.innerHTML; } return; }
   if(!el.dataset.boss){ el.dataset.name = el.innerHTML; el.dataset.boss = "1"; }
-  el.innerHTML = `<div class="sq2-bossbar ${b.guardian ? "gd" : ""}"><span>${b.guardian ? (b.phased ? "VERROU · RECONFIGURÉ" : "VERROU") : "BOSS"} · <b>${esc(b.name)}</b> N.${b.level}</span>
+  el.innerHTML = `<div class="sq2-bossbar ${b.guardian ? "gd" : ""} ${b.mn ? "mn" : ""}"><span>${b.mn ? (b.p3 ? "ENTRÉE 000 · NOMMÉE" : b.p2 ? "ENTRÉE 000 · COPIE" : "ENTRÉE 000") : b.guardian ? (b.phased ? "VERROU · RECONFIGURÉ" : "VERROU") : "BOSS"} · <b>${esc(b.name)}</b> N.${b.level}</span>
     <i><u style="width:${(b._v.trail / b.maxHp * 100).toFixed(1)}%"></u><s style="width:${(b._v.hp / b.maxHp * 100).toFixed(1)}%"></s></i></div>`;
 }
 

@@ -131,7 +131,7 @@ ACTIONS.worldbuild = d => {
   if(typeof teamCandyGain === "function") teamCandyGain(heart ? 15 : 3);
   if(heart && typeof grantCardV === "function"){
     const core = (regionDef(region).guardians.find(g=>g.core) || {}).id;
-    if(core){ const s = rollCardSeries(core, 3); if(typeof cardRevealExpect === "function") cardRevealExpect(); heartCard = {s, id:core, fresh:grantCardV(s, core)}; }
+    if(core){ const s = rollCardSeries(core, 3); if(typeof cardRevealExpect === "function") cardRevealExpect(); if(typeof cardHowSet === "function") cardHowSet("heart", {r:region}); heartCard = {s, id:core, fresh:grantCardV(s, core)}; }
     gain("cores", 3);
   }
   S.stats.restored = (S.stats.restored || 0) + 1;
@@ -176,7 +176,8 @@ const CHAPTERS = [
   {id:"c5", n:"Chapitre 5 — Les cendres de Johto", d:"La moitié de Johto respire. L'autre attend.", ok:()=>worldReg("johto").done.length >= 5},
   {id:"c6", n:"Chapitre 6 — Hoenn, l'extension instable", d:"Le système y a improvisé sa propre géographie.", ok:()=>regionUnlocked("hoenn") && projDone("johto", 9)},
   {id:"c7", n:"Chapitre 7 — Le ciel de Hoenn", d:"Quelque chose veille, tout là-haut.", ok:()=>worldReg("hoenn").done.length >= 5},
-  {id:"c8", n:"Épilogue — Le monde entier", d:"Trois secteurs debout. L'archive est pleine de vie.", ok:()=>projDone("hoenn", 9)}
+  {id:"c8", n:"Chapitre 8 — La Couche Zéro", d:"Trois secteurs debout. Il ne reste qu'un endroit, en dessous.", ok:()=>projDone("hoenn", 9)},
+  {id:"c9", n:"Épilogue — Le monde sauvegardé", d:"Pour la première fois en {cxw} connexions, quelqu'un a sauvegardé.", ok:()=>!!(S.flags && S.flags.finalDone)}
 ];
 function chapterIdx(){ let k = 0; CHAPTERS.forEach((c, i)=>{ try { if(c.ok()) k = i; } catch(e){} }); return k; }
 function worldChapterCheck(){
@@ -186,8 +187,9 @@ function worldChapterCheck(){
     W.chap = k; save();
     const c = CHAPTERS[k];
     try { if(typeof Music !== "undefined") Music.jingle("j_chapitre"); } catch(e){}
-    if(typeof moment === "function") moment({kind:"door", c:"#ffd24a", kicker:"NOUVEAU CHAPITRE", title:c.n, sub:c.d, dur:5200,
-      quote:k === 8 ? "Je n'ai plus rien à réparer. Je crois que je vais juste regarder, un moment." : null});
+    if(typeof moment === "function") moment({kind:"door", c:"#ffd24a", kicker:"NOUVEAU CHAPITRE", title:c.n, sub:typeof pzFmt === "function" ? pzFmt(c.d) : c.d, dur:5200,
+      quote:k === 8 ? "Il ne reste plus rien à réparer. Il reste quelque chose à comprendre."
+        : k === 9 ? "Je n'ai plus rien à réparer. Je crois que je vais juste regarder, un moment. Avec toi." : null});
   }
 }
 
@@ -471,6 +473,8 @@ ACTIONS.worldspot = d => {
   const k = d.k, s = WORLD_SPOTS[k], region = worldState().view, R = WORLD_REGIONS[region];
   if(!s) return;
   if(s.go === "@heart" || !s.go){ ACTIONS.worldprojects(); return; }
+  /* la faille, une fois la Couche Zéro ouverte : c'est par là qu'on descend */
+  if(k === "rift" && typeof finaleStage === "function" && finaleStage() === "ready"){ ACTIONS.zerogo(); return; }
   if(s.go === "@fish"){ S.capMode = "fish"; go("capture"); return; }
   if(!spotOpen(k)){
     const m = typeof moduleMissing === "function" ? moduleMissing(s.mod) : [];
@@ -541,12 +545,12 @@ SCREENS.modules = {
           ${Object.entries(WORLD_SPOTS).map(([k, s])=>{
             if(k === "rift" && !moduleUnlocked("breche")) return "";
             const op = spotOpen(k), b = worldBadge(k), ok = k === "rift" ? false : !WORLD_PROJECTS.some((p, i)=>p.spot === k) || worldReg(region).done.some(i=>WORLD_PROJECTS[i].spot === k);
-            const name = s.s || s.n;
+            const name = k === "rift" && typeof finaleStage === "function" && finaleStage() === "ready" ? "Couche Zéro" : (s.s || s.n);
             return `<button class="wd-spot ${op ? "" : "locked"} ${ok ? "ok" : "bad"} ${k}" data-act="worldspot" data-k="${k}" style="left:${s.x}%;top:${s.y}%">
               <span class="wd-lbl">${op ? "" : ic("lock")}${esc(ok || k === "rift" ? name : name.replace(/[a-zA-Zéèêàçôûîœ]/g, (m, i)=>((i + dn) % 3 ? m : "▒")))}</span>${b ? `<i class="wd-b">${esc(b)}</i>` : ""}</button>`; }).join("")}
           ${projDone(region, 9) && core ? `<span class="wd-statue" style="left:${WORLD_SPOTS.heart.x}%;top:${WORLD_SPOTS.heart.y}%">${sprite(core, false, "")}</span>` : ""}
-          ${dn < WORLD_PROJECTS.length ? `<span class="wd-lurk" id="wd-lurk" style="opacity:${(0.25 + 0.55 * (1 - dn / WORLD_PROJECTS.length)).toFixed(2)}"><img src="${MISSING_SPRITE}" alt=""></span>` : ""}
-          ${lead ? `<span class="wd-partner" id="wd-partner" style="left:${WORLD_SPOTS.pc.x + 4}%;top:${WORLD_SPOTS.pc.y + 6}%">${typeof pmdCanvas === "function" ? pmdCanvas(lead, 0, 40, {shiny:S.dex[lead] && S.dex[lead].shiny}) : sprite(lead, !!(S.dex[lead] && S.dex[lead].shiny), "")}</span>` : ""}
+          ${dn < WORLD_PROJECTS.length ? `<span class="wd-lurk" id="wd-lurk" style="opacity:${(0.25 + 0.55 * (1 - dn / WORLD_PROJECTS.length)).toFixed(2)}">${mnSpriteHtml()}</span>` : ""}
+          ${lead ? `<span class="wd-partner" id="wd-partner" style="left:${WORLD_SPOTS.pc.x + 4}%;top:${WORLD_SPOTS.pc.y + 6}%">${typeof pmdCanvas === "function" ? pmdCanvas(lead, 0, 40, {shiny:S.dex[lead] && S.dex[lead].shiny, mine:true}) : sprite(lead, !!(S.dex[lead] && S.dex[lead].shiny), "")}${lead !== 474 && S.dex[474] && typeof pmdCanvas === "function" ? `<span class="wd-pzf">${pmdCanvas(474, 0, 30)}</span>` : ""}</span>` : ""}
           <i class="wd-scan"></i>
         </div>
         <div class="wd-hud bot"><span>INDEX ${Math.round(dn / WORLD_PROJECTS.length * 100)} %</span><span>${WORLD_PROJECTS.length - dn ? `${WORLD_PROJECTS.length - dn} ZONE${WORLD_PROJECTS.length - dn > 1 ? "S" : ""} ILLISIBLE${WORLD_PROJECTS.length - dn > 1 ? "S" : ""}` : "SECTEUR SAIN"}</span></div>
@@ -560,6 +564,10 @@ SCREENS.modules = {
           ${projNeedOk(next) && projCanPay(next) ? `<button class="btn sm gold" data-act="worldbuild" data-r="${region}" data-i="${next.i}">Réindexer</button>` : ic("arrow")}</div>`
           : `<div class="tiny gold-t" style="margin-top:6px">${esc(reg.name)} est entièrement réindexée.</div>`}
       </div>
+      ${typeof storyThreadHtml === "function" ? storyThreadHtml() : ""}
+      ${typeof storyQHintHtml === "function" ? storyQHintHtml() : ""}
+      ${typeof pzAskHomeHtml === "function" ? pzAskHomeHtml() : ""}
+      ${typeof sagaCardHtml === "function" ? sagaCardHtml() : ""}
       ${typeof legendCardHtml === "function" ? legendCardHtml() : ""}
       ${typeof raidCardHtml === "function" ? raidCardHtml() : ""}
       ${_OLD_MODULES.html.call(this)}`;

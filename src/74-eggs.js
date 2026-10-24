@@ -203,6 +203,7 @@ ACTIONS.egghatch = d => {
   const id = pick(pool);
   const shiny = rng() < Math.min(0.35, shinyOdds() * t.shinyMul * 4);
   const lvl = levelFor(POKE[id].rar);
+  DEX_HOW = "oeuf";
   const isNew = addToDex(id, lvl, shiny);
   addIntegrity(RARITY[POKE[id].rar].integ * (isNew ? 0.85 : 0.04));
   gain("coins", 200 + POKE[id].bst);
@@ -372,7 +373,7 @@ ACTIONS.eggbuy = d => {
    ============================================================ */
 let EGGFIND = null;
 
-function showEggFind(tier, onDone){
+function showEggFind(tier, onDone, first){
   const t = EGG_TIERS[tier] || EGG_TIERS.e_common;
   const box = document.getElementById("discover");
   if(!box){ if(onDone) onDone(); return false; }
@@ -403,6 +404,11 @@ function showEggFind(tier, onDone){
       </div>
 
       <div class="dc-lore in" id="eg-lore">Ce n'est pas une entité archivée.</div>
+      ${first ? `<div class="panel tight eg-first" style="text-align:left;margin:0 0 10px">
+        <div class="h sm">LA COUVEUSE S'OUVRE</div>
+        <div class="tiny muted">Une ébauche se termine d'elle-même quand quelqu'un travaille à côté. Place-la en incubation,
+          depuis Collection › Couveuse : elle avancera d'un pas à chaque capture.</div>
+      </div>` : ""}
       <button class="btn pri wide dc-ok" id="eg-ok" data-act="egfdone">Emporter</button>
     </div>`;
 

@@ -43,6 +43,8 @@ SCREENS.tower = {
           if(el){ el.className = "sw-leader " + (L ? "" : "none"); el.textContent = "♛ " + (sel[0] ? sqLeaderText(L) : "Le premier emplacement est celui du meneur."); }
           const f = document.getElementById("sw-fight"); if(f) f.disabled = !sel.length;
           const it = document.getElementById("sq-intel"); if(it) it.outerHTML = sqPrepIntel(P);
+          /* la Couche Zéro : les échos de la première vague suivent l'équipe choisie */
+          if(P.final && typeof finalWavesHtml === "function"){ const w = document.querySelector(".fn-prep .sw-waves"); if(w) w.outerHTML = finalWavesHtml(P); }
         }});
     }
   }
@@ -71,7 +73,7 @@ function sqWorldHtml(){
     </div>
     <div class="sw-teambar">
       <div class="sw-tb-mons">${[0, 1, 2, 3].map(i=>{ const id = team[i];
-        return `<span class="sw-tb-m ${i === 0 ? "lead" : ""}">${id ? sprite(id, S.dex[id].shiny, "") : ""}${i === 0 ? `<i class="sw-crown">♛</i>` : ""}</span>`; }).join("")}</div>
+        return `<span class="sw-tb-m ${i === 0 ? "lead" : ""}">${id ? sprite(id, S.dex[id].shiny, "", {skin:true}) : ""}${i === 0 ? `<i class="sw-crown">♛</i>` : ""}</span>`; }).join("")}</div>
       <div class="grow tiny">${team.length ? `<b>Meneur :</b> ${esc(sqLeaderText(sqLeaderOf(team[0])))}` : "Archivez des Pokémon pour composer une équipe."}</div>
       <button class="btn xs ${sqCanUpgradeSomething(team) ? "gold" : ""}" data-act="sqskills" ${team.length ? "" : "disabled"}>${ic("bolt")} Compétences${sqCanUpgradeSomething(team) ? `<i class="badge"></i>` : ""}</button>
     </div>
@@ -172,6 +174,7 @@ function sqDefaultTeam(){
 }
 function sqPrepHtml(){
   const P = SQ_PREP, Z = SQ_ZONES[P.z], D = SQ_DIFFS[P.d];
+  if(P.final && typeof finalPrepHtml === "function") return finalPrepHtml(P);
   const L = P.team[0] ? sqLeaderOf(P.team[0]) : null;
   const ids = Object.keys(S.dex).map(Number).filter(id=>POKE[id]);
   ids.sort(P.sort === "lvl" ? (a, b)=>S.dex[b].lvl - S.dex[a].lvl || POKE[b].bst - POKE[a].bst : (a, b)=>POKE[b].bst - POKE[a].bst);
@@ -199,7 +202,7 @@ function sqPrepIntel(P){
   const mons = P.waves.flat(), lvAvg = Math.round(mons.reduce((a, m)=>a + m.lv, 0) / Math.max(1, mons.length));
   const team = P.team.filter(id=>S.dex[id]), tAvg = team.length ? Math.round(team.reduce((a, id)=>a + S.dex[id].lvl, 0) / team.length) : 0;
   const score = {};
-  for(let t = 1; t <= 18; t++){ let n = 0; for(const m of mons){ const e = typeMult(t, POKE[m.id].types); if(e >= 2) n += m.boss ? 3 : 1; else if(e < 1) n -= m.boss ? 2 : 0.5; } if(n > 0) score[t] = n; }
+  for(let t = 1; t <= 18; t++){ let n = 0; for(const m of mons){ const e = typeMult(t, m.mn ? [1, 3] : POKE[m.id].types); if(e >= 2) n += m.boss ? 3 : 1; else if(e < 1) n -= m.boss ? 2 : 0.5; } if(n > 0) score[t] = n; }
   const best = Object.keys(score).sort((a, b)=>score[b] - score[a]).slice(0, 3).map(Number);
   const gap = tAvg - lvAvg, cls = gap >= 3 ? "ok" : gap >= -4 ? "warn" : "bad";
   return `<div class="sq-intel" id="sq-intel">
@@ -208,7 +211,7 @@ function sqPrepIntel(P){
     <div class="grow"><small>LES FAIRE PLIER</small><span>${best.length ? best.map(t=>`<span class="tt t${t}">${TYPE_NAMES[t]}</span>`).join(" ") : "<i class=\"dim\">aucun type nettement fort</i>"}</span></div>
   </div>`;
 }
-ACTIONS.sqzoneback = () => { const lk = SQ_PREP && SQ_PREP.lock; SQ_PREP = null; lk ? go("boss") : go("tower", "zone"); };
+ACTIONS.sqzoneback = () => { const lk = SQ_PREP && SQ_PREP.lock, fin = SQ_PREP && SQ_PREP.final; SQ_PREP = null; fin ? go("modules") : lk ? go("boss") : go("tower", "zone"); };
 ACTIONS.sqsort = d => { SQ_PREP.sort = d.k; refresh(); };
 ACTIONS.sqslot = d => { const P = SQ_PREP; if(P.team[+d.i] !== undefined){ P.team.splice(+d.i, 1); sqPrepRefresh(); } };
 ACTIONS.sqpickmon = d => {
@@ -275,7 +278,7 @@ ACTIONS.sqskback = () => { const b = SQ_SKV && SQ_SKV.back; SQ_SKV = null; b ===
 ACTIONS.sqskother = () => {
   const own = Object.keys(S.dex).map(Number).filter(id=>POKE[id]).sort((a, b)=>S.dex[b].lvl - S.dex[a].lvl || POKE[b].bst - POKE[a].bst);
   sheet(`${sheetHead("Choisir un Pokémon")}<div class="sq-skall">${own.map(id=>`<button class="sq-skallm ${sqCanUpgrade(id) ? "up" : ""}" data-act="sqskotherpick" data-id="${id}">
-    ${sprite(id, S.dex[id].shiny, "")}<small>${esc(POKE[id].name)}</small><i>N.${S.dex[id].lvl}</i></button>`).join("")}</div>`);
+    ${sprite(id, S.dex[id].shiny, "", {skin:true})}<small>${esc(POKE[id].name)}</small><i>N.${S.dex[id].lvl}</i></button>`).join("")}</div>`);
 };
 ACTIONS.sqskotherpick = d => { closeSheet(); if(!SQ_SKV) return; const id = +d.id; if(!SQ_SKV.ids.includes(id)) SQ_SKV.ids = SQ_SKV.ids.concat([id]); SQ_SKV.id = id; SQ_SKV.flash = null; refresh(); };
 function sqSkillsHtml(){
@@ -293,10 +296,10 @@ function sqSkillsHtml(){
       </div>
       <div class="sqk-strip">${V.ids.filter(i=>S.dex[i]).map(i=>{ const l2 = sqSkillLv(i);
         return `<button class="sqk-m ${i === id ? "on" : ""} ${sqCanUpgrade(i) ? "up" : ""}" data-act="sqskpick" data-id="${i}">
-          ${sprite(i, S.dex[i].shiny, "")}<small>${esc(POKE[i].name)}</small><i>${l2.reduce((a, b)=>a + b, 0)}/${SQ_SKILL_MAX * 3}</i></button>`; }).join("")}
+          ${sprite(i, S.dex[i].shiny, "", {skin:true})}<small>${esc(POKE[i].name)}</small><i>${l2.reduce((a, b)=>a + b, 0)}/${SQ_SKILL_MAX * 3}</i></button>`; }).join("")}
         <button class="sqk-m more" data-act="sqskother">${ic("plus") || "+"}<small>Autre</small></button></div>
       <div class="sqk-hero">
-        <span class="sqk-art">${pmdCanvas(id, 0, 88, {walk:false, shiny:e.shiny})}</span>
+        <span class="sqk-art">${pmdCanvas(id, 0, 88, {walk:false, shiny:e.shiny, mine:true})}</span>
         <div class="grow">
           <b class="sqk-name">${esc(POKE[id].name)}</b>
           <div class="row" style="gap:4px;margin:4px 0">${POKE[id].types.map(t=>`<span class="tt t${t}">${TYPE_NAMES[t]}</span>`).join("")}<span class="tiny dim">N.${e.lvl}</span></div>

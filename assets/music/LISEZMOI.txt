@@ -19,7 +19,11 @@ AMBIANCES (jouées en boucle — prévoir une boucle propre)
   combat           Combat ordinaire.
   combat_boss      Champion, élite, noyau, gardien (sinon : combat).
   legendaire       Légendaire, Sanctuaire, raid mondial (sinon : combat_boss).
-  rival            Un archiviste rival vous défie, pendant l'écran de rencontre (sinon : combat_boss).
+  rival            Un dresseur rémanent vous défie, pendant l'écran de rencontre (sinon : combat_boss).
+  souvenir         Les souvenirs de Porygon-Z : lent, doux, un peu abîmé (sinon : accueil).
+  couche_zero      La descente dans la Couche Zéro et le combat contre MissingNo (sinon : legendaire).
+  verite           La révélation finale, puis la question. Le thème le plus important du jeu (sinon : souvenir).
+  generique        Le générique de fin (sinon : accueil).
 
 JINGLES (joués une fois, l'ambiance baisse pendant ce temps)
   j_victoire       Combat gagné (3 à 6 s).

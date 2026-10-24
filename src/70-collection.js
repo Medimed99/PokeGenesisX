@@ -112,11 +112,12 @@ ACTIONS.dextype = d => { DEX_FILTER.type = +d.t; refresh(); };
 ACTIONS.dexopen = d => {
   const id = +d.id, p = POKE[id], e = S.dex[id];
   const stats = [["PV",p.hp],["Attaque",p.atk],["Défense",p.def],["Atq. Spé.",p.spa],["Déf. Spé.",p.spd],["Vitesse",p.spe]];
-  sheet(`${sheetHead("N°" + id + (e ? " — " + p.name : " — entrée absente"))}
+  /* Porygon-Z n'a pas de numéro national ici : la vraie fin l'écrit à l'entrée 387 */
+  sheet(`${sheetHead("N°" + (id === 474 ? 387 : id) + (e ? " — " + p.name : " — entrée absente"))}
     <div class="row top" style="gap:12px">
       <div class="center">
         <span class="sprbox" style="width:116px;height:116px">
-          ${sprite(id, e&&e.shiny, e?"":"ghosted", {anim:!!e, eager:true})}<i class="sprshadow"></i></span>
+          ${sprite(id, e&&e.shiny, e?"":"ghosted", {anim:!!e, eager:true, skin:!!e})}<i class="sprshadow"></i></span>
         ${e&&e.shiny?'<div class="tiny gold-t">chromatique obtenu</div>':""}
       </div>
       <div class="grow">
@@ -128,9 +129,12 @@ ACTIONS.dexopen = d => {
               Sa ligne reste illisible.</div>`}
       </div>
     </div>
+    ${e && typeof skinRowHtml === "function" ? skinRowHtml(id) : ""}
     ${loreOf(id) ? `<div class="lore ${e?"":"sealed"}">
       ${e ? esc(loreOf(id))
           : "Notice illisible. Restaurez cette entité pour récupérer son entrée d'archive."}</div>` : ""}
+    ${typeof onzeDexHtml === "function" ? onzeDexHtml(id) : ""}
+    ${e && typeof histHtml === "function" ? histHtml(id) : ""}
     <hr class="sep">
     <div class="h sm">STATISTIQUES DE BASE · total ${p.bst}</div>
     ${stats.map(([n,v])=>`<div class="row" style="gap:7px;margin-bottom:3px">
@@ -160,6 +164,7 @@ ACTIONS.evolve = d => {
   const en = S.dex[id];
   en.c -= dupCost(id);
   const lvl = en.lvl;
+  DEX_HOW = "evo";
   const isNew = addToDex(to, lvl, false);
   S.dex[to].lvl = Math.max(S.dex[to].lvl, lvl);
   S.stats.evolutions++; S.daily.dayEvo++; questTick("dayEvo",1);
@@ -646,6 +651,11 @@ function fxLayerHtml(){
         ${sw("sfx","Effets sonores","Sons de capture, de combat et d'interface")}
         ${typeof musicSettingsHtml === "function" ? musicSettingsHtml() : ""}
         ${sw("haptics","Vibrations","Retour haptique sur les actions")}
+        <div class="row between" style="padding:7px 0">
+          <div class="grow"><div class="tiny">Effets réduits</div>
+            <div class="tiny dim">Coupe les flashs, les secousses et les distorsions (cinématiques, MissingNo, combats). Conseillé en cas de sensibilité à la lumière.</div></div>
+          <button class="switch ${calmFx() ? "on" : ""}" data-act="togglecalm" aria-label="Effets réduits"><i></i></button>
+        </div>
         ${sw("skill","Visée manuelle","Mini-jeu d'adresse avant chaque lancer : bonus jusqu'à ×1.25, jamais de malus")}
       </div>
 
@@ -698,6 +708,7 @@ function fxLayerHtml(){
       </div>
 
       <div class="panel">
+        ${typeof versionRowHtml === "function" ? versionRowHtml() : ""}
         <div class="tiny dim">Jeu de fan non officiel, sans but lucratif. Pokémon est une marque de
           Nintendo / Creatures Inc. / GAME FREAK inc. Sprites animés fournis par les dépôts communautaires
           PokeAPI et Pokémon Showdown.</div>
@@ -709,6 +720,8 @@ ACTIONS.setcos = d => {
   if(!S.cos.owned.includes(d.id)) return;
   S.cos[d.k] = d.id; save(); refresh();
 };
+ACTIONS.togglecalm = () => { S.settings.calm = !calmFx(); applyCalm(); save(); refresh();
+  toast(S.settings.calm ? "Effets réduits : flashs et secousses coupés" : "Effets complets", "", "eye"); };
 ACTIONS.toggleset = d => {
   if(d.k === "admin" && !S.settings.admin){ ACTIONS.adminpass(); return; }
   S.settings[d.k] = !S.settings[d.k];

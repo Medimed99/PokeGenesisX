@@ -145,13 +145,40 @@ python3 build_cardart.py   # seulement si les illustrations changent
 python3 build_chars.py     # seulement si assets/prof.png ou missingno.png changent
 python3 build.py           # dist/index.html — version autonome
 python3 build_web.py       # web/ — version hébergée
-npm test                   # 368 vérifications
-git commit -am "…" && git push
+npm test                   # les vérifications
+git add -A && git commit -m "…" && git push
 ```
+
+`git add -A` et pas `git commit -am` : une livraison ajoute souvent des fichiers
+(nouveaux modules, nouvelles images à empreinte), que `-am` laisserait de côté.
 
 Vercel redéploie automatiquement. Les noms de fichiers d'images portent une
 empreinte du contenu : le cache du navigateur et du CDN se met à jour tout seul,
 sans purge.
+
+### Appliquer une livraison reçue en archive
+
+Le navigateur range un deuxième téléchargement du même nom sous `… (1).zip`, puis
+`… (2).zip` : une commande qui vise un nom précis peut extraire une **ancienne**
+archive, sans aucune erreur. Celle-ci prend toujours la plus récente, quel que soit
+son nom ; à lancer depuis le dossier du dépôt :
+
+```powershell
+$zip = Get-ChildItem "$HOME\Downloads\pokemon-code-genesis*.zip" | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+Write-Host "Archive : $($zip.Name)"
+Expand-Archive $zip.FullName -DestinationPath . -Force
+Get-Content VERSION.txt
+```
+
+La dernière ligne affiche la date de la version extraite : elle doit être celle
+annoncée avec la livraison. Ensuite `git add -A`, `git commit`, `git push`.
+
+### Vérifier la version en ligne
+
+- `https://<votre-site>/version.json` : la date et l'empreinte de la version publiée.
+- Dans le jeu, **Réglages**, tout en bas : « Version du … », et **Vérifier**.
+- Une application installée restée ouverte affiche d'elle-même un bandeau « Une mise
+  à jour du jeu est disponible » ; **Mettre à jour** enregistre la partie et recharge.
 
 ---
 

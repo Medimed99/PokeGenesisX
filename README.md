@@ -14,20 +14,31 @@ Les sources sont modulaires et concaténées dans cet ordre par `build.py` :
 | `src/_pzportrait.js` | 10 portraits expressifs de Porygon-Z (PMDCollab, CC BY-NC 4.0) |
 | `src/_cardart.js` | Atlas des illustrations de cartes (76 variantes de légendaires) |
 | `src/_chars.js` | Portrait du Prof. Racine et silhouette de MissingNo, dessinés en pixel art |
+| `src/59l-breche-legends.js` | La Brèche : une attaque propre à chacun des 21 légendaires (mécanique, dessin en trois couches, équilibrage) |
 | `src/_atlas.js` | Atlas PNG des 387 sprites, encodé en base64 et embarqué dans le fichier |
 | `src/00-slugs.js` | Identifiants anglais des espèces (réservés à l'enrichissement animé) |
 | `src/01-data.js` | Table des types, raretés, objets, attaques, succès, cosmétiques, quêtes, programmes (jokers), événements |
-| `src/02-story.js` | 17 scènes narratives, arc de Porygon-Z, réactions contextuelles |
+| `src/02-story.js` | 38 scènes en cinq actes, chaîne principale (`MAIN_ARC`), souvenirs de Porygon-Z, jetons du nom et des connexions (`pzFmt`), réactions contextuelles |
 | `src/10-core.js` | État, sauvegarde résiliente, économie, niveaux, intégrité, quêtes, succès |
 | `src/15-fx.js` | Particules, nombres flottants, montée de niveau, impulsions de la jauge |
 | `src/20-ui.js` | Icônes SVG, routeur d'écrans, modales, toasts, lecteur narratif, déclencheurs de récit |
 | `src/30-capture.js` | Rencontres, formule de capture, séries, chromatiques, vedette du jour |
+| `src/30c-onze.js` | Les Pokémon des onze : onze Pokémon surnommés par les archivistes d'avant, qui reviennent dans les rencontres une fois leur page trouvée |
+| `src/55h-histoire.js` | Ton équipe a une histoire : arrivée (quand, comment), combats, K.O., fins tenues presque à zéro, meilleur de l'équipe ; elle suit l'évolution ; Porygon-Z remarque les caps |
+| `src/39p-demandes.js` | Porygon-Z te demande quelque chose : une des quêtes du jour devient sa demande, exaucée d'elle-même, rappelée le lendemain |
 | `src/35-modules.js` | Hub, PokéBox, Pêche, Énergie Onirique (idle), journal quotidien |
 | `src/40-battle.js` | Moteur de combat partagé, sélecteur d'équipe, Data Guardians |
 | `src/50-expedition.js` | Roguelike à embranchements, reliques, événements, boutique de run |
 | `src/60-poker.js` | Deckbuilder : deck, évaluateur de mains, jokers, blinds, antes, boutique |
 | `src/70-collection.js` | Pokédex et évolutions, boutique, profil, succès, cartes légendaires |
-| `src/73-cards.js` | Cartes de collection : séries par génération, raretés, tirages |
+| `src/73-cards.js` | Cartes de collection : séries par génération, raretés, tirages, rendu des cartes |
+| `src/73d-reindex.js` | Réindexation : au sixième doublon d'un légendaire, l'illustration la plus courante qui manque réapparaît |
+| `src/73e-provenance.js` | Dos des cartes (provenance, équipe du jour), exemplaires annotés par les onze, cadeau de 1996 |
+| `src/73f-chrono.js` | Chronologie d'une ligne complète, de 1996 à aujourd'hui |
+| `src/73g-pzcard.js` | La carte de Porygon-Z, écrite à la fin ÉCRIRE |
+| `src/73h-eras.js` | Apparences d'époque : sprites d'origine, animations repeintes à la palette de l'époque, aura |
+| `src/73i-displaymodes.js` | Modes d'affichage 1996 et 1999 |
+| `src/73j-cardnews.js` | « Tes cartes ont changé » : la page montrée une fois à une partie qui avait déjà une collection |
 | `src/72-bag.js` | Sac : inventaire unifié, usage des objets sur place |
 | `src/74-eggs.js` | Œufs et incubation — éclosion par captures, pas par minuterie |
 | `src/75-extras.js` | Compagnon, objectifs hebdomadaires, séquence de révélation animée |
@@ -35,8 +46,18 @@ Les sources sont modulaires et concaténées dans cet ordre par `build.py` :
 | `src/78-milestones.js` | Paliers de secteur, contrats, bonus de première victoire quotidienne |
 | `src/80-guide.js` | Tutoriels à projecteur, fiches d'information, directives, événements de Porygon-Z |
 | `src/95-online.js` | Client REST Supabase : authentification, sauvegarde distante, classements, échanges |
-| `src/85-journal.js` | Journal des scènes, crédits, Nouveau Cycle et avantages permanents |
+| `src/36-lore.js` | Les onze pages de journal (une par connexion passée) et l'arc de la faille |
+| `src/37-cine.js` | Moteur de cinématiques, ouverture, souvenirs, nom en octets, MissingNo (la fêlure) |
+| `src/37d-plateau.js` | Le plateau : le monde peint sous les cinématiques, acteurs, caméra, lumière, souvenir, l'archiviste en pixels, défragmentation, effacement, textes du monde, portrait de celui qui parle |
+| `src/37e-decors.js` | Les quatorze lieux peints en pixel art (laboratoire, console, Route 1, ciel de Hoenn, faille, Couche Zéro…) et les accessoires (Poké Ball, professeur, œuf, trésor, fêlure) |
+| `src/37f-mise-en-scene.js` | Le metteur en scène (`directStory`) et la table `STAGE` : ce qu'on voit, scène par scène |
+| `build_pz.py` | Porygon-Z, acteur principal : dix-sept portraits et quinze poses (PMDCollab), embarqués (`_pzportrait.js`, `_pzanim.js`) |
+| `src/85-journal.js` | Journal des scènes par actes, crédits, Nouveau Cycle et avantages permanents |
+| `src/86-saga.js` | La saga : connexions, `choses_formidables.txt`, mémoire de Porygon-Z, Couche Zéro, entrée n° 387, générique |
+| `src/87-finale.js` | La fin : combat contre MissingNo, révélation, question (effacer ou écrire), écho ; les échos de tes réponses |
+| `src/88-share-mn.js` | La carte-image « entrée n° 000 » (1080 × 1350) : partage natif, enregistrement, Journal |
 | `src/90-admin.js` | Panneau de test (monnaies, niveaux, Pokédex, verrous, scènes, simulation de jour) |
+| `src/96-pwa.js` | Installation de l'application ; version du jeu, mise à jour disponible (`version.json`) |
 | `src/99-boot.js` | Écran de boot, boucles, cycle de vie, PWA, notifications |
 
 ## Construire
@@ -49,79 +70,178 @@ Les sources sont modulaires et concaténées dans cet ordre par `build.py` :
     node smoke.js             # rendu de tous les écrans + parties simulées
     node battletest.js        # 200+ combats menés à terme (blocages, erreurs)
     node admintest.js         # atlas + chaque action du panneau de test
-    node pacing.js            # rythme des premières minutes, médiane sur 25 parties simulées
+    node pacing.js            # rythme des premières heures et des premières étapes du récit, médiane sur 25 parties
     node nettest.js           # couche en ligne, contre un serveur Supabase simulé
     node econ.js              # économie de capture, séries et taux par rareté
     node expsim.js            # difficulté de l'expédition, par type de nœud
+    node script.js            # exporte le texte intégral du récit vers SCRIPT.md
 
-## Mise en scène des illustrations
+## Le récit
 
-Les illustrations officielles sont détourées sur fond neutre. Les poser telles quelles donne une
-vignette ; les poser dans une **scène** donne une image. La fenêtre de chaque carte empile donc
-cinq couches — ciel, horizon en silhouette, atmosphère en mouvement, voile de brume devant le
-sujet, vignettage — et le type dominant choisit l'environnement parmi sept :
+Un jeu Pokémon qui bugue, un programme d'entretien — Porygon-Z — qui devient le seul ami de l'Archiviste,
+un mythe qui ronge le monde — MissingNo — et des pages de journal laissées par d'autres archivistes. Porygon-Z
+retrouve la mémoire avec l'intégrité et avoue que les onze autres sont allés au bout, et ont **choisi** de tout
+effacer. Au fond de la Couche Zéro, MissingNo vaincu se lit : c'est **le nom du joueur**. Les onze, c'était lui ;
+il effaçait pour ne pas perdre Porygon-Z, que le système décharge à 100 %. Cette fois, il se souvient de tout,
+et une autre ligne apparaît : **écrire** Porygon-Z dans le Pokédex, à l'entrée n° 387.
 
-| Environnement | Types | Traitement |
-|---|---|---|
-| Braise | Feu, Sol | horizon incandescent, escarbilles qui montent |
-| Abysse | Eau, Glace | rais de lumière venus de la surface, fond sombre |
-| Orage | Électrik, Vol | ciel bas, éclairs par intermittence |
-| Spores | Plante, Insecte, Poison | particules en suspension, lumière verte |
-| Vide | Psy, Spectre, Ténèbres | étoiles, pas d'horizon |
-| Monolithe | Roche, Acier, Combat | poussière ocre, crête basse |
-| Aurore | Dragon, Fée | voiles colorés en dérive |
-
-## Substituer une illustration
-
-`assets/cardart/<serie>_<numero>.png` remplace l'illustration du dépôt communautaire —
-par exemple `g1_150.png` pour Mewtwo en Rendu primordial. Relancer `build_cardart.py` suffit.
-Le script recadre, centre et lisse sans déformer.
-
-Ce dossier existe pour vos propres visuels ou ceux que vous commandez. Les illustrations
-d'artistes identifiés ne sont pas réutilisables sans leur accord.
-
-## Langage visuel des cartes
-
-Une carte n'est pas du carton : c'est un **enregistrement que le système a imprimé**. Elle emprunte
-la grammaire des cartes à collectionner — bandeau de nom, fenêtre d'illustration, routines chiffrées,
-pied d'index — mais son matériau est la donnée : trame de circuit, ligne de balayage qui descend,
-empreinte de contrôle, bande d'octets. Deux détails sont déterministes et propres à chaque carte :
-`cardChecksum()` et `cardBytes()`, dérivés de la série et du numéro.
-
-Chaque série reçoit un traitement qui raconte son ancienneté :
-
-| Série | Traitement |
-|---|---|
-| Rendu courant | net, sobre, foil lent — fraîchement compilé |
-| Rendu antérieur | entrelacement de lignes, foil bleu rapide — l'enregistrement bouge encore |
-| Rendu instable | aberration chromatique sur l'illustration, nom qui saute, octets qui clignotent |
-| Rendu fondateur | fond chaud gravé, cadre épais, foil doré large |
-| Rendu primordial | phosphore vert, lignes de balayage marquées, halo de tube cathodique |
-| Sans index | le cadre lui-même est désaligné, bordure pointillée, foil magenta bref |
-
-La vue agrandie s'incline au doigt (`installCardTilt`) avec un reflet qui suit le point de contact.
+- **`RECIT.md`** — la bible : les retournements, les voix, la chaîne principale scène par scène, les pages,
+  la faille, la Couche Zéro (conditions, combat, équilibrage), la révélation, les deux réponses, les cycles.
+- **Les cinq questions** (`STORY_Q`, `02-story.js`) : au bout de cinq souvenirs, Porygon-Z pose une question,
+  on répond d'un toucher. Aucune n'est pénalisée ; il s'en souvient à la révélation, à la question finale,
+  dans l'épilogue et au générique (RECIT.md, 4.4). « Passer » file jusqu'à une question sans réponse.
+  Une ligne de scène `{q:"mem1"}` pose la question ; `{when:"mem1:pret", …}` réserve une réplique à une réponse ;
+  dans une cinématique écrite à la main, `fnEcho(q, {réponse: texte})` (87).
+- **Les Pokémon des onze** (`30c-onze.js`, RECIT.md 5 bis) : un Pokémon surnommé par archiviste d'avant, qui revient
+  dans une rencontre ordinaire une fois sa page trouvée ; surnom gardé au Pokédex et dans l'équipe ; nommés à la révélation.
+- **Ton équipe a une histoire** (`55h-histoire.js`) : chaque Pokémon garde la sienne (`S.dex[id].h`), lisible au Pokédex
+  (« Arrivé le 1er octobre : capturé dans les Routes ouvertes, à Kanto, en Salamèche. 10 combats · 9 victoires · 26 K.O. »).
+  Les chemins d'arrivée autres que la capture posent `DEX_HOW` juste avant `addToDex` (œuf, PokéBox, Forage, verrou,
+  Brèche, achat, évolution). Les combats s'inscrivent par deux crochets : `sqStrike`/`sqFinish` (Tour, verrous, fin)
+  et `handleKO`/`finishBattle` (combats au tour par tour). Porygon-Z dit au plus un cap par combat (dixième, cinquantième,
+  centième combat ; première fin tenue presque à zéro ; cent K.O.) ; le générique nomme « le plus fidèle ».
+- **Porygon-Z te demande quelque chose** (`39p-demandes.js`) : chaque jour, une quête facile devient une demande dans sa
+  voix (une espèce que tu connais déjà, trois Pokémon d'un type, d'un habitat ouvert, un lancer Excellent, une évolution…),
+  toujours faisable avec ce qui est ouvert. Exaucée, elle se règle d'elle-même et il répond ; le lendemain, il y revient
+  (« Le Psykokwak d'hier a toujours mal à la tête. J'ai vérifié ce matin. »). Il compte les oui (10, 30, 100) ; le générique
+  et la fin d'EFFACER s'en souviennent. Visible sur l'accueil et en tête des quêtes du jour.
+- **Ton entrée n° 000** (`88-share-mn.js`) : proposée une fois après la réponse finale, puis dans le Journal.
+- **Effets réduits** (Réglages, et une ligne au premier écran) : plus de flash plein écran, de secousse, de
+  clignotement rapide ni de bande inversée ; un fondu doux à la place. Actif d'office si le téléphone demande
+  moins d'animations. `calmFx()` / `applyCalm()` (10-core), classe `body.calm`.
+- **`SCRIPT.md`** — le texte intégral, généré depuis le code : `node script.js`.
 
 ## Cartes de collection
 
 Seuls les 21 légendaires et fabuleux des trois premières générations sont émis, chacun en
-plusieurs illustrations — une par génération où il est apparu. Plus l'illustration est ancienne,
-plus elle est rare :
+plusieurs illustrations — une par génération qui l'a dessiné. Plus l'illustration est ancienne,
+plus elle est rare, et plus la matière de son cadre est précieuse :
 
-| Série | Source | Nombre | Rareté relative |
-|---|---|---|---|
-| Standard | illustration officielle | 21 | 100 |
-| Holographique | sprite Noir et Blanc | 21 | 45 |
-| Corrompue | sprite Émeraude | 21 | 18 |
-| Originelle | sprite Cristal | 9 | 6 |
-| Primordiale | sprite Rouge et Bleu | 4 | 1,5 |
+| Série | Sujet | Écriture de la scène | Cadre | Cartes | Rareté |
+|---|---|---|---|---|---|
+| Rendu courant | illustration officielle | image lisse, profondeur de champ | argent brossé | 21 | 100 |
+| Rendu antérieur · 2010 | sprite Noir et Blanc | 40 couleurs, à peine tramées | chrome bleu, reflet holographique | 21 | 45 |
+| Rendu instable · 2002 | sprite de 3ᵉ génération | 20 couleurs tramées, lignes qui ont glissé | graphite, dérive rouge et cyan | 21 | 18 |
+| Rendu fondateur · 1999 | sprite Or/Argent | 8 couleurs tramées | or gravé | 11 | 6 |
+| Rendu primordial · 1996 | sprite Rouge/Bleu | les quatre teintes du sprite lui-même | laque noire, or et os, paillettes | 5 | 1,5 |
 
-Soit 76 illustrations, plus une pièce secrète qui n'appartient à aucune série. Les quatre
-Primordiales n'existent que parce que quatre légendaires seulement figuraient en Rouge/Bleu :
-la rareté vient des données, pas d'un réglage arbitraire.
+Soit 79 illustrations, plus une pièce secrète, Sans index. Les cinq Primordiales sont les quatre
+légendaires déclarés en Rouge/Bleu, et Mew, qui ne figurait nulle part. (Les sprites de Mew et de
+Celebi, qui pèsent moins de 400 octets, étaient écartés par un test de taille : Mew primordial et
+les deux Rendus fondateurs manquants sont revenus.)
 
-`python3 build_cardart.py` régénère l'atlas depuis `sprites/cards/`.
+### Une carte est une pleine illustration
+
+Pas d'attaques, de PV ni de faiblesse : un nom, un sous-titre (le titre de gardien, sinon le nom
+de la scène), la série et son année, et la rareté en cinq facettes. Sous la carte agrandie, un
+cartel décrit l'image comme une œuvre, sans jargon technique : « La caverne d'origine » — Rendu
+primordial, « Le sprite de 1996, en quatre teintes. » (`cardSpec`).
+
+**Chaque époque peint son propre monde.** Le sujet est le sprite de la génération, détouré (le
+fond blanc des sprites Rouge/Bleu et Or/Argent est retiré par remplissage depuis les bords ; les
+blancs du corps, entourés d'un contour, restent). La scène autour de lui est régénérée dans les
+contraintes de la même époque : les quatre teintes du sprite tramées comme sur Game Boy pour 1996,
+huit couleurs pour 1999, et ainsi de suite jusqu'à l'image lisse d'aujourd'hui. Le sprite reste à
+une échelle entière — un pixel du sprite vaut un pixel du décor ; un petit sprite (Mew, Celebi,
+Jirachi) resserre la grille plutôt que d'être grossi.
+
+Chaque légendaire a sa scène, écrite une seule fois en coordonnées normalisées dans
+`cardthemes.py` (« Pics gelés à l'aube », « Cœur de l'orage », « La comète millénaire »…) et
+rendue à toutes les résolutions par `cardscene.py` : même composition, seule l'écriture change.
+
+**Le cadrage se fait sur le corps, pas sur la boîte.** Chaque pixel du sujet pèse sa distance au
+bord : un corps épais pèse lourd, une queue ou une aile fines pèsent peu. La carte se centre sur ce
+corps ; la queue de Rayquaza ou de Latias peut sortir de la carte (au plus 20 % du sujet de chaque
+côté), et un sujet étiré grandit un peu pour que son corps remplisse la carte. Quand l'automatique
+ne suffit pas, `FRAME` dans `cardsrc.py` retouche une carte à la main (échelle, décalage) — Sulfura,
+dont la tête est au bout de l'aile, en est le premier exemple.
+
+**La carte agrandie s'incline sous le doigt** (`installCardTilt`) : la scène recule, le sujet
+avance, le reflet glisse sur la matière, le holographique ne s'allume qu'en Rendu antérieur, les
+paillettes qu'en Rendu primordial. À l'ouverture, une seule lumière traverse la carte. Neige,
+braises, pluie ou poussière s'animent — en pas de pixel pour les époques anciennes. En effets
+réduits, rien ne bouge de lui-même.
+
+Le dos de carte porte une rosace de gravure, comme un titre ou un billet : la carte a été émise.
+Une carte non émise ne montre que la matière de sa série, et seulement si la série est connue.
+
+### Atlas et construction
+
+`python3 fetch_cardsprites.py` télécharge ce que le dépôt ne contient pas (le dossier `sprites/`
+n'est pas versionné) : les dos Rouge/Bleu et Cristal et l'illustration de Porygon-Z.
+`python3 build_cardart.py` produit deux atlas — `px` (pixel art, WebP sans perte) et `hd`
+(illustrations lisses, WebP) — et `src/_cardart.js` (atlas embarqués, manifeste, titres des
+scènes, années). `--apercu <dossier>` écrit en plus une image de chaque carte. `build_web.py` sort
+les deux atlas en fichiers à empreinte pour la version hébergée.
+
+### Substituer une illustration
+
+Dans `assets/cardart/` (détails dans `LISEZMOI.txt`) :
+
+- `<serie>_<numero>.png` remplace le **sujet** — par exemple `g1_150.png` pour Mewtwo en Rendu
+  primordial ; il est recadré, centré et lissé sans déformation ;
+- `<serie>_<numero>_scene.png` remplace la **scène** entière (format 5:7, 300 × 420 ou plus).
+
+Relancer `build_cardart.py` suffit. Ce dossier existe pour vos propres visuels ou ceux que vous
+commandez. Les illustrations d'artistes identifiés ne sont pas réutilisables sans leur accord.
+
 Les sauvegardes antérieures sont converties par `migrateCards()` : les quatre anciennes qualités
 correspondent exactement aux quatre premières séries.
+
+### Ce que deviennent les cartes
+
+Avant la collection complète, presque tout ce qu'on tire est un doublon (94 % sur une partie
+simulée). Les cartes servaient surtout à leur pouvoir ; elles ont désormais leur propre vie.
+
+- **Réindexation** (`73d-reindex.js`). Chaque doublon d'un légendaire est comparé aux autres
+  (`S.reidx`) : au sixième, l'illustration la plus courante qui manque encore est restaurée, et
+  révélée juste après le doublon qui l'a fait apparaître, avec sa jauge sous chaque doublon. Une
+  ligne complète décompose chaque doublon en 15 Fragments. Les restaurations qui n'ont pas trouvé
+  de scène attendent un moment calme (`S.reidxQ`). Simulation : la collection complète passe
+  d'environ 1 360 cartes tirées à environ 380. Une partie existante compte ses doublons d'avant,
+  une fois (`S.reidxV`), et voit d'un bloc ce qu'ils ont retrouvé.
+- **L'intégrité fait remonter les écritures anciennes** : à 100 %, chaque série plus ancienne pèse
+  1,3 fois plus au tirage (`cardIntegrityBias`).
+- **Le dos des cartes** (`73e-provenance.js`). Chaque obtention dit d'où elle vient
+  (`cardHowSet(kind, …)` juste avant `grantCardV`) : un verrou levé, une Expédition, un passage
+  légendaire, un coffre… La première carte garde cette provenance, la connexion et l'équipe du
+  moment (`S.cards[k].h`). La carte agrandie se retourne d'un toucher.
+- **Les exemplaires annotés.** Une fois la page d'une connexion trouvée, un doublon de son
+  légendaire peut arriver annoté au dos (deux chances sur cinq, forcément au troisième) : onze
+  annotations, signées `▒▒▒▒ · connexion 0X` puis du nom du joueur après la révélation
+  (`CARD_NOTES`, panneau du Journal). Le papier dépasse un peu derrière la carte.
+- **Le cadeau de 1996.** Après son premier aveu (`pz_mem3`), Porygon-Z rend le Rendu primordial de
+  Mew, gardé depuis la connexion 01 (sinon un autre primordial, sinon un fondateur).
+- **La chronologie** (`73f-chrono.js`). Une ligne complète se rejoue une fois, de la plus ancienne
+  écriture à celle d'aujourd'hui, chaque carte se posant sur la précédente ; une phrase par époque,
+  tirée du vrai sprite (taille, couleurs), et une phrase pour chaque légendaire.
+- **La carte de Porygon-Z** (`73g-pzcard.js`, `CARD_PZ`). À la fin ÉCRIRE : le Rendu inédit, sur
+  une page du journal, « Écrit par ‹nom› », cadre de nacre au liseré cyan et magenta. Elle ne
+  compte dans le total que quand elle existe.
+- **Les apparences d'époque** (`73h-eras.js`). Une carte de 1996, 1999 ou 2002 prête son époque au
+  légendaire, partout où il est au joueur (jamais aux adversaires) : le vrai sprite d'origine, face
+  et dos, là où le jeu dessine des sprites fixes (Pokédex, combat classique, listes d'équipe) ; les
+  sprites de Donjon Mystère (équipe, accueil, Tour, Brèche, Expédition, Forage) ne sont **pas**
+  redessinés : leur animation est repeinte avec la palette du sprite d'époque — les quatre teintes
+  de 1996 et 1999 dans les proportions du sprite d'origine, la couleur la plus proche pour 2002.
+  Les dos Rouge/Bleu et Cristal viennent de `fetch_cardsprites.py` ; `build_cardart.py` range faces,
+  dos, cadres d'origine (`o`, `ko`) et palettes (`q`) dans l'atlas et le manifeste.
+  Sur ces animations, une **aura** distingue le légendaire qui porte une autre époque : une lueur
+  qui épouse sa silhouette (cyan au large, couleur de la série au bord : os, or, magenta), un halo
+  qui respire et quelques fragments de données qui montent. La lueur est l'ombre de canvas de la
+  même image dessinée loin hors du cadre (`eraAuraGlow`) : pas de filtre, le même rendu partout,
+  et seulement pour les siens. En effets réduits, la lueur reste, immobile, sans fragments.
+- **Les modes d'affichage** (`73i-displaymodes.js`). Les cinq Rendus primordiaux ouvrent le mode
+  1996 (quatre verts, police de pixels), les onze Rendus fondateurs le mode 1999 (peu de couleurs,
+  saturées). Une seule passe de filtre CSS sur l'application, composée par le processeur graphique.
+- **Ce qui a changé dans tes cartes** (`73j-cardnews.js`). Une partie qui avait déjà au moins six
+  cartes avant cette version (`S.saga.cnews`, posé au premier passage) reçoit une fois, au premier
+  calme, une page de Porygon-Z : le même légendaire à trois époques, puis une ligne par nouveauté
+  (scènes, dos, doublons, chronologies avec un bouton, apparences, affichage d'époque s'il est
+  ouvert). Tant qu'elle n'est pas montrée, les autres révélations attendent (`reidxQuiet` ;
+  `reidxCalm` pour le seul calme) ; les modes d'affichage déjà ouverts y sont annoncés, sans
+  moment en plus. Une partie neuve ne la voit jamais. Le cadeau de 1996 reçu en double
+  (`reidxSkip`) n'est ni relu par la réindexation ni annoté par une autre connexion.
 
 ## Standard des cinématiques
 
@@ -134,26 +254,48 @@ s'écrit avec ce moteur**, et `test.js` vérifie chacune contre le standard.
 | Temps | Rôle | Paramètres |
 |---|---|---|
 | `bars` | bandes de cinéma | `on` |
-| `bg` | décor | `labo`, `void`, `terminal`, `faille` |
+| `bg` | fond d'ambiance (sans plateau) | `labo`, `void`, `terminal`, `faille`, `souvenir`, `zero` |
 | `card` | carton de titre | `text`, `sub`, `hold` |
-| `actor` / `leave` | entrée, sortie | `kind` prof·pz·mon, `enter` fade·pop·assemble, `how` fade·tear |
-| `mood` | humeur de Porygon-Z | `mood` |
+| `actor` / `leave` | élément d'interface (emblème, nom en octets…) | `kind` emblem·…, `how` fade·tear |
+| `mood` | humeur de Porygon-Z : son portrait, et son corps sur le plateau | `mood` (17 humeurs) |
 | `say` | réplique tapée | `who`, `text`, `corrupt` 0–1, `auto` |
 | `fx` | effet | `shake`, `flash`, `glitch`, `rgb`, `noise`, `blackout` — `lv` 1 à 3 |
 | `code` | lignes de terminal | préfixe `>` commande, `!` erreur, `✓` succès |
 | `rain` | pluie de données | `on` |
-| `par` | temps simultanés | `beats` |
+| `par` / `seq` | temps simultanés / à la suite | `beats` |
 
-**Règles.** Toute scène se passe et s'avance au doigt. Trois intensités d'effet, jamais plus. Trois
-univers de couleur : le monde **d'avant** (chaud, pastel, boîte de texte classique), le **système**
-(sombre, cyan), la **faille** (magenta). Les durées viennent de `CINE_T`, jamais d'un chiffre isolé.
-Le professeur parle **depuis un moniteur** : c'est un message enregistré, et c'est lui qui se
-corrompt. Porygon-Z est **projeté** dans un cadre holographique aux équerres du jeu.
+**Le plateau** (`src/37d-plateau.js`) : sous la scène, un monde peint en pixel art, à l'échelle de
+Donjon Mystère (un pixel du monde = deux pixels de l'écran). Ses temps :
+
+| Temps | Rôle | Paramètres |
+|---|---|---|
+| `set` | un lieu peint | `k` (voir `37e`), `v` variante, `light`, `cam`, `mem` (sépia), `sep` (force du sépia), `keep` |
+| `plat` | l'état du lieu | `st` (barre du moniteur, compteur, sauvegardes allumées…), `holes`, `on:false` |
+| `put` / `gone` | un acteur entre, sort | `kind` pz·mon·swarm·mn·mnname·prop, `at` (ancre ou `[x, y]`), `to` (entrée en marchant), `enter` fade·assemble·form·cut, `how` fade·scatter·tear·cut |
+| `move` / `face` / `anim` / `hop` / `emote` / `tremble` | il marche, se tourne, joue une pose PMD, saute, montre un signe, tremble ou clignote | `to`, `dir`, `a`, `e` |
+| `cam` / `light` | la caméra (glisse, zoom 1 ou 1,5), la lumière | `to`, `z`, `ms` / `k` |
+| `swarm` | l'archiviste d'avant | `do` speak·unstable·calm·form·collapse (il se tasse en L) |
+| `ball` | une Poké Ball lancée | `from`, `to`, `catch`, `miss` |
+| `wl` | un texte du monde (fenêtre, fichier, compteur, question du système) | `k` win·file·count·sysq·log·tag |
+| `defrag` / `erase` / `letters` | la mémoire se range ; le monde s'efface ligne à ligne ; des lettres se mélangent | `n` ; `from`, `to` ; `text` |
+
+**Règles.** Toute scène se passe et s'avance au doigt. Trois intensités d'effet, jamais plus. Les
+durées viennent de `CINE_T`, jamais d'un chiffre isolé. **Chaque scène a un lieu** : la console
+d'entretien (chez Porygon-Z), le laboratoire, la Route 1, le ciel de Hoenn, la faille, la Couche
+Zéro… **Porygon-Z joue** : ses humeurs se voient avec le corps (un saut de joie, une douleur, un
+temps d'arrêt), son portrait s'affiche au-dessus de la boîte, comme dans Donjon Mystère. Dans le
+présent, il est **projeté** (une lueur cyan sous lui) — jusqu'à ce qu'il soit écrit dans le Pokédex.
+La narration est un sous-titre, sans boîte. Les textes du monde (fichiers, compteurs, questions du
+système) ne sortent jamais de l'image et ne passent jamais sous les bandes ni sur la boîte.
+
+**Effets réduits** : ni bandes qui sautent, ni pixels qui tremblent, ni secousses ; l'archiviste perd
+moitié moins de pixels ; le grain du souvenir ne bouge plus.
 
 **Vérifier une scène à l'œil** : `python3` + Playwright rejoue la scène dans Chromium au format
 mobile et capture les moments clés ; c'est ainsi qu'ont été trouvés un bruit statique qui ne
-s'arrêtait jamais (lancé deux fois, arrêté une) et une opacité posée en style direct qui l'emportait
-sur la classe censée le cacher.
+s'arrêtait jamais (lancé deux fois, arrêté une), une opacité posée en style direct qui l'emportait
+sur la classe censée le cacher, et des Pokémon qui n'entraient jamais parce qu'une ancre portait le
+nom d'un acteur (les ancres du lieu passent désormais avant les acteurs).
 
 La première scène est l'ouverture, **« L'écriture interrompue »** : le monde d'avant, la panne,
 le redémarrage, le réveil. Elle remplace l'ancienne scène d'ouverture et se revoit depuis le journal.
@@ -251,7 +393,9 @@ recrues à choisir — en version immersive. Première pierre : l'arène.
 
 ## Les pages des onze (`36-lore.js`)
 
-Les pages de journal des archivistes précédents ne surgissent plus d'elles-mêmes : elles se **trouvent là où
+Une page par **connexion passée** (01 à 11), signée d'un nom illisible — autant de signes que le nom du joueur —
+jusqu'à la révélation, où elles se signent de son nom. Porygon-Z se tait sur les pages tant qu'il n'a pas fait
+son premier aveu (`pz_mem3`). Les pages de journal des archivistes précédents ne surgissent plus d'elles-mêmes : elles se **trouvent là où
 leur auteur a travaillé** (`FRAG_META` : au fond d'une Ball à la capture, dans une paroi du Forage, au bout
 d'une Expédition, au sommet d'une aile de la Tour, au bord de la faille dans la Brèche). Si la salle n'est pas
 ouverte, ou après 80 captures d'attente, la page tombe dans les captures. Toujours dans l'ordre (`fragNext`).
@@ -345,6 +489,22 @@ Analyse complète dans le projet claude.ai (« Feuille de route — grandeur et 
   (`PZ_MUSES`, une sur seize au plus toutes les deux minutes et demie).
 - La Descente abandonnée est sortie du jeu (`attic/`) : elle redéfinissait l'action `dcdone` et bloquait
   le bouton « Archiver ». Un test interdit désormais toute action définie deux fois.
+
+## Retours d'un joueur (24 octobre 2026)
+
+Le jeu envoyé à un ami : ses notes brutes, et ce qu'elles ont changé.
+- **« Capture à 98 % + lancer Excellent, et il est ressorti »** : le lancer réussi ajoute désormais sa
+  chance à celle de la Ball (`throwChance`), plafonnée à 100 % ; le texte dit « Excellent — capture
+  assurée » quand c'est le cas.
+- **Trop de fenêtres au retour dans le Forage** : les nouvelles strates et les chantiers ouverts se
+  regroupent en **un seul moment**, montré sur l'écran de fouille ; les succès arrivent en un bandeau.
+- **Expédition** : la boutique montre l'équipe et l'objet que tient chacun ; le menu du bas demande
+  « Quitter l'Expédition ? » au lieu de sortir sans prévenir ; la victoire a son **écran de fin**
+  (butin, puis retour au camp) et le camp s'en souvient 24 h ; le **sac d'expédition** (huit places)
+  a son bouton « Sac · N » sur la carte, et l'on équipe un objet depuis le sac.
+- **MissingNo** a un nouveau sprite de base, **la faille** : une fêlure dans l'image, bords cyan et
+  magenta, le nom du joueur à peine visible au fond, qui respire ; au « Regarde mon nom » de la Couche
+  Zéro, elle s'ouvre et laisse place au sprite tiré du nom, puis au L.
 
 ## Audit de cohérence (octobre 2026)
 
@@ -548,11 +708,11 @@ Repris de l'étude de *Pokémon Arena* (Big Kid Nation) :
 - **Trois attaques par type** (`BR_ATK`), choisies selon le profil de l'espèce : spécialiste (à
   distance), physique (ruée, bond, contact), équilibré (zone). **72 attaques distinctes** sur 386 espèces,
   31 formes, dont onze nouvelles : ricochet, nova, pluie, spirale, aura, tornade, balayage, faille, orage, ruée, bond.
-- **Signatures des 21 légendaires** (`BR_LEGEND`) : singularité de Mewtwo, Métronome de Mew, Aéroblast
-  de Lugia, Lame Pangéenne de Groudon, Vœu Destructeur de Jirachi, Onde Originelle de Kyogre…
+- **Signatures des 21 légendaires** (`BR_LEGEND`) : chacun a désormais une attaque qui n'appartient
+  qu'à lui — voir *Les légendaires ont chacun leur attaque* plus bas.
 - **Équilibrage mesuré** : `node brdps.js` mesure chaque forme à conditions égales (horde et cible
   unique) ; `tools/tune.js` et `tools/legend.js` recalent les dégâts. Formes ordinaires entre 0,94 et
-  1,05 fois la médiane ; signatures à 1,80.
+  1,05 fois la médiane ; les signatures se mesurent avec `node legdps.js`.
 - **Sprites de marche de Pokémon Donjon Mystère** (sprites « de donjon », 8 directions) pour l'équipe
   et la horde, recolorés en corruption pour les ennemis. `build_pmd.py` optimise les planches de
   `sprites/pmd_raw` (386 espèces, 1,8 Mo) ; la version en ligne les charge à la demande, la version
@@ -577,6 +737,60 @@ Repris de l'étude de *Pokémon Arena* (Big Kid Nation) :
 - **Un impact par type** : braises qui montent, gouttes qui retombent, feuilles, étincelles, éclats,
   cailloux, bulles, fumée — particules à forme, rotation et gravité (budget de 90 par image).
 - Équilibrage mesuré avec `node brdps.js` : ruée et bond à 0,98 de la médiane.
+
+### Les légendaires ont chacun leur attaque (`59l-breche-legends.js`)
+
+Retour de jeu : « Jirachi a les mêmes attaques qu'Électhor, qui a les mêmes que Rayquaza, avec
+d'autres couleurs. » C'était vrai — trois pluies de frappes, trois fissures, deux murs, deux
+balayages. Chaque légendaire a maintenant **sa** mécanique et **son** dessin :
+
+| Légendaire | Attaque (éveillé) | Ce qu'elle fait |
+|---|---|---|
+| Artikodin | Blizzard (Ère Glaciaire) | des flocons tombent sur des cibles distinctes et les **gèlent** ; un ennemi déjà gelé **vole en éclats** (dégâts doublés, éclats de glace sur les voisins) |
+| Électhor | Cage-Éclair (Ciel Foudroyé) | des plumes plantées autour de la horde ; la **cage de foudre se resserre**, frappe qui la traverse, et les plumes foudroient les prisonniers |
+| Sulfura | Sillage Ardent (Phénix) | une **traînée de flammes** suit l'équipe ; tous les neuf tirs, un battement d'ailes embrase tout autour |
+| Raikou | Tonnerre (Orage Perpétuel) | un **nuage d'orage** suit l'équipe et foudroie à la verticale, avec éclaboussure |
+| Entei | Éruption (Magma Sacré) | des **bombes de lave** en cloche, puis des mares de magma |
+| Suicune | Rideau d'Aurore (Aurore Boréale) | des **voiles d'aurore** balaient tout l'écran et ralentissent ; éveillés, ils soignent |
+| Lugia | Aéroblast (Aéroblast Divin) | le vent se rassemble, puis un **rayon** fend le couloir le plus peuplé ; la horde s'écarte |
+| Ho-Oh | Feu Sacré (Renaissance) | un arc-en-ciel de flammes ; un ennemi qui tombe en brûlant **transmet le feu sacré** et soigne |
+| Celebi | Voile Temporel (Retour dans le Temps) | **le temps s'arrête** dans la bulle ; les coups s'accumulent et tombent tous à la fin |
+| Regirock | Monolithes (Colosse de Pierre) | des **menhirs** jaillissent sous la horde, lui barrent la route (obstacles), puis éclatent |
+| Regice | Prisme Glacé (Cristal Absolu) | un **prisme** aux rayons tournants qui ralentissent |
+| Registeel | Verrouillage (Élecanon) | verrouille **l'ennemi le plus solide** (élites, boss), puis l'écrase : quatre fois les dégâts |
+| Latias | Ball'Brume (Brume Éon) | des sphères qui éclatent en **brume** : la horde y encaisse plus, l'équipe y guérit |
+| Latios | Lumi-Éclat (Rayon Éon) | un **piqué** d'un bord à l'autre de l'écran ; la trace explose derrière lui |
+| Kyogre | Onde Originelle (Océan Primordial) | deux **vagues** (quatre éveillé) partent vers les bords et emportent la horde |
+| Groudon | Lame Pangéenne (Continent Primordial) | des **anneaux de lames de roche** jaillissent en vagues autour de l'équipe |
+| Rayquaza | Draco-Ascension (Colère du Ciel) | un **serpent céleste** ondule autour de l'équipe, plonge jusqu'à elle et ressort |
+| Jirachi | Vœu Destructeur (Vœu Millénaire) | des **étoiles filantes** traversent l'écran ; tous les quatre tirs, un **vœu** soigne |
+| Deoxys | Psycho Boost (Ω) | **trois formes** se relaient toutes les sept secondes : Attaque, Défense (barrière), Vitesse |
+| Mewtwo, Mew | Singularité, Métronome | inchangés ; le Métronome peut désormais tirer l'attaque d'un autre légendaire |
+
+- **Trois couches de dessin** : au sol (sous la horde), au-dessus de la horde, et dans le ciel
+  (au-dessus de tout, arbres compris) ; un ennemi gelé porte son cristal, un ennemi figé par Celebi sa teinte.
+- **La carte de choix**, le Pokémon de départ et l'écran de pause affichent ce que fait la signature.
+- **Équilibrage** : `node legdps.js` mesure les 21 signatures contre la médiane des formes ordinaires,
+  en quatre conditions (niveau 1, niveau 8, éveillé niveau 1, éveillé niveau 8). Cible : environ
+  deux attaques ordinaires. Moyennes entre **1,76 et 2,05** ; aucune condition sous 1,4 ni au-dessus
+  de 2,45. Chaque signature grandit avec le niveau (cibles, rayons, puissance), comme les autres.
+- **Tests** : chaque signature s'exécute, frappe, se dessine sans erreur (contexte factice) et ne
+  laisse aucune zone derrière elle, à l'état de base et éveillé ; gel puis éclats, feu sacré qui se
+  transmet, temps arrêté puis relâché, menhir infranchissable, Métronome légendaire, serpent qui plonge.
+
+### Des coffres de données qui valent la peine (`58-breche-ui.js`)
+
+Retour de jeu : « +25 PV à chaque fois, inintéressant ». Une fois l'équipe au maximum, c'était le
+seul lot. Le coffre lit désormais la partie et donne ce qui sert :
+- **le catalyseur** d'un Pokémon au maximum qui l'attend (il évolue au coffre suivant), un niveau,
+  un objet (jamais deux fois le même dans un coffre) ;
+- quand tout est au maximum : des **fragments de code** qui renforcent l'équipe pour toute la run
+  (+6 % de dégâts, attaques 5 % plus rapides, +8 % de zone, +15 PV max ; affichés « ◆ Code ×N »),
+  une **surtension** de vingt secondes (Force, Hâte, Attraction), des Données pour l'Archive ;
+- **une réparation seulement si la vie est sous la moitié**.
+- **Trois tailles** : coffre (un trésor), **coffre rare** (trois, 22 %), **coffre légendaire**
+  (cinq, 5 %, cadre arc-en-ciel) ; le Flair de l'Archive les rend plus fréquents. Une roulette
+  fait défiler les trésors avant de s'arrêter.
 
 ### Des univers qui existent (`59w-breche-world.js`)
 
@@ -758,9 +972,10 @@ Testé : chaque ante tombe sur son Champion, la Suite se forme, un programme év
 vente sous sa forme évoluée), Paralysie, Torrent et Fournaise font ce qu'elles disent ; la partie simulée
 de 40 manches et toutes les règles s'évaluent sans valeur invalide.
 
-## Archivistes rivaux (`39r-rival.js`)
+## Dresseurs rémanents (`39r-rival.js`)
 
-Un archiviste rival surgit, rarement, après une capture. La rencontre se joue désormais comme dans les jeux
+Un dresseur rémanent — un dresseur du jeu d'origine resté coincé dans son secteur — surgit, rarement, après une
+capture (ce ne sont plus des « archivistes » : dans le récit, tous les archivistes étaient le joueur). La rencontre se joue désormais comme dans les jeux
 d'origine : un « ! », la **transition en bandes noires**, puis l'**écran VS** — le rival entre par la droite
 en silhouette puis en couleurs, votre Pokémon de tête par la gauche, lignes de vitesse aux couleurs de ses
 types, VS qui frappe, ses trois Poké Balls (l'as en Hyper Ball) — sa réplique lettre par lettre, puis le
@@ -856,25 +1071,41 @@ l'activation par mégarde, pas une sécurité : le code s'exécute chez le joueu
 
 ## Le metteur en scène
 
-Les 27 scènes du récit et les 6 étapes de la faille passent **toutes** par le moteur de cinématiques,
-sans avoir été réécrites. `directStory()` les met en scène selon des règles fixes :
+Les 38 scènes du récit et les 6 étapes de la faille passent **toutes** par le moteur de cinématiques
+et se jouent **sur le plateau**. Celles qui n'ont pas de cinématique écrite à la main, `directStory()`
+(`src/37f-mise-en-scene.js`) les met en scène :
 
-- **l'univers** découle des voix : la faille si elle parle, le laboratoire si le professeur parle, le
-  système sinon ;
-- **les acteurs** entrent à leur première réplique, à des places fixées d'avance (professeur et faille
-  à gauche, Porygon-Z à droite quand ils partagent la scène) ;
-- **la faille prend corps** — MissingNo apparaît — à sa première réplique ;
+- **le lieu** vient de la table `STAGE` (une entrée par scène, vérifiée par `test.js`) ; à défaut, il
+  découle des voix : la faille si elle parle, le laboratoire si le professeur parle, la console sinon ;
+- **Porygon-Z** entre à sa première réplique, projeté dans le présent ; ses humeurs se jouent ;
+- **la faille prend corps** — MissingNo, la fêlure, apparaît — à sa première réplique ;
 - **le système** parle en console neutre, et en rouge **seulement** pour une erreur ;
-- **les scènes majeures** ont bandes et carton-titre, les mineures restent sobres.
+- **les scènes majeures** ont bandes et carton-titre, les mineures restent sobres ;
+- **les souvenirs** (répliques `mem`) : la mémoire se **défragmente** (l'écran se couvre de blocs qui
+  se rangent, le nombre de blocs récupérés vient de la réplique du système), le lieu d'alors apparaît
+  au sépia, avec du grain, une bande qui saute, des blocs qui ne se chargent pas — d'autant plus que
+  le souvenir est lointain ; l'**archiviste d'alors** s'y tient. Au retour, le souvenir se déchire.
 
-Les scènes clés reçoivent une **piste de direction** (`DIRECTION`) : des temps insérés avant une
-réplique donnée, ou en fin de scène. Le climax s'y termine dans le décor chaud du monde d'avant :
-le monde réparé ressemble à l'ouverture, avant la panne.
+`STAGE[id]` ajoute ce que le metteur en scène ne devine pas : `set` (le lieu), `cast` (qui est là),
+`pre` / `with` / `sync` (avant une réplique, juste avant qu'elle s'affiche, pendant qu'elle s'affiche),
+`voice` (répliques dites hors champ, sur une illustration), `mem` (le souvenir : lieu, trous, acteurs),
+`end`. Le texte ne change jamais : `test.js` vérifie que chaque scène garde toutes ses répliques, dans
+l'ordre, et qu'aucun acteur ne reste en scène.
 
-Une scène écrite à la main (`CINEMAS`) prime toujours sur la mise en scène automatique.
+**L'archiviste d'avant** n'a plus de silhouette dessinée : c'est une **forme de pixels** debout,
+sans visage, faite des octets du nom du joueur (la même texture que le L de MissingNo), bordée de
+cyan à gauche et de magenta à droite, comme la fêlure. Elle perd des pixels qui s'envolent et
+s'éteignent, puis reviennent ; quand elle parle, elle se défait davantage. Elle est dessinée sur la
+toile qui n'appartient pas au souvenir : le sépia ne la touche pas. À la révélation, quand elle tape
+« Effacer », **elle se tasse en L** : MissingNo, c'était elle.
 
-**Professeur en pied** : déposer `assets/prof_full.png` (fond transparent). Sans ce fichier, il parle
-depuis le moniteur du laboratoire.
+Temps propres à la fin : `choice` (une ligne à maintenir, avec ses branches), `montage` (cartons de plus en
+plus rapides), `name` (le nom du joueur en octets, relu comme l'espèce n° 000), `dex` (une entrée du Pokédex
+qui s'écrit), `credits` (le générique), `music` (une ambiance imposée le temps d'une scène), `call`.
+
+Une scène écrite à la main (`CINEMAS`) prime toujours sur la mise en scène automatique. Le
+professeur est un personnage original en pixel art (`PL_PROPS.prof`), debout dans son laboratoire ;
+c'est lui qui se corrompt quand le fichier cède.
 
 ## La pêche et les exclusivités
 
@@ -1206,6 +1437,21 @@ sept vérifications à faire une fois en ligne.
 | `python3 build_web.py` | `web/` | version hébergée : images séparées et mises en cache, service worker, manifeste PWA, `vercel.json` |
 
 Le guide de déploiement complet est dans `web/README.md`.
+
+### La version du jeu (`buildver.py`)
+
+`build.py` date chaque build à l'heure de Paris dans `VERSION.txt` (versionné) ; les deux builds
+calculent la même empreinte sur les sources et la date (`BUILD_V`, `BUILD_LABEL`). Quand Vercel
+reconstruit `web/`, il relit `VERSION.txt` : la version en ligne porte la date de la livraison.
+
+- **Réglages**, tout en bas : « Version du 23 octobre 2026, 19 h 05 · 1a2b3c4d », et un bouton
+  **Vérifier** (version hébergée).
+- `web/version.json` publie la même chose, sans cache (en-tête `no-store`, ignoré par le service
+  worker). Le jeu le relit au lancement, au retour sur l'application et toutes les quinze minutes :
+  si l'empreinte diffère, un bandeau sous la barre du haut propose **Mettre à jour** (la partie est
+  enregistrée, puis la page rechargée). Jamais de rechargement forcé. À la première ouverture d'une
+  nouvelle version, un message le confirme une fois.
+- Après une mise en ligne, `https://<site>/version.json` dit en un coup d'œil ce qui est publié.
 
 ## Mise en ligne
 

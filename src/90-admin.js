@@ -166,6 +166,18 @@ ACTIONS.admopen = () => {
       <button class="btn wide sm" data-act="admstoryreset">Oublier toutes les scènes</button>
     </div>
 
+    <div class="adm">
+      <div class="h sm">LA FIN — ${esc(typeof finaleStage === "function" ? finaleStage() : "?")} · connexion n° ${typeof sagaConn === "function" ? sagaConn() : 12}</div>
+      <div class="admgrid">
+        <button class="btn" data-act="admzeroready">Ouvrir la Couche Zéro</button>
+        <button class="btn" data-act="admzerogo">Descendre (combat final)</button>
+        <button class="btn" data-act="admreveal">Jouer la révélation</button>
+        <button class="btn" data-act="admask">Poser la question</button>
+        <button class="btn" data-act="admmem">Débloquer les souvenirs</button>
+        <button class="btn" data-act="admsagareset">Remettre la fin à zéro</button>
+      </div>
+    </div>
+
     <button class="btn dan wide" data-act="admtoggle">Désactiver les outils de test</button>`);
 };
 
@@ -339,13 +351,36 @@ ACTIONS.admcontract = () => {
 };
 ACTIONS.admzero = d => { S.zero = (S.zero||0) + (+d.n); admDone("Noyaux Zéro ajoutés"); };
 ACTIONS.admendgame = () => {
+  ACTIONS.admzeroready(true);
+  S.flags.mnBeaten = true; S.flags.climax = true;
+  if(typeof sagaState === "function") sagaState().mnWins++;
+  admDone("MissingNo vaincu : la question attend, le cycle peut être bouclé");
+};
+/* tout ce qu'il faut pour descendre : intégrité, neuf verrous, trois cœurs réindexés */
+ACTIONS.admzeroready = quiet => {
   for(let i=1;i<=386;i++) if(!S.dex[i]) addToDex(i, 60, false);
   for(const r of REGIONS) for(let i=0;i<r.guardians.length;i++) admBeatGuardian(r, i);
+  if(typeof worldState === "function"){ const W = worldState(); for(const r of REGIONS) W.reg[r.key].done = WORLD_PROJECTS.map((_, i)=>i); }
   S.integrity = 100; applyCorruption();
-  S.flags.climax = true; S.flags.zero = true;
-  if(!S.story.includes("climax")) S.story.push("climax");
-  if(!S.story.includes("epilogue")) S.story.push("epilogue");
-  admDone("Cycle prêt à être bouclé");
+  if(quiet !== true) admDone("Couche Zéro ouverte : l'objectif final attend sur l'accueil");
+};
+ACTIONS.admzerogo = () => {
+  if(typeof finaleReady === "function" && !finaleReady()) ACTIONS.admzeroready(true);
+  S.flags.mnBeaten = false; admMark(); closeSheet();
+  ACTIONS.zerogo();
+};
+ACTIONS.admreveal = () => { admMark(); closeSheet(); S.flags.mnBeaten = true; finaleAfterWin(null); };
+ACTIONS.admask = () => { admMark(); closeSheet(); S.flags.mnBeaten = true; S.flags.finalDone = false; S.flags.finalChoice = null; finaleChoicePlay(); };
+ACTIONS.admmem = () => {
+  for(const b of MAIN_ARC) if(b.mem && !S.story.includes(b.id)) S.story.push(b.id);
+  admDone("Souvenirs de Porygon-Z débloqués");
+};
+ACTIONS.admsagareset = () => {
+  S.saga = {end:null, wrote:false, erased:0, mnWins:0, known:false};
+  for(const k of ["mnBeaten", "finalDone", "finalChoice", "zeroAnnounced", "zeroLogged", "climax", "zero"]) delete S.flags[k];
+  S.story = S.story.filter(id=>!["finale_gate", "zero_descent", "finale_reveal", "finale_choice", "finale_echo", "epilogue_write"].includes(id));
+  if(S.dex[474]){ delete S.dex[474]; S.team = S.team.filter(id=>id !== 474); }
+  admDone("Fin remise à zéro");
 };
 ACTIONS.admbuddy = () => {
   const ids = ownedSorted();
@@ -376,5 +411,7 @@ ACTIONS.admstory = d => {
   admMark(); closeSheet();
   playStory(d.id, ()=>{ refresh(); });
 };
-ACTIONS.admstoryreset = () => { S.story = []; S.flags.climax = false; S.flags.zero = false;
+ACTIONS.admstoryreset = () => { S.story = []; S.flags.climax = false; S.flags.zero = false; S.storyT = 0;
+  S.saga = {end:null, wrote:false, erased:0, mnWins:0, known:false};
+  for(const k of ["mnBeaten", "finalDone", "finalChoice", "zeroAnnounced", "zeroLogged"]) delete S.flags[k];
   admDone("Récit réinitialisé"); };
