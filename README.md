@@ -47,11 +47,15 @@ Les sources sont modulaires et concaténées dans cet ordre par `build.py` :
 | `src/80-guide.js` | Tutoriels à projecteur, fiches d'information, directives, événements de Porygon-Z |
 | `src/95-online.js` | Client REST Supabase : authentification, sauvegarde distante, classements, échanges |
 | `src/36-lore.js` | Les onze pages de journal (une par connexion passée) et l'arc de la faille |
+<<<<<<< HEAD
 | `src/37-cine.js` | Moteur de cinématiques, ouverture, souvenirs, nom en octets, MissingNo (la fêlure) |
 | `src/37d-plateau.js` | Le plateau : le monde peint sous les cinématiques, acteurs, caméra, lumière, souvenir, l'archiviste en pixels, défragmentation, effacement, textes du monde, portrait de celui qui parle |
 | `src/37e-decors.js` | Les quatorze lieux peints en pixel art (laboratoire, console, Route 1, ciel de Hoenn, faille, Couche Zéro…) et les accessoires (Poké Ball, professeur, œuf, trésor, fêlure) |
 | `src/37f-mise-en-scene.js` | Le metteur en scène (`directStory`) et la table `STAGE` : ce qu'on voit, scène par scène |
 | `build_pz.py` | Porygon-Z, acteur principal : dix-sept portraits et quinze poses (PMDCollab), embarqués (`_pzportrait.js`, `_pzanim.js`) |
+=======
+| `src/37-cine.js` | Moteur de cinématiques, ouverture, mise en scène automatique des scènes, souvenirs, silhouette, nom en octets |
+>>>>>>> 413cfb3227eb5cc2782c5abf40c2f79acee89fa4
 | `src/85-journal.js` | Journal des scènes par actes, crédits, Nouveau Cycle et avantages permanents |
 | `src/86-saga.js` | La saga : connexions, `choses_formidables.txt`, mémoire de Porygon-Z, Couche Zéro, entrée n° 387, générique |
 | `src/87-finale.js` | La fin : combat contre MissingNo, révélation, question (effacer ou écrire), écho ; les échos de tes réponses |
@@ -1071,9 +1075,14 @@ l'activation par mégarde, pas une sécurité : le code s'exécute chez le joueu
 
 ## Le metteur en scène
 
+<<<<<<< HEAD
 Les 38 scènes du récit et les 6 étapes de la faille passent **toutes** par le moteur de cinématiques
 et se jouent **sur le plateau**. Celles qui n'ont pas de cinématique écrite à la main, `directStory()`
 (`src/37f-mise-en-scene.js`) les met en scène :
+=======
+Les 38 scènes du récit et les 6 étapes de la faille passent **toutes** par le moteur de cinématiques.
+Celles qui n'ont pas de cinématique écrite à la main, `directStory()` les met en scène selon des règles fixes :
+>>>>>>> 413cfb3227eb5cc2782c5abf40c2f79acee89fa4
 
 - **le lieu** vient de la table `STAGE` (une entrée par scène, vérifiée par `test.js`) ; à défaut, il
   découle des voix : la faille si elle parle, le laboratoire si le professeur parle, la console sinon ;
@@ -1081,6 +1090,7 @@ et se jouent **sur le plateau**. Celles qui n'ont pas de cinématique écrite à
 - **la faille prend corps** — MissingNo, la fêlure, apparaît — à sa première réplique ;
 - **le système** parle en console neutre, et en rouge **seulement** pour une erreur ;
 - **les scènes majeures** ont bandes et carton-titre, les mineures restent sobres ;
+<<<<<<< HEAD
 - **les souvenirs** (répliques `mem`) : la mémoire se **défragmente** (l'écran se couvre de blocs qui
   se rangent, le nombre de blocs récupérés vient de la réplique du système), le lieu d'alors apparaît
   au sépia, avec du grain, une bande qui saute, des blocs qui ne se chargent pas — d'autant plus que
@@ -1091,6 +1101,18 @@ et se jouent **sur le plateau**. Celles qui n'ont pas de cinématique écrite à
 `voice` (répliques dites hors champ, sur une illustration), `mem` (le souvenir : lieu, trous, acteurs),
 `end`. Le texte ne change jamais : `test.js` vérifie que chaque scène garde toutes ses répliques, dans
 l'ordre, et qu'aucun acteur ne reste en scène.
+=======
+- **les souvenirs** (répliques marquées `mem`) passent au sépia, avec la silhouette de l'archiviste d'avant
+  et son nom masqué ; au retour, le présent reprend sa couleur.
+
+Temps propres à la fin : `choice` (une ligne à maintenir, avec ses branches), `montage` (cartons de plus en
+plus rapides), `name` (le nom du joueur en octets, relu comme l'espèce n° 000), `dex` (une entrée du Pokédex
+qui s'écrit), `credits` (le générique), `music` (une ambiance imposée le temps d'une scène), `call`.
+
+Les scènes clés reçoivent une **piste de direction** (`DIRECTION`) : des temps insérés avant une
+réplique donnée, ou en fin de scène. Après avoir écrit, l'épilogue se joue dans le décor chaud du
+monde d'avant : le monde réparé ressemble à l'ouverture, avant la panne.
+>>>>>>> 413cfb3227eb5cc2782c5abf40c2f79acee89fa4
 
 **L'archiviste d'avant** n'a plus de silhouette dessinée : c'est une **forme de pixels** debout,
 sans visage, faite des octets du nom du joueur (la même texture que le L de MissingNo), bordée de

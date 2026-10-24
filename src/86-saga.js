@@ -200,13 +200,21 @@ function sagaCardHtml(){
   if(st === "far"){
     const R = finaleReqs();
     return `<div class="zc-card far">
+<<<<<<< HEAD
       <div class="zc-h"><span class="zc-mn">${mnSpriteHtml()}</span>
+=======
+      <div class="zc-h"><span class="zc-mn"><img src="${MISSING_SPRITE}" alt=""></span>
+>>>>>>> 413cfb3227eb5cc2782c5abf40c2f79acee89fa4
         <div class="grow"><small>OBJECTIF FINAL</small><b>La Couche Zéro</b><em>Sous les trois secteurs, quelque chose attend.</em></div></div>
       <div class="zc-reqs">${R.map(x=>`<div class="${x.ok ? "ok" : ""}"><i>${x.ok ? "✓" : "·"}</i><span>${esc(x.t)}</span><b>${esc(x.v)}</b></div>`).join("")}</div>
     </div>`;
   }
   if(st === "ready") return `<button class="zc-card ready" data-act="zerogo">
+<<<<<<< HEAD
       <div class="zc-h"><span class="zc-mn">${mnSpriteHtml()}</span>
+=======
+      <div class="zc-h"><span class="zc-mn"><img src="${MISSING_SPRITE}" alt=""></span>
+>>>>>>> 413cfb3227eb5cc2782c5abf40c2f79acee89fa4
         <div class="grow"><small>LA COUCHE ZÉRO EST OUVERTE</small><b>Descendre</b><em>Prends ton équipe. Porygon-Z vient avec toi.</em></div>
         <span class="zc-go">${ic("arrow")}</span></div></button>`;
   if(st === "choice") return `<button class="zc-card ask" data-act="zeroanswer">

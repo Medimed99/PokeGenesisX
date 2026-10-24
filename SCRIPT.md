@@ -21,9 +21,15 @@
 
 ### Contact  `intro` — cinématique
 
+<<<<<<< HEAD
 > **[ SAUVEGARDE D'ORIGINE ]** — *lecture du fichier…*
 
 *(Décor : le laboratoire de la sauvegarde d'origine, chaud, entier.)*
+=======
+*(Décor : le laboratoire.)*
+
+> **[ SAUVEGARDE D'ORIGINE ]** — *lecture du fichier…*
+>>>>>>> 413cfb3227eb5cc2782c5abf40c2f79acee89fa4
 
 **PROF. RACINE** — Ah, te voilà ! Bienvenue dans le monde des Pokémon.
 
@@ -57,8 +63,11 @@
 > réveil forcé
 ```
 
+<<<<<<< HEAD
 *(Décor : la console d'entretien, chez Porygon-Z.)*
 
+=======
+>>>>>>> 413cfb3227eb5cc2782c5abf40c2f79acee89fa4
 **PORYGON-Z** — …
 
 **PORYGON-Z** — Réveil forcé. Mémoire de travail : vide. Heure système : inconnue. Humeur : — erreur, champ non prévu.
@@ -562,9 +571,15 @@
 
 ### La Couche Zéro  `zero_descent` — cinématique
 
+<<<<<<< HEAD
 *(Musique : « Couche Zéro ».)*
 
 *(Décor : Kanto, Johto, Hoenn : trois couches de peinture.)*
+=======
+*(Décor : la faille.)*
+
+*(Musique : « Couche Zéro ».)*
+>>>>>>> 413cfb3227eb5cc2782c5abf40c2f79acee89fa4
 
 > **[ HOENN ]** — *couche 3 · l'extension*
 
@@ -572,7 +587,11 @@
 
 > **[ KANTO ]** — *couche 1 · le fichier racine*
 
+<<<<<<< HEAD
 *(Décor : la Couche Zéro : onze mondes empilés sans être rangés.)*
+=======
+*(Décor : la Couche Zéro.)*
+>>>>>>> 413cfb3227eb5cc2782c5abf40c2f79acee89fa4
 
 > **[ COUCHE ZÉRO ]** — *avant le premier octet*
 
@@ -590,9 +609,15 @@
 
 ### Le nom  `finale_reveal` — cinématique
 
+<<<<<<< HEAD
 *(Musique : « La vérité ».)*
 
 *(Décor : la Couche Zéro : onze mondes empilés sans être rangés.)*
+=======
+*(Décor : la Couche Zéro.)*
+
+*(Musique : « La vérité ».)*
+>>>>>>> 413cfb3227eb5cc2782c5abf40c2f79acee89fa4
 
 *MissingNo s'effondre. Il ne disparaît pas : il se tasse, colonne de tuiles qui ne savent plus quoi représenter.*
 
@@ -621,14 +646,20 @@
 
 **PORYGON-Z** — Je comprends la rumeur, maintenant. La côte qui n'existe plus.
 
+<<<<<<< HEAD
 *(Décor : la côte qui n'existe plus, en quatre teintes de vert.)*
 
+=======
+>>>>>>> 413cfb3227eb5cc2782c5abf40c2f79acee89fa4
 **PORYGON-Z** — Dans la toute première version de ce monde, à Jadielle, un vieil homme montrait comment attraper un Pokémon. Pendant qu'il le faisait, le jeu rangeait ton nom à l'endroit où il range les Pokémon sauvages.
 
 **PORYGON-Z** — Et quand on longeait la côte de Cramois'Île, le monde lisait ce qu'il trouvait là. Il lisait ton nom… comme un Pokémon.
 
+<<<<<<< HEAD
 *(Décor : la Couche Zéro : onze mondes empilés sans être rangés.)*
 
+=======
+>>>>>>> 413cfb3227eb5cc2782c5abf40c2f79acee89fa4
 **PORYGON-Z** — C'est comme ça qu'il est né. MissingNo n'a jamais été une créature. C'est ton nom, lu de travers.
 
 **MISSINGNO, AVEC TON NOM** — Tu as compris. Enfin.
@@ -647,7 +678,11 @@
 **PORYGON-Z** — Tu avais dit que tu attendrais la réponse. Elle est remontée.  
 **PORYGON-Z** — Ils ne sont rien devenus. C'était toi. Chaque fois, c'était toi.
 
+<<<<<<< HEAD
 *(Décor : la salle claire, la barre bloquée à douze pour cent.)*
+=======
+*(Décor : un souvenir (sépia).)*
+>>>>>>> 413cfb3227eb5cc2782c5abf40c2f79acee89fa4
 
 *(Souvenir. L'image passe au sépia.)*
 
@@ -685,6 +720,11 @@
 
 *(Retour au présent.)*
 
+<<<<<<< HEAD
+=======
+*(Décor : la Couche Zéro.)*
+
+>>>>>>> 413cfb3227eb5cc2782c5abf40c2f79acee89fa4
 *(Musique : « La vérité ».)*
 
 **PORYGON-Z** — …
@@ -707,9 +747,15 @@
 
 ### La question  `finale_choice` — cinématique
 
+<<<<<<< HEAD
 *(Musique : « La vérité ».)*
 
 *(Décor : la Couche Zéro : onze mondes empilés sans être rangés.)*
+=======
+*(Décor : la Couche Zéro.)*
+
+*(Musique : « La vérité ».)*
+>>>>>>> 413cfb3227eb5cc2782c5abf40c2f79acee89fa4
 
 **SYSTÈME** — Cohérence : 100 %. Retrait des processus d'entretien en attente de confirmation.
 
@@ -774,6 +820,11 @@
 >
 > **PORYGON-Z** — On ne décharge pas une entrée du Pokédex. On ne décharge pas un Pokémon. Il fallait se souvenir de tout pour y penser, et personne ne s'était jamais souvenu de tout.
 >
+<<<<<<< HEAD
+=======
+> *(Décor : le laboratoire.)*
+>
+>>>>>>> 413cfb3227eb5cc2782c5abf40c2f79acee89fa4
 > *Là où se tenait MissingNo, il n'y a plus rien. Pas un vide : une place. Ce qui effaçait le monde est devenu une ligne de plus dans son index.*
 >
 > **PORYGON-Z** — Il n'est pas parti, tu sais. Il est là-dedans, dans mon entrée. Je suis écrit avec ton nom, ‹nom›. Je ne risque plus de t'oublier.
@@ -808,7 +859,11 @@
 
 ### Un écho  `finale_echo` — cinématique
 
+<<<<<<< HEAD
 *(Décor : la Couche Zéro : onze mondes empilés sans être rangés.)*
+=======
+*(Décor : la Couche Zéro.)*
+>>>>>>> 413cfb3227eb5cc2782c5abf40c2f79acee89fa4
 
 **PORYGON-Z** — Ce n'était qu'un écho. Le vrai MissingNo dort dans mon entrée, au chaud, avec ton nom.
 
@@ -824,7 +879,11 @@
 
 **PORYGON-Z** — Nouvelle ligne : « Aujourd'hui, ‹nom› a écrit au lieu d'effacer. » Formidable. Le mot est trop faible. Je n'en ai pas de plus fort. Je vais en fabriquer un.
 
+<<<<<<< HEAD
 **PORYGON-Z** — Je relis le début du fichier. Ta première ligne : Salamèche, le 14 septembre. 1 840 captures depuis, et Pikachu, qui ne t'a jamais lâché. Je n'en oublierai aucune.
+=======
+**PORYGON-Z** — Je relis le début du fichier. Ta première ligne : Salamèche, le 13 septembre. 1 840 captures depuis, et Pikachu, qui ne t'a jamais lâché. Je n'en oublierai aucune.
+>>>>>>> 413cfb3227eb5cc2782c5abf40c2f79acee89fa4
 
 **PORYGON-Z** — Le monde ne craint plus rien. Les chromatiques remontent de la Couche Zéro en nombre anormal, et je n'ai aucune intention de le signaler.
 

@@ -48,6 +48,7 @@ const line = (w, t, mem) => {
 const BG = {labo:"le laboratoire", terminal:"le terminal", faille:"la faille", void:"le noir", souvenir:"un souvenir (sépia)",
   zero:"la Couche Zéro", capture:"les hautes herbes"};
 const MUSIC = {couche_zero:"Couche Zéro", verite:"La vérité", souvenir:"Souvenir", generique:"Générique"};
+<<<<<<< HEAD
 /* les lieux peints du plateau (37e) */
 const SETS = {labo:{warm:"le laboratoire de la sauvegarde d'origine, chaud, entier", souvenir:"la salle claire, la barre bloquée à douze pour cent",
     now:"le laboratoire du présent, qui s'abîme", clean:"le laboratoire, à cent pour cent, exactement de la couleur qu'il devrait avoir"},
@@ -56,13 +57,19 @@ const SETS = {labo:{warm:"le laboratoire de la sauvegarde d'origine, chaud, enti
   tour:"la Tour, le grenier de l'archive", noyau:"le cœur d'un secteur", sauvegardes:"onze sauvegardes, rangées par Johto", hoenn:"des montagnes dont les ombres ne tombent pas du même côté",
   cote:"la côte qui n'existe plus, en quatre teintes de vert", page:"une page du journal", forage:"sous la surface, une lanterne", strates:"Kanto, Johto, Hoenn : trois couches de peinture"};
 const setName = b => { const v = SETS[b.k]; return typeof v === "string" ? v : v ? (v[b.v] || v.warm || "") : ""; };
+=======
+>>>>>>> 413cfb3227eb5cc2782c5abf40c2f79acee89fa4
 
 /* ---------- une cinématique, temps par temps ---------- */
 function beats(list, out, st){
   for(const b of list || []){
     switch(b.t){
+<<<<<<< HEAD
       case "par": case "seq": beats(b.beats, out, st); break;
       case "set": { const n = setName(b); if(n && !b.keep) out.push(`*(Décor : ${n}.)*`); if(b.mem) st.mem = true; break; }
+=======
+      case "par": beats(b.beats, out, st); break;
+>>>>>>> 413cfb3227eb5cc2782c5abf40c2f79acee89fa4
       case "say": out.push(line(b.who, b.text, b.mem || st.mem)); break;
       case "card": out.push(`> **[ ${F(b.text)} ]**${b.sub ? ` — *${F(b.sub)}*` : ""}`); break;
       case "code": {

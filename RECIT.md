@@ -349,6 +349,7 @@ Le texte s'adapte au joueur. Dans `src/`, ces jetons sont remplacés à l'affich
 
 ## 13. Mise en scène
 
+<<<<<<< HEAD
 - **Chaque scène a un lieu peint** (`src/37e-decors.js`) et s'y joue comme dans Donjon Mystère : des Pokémon qui marchent, se tournent, sautent ; Porygon-Z dont les humeurs se voient avec le corps, son portrait au-dessus de la boîte ; une caméra qui monte la Tour, qui s'approche quand ça compte.
 - **Les lieux** : le laboratoire (la sauvegarde d'origine, chaude ; le présent, qui s'abîme ; la salle claire du souvenir, sa barre à douze ; le monde à cent pour cent, exactement de la couleur qu'il devrait avoir) ; la console d'entretien, chez Porygon-Z, avec la vraie intégrité au mur ; la Route 1 (le jour, au crépuscule, la nuit) ; le ciel de Hoenn ; la faille ; la Couche Zéro (onze mondes empilés) ; la Tour, grenier de l'archive ; le cœur des secteurs ; les onze sauvegardes de Johto ; les montagnes de Hoenn aux ombres contradictoires ; la côte qui n'existe plus, en quatre teintes de vert ; une page du journal ; le Forage ; les trois couches du monde.
 - **Le souvenir** : la mémoire se défragmente (des blocs qui se rangent), puis le lieu d'alors apparaît au sépia. Plus il est lointain, plus il lui manque de blocs ; « intégrité du bloc : complète » (le bloc 0x5E) n'en perd aucun. Au retour, il se déchire.
@@ -357,6 +358,11 @@ Le texte s'adapte au joueur. Dans `src/`, ces jetons sont remplacés à l'affich
 - **Ton nom, à l'avance** : quand Porygon-Z dit l'avoir reconnu, quand il suit la trace de MissingNo à Hoenn, les lettres qui se mélangent sont celles de ton nom ; de loin en loin, une vraie lettre passe à sa vraie place.
 - **Cinématiques** écrites à la main : l'ouverture, la descente, la révélation, la question, l'écho, le générique. Les autres scènes passent par `directStory` et la table `STAGE` (`src/37f-mise-en-scene.js`).
 - **La faille** : MissingNo avant qu'on le lise (`mnSprite`). Pas une créature : une fêlure dans l'image, bord cyan d'un côté, magenta de l'autre comme l'archiviste d'avant, et tout au fond, à peine visible, le nom du joueur. Elle respire.
+=======
+- **Cinématiques** écrites à la main : l'ouverture, la descente, la révélation, la question, l'écho, le générique. Les autres scènes sont **mises en scène automatiquement** (décor selon les voix, entrées des personnages, cartons, souvenirs) — `directStory` dans `src/37-cine.js`.
+- **Décors** : laboratoire, terminal, faille, Couche Zéro (trois secteurs empilés et cassés), souvenir (sépia).
+- **La silhouette** de l'archiviste d'avant : une figure en pixels, sans visage, liseré cyan (le système) et magenta (la faille).
+>>>>>>> 413cfb3227eb5cc2782c5abf40c2f79acee89fa4
 - **Le nom en octets** et le **MissingNo tiré du nom** (`nameSprite`) : la même silhouette en L, différente pour chaque nom.
 - **Musiques** propres à la fin (à déposer dans `assets/music/`, voir `LISEZMOI.txt`) : `souvenir`, `couche_zero`, `verite` (« le thème le plus important du jeu »), `generique`. En attendant les fichiers, chacune retombe sur une piste existante.
 - **Accessibilité du choix** : le maintien évite les choix par erreur ; la touche Entrée valide au clavier.
@@ -391,10 +397,14 @@ Tests automatiques : `node test.js` couvre la chaîne (ordre, paliers, événeme
 |---|---|
 | `src/02-story.js` | Les scènes, la chaîne principale (`MAIN_ARC`), les cinq questions (`STORY_Q`), ce qu'il retient de toi (`pzRecall`), les jetons (`pzFmt`), les lignes de Porygon-Z |
 | `src/36-lore.js` | Les onze pages, l'arc de la faille |
+<<<<<<< HEAD
 | `src/37-cine.js` | Le moteur de cinématiques, l'ouverture, le nom en octets, la fêlure |
 | `src/37d-plateau.js` | Le plateau : acteurs, caméra, lumière, souvenir, l'archiviste en pixels, défragmentation, effacement |
 | `src/37e-decors.js` | Les lieux peints et les accessoires |
 | `src/37f-mise-en-scene.js` | `directStory` et la table `STAGE` : la mise en scène de chaque scène |
+=======
+| `src/37-cine.js` | Le moteur de cinématiques, l'ouverture, la mise en scène automatique, la silhouette, le nom en octets |
+>>>>>>> 413cfb3227eb5cc2782c5abf40c2f79acee89fa4
 | `src/86-saga.js` | L'état de la saga, `choses_formidables.txt`, la mémoire, les conditions et la carte de la Couche Zéro, l'entrée 387, le générique, les connexions suivantes |
 | `src/87-finale.js` | Le combat final, la descente, la révélation (avec les échos de tes réponses), la question, l'écho |
 | `src/30c-onze.js` | Les Pokémon des onze : rencontre, capture, surnom, Journal, révélation |

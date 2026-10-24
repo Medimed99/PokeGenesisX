@@ -549,7 +549,11 @@ SCREENS.modules = {
             return `<button class="wd-spot ${op ? "" : "locked"} ${ok ? "ok" : "bad"} ${k}" data-act="worldspot" data-k="${k}" style="left:${s.x}%;top:${s.y}%">
               <span class="wd-lbl">${op ? "" : ic("lock")}${esc(ok || k === "rift" ? name : name.replace(/[a-zA-Zéèêàçôûîœ]/g, (m, i)=>((i + dn) % 3 ? m : "▒")))}</span>${b ? `<i class="wd-b">${esc(b)}</i>` : ""}</button>`; }).join("")}
           ${projDone(region, 9) && core ? `<span class="wd-statue" style="left:${WORLD_SPOTS.heart.x}%;top:${WORLD_SPOTS.heart.y}%">${sprite(core, false, "")}</span>` : ""}
+<<<<<<< HEAD
           ${dn < WORLD_PROJECTS.length ? `<span class="wd-lurk" id="wd-lurk" style="opacity:${(0.25 + 0.55 * (1 - dn / WORLD_PROJECTS.length)).toFixed(2)}">${mnSpriteHtml()}</span>` : ""}
+=======
+          ${dn < WORLD_PROJECTS.length ? `<span class="wd-lurk" id="wd-lurk" style="opacity:${(0.25 + 0.55 * (1 - dn / WORLD_PROJECTS.length)).toFixed(2)}"><img src="${MISSING_SPRITE}" alt=""></span>` : ""}
+>>>>>>> 413cfb3227eb5cc2782c5abf40c2f79acee89fa4
           ${lead ? `<span class="wd-partner" id="wd-partner" style="left:${WORLD_SPOTS.pc.x + 4}%;top:${WORLD_SPOTS.pc.y + 6}%">${typeof pmdCanvas === "function" ? pmdCanvas(lead, 0, 40, {shiny:S.dex[lead] && S.dex[lead].shiny, mine:true}) : sprite(lead, !!(S.dex[lead] && S.dex[lead].shiny), "")}${lead !== 474 && S.dex[474] && typeof pmdCanvas === "function" ? `<span class="wd-pzf">${pmdCanvas(474, 0, 30)}</span>` : ""}</span>` : ""}
           <i class="wd-scan"></i>
         </div>
