@@ -429,7 +429,6 @@ function onCatch(ballKey){
     setTimeout(()=>toast(`${perfName} est un exemplaire intègre ◈`, "warn", "star"), 500);
   }
   researchTick(ENC.id, "catch", 1);
-  rodDiscoveryTick();
   rstreakCatch(ENC.rar);
   factionPts(1);
   rivalTick();
@@ -771,6 +770,10 @@ function selBall(){
 SCREENS.capture = {
   html(){
     safariRollover();
+    /* la pêche sans canne n'existe pas ; et en pêche, une rencontre qui ne sort pas de l'eau
+       n'a rien à faire là (le lac y menait, avec le Pokémon des herbes encore à l'écran) */
+    if(S.capMode === "fish" && !rodLevel()) S.capMode = "classic";
+    if(S.capMode === "fish" && ENC && !ENC.fished && !busy) ENC = null;
     if(!ENC && !busy && S.capMode !== "fish") newEncounter();
     const regions = unlockedRegions();
     const locked = REGIONS.filter(r=>!regionUnlocked(r.key));
@@ -826,13 +829,13 @@ SCREENS.capture = {
 
     <div id="aim-slot">${AIM ? aimBarHtml(AIM) : ""}</div>
 
-    <button class="throwbtn ${AIM?"locking":""}" data-act="throwsel"
+    ${S.capMode === "fish" && !ENC ? "" : `<button class="throwbtn ${AIM?"locking":""}" data-act="throwsel"
       ${(!ENC||busy||stock<=0)?"disabled":""} style="margin-bottom:14px">
       ${AIM ? "STOP !"
         : ENC ? (stock<=0 ? "STOCK ÉPUISÉ"
           : ENC.missing ? "ANALYSER LA FAILLE"
           : `LANCER — ${Math.round(chance*100)}%`) : "ANALYSE EN COURS"}
-    </button>
+    </button>`}
 
     ${radarCount()>0?`<button class="btn dan wide sm" style="margin-bottom:9px" data-act="useradar">
       ${ic("boss")} Radar Légendaire (${radarCount()})</button>`:""}
@@ -898,7 +901,7 @@ SCREENS.capture = {
 
     const p = POKE[ENC.id];
     const isNew = !dexHas(ENC.id);
-    return `<div id="enc-stage" class="${ENC.roam ? "roaming" : ""}">${bg}
+    return `<div id="enc-stage" class="${ENC.roam ? "roaming" : ""}${ENC.fished ? " fished" : ""}">${bg}
       ${typeof stakesTagHtml === "function" ? stakesTagHtml() : ""}
       ${S.streak>=3?`<div class="combo tier${comboTier()}"><b>×${S.streak}</b>
         <span>${comboLabel()}</span></div>`:""}
@@ -926,6 +929,7 @@ SCREENS.capture = {
   },
 
   after(){
+    if(S.capMode === "fish" && !ENC && typeof fishMount === "function") fishMount();
     tutoMaybe("intro");
     if(S.stats.catches >= 5) tutoMaybe("streak");
     /* les rencontres rares secouent l'appareil a l'apparition */

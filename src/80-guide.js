@@ -160,15 +160,21 @@ const INFOS = {
     des ruines, un pic. Chacun repart de zéro, plus dur, avec ses propres trésors et son minerai favori.</p>`},
 
   fishing:{n:"La pêche", d:`
-    <p>La pêche est un mode de l'écran de capture : on bascule d'un geste entre Capture et Pêche.
-    Il faut d'abord trouver une Vieille Canne, qui reste parfois accrochée à un Pokémon capturé.</p>
-    <p>Lancez la ligne, attendez que le bouchon plonge, puis <b>ferrez</b>. Trop tôt, la prise fuit.
-    Trop tard, elle décroche. Si ça tient, la rencontre se déroule comme une capture normale.</p>
+    <p>La pêche est un mode de l'écran de capture (onglet Pêche), et le lac de la carte y mène.
+    La Vieille Canne se déterre au Forage, dans l'une des trois premières fouilles ; si la fouille
+    s'effondre avant qu'elle soit dégagée, elle revient dans la suivante.</p>
+    <p><b>Les ombres.</b> Des Pokémon nagent dans l'eau : plus l'ombre est grande, plus il est rare.
+    Un reflet doré, c'est un chromatique. Une ombre immobile qui brille au fond, un trésor.</p>
+    <p><b>Lancer.</b> Touchez l'eau là où vous voulez lancer, près d'une ombre. Le bouton lance vers
+    la plus grande. Si rien ne vient, touchez ailleurs pour relancer.</p>
+    <p><b>Ferrer.</b> L'ombre goûte le bouchon une ou deux fois : n'y touchez pas, elle filerait. Au
+    « ! », touchez n'importe où. À temps, ça tient toujours ; très vite, c'est un <b>ferrage parfait</b> :
+    la prise est sonnée, +20 % à la capture. Ensuite, la rencontre se déroule comme une capture.</p>
     <p>Au bout de la ligne : les Pokémon Eau, et des espèces qu'on ne trouve <b>que</b> là —
     Barpau, Rémoraid, Qwilfish, Relicanth, Loupio. Et une fois Hoenn ouvert, avec une canne
     suffisante, quelque chose de bien plus grand.</p>
-    <p>La Super Canne et la Méga Canne s'achètent en Fragments : elles ferrent mieux, remontent
-    plus de raretés et multiplient la chance de chromatique. La pluie fait mordre plus vite.</p>`},
+    <p>La Super Canne et la Méga Canne s'achètent en Fragments : la touche dure plus longtemps,
+    elles remontent plus de raretés et de chromatiques. La pluie fait mordre plus vite.</p>`},
 
   boss:{n:"Les Data Guardians", d:`
     <p>Neuf légendaires transformés en pare-feu, trois par secteur. Ils ne se capturent pas :
@@ -396,8 +402,8 @@ const TUTOS = {
     {sel:"#screen", t:"Tant qu'il te manque un Pokémon, le tampon ne peut pas te rendre un doublon. Il ne peut donc jamais te bloquer."}
   ]},
   fishing:{steps:[
-    {sel:"#screen", t:"Cette canne, quelqu'un s'en servait avant que les données se figent. Les nappes sous le secteur n'ont jamais été vidées."},
-    {sel:"#screen", t:"Lance, attends que le bouchon plonge, puis ferre. Trop tôt ou trop tard, et ça repart."},
+    {sel:"#fs-pond", t:"Cette canne, quelqu'un s'en servait avant que les données se figent. Les ombres dans l'eau, ce sont des Pokémon : plus l'ombre est grande, plus il est rare."},
+    {sel:"#fs-pond", t:"Touche l'eau près d'une ombre pour lancer. Elle va goûter le bouchon : ne bouge pas. Au « ! », touche n'importe où. Vite, c'est un ferrage parfait."},
     {sel:"#screen", t:"Certains Pokémon ne remontent qu'au bout d'une ligne. Tu ne les croiseras nulle part ailleurs."}
   ]},
   idle:{steps:[
@@ -549,14 +555,16 @@ const DIRECTIVES = [
   {id:"d5",  n:"Atteindre une chaîne de 10",     chk:()=>S.stats.bestStreak>=10, goal:()=>[S.stats.bestStreak,10],
    rw:{coins:500, berries:{nanab:2}}, hint:"Enchaîne les captures sans échouer. Vise les espèces communes."},
   {id:"d6",  n:"Passer au niveau 3",            chk:()=>S.level>=3,          goal:()=>[S.level,3],
-   rw:{balls:{super:8}}, hint:"La sonde des couches s'ouvre à ce niveau."},
-  {id:"d7",  n:"Faire une prise à la sonde",    chk:()=>S.stats.fish>=1,     goal:()=>[S.stats.fish,1],
-   rw:{shards:20}, hint:"Écran de capture, mode Pêche.", go:"capture"},
+   rw:{balls:{super:8}}, hint:"Chaque niveau rapporte des PokéCoins, et certains ouvrent une salle."},
   {id:"d8",  n:"Archiver 20 espèces",           chk:()=>dexTotal()>=20,      goal:()=>[dexTotal(),20],
    rw:{coins:900, cores:1}, hint:"Change de secteur dans le Pokédex pour repérer ce qui te manque."},
   {id:"d9",  n:"Faire une fouille au Forage", chk:()=>(S.stats.walls || 0)>=1,
    goal:()=>[Math.min(1, S.stats.walls || 0),1],
    rw:{coins:600}, hint:"Ton équipe creuse même quand tu ne joues pas. Toutes les 7 minutes, elle trouve une fouille à faire.", go:"idle"},
+  /* la pêche vient après la première fouille : la canne se déterre dans l'une des trois premières */
+  {id:"d7",  n:"Pêcher un premier Pokémon",     chk:()=>(S.stats.fish || 0)>=1, goal:()=>[Math.min(1, S.stats.fish || 0),1],
+   rw:{shards:20}, get hint(){ return rodLevel() ? "Capture, onglet Pêche : lance près d'une ombre, et ferre au « ! »."
+     : "Une Vieille Canne est enfouie dans l'une de tes trois premières fouilles du Forage."; }, go:"@fish"},
   {id:"d10", n:"Archiver 25 espèces",           chk:()=>dexTotal()>=25,      goal:()=>[dexTotal(),25],
    rw:{shards:40}, hint:"Le premier verrou légendaire s'ouvre à 25 espèces de Kanto."},
   {id:"d11", n:"Faire évoluer un Pokémon",      chk:()=>S.stats.evolutions>=1, goal:()=>[S.stats.evolutions,1],
@@ -705,3 +713,34 @@ function guideTick(){
   checkDirectives();
   if(!milestone) checkPzEvents();
 }
+
+/* ---------- la veille ----------
+   Une directive, un succès, une pastille du dock ne se vérifiaient qu'après
+   certaines actions : souvent, l'annonce n'arrivait qu'au changement d'onglet.
+   Toutes les secondes et demie, on regarde. Les annonces passent par la file
+   habituelle (rien par-dessus une révélation, un combat ou une scène) ; les
+   paliers qui ouvrent une fenêtre attendent un moment calme. */
+let WATCH_SIG = "";
+function watchQuiet(){
+  if(typeof sheetOpen === "function" && sheetOpen()) return false;
+  if(overlayBusy()) return false;
+  if(typeof stageHold === "function" && stageHold()) return false;
+  if(typeof screenLive === "function" && screenLive()) return false;
+  return true;
+}
+function watchTick(){
+  if(!S || !S.flags || typeof document === "undefined" || !document.getElementById || !document.getElementById("screen")) return false;
+  if(typeof introSeen === "function" && !introSeen()) return false;
+  const boot = document.getElementById("boot");
+  if(boot && boot.style && boot.style.display === "flex") return false;
+  if(typeof CINE !== "undefined" && CINE && !CINE.dead) return false;
+  /* la Brèche recouvre tout, annonces comprises : elle fait ses comptes à la sortie */
+  if(typeof BR !== "undefined" && BR) return false;
+  if(watchQuiet()) guideTick();
+  else checkDirectives();
+  checkAchievements();
+  const sig = typeof dockSig === "function" ? dockSig() : "";
+  if(sig !== WATCH_SIG){ WATCH_SIG = sig; try { renderDock(); } catch(e){} }
+  return true;
+}
+if(typeof setInterval === "function") setInterval(()=>{ try { watchTick(); } catch(e){} }, 1500);

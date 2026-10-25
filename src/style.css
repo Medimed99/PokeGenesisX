@@ -2189,32 +2189,41 @@ body:has(#discover.on) #pztalk,body:has(#sheet-root.on) #pztalk,body:has(#tuto.o
   box-shadow:inset 0 0 0 1px var(--line2)}
 .capmode button.on svg{color:var(--cyan)}
 
-.fishstage{position:relative;height:210px;border-radius:var(--r);overflow:hidden;margin-bottom:10px;
-  border:1px solid var(--line);
-  background:linear-gradient(180deg,#0b1a30 0%,#0a2340 48%,#062038 49%,#041526 100%)}
-.fs-water{position:absolute;left:0;right:0;top:49%;bottom:0;overflow:hidden}
-.fs-water i{position:absolute;left:-20%;width:140%;height:2px;border-radius:2px;
-  background:linear-gradient(90deg,transparent,rgba(120,200,255,.35),transparent);
-  animation:fsWave 5s ease-in-out infinite}
-.fs-water i:nth-child(1){top:14%}
-.fs-water i:nth-child(2){top:44%;animation-delay:-1.6s;opacity:.6}
-.fs-water i:nth-child(3){top:74%;animation-delay:-3.1s;opacity:.4}
-@keyframes fsWave{0%,100%{transform:translateX(-6%)}50%{transform:translateX(6%)}}
-.fs-line{position:absolute;left:50%;top:0;height:calc(49% - 8px);width:1px;
-  background:linear-gradient(180deg,transparent,rgba(220,235,255,.55))}
-.fs-bob{position:absolute;left:calc(50% - 7px);top:calc(49% - 9px);width:14px;height:18px;
-  border-radius:50% 50% 45% 45%;
-  background:linear-gradient(180deg,#ff3d7f 0 48%,#f2f6fa 48% 100%);
-  box-shadow:0 0 10px rgba(255,61,127,.5);animation:fsBob 2.2s ease-in-out infinite}
-@keyframes fsBob{0%,100%{transform:translateY(0)}50%{transform:translateY(3px)}}
-.fishstage.idle .fs-line,.fishstage.idle .fs-bob{opacity:.25}
-.fishstage.bite .fs-bob{animation:fsBite .22s ease-in-out infinite}
-@keyframes fsBite{0%,100%{transform:translateY(5px)}50%{transform:translateY(13px)}}
-.fs-splash{position:absolute;left:calc(50% - 30px);top:calc(49% - 12px);width:60px;height:24px;
-  border-radius:50%;border:2px solid rgba(160,220,255,.7);animation:fsSplash .5s ease-out infinite}
-@keyframes fsSplash{0%{transform:scale(.4);opacity:1}100%{transform:scale(1.6);opacity:0}}
-.fishstage.lost .fs-bob{opacity:.3;transform:translateY(-10px)}
-.fs-rod{position:absolute;left:9px;top:8px;font-size:9px;color:var(--ink3);letter-spacing:.5px}
+/* l'étang : une toile en demi-taille agrandie sans lissage, des ombres, un bouchon */
+.fishpond{position:relative;border-radius:var(--r);overflow:hidden;margin-bottom:9px;
+  border:1px solid #1f4a5e;background:#0a2a3e;touch-action:manipulation;user-select:none;-webkit-user-select:none}
+.fishpond canvas{display:block;width:100%;image-rendering:pixelated;image-rendering:crisp-edges;cursor:pointer;
+  touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.fs-rodtag{position:absolute;left:8px;top:6px;display:flex;align-items:center;gap:5px;padding:2px 7px 2px 4px;
+  border-radius:9px;background:rgba(3,14,22,.55);font-size:9.5px;color:#cfe3ef;pointer-events:none}
+.fs-rodtag img,.fs-rodtag svg{width:14px;height:14px}
+.fs-say{position:absolute;left:0;right:0;bottom:0;padding:14px 10px 6px;font-size:11px;line-height:1.35;
+  text-align:center;color:#e8f3fa;pointer-events:none;
+  background:linear-gradient(180deg,transparent,rgba(10,7,4,.78) 55%);text-shadow:0 1px 0 #000}
+.fishpond[data-st="bite"] .fs-say{color:#ffd24a;font-weight:bold}
+.fs-pop{position:absolute;transform:translate(-50%,0);font-family:var(--font-px);font-size:10px;letter-spacing:.5px;
+  white-space:nowrap;pointer-events:none;opacity:0;color:#fff;text-shadow:0 2px 0 #000,0 0 8px rgba(0,0,0,.6)}
+.fs-pop.on{animation:fsPop .9s ease-out forwards}
+.fs-pop.gold{color:#ffd24a}.fs-pop.ok{color:#5ce07a}.fs-pop.bad{color:#ff8a8a}
+@keyframes fsPop{0%{opacity:0;transform:translate(-50%,6px) scale(.8)}18%{opacity:1;transform:translate(-50%,0) scale(1.1)}
+  70%{opacity:1;transform:translate(-50%,-10px) scale(1)}100%{opacity:0;transform:translate(-50%,-18px)}}
+.throwbtn.fs-btn{margin-bottom:10px;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.throwbtn.fs-btn.dim{background:linear-gradient(180deg,#16324a,#0f2436);color:#8fb3c9;border-color:#2b5470;
+  box-shadow:0 3px 0 #0a1a28}
+.throwbtn.fs-btn.ok{background:linear-gradient(180deg,#5ce07a,#2f9c4b);border-color:#5ce07a;box-shadow:0 3px 0 #1d5e2d}
+.throwbtn.fs-btn.bad{background:linear-gradient(180deg,#3a2230,#26161f);color:#ff8a8a;border-color:#5a2a3a;box-shadow:none}
+.fs-next{display:flex;align-items:center;gap:9px;padding:8px 10px;margin-bottom:10px;border-radius:var(--r);
+  border:1px solid var(--line);background:var(--s1)}
+.fs-next b{display:block;font-size:11px}
+.fs-next span{display:block;font-size:10.5px;color:var(--ink3);line-height:1.35}
+.fs-next img{width:22px;height:22px;flex:none}
+.stk-tag.fish{background:#4fb2ff22;border:1px solid #4fb2ff;color:#9fd6ff}
+/* une prise sortie de l'eau : la scène reste au bord de l'étang */
+#enc-stage.fished .stage-bg .sky{background:linear-gradient(180deg,#0b2236 0%,#10405a 50%,#0a2a3e 100%)!important}
+#enc-stage.fished .stage-bg .grid{opacity:.22}
+#enc-stage.fished .stage-bg .haze{background:radial-gradient(75% 52% at 50% 74%,rgba(110,200,255,.18),transparent 72%)}
+#enc-stage.fished .plate{background:none;border:2px solid rgba(170,225,255,.5);animation:fsRing 2.2s ease-out infinite}
+@keyframes fsRing{0%{transform:scale(.6);opacity:.9}100%{transform:scale(1.3);opacity:0}}
 .throwbtn.urgent{animation:urgent .35s ease-in-out infinite;
   background:linear-gradient(180deg,var(--magenta),#b8255a)}
 @keyframes urgent{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}

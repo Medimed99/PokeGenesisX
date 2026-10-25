@@ -91,9 +91,9 @@ const TREASURES = {
   star_piece:  {n:"Morceau d'Étoile",sell:9000,  w:5,  spr:121},
   golden:      {n:"Statue Dorée",    sell:26000, w:1,  spr:129}
 };
-function rollTreasure(depth){
-  /* la profondeur augmente la chance et la qualité */
-  if(rng() > 0.16 + depth * 0.10) return null;
+function rollTreasure(depth, sure){
+  /* la profondeur augmente la chance et la qualité (sure : le trésor est déjà au bout de la ligne) */
+  if(!sure && rng() > 0.16 + depth * 0.10) return null;
   const pool = [];
   for(const k in TREASURES){
     let w = TREASURES[k].w;

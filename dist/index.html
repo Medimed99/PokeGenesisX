@@ -2208,32 +2208,41 @@ body:has(#discover.on) #pztalk,body:has(#sheet-root.on) #pztalk,body:has(#tuto.o
   box-shadow:inset 0 0 0 1px var(--line2)}
 .capmode button.on svg{color:var(--cyan)}
 
-.fishstage{position:relative;height:210px;border-radius:var(--r);overflow:hidden;margin-bottom:10px;
-  border:1px solid var(--line);
-  background:linear-gradient(180deg,#0b1a30 0%,#0a2340 48%,#062038 49%,#041526 100%)}
-.fs-water{position:absolute;left:0;right:0;top:49%;bottom:0;overflow:hidden}
-.fs-water i{position:absolute;left:-20%;width:140%;height:2px;border-radius:2px;
-  background:linear-gradient(90deg,transparent,rgba(120,200,255,.35),transparent);
-  animation:fsWave 5s ease-in-out infinite}
-.fs-water i:nth-child(1){top:14%}
-.fs-water i:nth-child(2){top:44%;animation-delay:-1.6s;opacity:.6}
-.fs-water i:nth-child(3){top:74%;animation-delay:-3.1s;opacity:.4}
-@keyframes fsWave{0%,100%{transform:translateX(-6%)}50%{transform:translateX(6%)}}
-.fs-line{position:absolute;left:50%;top:0;height:calc(49% - 8px);width:1px;
-  background:linear-gradient(180deg,transparent,rgba(220,235,255,.55))}
-.fs-bob{position:absolute;left:calc(50% - 7px);top:calc(49% - 9px);width:14px;height:18px;
-  border-radius:50% 50% 45% 45%;
-  background:linear-gradient(180deg,#ff3d7f 0 48%,#f2f6fa 48% 100%);
-  box-shadow:0 0 10px rgba(255,61,127,.5);animation:fsBob 2.2s ease-in-out infinite}
-@keyframes fsBob{0%,100%{transform:translateY(0)}50%{transform:translateY(3px)}}
-.fishstage.idle .fs-line,.fishstage.idle .fs-bob{opacity:.25}
-.fishstage.bite .fs-bob{animation:fsBite .22s ease-in-out infinite}
-@keyframes fsBite{0%,100%{transform:translateY(5px)}50%{transform:translateY(13px)}}
-.fs-splash{position:absolute;left:calc(50% - 30px);top:calc(49% - 12px);width:60px;height:24px;
-  border-radius:50%;border:2px solid rgba(160,220,255,.7);animation:fsSplash .5s ease-out infinite}
-@keyframes fsSplash{0%{transform:scale(.4);opacity:1}100%{transform:scale(1.6);opacity:0}}
-.fishstage.lost .fs-bob{opacity:.3;transform:translateY(-10px)}
-.fs-rod{position:absolute;left:9px;top:8px;font-size:9px;color:var(--ink3);letter-spacing:.5px}
+/* l'étang : une toile en demi-taille agrandie sans lissage, des ombres, un bouchon */
+.fishpond{position:relative;border-radius:var(--r);overflow:hidden;margin-bottom:9px;
+  border:1px solid #1f4a5e;background:#0a2a3e;touch-action:manipulation;user-select:none;-webkit-user-select:none}
+.fishpond canvas{display:block;width:100%;image-rendering:pixelated;image-rendering:crisp-edges;cursor:pointer;
+  touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.fs-rodtag{position:absolute;left:8px;top:6px;display:flex;align-items:center;gap:5px;padding:2px 7px 2px 4px;
+  border-radius:9px;background:rgba(3,14,22,.55);font-size:9.5px;color:#cfe3ef;pointer-events:none}
+.fs-rodtag img,.fs-rodtag svg{width:14px;height:14px}
+.fs-say{position:absolute;left:0;right:0;bottom:0;padding:14px 10px 6px;font-size:11px;line-height:1.35;
+  text-align:center;color:#e8f3fa;pointer-events:none;
+  background:linear-gradient(180deg,transparent,rgba(10,7,4,.78) 55%);text-shadow:0 1px 0 #000}
+.fishpond[data-st="bite"] .fs-say{color:#ffd24a;font-weight:bold}
+.fs-pop{position:absolute;transform:translate(-50%,0);font-family:var(--font-px);font-size:10px;letter-spacing:.5px;
+  white-space:nowrap;pointer-events:none;opacity:0;color:#fff;text-shadow:0 2px 0 #000,0 0 8px rgba(0,0,0,.6)}
+.fs-pop.on{animation:fsPop .9s ease-out forwards}
+.fs-pop.gold{color:#ffd24a}.fs-pop.ok{color:#5ce07a}.fs-pop.bad{color:#ff8a8a}
+@keyframes fsPop{0%{opacity:0;transform:translate(-50%,6px) scale(.8)}18%{opacity:1;transform:translate(-50%,0) scale(1.1)}
+  70%{opacity:1;transform:translate(-50%,-10px) scale(1)}100%{opacity:0;transform:translate(-50%,-18px)}}
+.throwbtn.fs-btn{margin-bottom:10px;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.throwbtn.fs-btn.dim{background:linear-gradient(180deg,#16324a,#0f2436);color:#8fb3c9;border-color:#2b5470;
+  box-shadow:0 3px 0 #0a1a28}
+.throwbtn.fs-btn.ok{background:linear-gradient(180deg,#5ce07a,#2f9c4b);border-color:#5ce07a;box-shadow:0 3px 0 #1d5e2d}
+.throwbtn.fs-btn.bad{background:linear-gradient(180deg,#3a2230,#26161f);color:#ff8a8a;border-color:#5a2a3a;box-shadow:none}
+.fs-next{display:flex;align-items:center;gap:9px;padding:8px 10px;margin-bottom:10px;border-radius:var(--r);
+  border:1px solid var(--line);background:var(--s1)}
+.fs-next b{display:block;font-size:11px}
+.fs-next span{display:block;font-size:10.5px;color:var(--ink3);line-height:1.35}
+.fs-next img{width:22px;height:22px;flex:none}
+.stk-tag.fish{background:#4fb2ff22;border:1px solid #4fb2ff;color:#9fd6ff}
+/* une prise sortie de l'eau : la scène reste au bord de l'étang */
+#enc-stage.fished .stage-bg .sky{background:linear-gradient(180deg,#0b2236 0%,#10405a 50%,#0a2a3e 100%)!important}
+#enc-stage.fished .stage-bg .grid{opacity:.22}
+#enc-stage.fished .stage-bg .haze{background:radial-gradient(75% 52% at 50% 74%,rgba(110,200,255,.18),transparent 72%)}
+#enc-stage.fished .plate{background:none;border:2px solid rgba(170,225,255,.5);animation:fsRing 2.2s ease-out infinite}
+@keyframes fsRing{0%{transform:scale(.6);opacity:.9}100%{transform:scale(1.3);opacity:0}}
 .throwbtn.urgent{animation:urgent .35s ease-in-out infinite;
   background:linear-gradient(180deg,var(--magenta),#b8255a)}
 @keyframes urgent{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
@@ -6283,7 +6292,7 @@ body.calm .resdone{animation:none}
 </div>
 <script>
 /* version du jeu (buildver.py) */
-const BUILD_V = "8ca6c7dd", BUILD_LABEL = "25 octobre 2026, 12 h 56";
+const BUILD_V = "e5ec3442", BUILD_LABEL = "25 octobre 2026, 14 h 06";
 
 /* ===== _dexblob.js ===== */
 const DEX_BLOB=`
@@ -9208,6 +9217,26 @@ function render(anim){
   renderAdmFab();
 }
 function refresh(){ if(document.getElementById("screen")) render(); }
+/* un écran vivant : un combat de la Tour (ses résultats compris), une visée, une balle en vol.
+   Le redessiner l'effacerait — on ne met alors à jour que la barre du haut et le dock. */
+function screenLive(){
+  try { if(currentScreen === "tower" && screenArg === "fight" && typeof SQB !== "undefined" && SQB) return true; } catch(e){}
+  try { if(currentScreen === "capture" && ((typeof AIM !== "undefined" && AIM) || (typeof busy !== "undefined" && busy))) return true; } catch(e){}
+  /* un combat d'Expédition ou de rival, une run de la Brèche, une fouille du Forage */
+  try { if(currentScreen === "battle" && typeof BATTLE !== "undefined" && BATTLE && !BATTLE.over) return true; } catch(e){}
+  try { if(typeof BR !== "undefined" && BR) return true; } catch(e){}
+  try { if(currentScreen === "idle" && screenArg === "wall" && typeof DIG !== "undefined" && DIG && !DIG.ended) return true; } catch(e){}
+  /* une ligne à l'eau */
+  try { if(currentScreen === "capture" && S.capMode === "fish" && !ENC && typeof FISHING !== "undefined" && FISHING.st !== "idle") return true; } catch(e){}
+  return false;
+}
+/* le rafraîchissement qui suit un moment, une scène, un coffre : il arrive quand le joueur
+   ne l'attend pas, donc il ne doit jamais casser ce qu'il est en train de faire */
+function calmRefresh(){
+  if(!document.getElementById("screen")) return;
+  if(screenLive()){ try { renderTopbar(); renderDock(); } catch(e){} return; }
+  render();
+}
 
 /* delegation d'evenements : tout element [data-act] declenche ACTIONS[act] */
 document.addEventListener("click", e=>{
@@ -9266,14 +9295,19 @@ const DOCK = [
   {k:"dex",      n:"Collection", i:"dex"},
   {k:"bag",      n:"Sac",     i:"box"}
 ];
-function renderDock(){
-  const d = document.getElementById("dock");
-  const alerts = {
+/* les pastilles du dock : ce qui attend le joueur dans chaque onglet */
+function dockAlerts(){
+  return {
     modules: canOpenBox() || questsReady(),
     dex: moduleUnlocked("eggs") && eggState().inc.some(x=>x.steps >= EGG_TIERS[x.tier].steps),
     profile: false,
     team: typeof teamIds === "function" && teamIds().some(id=>typeof evoReady === "function" && evoReady(id))
   };
+}
+function dockSig(){ const a = dockAlerts(); return DOCK.map(x=>a[x.k] ? 1 : 0).join(""); }
+function renderDock(){
+  const d = document.getElementById("dock");
+  const alerts = dockAlerts();
   d.innerHTML = DOCK.map(x=>`<button data-act="nav" data-to="${x.k}" class="${currentScreen===x.k?"on":""}">
       ${ic(x.i)}<span>${x.n}</span>${alerts[x.k]?'<i class="badge"></i>':""}</button>`).join("");
 }
@@ -9338,7 +9372,7 @@ function playStory(id, onDone){
     const cine = cineFor(id);
     if(cine){
       if(id !== "__dyn" && !S.story.includes(id)) S.story.push(id);
-      playCine(cine, onDone);
+      playCine(cine, onDone || storyAfter);
       return;
     }
   }
@@ -9432,8 +9466,11 @@ function endStory(){
   const cb = storyDone; storyDone = null; storyCur = null;
   checkAchievements();
   save();
-  if(cb) cb(); else refresh();
+  if(cb) cb(); else calmRefresh();
 }
+/* après une scène appelée sans suite (« jolie », le premier œuf, un trésor…) : l'écran
+   se remet à jour. Sans cela, la capture restait figée sur le Pokémon qu'on venait d'attraper. */
+function storyAfter(){ try { checkAchievements(); } catch(e){} saveSoon(); calmRefresh(); }
 
 /* --- declencheurs narratifs ---
    Trois sortes de scènes, dans cet ordre de priorité :
@@ -9912,7 +9949,6 @@ function onCatch(ballKey){
     setTimeout(()=>toast(`${perfName} est un exemplaire intègre ◈`, "warn", "star"), 500);
   }
   researchTick(ENC.id, "catch", 1);
-  rodDiscoveryTick();
   rstreakCatch(ENC.rar);
   factionPts(1);
   rivalTick();
@@ -10254,6 +10290,10 @@ function selBall(){
 SCREENS.capture = {
   html(){
     safariRollover();
+    /* la pêche sans canne n'existe pas ; et en pêche, une rencontre qui ne sort pas de l'eau
+       n'a rien à faire là (le lac y menait, avec le Pokémon des herbes encore à l'écran) */
+    if(S.capMode === "fish" && !rodLevel()) S.capMode = "classic";
+    if(S.capMode === "fish" && ENC && !ENC.fished && !busy) ENC = null;
     if(!ENC && !busy && S.capMode !== "fish") newEncounter();
     const regions = unlockedRegions();
     const locked = REGIONS.filter(r=>!regionUnlocked(r.key));
@@ -10309,13 +10349,13 @@ SCREENS.capture = {
 
     <div id="aim-slot">${AIM ? aimBarHtml(AIM) : ""}</div>
 
-    <button class="throwbtn ${AIM?"locking":""}" data-act="throwsel"
+    ${S.capMode === "fish" && !ENC ? "" : `<button class="throwbtn ${AIM?"locking":""}" data-act="throwsel"
       ${(!ENC||busy||stock<=0)?"disabled":""} style="margin-bottom:14px">
       ${AIM ? "STOP !"
         : ENC ? (stock<=0 ? "STOCK ÉPUISÉ"
           : ENC.missing ? "ANALYSER LA FAILLE"
           : `LANCER — ${Math.round(chance*100)}%`) : "ANALYSE EN COURS"}
-    </button>
+    </button>`}
 
     ${radarCount()>0?`<button class="btn dan wide sm" style="margin-bottom:9px" data-act="useradar">
       ${ic("boss")} Radar Légendaire (${radarCount()})</button>`:""}
@@ -10381,7 +10421,7 @@ SCREENS.capture = {
 
     const p = POKE[ENC.id];
     const isNew = !dexHas(ENC.id);
-    return `<div id="enc-stage" class="${ENC.roam ? "roaming" : ""}">${bg}
+    return `<div id="enc-stage" class="${ENC.roam ? "roaming" : ""}${ENC.fished ? " fished" : ""}">${bg}
       ${typeof stakesTagHtml === "function" ? stakesTagHtml() : ""}
       ${S.streak>=3?`<div class="combo tier${comboTier()}"><b>×${S.streak}</b>
         <span>${comboLabel()}</span></div>`:""}
@@ -10409,6 +10449,7 @@ SCREENS.capture = {
   },
 
   after(){
+    if(S.capMode === "fish" && !ENC && typeof fishMount === "function") fishMount();
     tutoMaybe("intro");
     if(S.stats.catches >= 5) tutoMaybe("streak");
     /* les rencontres rares secouent l'appareil a l'apparition */
@@ -10699,6 +10740,7 @@ function stakesTagHtml(){
   /* courtes : la carte est étroite, et la police pixel large (« Légendaire » est déjà écrit sur la carte) */
   if(ENC.roam) return `<div class="stk-tag roam">ERRANT · UNE SEULE BALLE</div>`;
   if(ENC.horde) return `<div class="stk-tag horde">HORDE ${ENC.horde.i}/${ENC.horde.n} · CAPTURE FACILE</div>`;
+  if(ENC.fished && ENC.hook === "perfect") return `<div class="stk-tag fish">FERRAGE PARFAIT · +20 %</div>`;
   return "";
 }
 
@@ -11223,138 +11265,141 @@ function exclusiveLabel(id){
 
 /* ============================================================
    LES CANNES
-   La premiere ne s'achete pas : elle se trouve, comme l'oeuf ouvre
-   la couveuse. Les suivantes ameliorent a la fois la touche et la
-   chance de chromatique.
+   La premiere ne s'achete pas : elle se deterre au Forage, comme
+   l'oeuf ouvre la couveuse. Les suivantes allongent la touche,
+   remontent plus de raretes et de chromatiques.
+   (Avant, une touche ferree a temps pouvait encore lacher sur un
+   tirage : 45 % de prises perdues a la Vieille Canne. Les testeurs
+   croyaient que « Ferrer » ne marchait pas. Ferree a temps, une
+   prise tient toujours.)
    ============================================================ */
 const RODS = [
-  {k:"old",   n:"Vieille Canne", hook:0.55, window:1050, shiny:1.0, rare:0,   cost:0,
-   d:"Retrouvée dans une capture. Elle tient, c'est tout ce qu'on lui demande."},
-  {k:"super", n:"Super Canne",   hook:0.72, window:900,  shiny:1.6, rare:0.6, cost:140,
-   d:"Plus sensible : elle ferre mieux et remonte davantage de raretés."},
-  {k:"mega",  n:"Méga Canne",    hook:0.88, window:780,  shiny:2.5, rare:1.3, cost:480,
+  {k:"old",   n:"Vieille Canne", window:850,  perfect:330, shiny:1.0, rare:0,   cost:0,
+   d:"Déterrée au Forage. Elle tient, c'est tout ce qu'on lui demande."},
+  {k:"super", n:"Super Canne",   window:1000, perfect:390, shiny:1.6, rare:0.6, cost:140,
+   d:"Plus sensible : la touche dure plus longtemps, et elle remonte davantage de raretés."},
+  {k:"mega",  n:"Méga Canne",    window:1150, perfect:450, shiny:2.5, rare:1.3, cost:480,
    d:"Elle atteint les nappes où dort ce qui ne remonte jamais à la surface."}
 ];
 function rodLevel(){ return S.rod || 0; }        /* 0 = aucune canne */
 function rodDef(){ return rodLevel() ? RODS[rodLevel() - 1] : null; }
 
-/* la canne se trouve en capturant, avec un filet de securite */
-function rodDiscoveryTick(){
-  if(S.rod || S.level < 3) return;
-  const pity = S.stats.catches >= 150;
-  if(!pity && rng() > 1/90) return;
-  S.rod = 1;
-  S.flags.rodReveal = true;
-  saveSoon();
+/* La Vieille Canne se déterre dans l'une des trois premières fouilles du Forage (tirée au
+   sort une fois pour toutes). Si la fouille s'effondre avant qu'elle soit dégagée, elle
+   revient dans la suivante, jusqu'à ce qu'elle sorte. Avant, elle tombait d'une capture,
+   une fois sur 90 : on recevait des quêtes de pêche bien avant de pouvoir pêcher. */
+function rodWallDue(){
+  if(!S || rodLevel()) return false;
+  S.flags = S.flags || {};
+  if(S.flags.rodAt === undefined){ S.flags.rodAt = Math.floor(rng() * 3); saveSoon(); }
+  return (S.stats.walls || 0) >= S.flags.rodAt;
+}
+function rodWhere(){
+  return moduleUnlocked("idle") ? "Le Forage en cache une dans l'une de tes premières fouilles."
+    : "Le Forage (niveau 5) en cache une dans l'une de ses premières fouilles.";
 }
 function showRodDiscovery(){
+  if(S.flags) S.flags.rodReveal = false;
   const box = document.getElementById("discover");
-  if(!box){ toast("Vieille Canne trouvée — mode Pêche débloqué", "warn", "fish"); return false; }
+  if(!box){ toast("Vieille Canne déterrée : la pêche s'ouvre", "warn", "fish"); return false; }
+  /* les petits bandeaux de la fouille (« Vieille Canne ! ») ne passent pas par-dessus */
+  try { document.querySelectorAll("#toasts .toast").forEach(t=>t.remove()); } catch(e){}
   box.className = "on";
   box.style.setProperty("--ac", "#4fb2ff");
   box.innerHTML = `
     <div class="dc-rays"></div>
     <div class="dc-inner">
-      <div class="dc-kicker done">OBJET TROUVÉ</div>
-      <div class="rodfind">${ic("fish")}</div>
+      <div class="dc-kicker done">DÉTERRÉE AU FORAGE</div>
+      <div class="rodfind">${itemIcon("rod:old", 64) || ic("fish")}</div>
       <div class="dc-name in" style="font-size:12px">Vieille Canne</div>
-      <div class="dc-lore in">Elle était restée accrochée au Pokémon que vous venez de capturer.
-        Quelqu'un pêchait ici, avant que les données se figent.</div>
+      <div class="dc-lore in">Prise dans la roche, la ligne encore enroulée. Quelqu'un pêchait ici,
+        avant que les données se figent.</div>
       <div class="panel tight" style="text-align:left;margin:0 0 10px">
-        <div class="h sm">MODE PÊCHE DÉBLOQUÉ</div>
-        <div class="tiny muted">En haut de l'écran de capture, basculez entre Capture et Pêche.
-          Certains Pokémon ne se trouvent qu'au bout d'une ligne.</div>
+        <div class="h sm">LA PÊCHE S'OUVRE</div>
+        <div class="tiny muted">Capture, onglet Pêche, ou le lac sur la carte. Certains Pokémon
+          ne se trouvent qu'au bout d'une ligne.</div>
       </div>
-      <button class="btn pri wide dc-ok in" data-act="rodok">Essayer tout de suite</button>
+      <button class="btn pri wide dc-ok in" data-act="rodok">Pêcher tout de suite</button>
+      <button class="btn ghost wide sm dc-ok in" data-act="rodlater" style="margin-top:6px">Plus tard</button>
     </div>`;
   Sfx.win(); buzz([20,40,70]);
   return true;
 }
-ACTIONS.rodok = () => {
+function rodBoxClose(){
   const box = document.getElementById("discover");
   if(box){ box.className = ""; box.innerHTML = ""; }
-  S.capMode = "fish"; ENC = null; save(); go("capture");
+}
+ACTIONS.rodok = () => {
+  rodBoxClose();
+  if(typeof DIG !== "undefined" && DIG && DIG.ended) DIG = null;
+  fishGo();
 };
+ACTIONS.rodlater = () => rodBoxClose();
 
 /* ============================================================
    LE MODE PÊCHE
-   Lancer, attendre la touche, ferrer a temps. Si ca tient, la
-   rencontre se deroule ensuite exactement comme une capture.
    ============================================================ */
-let FISHING = {state:"idle", timer:null, biteAt:0};
-
-function setCapMode(m){
-  if(m === "fish" && !rodLevel()) return;
-  S.capMode = m;
-  ENC = null;
+/* changer de mode, sans redessiner : le lac, une directive, un objectif de session y passent.
+   Changer de mode efface la rencontre en cours ; rester dans le même mode ne la change pas
+   (avant, toucher « Capture » quand on y était déjà retirait une nouvelle rencontre). */
+function capModeSet(m){
+  if(m === "fish" && !rodLevel()) return false;
+  const stale = m === "fish" && ENC && !ENC.fished && !busy;
+  if(S.capMode !== m || stale){ S.capMode = m; if(!busy) ENC = null; }
   fishReset();
-  saveSoon(); refresh();
+  saveSoon();
+  return true;
+}
+function setCapMode(m){
+  if(!capModeSet(m)){ if(m === "fish") toast("Il te faut une canne. " + rodWhere(), "", "fish"); return; }
+  refresh();
   if(m === "fish") tutoMaybe("fishing");
 }
 ACTIONS.capmode = d => setCapMode(d.m);
-
-function fishReset(){
-  clearTimeout(FISHING.timer);
-  FISHING = {state:"idle", timer:null, biteAt:0};
+/* aller pêcher depuis ailleurs (le lac, une directive, la fin d'une fouille) */
+function fishGo(toForage){
+  if(!rodLevel()){
+    toast("Il te faut une canne. " + rodWhere(), "", "fish");
+    if(toForage && moduleUnlocked("idle")) go("idle");
+    return false;
+  }
+  capModeSet("fish");
+  go("capture");
+  tutoMaybe("fishing");
+  return true;
 }
-ACTIONS.fishcast = () => {
-  if(FISHING.state !== "idle" || !rodLevel()) return;
-  FISHING.state = "wait";
-  Sfx.click();
-  refresh();
-  /* la meteo de pluie fait mordre plus vite */
-  const w = weatherDef();
-  const wait = (1200 + rng() * 2600) * (w.boost && w.boost.includes(11) ? 0.6 : 1);
-  FISHING.timer = setTimeout(()=>{
-    if(FISHING.state !== "wait") return;
-    FISHING.state = "bite";
-    FISHING.biteAt = Date.now();
-    Sfx.wobble(); buzz([30, 20, 30]);
-    refresh();
-    FISHING.timer = setTimeout(()=>{
-      if(FISHING.state !== "bite") return;
-      FISHING.state = "lost";
-      toast("Trop tard — ça a décroché", "bad", "fish");
-      refresh();
-      FISHING.timer = setTimeout(()=>{ fishReset(); refresh(); }, 900);
-    }, rodDef().window);
-  }, wait);
-};
-ACTIONS.fishhook = () => {
-  if(FISHING.state === "wait"){
-    /* ferrer trop tot fait fuir */
-    fishReset();
-    toast("Trop tôt — la ligne est vide", "bad", "fish");
-    refresh();
-    return;
-  }
-  if(FISHING.state !== "bite") return;
-  clearTimeout(FISHING.timer);
-  const rod = rodDef();
-  if(rng() > rod.hook){
-    FISHING.state = "lost";
-    toast("Ferré, mais il s'est dégagé", "bad", "fish");
-    refresh();
-    FISHING.timer = setTimeout(()=>{ fishReset(); refresh(); }, 900);
-    return;
-  }
-  S.stats.fish = (S.stats.fish || 0) + 1;
-  S.daily.dayFish = (S.daily.dayFish || 0) + 1;
-  questTick("dayFish", 1);
-  /* parfois, ce n'est pas un Pokemon qui remonte */
-  if(rng() < 0.07 && typeof rollTreasure === "function"){
-    rollTreasure(rodLevel() - 1);
-    fishReset();
-    refresh();
-    return;
-  }
-  fishReset();
-  newFishEncounter();
-  Sfx.hit(); buzz(18);
-  refresh();
-};
 
-/* ---------- vivier de pêche ---------- */
+/* ============================================================
+   L'ÉTANG
+   Avant : un bouton, une attente, « FERRER ! », et l'écran entier
+   redessiné à chaque étape — le toucher tombait parfois sur un
+   bouton qui venait d'être remplacé, et ne comptait pas.
+
+   On voit l'eau. Des ombres y nagent : leur taille dit la rareté,
+   un reflet doré trahit un chromatique, une ombre immobile qui brille
+   au fond est un trésor. On lance où l'on veut ; l'ombre la plus
+   proche vient, goûte le bouchon une fois ou deux — ne pas ferrer —
+   puis le « ! » : un toucher n'importe où, et ça tient. Très vite,
+   c'est un ferrage parfait : la prise est sonnée, +20 % à la capture.
+
+   Tout se joue dans une toile, au rythme de l'horloge : rien n'est
+   redessiné pendant la pêche, et le toucher compte dès que le doigt
+   se pose (pointerdown), sur l'eau comme sur le bouton.
+   ============================================================ */
+const FISH_N = 3;                       /* ombres dans l'eau */
+const FISH_GRACE = 300;                 /* un toucher juste après le lancer ne compte pas */
+let FISHING = {st:"idle"};
+let POND = null;
+let FV = null, FV_ON = false;          /* la toile de l'étang, quand elle est à l'écran */
+function fsNow(){ return typeof performance !== "undefined" && performance.now ? performance.now() : Date.now(); }
+function fishRain(){ try { const w = weatherDef(); return !!(w.boost && w.boost.includes(11)); } catch(e){ return false; } }
+function fishReset(){
+  const raf = FISHING && FISHING.raf;
+  FISHING = {st:"idle", raf, seen:FISHING && FISHING.seen, lock:0};
+  if(POND) for(const s of POND.shadows) if(s.mode !== "swim" && s.mode !== "still" && s.mode !== "leave") s.mode = s.kind === "treasure" ? "still" : "swim";
+}
+
+/* ---------- ce qui mord : tiré quand l'ombre apparaît ---------- */
 function fishPool(rar){
   const out = [];
   for(const r of unlockedRegions())
@@ -11368,18 +11413,13 @@ function fishPool(rar){
     }
   return out;
 }
-function newFishEncounter(){
-  const rod = rodDef();
+function rollFishSpec(){
+  const rod = rodDef() || RODS[0];
   /* Kyogre : uniquement a la canne, une fois Hoenn ouvert, et jamais a la
      Vieille Canne — il faut aller le chercher assez profond */
   if(regionUnlocked("hoenn") && rodLevel() >= 2 && !S.dex[382]){
     const odds = rodLevel() >= 3 ? 0.012 : 0.004;
-    if(rng() < odds){
-      ENC = {id:382, level:70, shiny: rng() < shinyOdds() * rod.shiny, rar:5,
-             attempts:0, featured:false, fleeing:false, fished:true};
-      pzFlash("Attends. Ce n'est pas un poisson. C'est la moitié d'un océan qui vient de mordre.");
-      return ENC;
-    }
+    if(rng() < odds) return {kind:"mon", id:382, level:70, rar:5, shiny:rng() < shinyOdds() * rod.shiny};
   }
   /* la canne pousse la rarete vers le haut */
   let rar = rollRarity();
@@ -11393,15 +11433,504 @@ function newFishEncounter(){
     for(let k = 0; k < w; k++) weighted.push(id);
   }
   const id = weighted.length ? pick(weighted) : 129;   /* Magicarpe, toujours */
-  ENC = {id, level: levelFor(POKE[id].rar), rar: POKE[id].rar,
-         shiny: rng() < shinyOdds() * rod.shiny,
+  return {kind:"mon", id, level:levelFor(POKE[id].rar), rar:POKE[id].rar, shiny:rng() < shinyOdds() * rod.shiny};
+}
+function newFishEncounter(spec){
+  spec = spec || rollFishSpec();
+  ENC = {id:spec.id, level:spec.level, rar:spec.rar, shiny:!!spec.shiny,
          attempts:0, featured:false, fleeing:false, fished:true};
   if(ENC.shiny) setTimeout(shinyEntrance, 110);
   saveSoon();
   return ENC;
 }
 
-/* ---------- interface ---------- */
+/* ---------- les ombres ---------- */
+const FISH_SIZE = [0.62, 0.74, 0.9, 1.1, 1.32, 1.7];
+function pondSpawn(now, enter){
+  const treasure = rng() < 0.07;
+  const spec = treasure ? {kind:"treasure"} : rollFishSpec();
+  const big = spec.id === 382;
+  const size = treasure ? 0.62 : big ? 2.3 : FISH_SIZE[spec.rar] * (0.92 + Math.random() * 0.16);
+  const s = {spec, kind:spec.kind, size, seed:Math.random(), born:now,
+    until:now + (treasure ? 45000 + Math.random() * 20000 : 30000 + Math.random() * 25000),
+    mode:treasure ? "still" : "swim", a:Math.random() * Math.PI * 2,
+    sp:(treasure ? 0 : 0.000045 / Math.sqrt(size)), x:0.15 + Math.random() * 0.7, y:0.2 + Math.random() * 0.6};
+  if(enter && !treasure){
+    /* une nouvelle ombre arrive d'un bord */
+    const left = Math.random() < 0.5;
+    s.x = left ? -0.08 : 1.08; s.y = 0.25 + Math.random() * 0.5; s.a = left ? 0 : Math.PI;
+  }
+  if(enter && (spec.shiny || big) && typeof FV_ON !== "undefined" && FV_ON){
+    if(big) pzFlash("Attends. Cette ombre-là… ce n'est pas un poisson. C'est la moitié d'un océan.");
+    else { pzFlash("Une ombre qui brille, là. Je dis ça, je ne dis rien."); try { Sfx.shiny(); } catch(e){} }
+  }
+  return s;
+}
+function pond(now){
+  now = now || fsNow();
+  const key = (S.region || "") + ":" + rodLevel();
+  if(!POND || POND.key !== key){
+    POND = {key, shadows:[], last:now, nextSpawn:0, ripples:[], drops:[]};
+    for(let i = 0; i < FISH_N; i++) POND.shadows.push(pondSpawn(now, false));
+  }
+  return POND;
+}
+function fishDist(s, p){ return Math.hypot(s.x - p.x, (s.y - p.y) * 0.62); }
+function shadowMove(s, dt, now){
+  const F = FISHING;
+  if(s.kind === "treasure"){
+    if(s.mode === "still" && now > s.until && F.target !== s) s.mode = "fade";
+    if(s.mode === "fade"){ s.fade = (s.fade || 0) + dt; if(s.fade > 900) s.mode = "gone"; }
+    return;
+  }
+  const turn = (target, k) => {
+    let d = Math.atan2(target.y - s.y, target.x - s.x) - s.a;
+    while(d > Math.PI) d -= Math.PI * 2; while(d < -Math.PI) d += Math.PI * 2;
+    s.a += d * Math.min(1, k * dt);
+  };
+  if(s.mode === "swim"){
+    s.a += Math.sin(now / 1300 + s.seed * 17) * 0.0011 * dt;
+    if(s.x < 0.1 || s.x > 0.9 || s.y < 0.16 || s.y > 0.84) turn({x:0.5, y:0.5}, 0.004);
+    s.x += Math.cos(s.a) * s.sp * dt; s.y += Math.sin(s.a) * s.sp * dt * 0.62;
+    if(now > s.until && F.target !== s) s.mode = "leave";
+  } else if(s.mode === "come"){
+    turn(F.bob, 0.01);
+    const v = s.sp * 4 * dt;
+    s.x += Math.cos(s.a) * v; s.y += Math.sin(s.a) * v * 0.62;
+    if(fishDist(s, F.bob) < 0.035 + s.size * 0.02){ s.mode = "nibble"; s.orb = Math.atan2(s.y - F.bob.y, s.x - F.bob.x); }
+  } else if(s.mode === "nibble" || s.mode === "hooked"){
+    /* elle tourne autour du bouchon, le nez dessus */
+    s.orb += dt * (s.mode === "hooked" ? 0.012 : 0.0016);
+    const r = 0.04 + s.size * 0.018;
+    s.x = F.bob.x + Math.cos(s.orb) * r * (s.mode === "hooked" ? 0.5 : 1);
+    s.y = F.bob.y + Math.sin(s.orb) * r * 0.8 * (s.mode === "hooked" ? 0.5 : 1);
+    s.a = Math.atan2(F.bob.y - s.y, F.bob.x - s.x);
+  } else if(s.mode === "flee" || s.mode === "leave"){
+    const away = s.mode === "flee" ? {x:s.x + Math.cos(s.a) * 2, y:s.y + Math.sin(s.a) * 2}
+      : {x:s.x < 0.5 ? -0.3 : 1.3, y:s.y};
+    turn(away, 0.008);
+    const v = s.sp * (s.mode === "flee" ? 5.5 : 1.6) * dt;
+    s.x += Math.cos(s.a) * v; s.y += Math.sin(s.a) * v * 0.62;
+    if(s.x < -0.2 || s.x > 1.2 || s.y < -0.2 || s.y > 1.2) s.mode = "gone";
+  }
+}
+
+/* ---------- la partie : un automate, réglé sur l'horloge ---------- */
+function fishSet(st, now){ FISHING.st = st; FISHING.stT = now; fishHud(); }
+function fishCast(pt, now){
+  const F = FISHING;
+  if(F.target && F.target.mode !== "gone") F.target.mode = F.target.kind === "treasure" ? "still" : "swim";
+  F.target = null; F.nibs = 0; F.quality = null; F.miss = null;
+  F.to = {x:Math.max(0.06, Math.min(0.94, pt.x)), y:Math.max(0.08, Math.min(0.92, pt.y))};
+  F.bob = F.to; F.castT = now; F.landT = now + 430; F.attractAt = 0;
+  fishSet("cast", now);
+  try { Sfx.throwb(); } catch(e){}
+  if(typeof buzz === "function") buzz(6);
+}
+/* le bouton vise la plus grande ombre, un peu devant elle */
+function fishAutoAim(){
+  const P = pond();
+  let best = null;
+  for(const s of P.shadows) if((s.mode === "swim" || s.mode === "still") && s.x > 0.04 && s.x < 0.96 && (!best || s.size > best.size)) best = s;
+  if(!best) return {x:0.5, y:0.5};
+  return best.kind === "treasure" ? {x:best.x, y:best.y} : {x:best.x + Math.cos(best.a) * 0.07, y:best.y + Math.sin(best.a) * 0.05};
+}
+function fishTarget(s, now){
+  const F = FISHING, rain = fishRain();
+  F.target = s;
+  if(s.kind === "treasure"){
+    /* un trésor ne nage pas : la ligne s'y accroche, après un moment */
+    F.nibs = 0; F.nextNib = now + (900 + Math.random() * 700) * (rain ? 0.7 : 1);
+    fishSet("near", now);
+    return;
+  }
+  s.mode = "come";
+  F.nibs = Math.floor(Math.random() * 3) + (s.spec.rar >= 3 ? 1 : 0);
+  fishSet("come", now);
+}
+function fishLanded(now){
+  const F = FISHING, P = pond(now);
+  fishRipple(F.bob, now, 9); fishSplash(F.bob, 8, now);
+  let best = null, bd = 9;
+  for(const s of P.shadows){
+    if(s.mode !== "swim" && s.mode !== "still") continue;
+    const d = fishDist(s, F.bob);
+    const reach = s.kind === "treasure" ? 0.07 : 0.2 + s.size * 0.04;
+    if(d < reach && d < bd){ bd = d; best = s; }
+  }
+  if(best){ fishTarget(best, now); return; }
+  F.attractAt = now + (1100 + Math.random() * 1100) * (fishRain() ? 0.65 : 1);
+  fishSet("wait", now);
+}
+function fishHookIt(now){
+  const F = FISHING, rod = rodDef() || RODS[0];
+  const r = now - F.biteAt;
+  F.quality = r <= rod.perfect ? "perfect" : "good";
+  F.hookT = now;
+  if(F.target && F.target.kind !== "treasure") F.target.mode = "hooked";
+  fishSet("hooked", now);
+  fishSplash(F.bob, 16, now);
+  try { Sfx.hit(); } catch(e){}
+  if(typeof buzz === "function") buzz(F.quality === "perfect" ? [20, 30, 60] : 30);
+  fishPop(F.quality === "perfect" ? "Parfait !" : "Ferré !", F.quality === "perfect" ? "gold" : "ok");
+  return F.quality;
+}
+function fishMiss(kind, now){
+  const F = FISHING;
+  F.miss = kind; F.until = now + 800;
+  if(F.target){
+    if(F.target.kind === "treasure") F.target.mode = "still";
+    else { F.target.mode = "flee"; F.target.a = Math.atan2(F.target.y - F.bob.y, F.target.x - F.bob.x); }
+  }
+  F.target = null;
+  fishSet("miss", now);
+  fishPop(kind === "early" ? "Trop tôt !" : "Trop tard…", "bad");
+  try { kind === "late" ? Sfx.fail() : Sfx.wobble(); } catch(e){}
+  if(typeof buzz === "function") buzz(kind === "late" ? [40, 30, 40] : 14);
+}
+/* un toucher : sur l'eau (nx, ny entre 0 et 1), ou sur le bouton (nx = null) */
+function fishTap(nx, ny, now, btn){
+  const F = FISHING; now = now || fsNow();
+  if(!rodLevel()) return "norod";
+  const onWater = !btn && nx != null && ny != null && ny >= -0.05 && ny <= 1.05;
+  switch(F.st){
+    case "idle":
+      if(now < (F.lock || 0)) return "ignore";
+      fishCast(onWater ? {x:nx, y:ny} : fishAutoAim(), now); return "cast";
+    case "wait":
+      if(now - F.landT < FISH_GRACE) return "ignore";
+      if(onWater){ fishCast({x:nx, y:ny}, now); return "recast"; }
+      fishSay("Rien ne mord encore. Touche l'eau ailleurs pour relancer."); return "nothing";
+    case "come": case "near":
+      if(now - F.landT < FISH_GRACE) return "ignore";
+      fishMiss("early", now); return "early";
+    case "bite":
+      return fishHookIt(now);
+    default: return "ignore";
+  }
+}
+/* ce qui remonte */
+function fishLand(now){
+  const F = FISHING, s = F.target, spec = s && s.spec;
+  if(POND && s){ POND.shadows = POND.shadows.filter(x=>x !== s); POND.nextSpawn = (now || fsNow()) + 1400; }
+  const quality = F.quality;
+  S.stats.fish = (S.stats.fish || 0) + 1;
+  S.daily.dayFish = (S.daily.dayFish || 0) + 1;
+  questTick("dayFish", 1);
+  if(!spec || spec.kind === "treasure"){
+    const k = typeof rollTreasure === "function" ? rollTreasure(rodLevel() - 1, true) : null;
+    fishReset(); FISHING.lock = (now || fsNow()) + 500; fishHud();
+    if(k && TREASURES[k]){
+      const icon = {heart_scale:"heart", pearl:"pearl", stardust:"stardust", big_pearl:"bigpearl", star_piece:"starpiece", golden:"statue"}[k];
+      if(typeof banner === "function") banner({kicker:"AU BOUT DE LA LIGNE", title:TREASURES[k].n, sub:`Un trésor : il se revend ${fmt(TREASURES[k].sell)} PokéCoins (Sac, onglet Trésors).`,
+        item:"treasure:" + icon, c:"#ffd24a", sfx:"coin"});
+      else toast("Trésor : " + TREASURES[k].n, "warn", "star");
+    }
+    saveSoon();
+    if(typeof checkStoryTriggers === "function") setTimeout(()=>{ try { if(currentScreen === "capture") checkStoryTriggers(); } catch(e){} }, 1600);
+    return null;
+  }
+  newFishEncounter(spec);
+  ENC.hook = quality;
+  if(spec.id === 382) pzFlash("Je te l'avais dit. La moitié d'un océan. Ne la rate pas.");
+  fishReset();
+  try { Sfx.caught(); } catch(e){}
+  refresh();
+  return ENC;
+}
+function fishUpdate(now){
+  const F = FISHING, P = pond(now);
+  const dt = Math.max(0, Math.min(100, now - (P.last || now))); P.last = now;
+  for(const s of P.shadows) shadowMove(s, dt, now);
+  P.shadows = P.shadows.filter(s=>s.mode !== "gone");
+  if(P.shadows.length < FISH_N && now >= (P.nextSpawn || 0)){ P.shadows.push(pondSpawn(now, true)); P.nextSpawn = now + 1800; }
+  const rain = fishRain(), rod = rodDef() || RODS[0];
+  switch(F.st){
+    case "cast":
+      if(now >= F.landT) fishLanded(now);
+      break;
+    case "wait":
+      if(F.attractAt && now >= F.attractAt){
+        /* personne n'est venu : l'ombre la plus proche finit par s'intéresser au bouchon */
+        let best = null, bd = 9;
+        for(const s of P.shadows) if(s.mode === "swim" && s.x > 0 && s.x < 1){ const d = fishDist(s, F.bob); if(d < bd){ bd = d; best = s; } }
+        if(best) fishTarget(best, now); else F.attractAt = now + 900;
+      }
+      break;
+    case "come":
+      if(!F.target || F.target.mode === "gone"){ F.target = null; F.attractAt = now + 600; fishSet("wait", now); break; }
+      if(F.target.mode === "nibble"){ F.nextNib = now + (500 + Math.random() * 500) * (rain ? 0.75 : 1); fishSet("near", now); }
+      break;
+    case "near":
+      if(now >= F.nextNib){
+        if(F.nibs > 0){
+          F.nibs--; F.dip = now; F.nextNib = now + (520 + Math.random() * 430) * (rain ? 0.8 : 1);
+          fishRipple(F.bob, now, 5);
+          try { Sfx.tone(700 + Math.random() * 200, .04, "sine", .025); } catch(e){}
+          if(typeof buzz === "function") buzz(5);
+          if(F.nibs === 0) F.nextNib = now + (380 + Math.random() * 420) * (rain ? 0.8 : 1);
+        } else {
+          F.biteAt = now;
+          fishSet("bite", now);
+          fishRipple(F.bob, now, 12); fishSplash(F.bob, 14, now);
+          try { Sfx.wobble(); } catch(e){}
+          if(typeof buzz === "function") buzz([30, 20, 30]);
+        }
+      }
+      break;
+    case "bite":
+      if(now - F.biteAt > rod.window) fishMiss("late", now);
+      break;
+    case "hooked":
+      if(now - F.hookT > 520){ F.leapT = now; fishSet("leap", now); fishSplash(F.bob, 18, now); }
+      else if(Math.random() < dt / 70) fishSplash(F.bob, 2, now);
+      break;
+    case "leap":
+      if(now - F.leapT > 620) fishLand(now);
+      break;
+    case "miss":
+      if(now >= F.until){ fishReset(); FISHING.lock = now + 150; fishHud(); }
+      break;
+  }
+  FISHING.seen = now;
+}
+
+/* ---------- l'image ---------- */
+function fishRipple(p, now, r){ if(POND) POND.ripples.push({x:p.x, y:p.y, t0:now, r:r || 8}); }
+function fishSplash(p, n, now){
+  if(!POND) return;
+  for(let i = 0; i < n; i++) POND.drops.push({x:p.x, y:p.y, vx:(Math.random() - 0.5) * 0.0006, vy:-0.0004 - Math.random() * 0.0007, t0:now, life:380 + Math.random() * 320});
+}
+function fishPop(txt, cls){
+  const el = typeof document !== "undefined" && document.getElementById ? document.getElementById("fs-pop") : null;
+  if(!el || !FV || !FISHING.bob) return;
+  el.textContent = txt;
+  el.className = "fs-pop " + (cls || "");
+  el.style.left = Math.max(64, Math.min(FV.LW * 2 - 64, FISHING.bob.x * FV.LW * 2)) + "px";
+  el.style.top = ((FV.WT + FISHING.bob.y * (FV.WB - FV.WT)) * 2 - 34) + "px";
+  void el.offsetWidth; el.classList.add("on");
+}
+function fishSay(t){ const el = typeof document !== "undefined" && document.getElementById ? document.getElementById("fs-say") : null; if(el) el.textContent = t; }
+const FISH_SAY = {
+  idle:"Touche l'eau près d'une ombre pour lancer. Grande ombre, prise rare.",
+  cast:"",
+  wait:"Rien ne mord encore. Touche l'eau ailleurs pour relancer.",
+  come:"Une ombre approche. Attends le « ! ».",
+  near:"Elle goûte le bouchon… pas encore.",
+  bite:"Maintenant !",
+  hooked:"", leap:"", miss:""
+};
+function fishHud(){
+  if(typeof document === "undefined" || !document.getElementById) return;
+  const F = FISHING, b = document.getElementById("fs-btn");
+  const st = F.st;
+  if(b){
+    b.textContent = st === "idle" ? "Lancer la ligne" : st === "bite" ? "FERRER !" : st === "hooked" || st === "leap" ? (F.quality === "perfect" ? "Ferrage parfait" : "Ferré !")
+      : st === "miss" ? (F.miss === "early" ? "Trop tôt" : "Trop tard") : "Ferrer";
+    b.className = "throwbtn fs-btn " + (st === "bite" ? "urgent" : st === "idle" ? "" : st === "hooked" || st === "leap" ? "ok" : st === "miss" ? "bad" : "dim");
+  }
+  let say = FISH_SAY[st] || "";
+  if(st === "near" && F.target && F.target.kind === "treasure") say = "Ça accroche quelque chose, au fond…";
+  if(st === "hooked" || st === "leap") say = F.quality === "perfect" ? "Ferrage parfait : elle est sonnée, +20 % à la capture." : "Ferré ! Ça tient.";
+  if(st === "miss") say = F.miss === "early" ? "Trop tôt : elle a filé. Attends le « ! »." : "Trop tard : elle a décroché.";
+  if(st === "idle" && POND && POND.shadows.some(s=>s.spec && s.spec.shiny)) say = "Une ombre brille dans l'eau…";
+  if(say) fishSay(say);
+  const pondEl = document.getElementById("fs-pond"); if(pondEl) pondEl.dataset.st = st;
+}
+function fishMount(){
+  const cv = document.getElementById("fs-cv"); if(!cv || !cv.getContext) return;
+  const host = cv.parentElement;
+  const cssW = Math.max(280, Math.min(520, (host && host.clientWidth) || 340));
+  const LW = Math.floor(cssW / 2), LH = Math.round(LW * 0.66);
+  cv.width = LW; cv.height = LH;
+  cv.style.width = LW * 2 + "px"; cv.style.height = LH * 2 + "px";
+  if(host) host.style.height = LH * 2 + "px";
+  FV = {cv, ctx:cv.getContext("2d"), LW, LH, WT:Math.round(LH * 0.13), WB:LH - Math.round(LH * 0.15)};
+  FV_ON = true;
+  const now = fsNow();
+  /* revenu d'ailleurs : on repart d'une ligne au repos */
+  if(FISHING.st !== "idle" && now - (FISHING.seen || 0) > 1500) fishReset();
+  pond(now);
+  try { if(typeof brAtlasReady === "function"){ brAtlasReady(); brShinyAtlasReady(); } } catch(e){}
+  const toWater = e => {
+    const r = cv.getBoundingClientRect();
+    const Y = (e.clientY - r.top) / r.height * LH;
+    return [(e.clientX - r.left) / r.width, (Y - FV.WT) / (FV.WB - FV.WT)];
+  };
+  cv.addEventListener("pointerdown", e => { e.preventDefault(); const [x, y] = toWater(e); fishTap(x, y, fsNow(), false); });
+  const b = document.getElementById("fs-btn");
+  if(b){
+    b.addEventListener("pointerdown", e => { e.preventDefault(); FISHING.pd = fsNow(); fishTap(null, null, fsNow(), true); });
+    /* le clavier (Entrée, Espace) n'a pas de pointerdown : le clic, seul, compte alors */
+    b.addEventListener("click", () => { if(fsNow() - (FISHING.pd || 0) < 800) return; fishTap(null, null, fsNow(), true); });
+  }
+  if(FISHING.raf) cancelAnimationFrame(FISHING.raf);
+  const loop = () => {
+    if(!cv.isConnected){ FISHING.raf = 0; if(FV && FV.cv === cv) FV_ON = false; return; }
+    FISHING.raf = requestAnimationFrame(loop);
+    const n = fsNow();
+    try { fishUpdate(n); fishDraw(n); } catch(e){ console.error("pêche", e); }
+  };
+  FISHING.raf = requestAnimationFrame(loop);
+  fishHud();
+}
+/* la toile est dessinée à moitié de sa taille, puis agrandie sans lissage : du pixel net */
+function fishDraw(now){
+  const V = FV; if(!V) return;
+  const x = V.ctx, LW = V.LW, LH = V.LH, WT = V.WT, WB = V.WB, WH = WB - WT, F = FISHING, P = POND;
+  x.imageSmoothingEnabled = false;
+  const night = typeof isNight === "function" && isNight(), rain = fishRain();
+  const th = (typeof REGION_THEME !== "undefined" && REGION_THEME[S.region]) || {dot:"#35f0d6"};
+  const wx = p => p.x * LW, wy = p => WT + p.y * WH;
+  /* l'eau */
+  const g = x.createLinearGradient(0, WT, 0, WB);
+  if(night){ g.addColorStop(0, "#0e2442"); g.addColorStop(1, "#060f22"); }
+  else { g.addColorStop(0, "#175168"); g.addColorStop(1, "#0a2a3e"); }
+  x.fillStyle = g; x.fillRect(0, 0, LW, LH);
+  /* les reflets : de courts traits qui glissent */
+  x.fillStyle = th.dot;
+  for(let i = 0; i < 34; i++){
+    const sx = ((i * 53.7 + now * (0.004 + (i % 5) * 0.0015)) % (LW + 20)) - 10;
+    const sy = WT + ((i * 37.3) % WH);
+    const a = 0.08 + 0.1 * Math.max(0, Math.sin(now / 700 + i * 1.7));
+    x.globalAlpha = a; x.fillRect(Math.round(sx), Math.round(sy), 2 + (i % 3), 1);
+  }
+  x.globalAlpha = 1;
+  /* l'ombre d'un très gros : l'eau s'assombrit */
+  if(P && P.shadows.some(s=>s.spec && s.spec.id === 382)){ x.fillStyle = `rgba(0,4,20,${0.16 + 0.06 * Math.sin(now / 600)})`; x.fillRect(0, WT, LW, WH); }
+  /* les ombres */
+  if(P) for(const s of P.shadows) fishDrawShadow(x, s, now, wx(s), wy(s), F);
+  /* nénuphars */
+  for(let i = 0; i < 3; i++){
+    const px = Math.round(LW * (0.12 + i * 0.37) + Math.sin(now / 2400 + i) * 2), py = Math.round(WT + WH * (0.18 + (i % 2) * 0.6) + Math.cos(now / 2000 + i) * 1);
+    x.fillStyle = night ? "#1d4a2a" : "#2f7a3e"; x.beginPath(); x.ellipse(px, py, 7, 3.5, 0, 0.35, Math.PI * 2); x.lineTo(px, py); x.fill();
+    x.fillStyle = night ? "#2a5e36" : "#3f9a4f"; x.fillRect(px - 3, py - 1, 3, 1);
+    if(i === 1){ x.fillStyle = "#ff8fb8"; x.fillRect(px + 2, py - 3, 2, 2); x.fillStyle = "#ffd1e3"; x.fillRect(px + 2, py - 3, 1, 1); }
+  }
+  /* les ronds dans l'eau */
+  if(P){
+    if(Math.random() < 0.012) P.ripples.push({x:Math.random(), y:Math.random(), t0:now, r:4});
+    if(rain && Math.random() < 0.35) P.ripples.push({x:Math.random(), y:Math.random(), t0:now, r:3});
+    P.ripples = P.ripples.filter(r=>now - r.t0 < 900);
+    x.strokeStyle = "#cfe9ff"; x.lineWidth = 1;
+    for(const r of P.ripples){
+      const k = (now - r.t0) / 900;
+      x.globalAlpha = 0.45 * (1 - k); x.beginPath(); x.ellipse(wx(r), wy(r), 1 + r.r * k, 0.5 + r.r * k * 0.45, 0, 0, Math.PI * 2); x.stroke();
+    }
+    x.globalAlpha = 1;
+  }
+  /* les berges */
+  x.fillStyle = night ? "#081a12" : "#0f3020"; x.fillRect(0, 0, LW, WT);
+  for(let i = 0; i < LW; i += 3){
+    const h = 3 + ((i * 7) % 6) + Math.sin(now / 900 + i) * 0.8;
+    x.fillStyle = night ? "#123321" : (i % 2 ? "#245c34" : "#1d4a2b"); x.fillRect(i, WT - h, 1, h + 1);
+  }
+  x.fillStyle = night ? "#1a140d" : "#2b2015"; x.fillRect(0, WB, LW, LH - WB);
+  x.fillStyle = night ? "#22341c" : "#3a6a2c"; x.fillRect(0, WB, LW, 2);
+  for(let i = 1; i < LW; i += 4){ x.fillStyle = night ? "#2a4022" : "#4a8a36"; x.fillRect(i, WB - 1 - (i % 3), 1, 2 + (i % 3)); }
+  /* la pluie */
+  if(rain){ x.fillStyle = "rgba(170,210,255,.35)"; for(let i = 0; i < 26; i++){ const rx = (i * 41 + now * 0.09) % LW, ry = (i * 29 + now * 0.18) % LH; x.fillRect(Math.round(rx), Math.round(ry), 1, 3); } }
+  /* la canne, la ligne, le bouchon */
+  const rod = rodDef() || RODS[0];
+  const hooked = F.st === "hooked" || F.st === "leap";
+  let tipX = LW * 0.8, tipY = WB - WH * 0.18;
+  if(hooked && F.bob){ tipX += (wx(F.bob) - tipX) * 0.08 + (Math.random() - 0.5) * 1.5; tipY += 2 + (Math.random() - 0.5) * 1.5; }
+  const hx = LW - 2, hy = LH + 2;
+  x.strokeStyle = {old:"#7a5230", super:"#3d6fd6", mega:"#d6a93d"}[rod.k]; x.lineWidth = 2;
+  x.beginPath(); x.moveTo(hx, hy); x.quadraticCurveTo((hx + tipX) / 2 + (hooked ? -4 : 0), (hy + tipY) / 2 + (hooked ? 4 : 0), tipX, tipY); x.stroke();
+  x.fillStyle = "#9aa6b8"; x.fillRect(Math.round(hx - (hx - tipX) * 0.18) - 2, Math.round(hy - (hy - tipY) * 0.18) - 2, 4, 4);
+  let bob = null, bobAlpha = 1;
+  if(F.st === "cast"){
+    const k = Math.min(1, (now - F.castT) / (F.landT - F.castT));
+    const tx = wx(F.to), ty = wy(F.to);
+    bob = {X:tipX + (tx - tipX) * k, Y:tipY + (ty - tipY) * k - Math.sin(Math.PI * k) * 26};
+  } else if(F.st !== "idle" && F.bob && !(F.st === "miss" && now - F.stT > 260)){
+    bob = {X:wx(F.bob), Y:wy(F.bob) + Math.sin(now / 520) * 0.6};
+    if(F.dip && now - F.dip < 170) bob.Y += 1.5;
+    if(F.st === "bite" || hooked){ bob.Y += 2.5; bobAlpha = 0.45; }
+  }
+  if(bob){
+    x.strokeStyle = "rgba(230,242,255,.6)"; x.lineWidth = 1;
+    x.beginPath(); x.moveTo(tipX, tipY);
+    /* un fil presque tendu, qui pend un peu ; tendu net quand ça a mordu */
+    const sag = hooked ? 0 : F.st === "cast" ? 2 : 5;
+    x.quadraticCurveTo((tipX + bob.X) / 2, (tipY + bob.Y) / 2 + sag, bob.X, bob.Y); x.stroke();
+    const bx = Math.round(bob.X), by = Math.round(bob.Y);
+    x.globalAlpha = bobAlpha;
+    x.fillStyle = "#1a1a1a"; x.fillRect(bx - 2, by - 3, 5, 6);
+    x.fillStyle = "#ff4a4a"; x.fillRect(bx - 1, by - 2, 3, 2);
+    x.fillStyle = "#f4f4f4"; x.fillRect(bx - 1, by, 3, 2);
+    x.fillStyle = "#1a1a1a"; x.fillRect(bx, by - 5, 1, 2);
+    x.globalAlpha = 1;
+    /* le « ! » des jeux d'origine */
+    if(F.st === "bite"){
+      const jy = by - 17 - Math.round(Math.abs(Math.sin(now / 90)) * 2);
+      x.fillStyle = "#1a1a1a"; x.fillRect(bx - 4, jy - 1, 9, 12);
+      x.fillStyle = "#ffffff"; x.fillRect(bx - 3, jy, 7, 10);
+      x.fillStyle = "#e02828"; x.fillRect(bx, jy + 1, 1, 5); x.fillRect(bx, jy + 8, 1, 1);
+      x.fillStyle = "#ffffff"; x.fillRect(bx - 1, jy + 10, 3, 2); x.fillStyle = "#1a1a1a"; x.fillRect(bx - 1, jy + 12, 1, 1);
+    }
+  }
+  /* le saut hors de l'eau */
+  if(F.st === "leap" && F.bob && F.target){
+    const k = Math.min(1, (now - F.leapT) / 620);
+    const X = wx(F.bob), Y = wy(F.bob) - Math.sin(Math.PI * Math.min(1, k * 1.15)) * 30 - k * 6;
+    const sz = 22 + k * 10;
+    const s = F.target.spec;
+    let ok = false;
+    if(s && s.kind !== "treasure" && typeof brSprite === "function"){
+      const sp = brSprite(s.id, s.shiny ? "s" : "n");
+      if(sp){ x.drawImage(sp, Math.round(X - sz / 2), Math.round(Y - sz / 2), Math.round(sz), Math.round(sz)); ok = true; }
+    }
+    if(!ok){
+      x.fillStyle = s && s.kind === "treasure" ? "#ffd24a" : "#e8f4ff";
+      x.beginPath(); x.ellipse(X, Y, sz * 0.22, sz * 0.18, 0, 0, Math.PI * 2); x.fill();
+      x.fillStyle = "#ffffff"; x.fillRect(Math.round(X - 1), Math.round(Y - 3), 2, 2);
+    }
+    if(s && s.shiny && Math.sin(now / 60) > 0){ x.fillStyle = "#ffd24a"; x.fillRect(Math.round(X + sz * 0.3), Math.round(Y - sz * 0.35), 2, 2); }
+  }
+  /* les gouttes */
+  if(P){
+    P.drops = P.drops.filter(d=>now - d.t0 < d.life);
+    x.fillStyle = "#dff1ff";
+    for(const d of P.drops){
+      const t = now - d.t0, X = wx(d) + d.vx * t * LW, Y = wy(d) + (d.vy * t + 0.0000016 * t * t) * WH;
+      x.globalAlpha = 1 - t / d.life; x.fillRect(Math.round(X), Math.round(Y), 1, 1);
+    }
+    x.globalAlpha = 1;
+  }
+}
+function fishDrawShadow(x, s, now, X, Y, F){
+  if(s.kind === "treasure"){
+    const a = s.mode === "fade" ? Math.max(0, 1 - (s.fade || 0) / 900) : Math.min(1, (now - s.born) / 800);
+    x.globalAlpha = 0.5 * a; x.fillStyle = "#020a12";
+    x.fillRect(Math.round(X - 3), Math.round(Y - 2), 7, 5); x.fillRect(Math.round(X - 2), Math.round(Y - 3), 5, 7);
+    x.globalAlpha = a;
+    if(Math.sin(now / 260 + s.seed * 9) > 0.55){ x.fillStyle = "#fff6c8"; x.fillRect(Math.round(X + 1), Math.round(Y - 2), 1, 1); x.fillRect(Math.round(X), Math.round(Y - 1), 3, 1); }
+    x.globalAlpha = 1;
+    return;
+  }
+  const fadeIn = Math.min(1, (now - s.born) / 900);
+  const L = 8 * s.size, Wd = L * 0.42;
+  const fast = s.mode === "flee" || s.mode === "hooked" || s.mode === "come";
+  const wag = Math.sin(now / (fast ? 55 : 160) + s.seed * 10) * (fast ? 0.6 : 0.35);
+  x.save(); x.translate(X, Y); x.rotate(s.a);
+  x.globalAlpha = 0.56 * fadeIn; x.fillStyle = "#020b14";
+  x.beginPath(); x.ellipse(0, 0, L, Wd, 0, 0, Math.PI * 2); x.fill();
+  x.save(); x.translate(-L * 0.85, 0); x.rotate(wag);
+  x.beginPath(); x.moveTo(0, 0); x.lineTo(-L * 0.6, -Wd * 0.95); x.lineTo(-L * 0.6, Wd * 0.95); x.closePath(); x.fill();
+  x.restore();
+  x.restore();
+  x.globalAlpha = 1;
+  /* un chromatique : un reflet doré, de temps en temps */
+  if(s.spec && s.spec.shiny && ((now + s.seed * 4000) % 1500) < 380){
+    const gx = Math.round(X + Math.cos(s.a) * L * 0.3), gy = Math.round(Y - Wd - 2);
+    x.fillStyle = "#ffd24a"; x.fillRect(gx - 1, gy, 3, 1); x.fillRect(gx, gy - 1, 1, 3);
+    x.fillStyle = "#fff6c8"; x.fillRect(gx, gy, 1, 1);
+  }
+}
+
+/* ---------- l'écran ---------- */
 function capModeBar(){
   if(!rodLevel()) return "";
   const m = S.capMode === "fish" ? "fish" : "classic";
@@ -11412,30 +11941,21 @@ function capModeBar(){
 }
 function fishStage(){
   const rod = rodDef();
-  const st = FISHING.state;
-  const label = {idle:"Lancer la ligne", wait:"Ça tire ? Pas encore…",
-                 bite:"FERRER !", lost:"Ça a décroché"}[st];
-  const act = st === "idle" ? "fishcast" : "fishhook";
+  if(!rod) return "";
   const nextRod = RODS[rodLevel()];
-  return `<div class="fishstage ${st}">
-      <div class="fs-water"><i></i><i></i><i></i></div>
-      <div class="fs-line"></div>
-      <div class="fs-bob"></div>
-      ${st === "bite" ? `<div class="fs-splash"></div>` : ""}
-      <div class="fs-rod">${esc(rod.n)}</div>
+  return `<div class="fishpond" id="fs-pond" data-st="${FISHING.st}">
+      <canvas id="fs-cv" aria-label="L'étang : touche l'eau pour lancer, puis touche au « ! » pour ferrer"></canvas>
+      <div class="fs-pop" id="fs-pop"></div>
+      <div class="fs-rodtag">${itemIcon("rod:" + rod.k, 14) || ic("fish")}<span>${esc(rod.n)}</span></div>
+      <div class="fs-say" id="fs-say">${esc(FISH_SAY[FISHING.st] || FISH_SAY.idle)}</div>
     </div>
-    <button class="throwbtn ${st==="bite"?"urgent":""}" data-act="${act}"
-      ${st==="lost"?"disabled":""}>${label}</button>
-    <div class="tiny muted" style="text-align:center;margin:7px 0 10px">
-      ${st === "wait" ? "Ferrer trop tôt fait fuir la prise. Attendez que le bouchon plonge."
-        : "Au bout de la ligne : les Pokémon Eau, et quelques espèces qu'on ne trouve que là."}</div>
-    ${nextRod ? `<div class="panel tight">
-      <div class="row between">
-        <div><div class="tiny">${esc(nextRod.n)}</div>
-          <div class="tiny muted">${esc(nextRod.d)}</div></div>
-        <button class="btn xs ${S.shards>=nextRod.cost?"gold":""}" data-act="buyrod"
-          ${S.shards>=nextRod.cost?"":"disabled"}>${ic("shard")} ${nextRod.cost}</button>
-      </div></div>` : ""}`;
+    <button class="throwbtn fs-btn" id="fs-btn" type="button">Lancer la ligne</button>
+    ${nextRod ? `<div class="fs-next">
+      ${itemIcon("rod:" + nextRod.k, 22) || ""}
+      <div class="grow"><b>${esc(nextRod.n)}</b><span>${esc(nextRod.d)}</span></div>
+      <button class="btn xs ${S.shards>=nextRod.cost?"gold":""}" data-act="buyrod"
+        ${S.shards>=nextRod.cost?"":"disabled"}>${ic("shard")} ${nextRod.cost}</button>
+    </div>` : ""}`;
 }
 ACTIONS.buyrod = () => {
   const nx = RODS[rodLevel()];
@@ -11446,6 +11966,14 @@ ACTIONS.buyrod = () => {
   toast(nx.n + " équipée", "warn", "fish");
   save(); refresh();
 };
+/* ferrée très vite, la prise est sonnée : +20 % à la capture */
+if(typeof catchChance === "function"){
+  const _ccf = catchChance;
+  catchChance = function(){
+    const c = _ccf.apply(this, arguments);
+    return ENC && ENC.fished && ENC.hook === "perfect" && c < 1 ? Math.min(0.98, c * 1.2) : c;
+  };
+}
 
 /* ===== 34-research.js ===== */
 /* ============================================================
@@ -13286,7 +13814,8 @@ function stageHold(){
   const d = typeof document !== "undefined" && document.getElementById ? document.getElementById("discover") : null;
   if(d && /\bon\b/.test(d.className || "")) return true;
   /* un combat de la Tour en cours : les annonces attendent les résultats */
-  try { if(SQB && !SQB._ended && currentScreen === "tower") return true; } catch(e){}
+  /* (seulement l'écran du combat : un combat abandonné en changeant d'onglet ne retient plus rien) */
+  try { if(SQB && !SQB._ended && currentScreen === "tower" && screenArg === "fight") return true; } catch(e){}
   return false;
 }
 const STAGE_Q = [];
@@ -13410,7 +13939,7 @@ function stageLevelUp(L, up){
     kicker:"ARCHIVISTE", title:up > 1 ? `+${up} niveaux` : "Niveau supérieur",
     sub:`+${fmt(coins)} PokéCoins${cores ? " · +1 Noyau" : ""}${opens.length ? " · s'ouvre : " + opens.join(", ") : next ? ` · prochaine salle au niveau ${next.lv}` : ""}`,
     line:typeof pzLine === "function" ? pzLine("levelup") : null, dur:4200,
-    then:()=>{ try { refresh(); } catch(e){} }});
+    then:()=>{ try { calmRefresh(); } catch(e){} }});
 }
 
 /* ---------- grand : les captures qui comptent ---------- */
@@ -16520,6 +17049,8 @@ const DIG_LOOT = [
   {k:"ever",   ic:"dig:ever",  w:2, h:2, n:"Pierre Stase",    wt:si=>3, give:si=>({coins:900 + si * 500})},
   {k:"held",   ic:"held:h_relic", w:2, h:2, n:"Objet ancien", wt:si=>si >= 2 ? 0.8 : 0, rare:1, give:()=>({held:1})},
   {k:"mon",    ic:null,        w:3, h:3, n:"Pokémon endormi", wt:si=>3.5, rare:1, give:(si, it)=>({mon:it.mon})},
+  /* jamais tirée au hasard : la Vieille Canne, dans l'une des trois premières fouilles (33-fishing.js) */
+  {k:"rod",    ic:"rod:old",   w:5, h:2, n:"Vieille Canne",   wt:si=>0, rare:1, give:()=>({rod:1})},
   /* jamais tiree au hasard : placee quand une page des onze attend dans le Forage */
   {k:"page",   ic:null,        w:3, h:2, n:"Page de journal", wt:si=>0, rare:1, give:(si, it)=>({page:it.page})}
 ];
@@ -16566,12 +17097,21 @@ function genWall(si, rnd){
   const tot = table.reduce((a, x)=>a + x[1], 0);
   const n = 3 + Math.floor(rnd() * 2) + (si >= 4 && rnd() < 0.45 ? 1 : 0);
   let tries = 0;
+  /* la Vieille Canne : couchée dans la roche, sous une couche plus tendre (on la devine) */
+  if(typeof rodWallDue === "function" && rodWallDue()) for(let t = 0; t < 80; t++){
+    const x0 = Math.floor(rnd() * (W - 4)), y0 = Math.floor(rnd() * (H - 1));
+    const it = {k:"rod", x:x0, y:y0, w:5, h:2, found:false};
+    it.cells = digMask(it).map(([x, y])=>(y0 + y) * W + x0 + x);
+    it.cells.forEach(c=>{ occ[c] = items.length; L[c] = Math.min(L[c], 3); });
+    items.push(it); break;
+  }
   /* une page des onze attend dans le Forage : elle est dans cette paroi, une fois sur deux */
   const pg = typeof fragPending === "function" ? fragPending("forage") : null;
   if(pg && rnd() < 0.5) for(let t = 0; t < 60; t++){
     const x0 = Math.floor(rnd() * (W - 2)), y0 = Math.floor(rnd() * (H - 1));
     const it = {k:"page", x:x0, y:y0, w:3, h:2, found:false, page:pg.id};
     it.cells = digMask(it).map(([x, y])=>(y0 + y) * W + x0 + x);
+    if(it.cells.some(c=>occ[c] >= 0)) continue;
     it.cells.forEach(c=>{ occ[c] = items.length; });
     items.push(it); break;
   }
@@ -16665,6 +17205,10 @@ function digClaim(wall){
     if(g.treasure){ S.treasures = S.treasures || {}; S.treasures[g.treasure] = (S.treasures[g.treasure] || 0) + 1; S.stats.treasures = (S.stats.treasures || 0) + 1; }
     if(g.egg && typeof grantEgg === "function") grantEgg(g.egg);
     if(g.held && typeof randomHeld === "function"){ const h = randomHeld(); if(h && grantHeld(h)) row.label = HELD_ITEMS[h].n; else gain("shards", 40); }
+    if(g.rod){
+      if(!S.rod){ S.rod = 1; S.flags.rodReveal = true; }
+      row.label = "Vieille Canne";
+    }
     if(g.page){
       const fr = FRAGMENTS.find(x=>x.id === g.page);
       if(fr && !(S.fragments || []).includes(fr.id)) fragFound(fr, `Dans une fouille, couche « ${STRATA[wall.si].n} », à ${fmt(Math.floor(forage().m))} m`);
@@ -17072,7 +17616,18 @@ function digDraw(dt){
       x.fillStyle = o.pal[0]; x.fillRect(X + c * 0.3, Y + c * 0.25, c * 0.18, c * 0.14);
       continue;
     }
-    if(it.k === "page"){
+    if(it.k === "rod"){
+      /* la Vieille Canne, couchée : poignée, moulinet, scion, et le fil qui pend */
+      const cy = Math.round(Y + h * 0.5);
+      x.fillStyle = "#4a2f18"; x.fillRect(X + 3, cy - 3, Math.round(c * 1.3), 6);
+      x.fillStyle = "#8a5a2e"; x.fillRect(X + 4, cy - 2, Math.round(c * 1.3) - 2, 2);
+      x.fillStyle = "#9aa6b8"; x.fillRect(Math.round(X + c * 1.3), cy - 6, Math.round(c * 0.6), Math.round(c * 0.6));
+      x.fillStyle = "#5d6878"; x.fillRect(Math.round(X + c * 1.3) + 2, cy - 4, Math.round(c * 0.6) - 4, Math.round(c * 0.6) - 4);
+      x.fillStyle = "#7a5230"; x.fillRect(Math.round(X + c * 1.9), cy - 1, Math.round(w - c * 1.9 - 4), 3);
+      x.fillStyle = "#c9d4e2"; x.fillRect(X + w - 7, cy - 2, 3, 5);
+      x.strokeStyle = "rgba(230,240,255,.7)"; x.lineWidth = 1;
+      x.beginPath(); x.moveTo(X + w - 5, cy + 3); x.quadraticCurveTo(X + w - 14, Y + h - 2, Math.round(X + c * 2.3), Y + h - 4); x.stroke();
+    } else if(it.k === "page"){
       x.fillStyle = "#e8d9a8"; x.fillRect(X + 3, Y + 3, w - 6, h - 6);
       x.fillStyle = "#c9b27a"; x.fillRect(X + 3, Y + h - 7, w - 6, 4);
       x.fillStyle = "#7a6a48"; for(let k = 0; k < 4; k++) x.fillRect(X + 8, Y + 8 + k * (h - 16) / 4, w - 16 - (k % 2) * 10, 2);
@@ -17152,6 +17707,9 @@ function digEnd(left){
     </div>`;
   el.classList.add("on");
   if(rows.length) try { Sfx.win(); } catch(e){}
+  /* la Vieille Canne : la pêche s'ouvre, on le dit tout de suite */
+  if(rows.some(r=>r.it && r.it.k === "rod") && typeof showRodDiscovery === "function")
+    setTimeout(()=>{ if(S.flags.rodReveal) showRodDiscovery(); }, 1100);
   /* les caisses s'ouvrent après le bilan, une par une */
   for(const r of rows) if(r.crate && typeof crateShow === "function") crateShow(r.crateTier, r.crate);
   /* un minerai jamais vu : son usage est dit dans le bilan lui-même, sans fenêtre de plus */
@@ -17178,6 +17736,7 @@ function digGainText(g){
   if(g.held) return "Objet tenu";
   if(g.mon) return "Il rejoint ton Pokédex";
   if(g.page) return "Rangée dans le journal, avec les autres pages";
+  if(g.rod) return "La pêche s'ouvre : Capture, onglet Pêche";
   return "";
 }
 ACTIONS.fowallback = () => { DIG = null; go("idle"); if(typeof checkStoryTriggers === "function") checkStoryTriggers(); };
@@ -18457,7 +19016,7 @@ const SESSION_OBJ = [
   {k:"exc",   i:"star",    go:"capture", g:[1, 2, 2, 3, 4],      n:t=>t > 1 ? `Réussir ${t} lancers Excellent` : "Réussir un lancer Excellent", v:()=>S.stats.excellent || 0,
    req:()=>typeof skillEnabled === "function" && skillEnabled()},
   {k:"streak",i:"bolt",    go:"capture", g:[5, 8, 10, 14, 18],   n:t=>`Atteindre une série de ${t} captures`, v:()=>S.streak || 0, abs:1},
-  {k:"fish",  i:"capture", go:"capture", g:[2, 3, 4, 5, 6],      n:t=>`Pêcher ${t} Pokémon`, v:()=>S.stats.fish || 0, req:()=>S.level >= 4, set:()=>{ S.capMode = "fish"; }},
+  {k:"fish",  i:"capture", go:"capture", g:[2, 3, 4, 5, 6],      n:t=>`Pêcher ${t} Pokémon`, v:()=>S.stats.fish || 0, req:()=>!!S.rod, set:()=>{ capModeSet("fish"); }},
   {k:"walls", i:"bolt",    go:"idle",    g:[1, 1, 2, 2, 3],      n:t=>t > 1 ? `Faire ${t} fouilles au Forage` : "Faire une fouille au Forage", v:()=>S.stats.walls || 0,
    req:t=>moduleUnlocked("idle") && forage().walls >= t},
   {k:"tower", i:"user",    go:"tower",   g:[1, 2, 2, 3, 3],      n:t=>t > 1 ? `Gagner ${t} combats de la Tour` : "Gagner un combat de la Tour", v:()=>(typeof sqState === "function" && sqState().clears) || 0,
@@ -18559,7 +19118,7 @@ ACTIONS.sessopen = () => {
     kicker:"COFFRE DE SESSION · " + (t + 1) + " / " + SESSION_CHESTS, title:SESSION_NAMES[t], sub:parts.join(" · "),
     line:s.tier < SESSION_CHESTS ? `Trois nouveaux objectifs. Le prochain coffre est un ${SESSION_NAMES[s.tier].toLowerCase()}, {nom}. Je dis ça, je ne dis rien.`
                                  : "Cinq coffres aujourd'hui. Je n'en ai plus. Reviens demain, j'en aurai fabriqué d'autres.",
-    then:()=>{ try { refresh(); } catch(e){} }}, true);
+    then:()=>{ try { calmRefresh(); } catch(e){} }}, true);
   try { Sfx.win(); } catch(e){}
   renderNextStep();
 };
@@ -18625,6 +19184,7 @@ ACTIONS.nextstep = () => {
   const n = nextStep(); if(!n) return;
   if(n.go === "@sess") return ACTIONS.sessopen();
   if(n.go.startsWith("@obj:")) return ACTIONS.sessgo({k:n.go.slice(5)});
+  if(n.go === "@fish") return fishGo(true);
   go(n.go, n.arg);
 };
 /* le bandeau : seulement là où l'on choisit quoi faire, jamais en pleine partie */
@@ -19228,6 +19788,7 @@ SCREENS.modules = {
 };
 /* une salle pas encore ouverte : on le dit, au lieu d'y entrer par une porte derobee */
 ACTIONS.goto = d => {
+  if(d.to === "@fish"){ fishGo(true); return; }
   const req = typeof MODULE_REQ !== "undefined" && MODULE_REQ[d.to];
   if(req && !moduleUnlocked(d.to)){
     const miss = typeof moduleMissing === "function" ? moduleMissing(d.to) : [req.d];
@@ -26220,6 +26781,17 @@ function sqFightAfter(){
   cv.addEventListener("pointerdown", e=>{ const r = cv.getBoundingClientRect(); sqTap(e.clientX - r.left, e.clientY - r.top); });
   sqDrawSkills(); sqOrder();
   if(!SQV.raf) SQV.raf = requestAnimationFrame(sqFrame);
+  sqResRestore(SQB);
+}
+/* le combat est fini et l'écran a été redessiné : le bilan reprend sa place, boutons à jour */
+function sqResRestore(B){
+  if(!B || !B._ended || !B.resHtml) return false;
+  const el = document.getElementById("sqres"); if(!el) return false;
+  el.innerHTML = B.resHtml;
+  el.classList.add("on");
+  sqButtons(B);
+  try { const r = document.getElementById("sqrep"); if(r) r.checked = !!sqState().repeat; } catch(e){}
+  return true;
 }
 function sqUnitPos(u, i, list){
   const W = SQV.W, H = SQV.H;
@@ -26989,7 +27561,8 @@ function sqEnd(){
   setTimeout(()=>{
     if(SQB !== B) return;
     const el = document.getElementById("sqres"); if(!el) return;
-    el.innerHTML = `
+    /* gardé : si l'écran est redessiné (un niveau d'Archiviste, un coffre), le bilan revient tel quel */
+    B.resHtml = `
       <div class="sw-rtitle ${B.result ? "" : "bad"}">${B.result ? "VICTOIRE" : "DÉFAITE"}</div>
       ${B.result ? `<div class="sq-stars">${[0, 1, 2].map(k=>`<i class="${k < R.stars ? "on" : ""}" style="--d:${250 + k * 220}ms">★</i>`).join("")}</div>
         <div class="tiny dim" style="margin:-4px 0 6px">${R.stars >= 3 ? "Aucun K.O. : trois étoiles." : R.stars === 2 ? "Un K.O. : deux étoiles. Aucun K.O. pour la troisième." : "Plusieurs K.O. : une étoile. Aucun K.O. pour trois étoiles."}</div>` : ""}
@@ -27016,6 +27589,7 @@ function sqEnd(){
       ${B.result && !B.lock && q.auto ? `<label class="sq2-rep"><input type="checkbox" id="sqrep" ${q.repeat ? "checked" : ""} onchange="sqRepeatSet(this.checked)"> Rejouer automatiquement ce palier</label>
         <div class="sq2-repc" id="sqrepc"></div>` : ""}
       <div class="sw-rbtn" id="sw-rbtn">${B.rbtn()}</div>`;
+    el.innerHTML = B.resHtml;
     el.classList.add("on");
     pmdWake();
     if(B.result && !B.lock && q.auto && q.repeat && !B.cardObj) sqRepeatCountdown(B);
@@ -41900,9 +42474,9 @@ const TREASURES = {
   star_piece:  {n:"Morceau d'Étoile",sell:9000,  w:5,  spr:121},
   golden:      {n:"Statue Dorée",    sell:26000, w:1,  spr:129}
 };
-function rollTreasure(depth){
-  /* la profondeur augmente la chance et la qualité */
-  if(rng() > 0.16 + depth * 0.10) return null;
+function rollTreasure(depth, sure){
+  /* la profondeur augmente la chance et la qualité (sure : le trésor est déjà au bout de la ligne) */
+  if(!sure && rng() > 0.16 + depth * 0.10) return null;
   const pool = [];
   for(const k in TREASURES){
     let w = TREASURES[k].w;
@@ -43487,13 +44061,14 @@ ACTIONS.worldspot = d => {
   if(s.go === "@heart" || !s.go){ ACTIONS.worldprojects(); return; }
   /* la faille, une fois la Couche Zéro ouverte : c'est par là qu'on descend */
   if(k === "rift" && typeof finaleStage === "function" && finaleStage() === "ready"){ ACTIONS.zerogo(); return; }
-  if(s.go === "@fish"){ S.capMode = "fish"; go("capture"); return; }
+  /* le lac : la pêche elle-même, pas l'écran de capture avec le Pokémon des herbes */
+  if(s.go === "@fish"){ fishGo(); return; }
   if(!spotOpen(k)){
     const m = typeof moduleMissing === "function" ? moduleMissing(s.mod) : [];
     toast(`${R.names[k] || s.n} : ${m.length ? "il reste " + m.join(" · ") : "pas encore ouvert"}`, "", "lock"); return;
   }
   if(k === "pc" && !moduleUnlocked("eggs")){ go("pokebox"); return; }
-  if(k === "grass") S.capMode = "classic";
+  if(k === "grass") capModeSet("classic");
   go(s.go);
 };
 ACTIONS.worldview = d => { worldState().view = d.r; save(); refresh(); };
@@ -43913,15 +44488,21 @@ const INFOS = {
     des ruines, un pic. Chacun repart de zéro, plus dur, avec ses propres trésors et son minerai favori.</p>`},
 
   fishing:{n:"La pêche", d:`
-    <p>La pêche est un mode de l'écran de capture : on bascule d'un geste entre Capture et Pêche.
-    Il faut d'abord trouver une Vieille Canne, qui reste parfois accrochée à un Pokémon capturé.</p>
-    <p>Lancez la ligne, attendez que le bouchon plonge, puis <b>ferrez</b>. Trop tôt, la prise fuit.
-    Trop tard, elle décroche. Si ça tient, la rencontre se déroule comme une capture normale.</p>
+    <p>La pêche est un mode de l'écran de capture (onglet Pêche), et le lac de la carte y mène.
+    La Vieille Canne se déterre au Forage, dans l'une des trois premières fouilles ; si la fouille
+    s'effondre avant qu'elle soit dégagée, elle revient dans la suivante.</p>
+    <p><b>Les ombres.</b> Des Pokémon nagent dans l'eau : plus l'ombre est grande, plus il est rare.
+    Un reflet doré, c'est un chromatique. Une ombre immobile qui brille au fond, un trésor.</p>
+    <p><b>Lancer.</b> Touchez l'eau là où vous voulez lancer, près d'une ombre. Le bouton lance vers
+    la plus grande. Si rien ne vient, touchez ailleurs pour relancer.</p>
+    <p><b>Ferrer.</b> L'ombre goûte le bouchon une ou deux fois : n'y touchez pas, elle filerait. Au
+    « ! », touchez n'importe où. À temps, ça tient toujours ; très vite, c'est un <b>ferrage parfait</b> :
+    la prise est sonnée, +20 % à la capture. Ensuite, la rencontre se déroule comme une capture.</p>
     <p>Au bout de la ligne : les Pokémon Eau, et des espèces qu'on ne trouve <b>que</b> là —
     Barpau, Rémoraid, Qwilfish, Relicanth, Loupio. Et une fois Hoenn ouvert, avec une canne
     suffisante, quelque chose de bien plus grand.</p>
-    <p>La Super Canne et la Méga Canne s'achètent en Fragments : elles ferrent mieux, remontent
-    plus de raretés et multiplient la chance de chromatique. La pluie fait mordre plus vite.</p>`},
+    <p>La Super Canne et la Méga Canne s'achètent en Fragments : la touche dure plus longtemps,
+    elles remontent plus de raretés et de chromatiques. La pluie fait mordre plus vite.</p>`},
 
   boss:{n:"Les Data Guardians", d:`
     <p>Neuf légendaires transformés en pare-feu, trois par secteur. Ils ne se capturent pas :
@@ -44149,8 +44730,8 @@ const TUTOS = {
     {sel:"#screen", t:"Tant qu'il te manque un Pokémon, le tampon ne peut pas te rendre un doublon. Il ne peut donc jamais te bloquer."}
   ]},
   fishing:{steps:[
-    {sel:"#screen", t:"Cette canne, quelqu'un s'en servait avant que les données se figent. Les nappes sous le secteur n'ont jamais été vidées."},
-    {sel:"#screen", t:"Lance, attends que le bouchon plonge, puis ferre. Trop tôt ou trop tard, et ça repart."},
+    {sel:"#fs-pond", t:"Cette canne, quelqu'un s'en servait avant que les données se figent. Les ombres dans l'eau, ce sont des Pokémon : plus l'ombre est grande, plus il est rare."},
+    {sel:"#fs-pond", t:"Touche l'eau près d'une ombre pour lancer. Elle va goûter le bouchon : ne bouge pas. Au « ! », touche n'importe où. Vite, c'est un ferrage parfait."},
     {sel:"#screen", t:"Certains Pokémon ne remontent qu'au bout d'une ligne. Tu ne les croiseras nulle part ailleurs."}
   ]},
   idle:{steps:[
@@ -44302,14 +44883,16 @@ const DIRECTIVES = [
   {id:"d5",  n:"Atteindre une chaîne de 10",     chk:()=>S.stats.bestStreak>=10, goal:()=>[S.stats.bestStreak,10],
    rw:{coins:500, berries:{nanab:2}}, hint:"Enchaîne les captures sans échouer. Vise les espèces communes."},
   {id:"d6",  n:"Passer au niveau 3",            chk:()=>S.level>=3,          goal:()=>[S.level,3],
-   rw:{balls:{super:8}}, hint:"La sonde des couches s'ouvre à ce niveau."},
-  {id:"d7",  n:"Faire une prise à la sonde",    chk:()=>S.stats.fish>=1,     goal:()=>[S.stats.fish,1],
-   rw:{shards:20}, hint:"Écran de capture, mode Pêche.", go:"capture"},
+   rw:{balls:{super:8}}, hint:"Chaque niveau rapporte des PokéCoins, et certains ouvrent une salle."},
   {id:"d8",  n:"Archiver 20 espèces",           chk:()=>dexTotal()>=20,      goal:()=>[dexTotal(),20],
    rw:{coins:900, cores:1}, hint:"Change de secteur dans le Pokédex pour repérer ce qui te manque."},
   {id:"d9",  n:"Faire une fouille au Forage", chk:()=>(S.stats.walls || 0)>=1,
    goal:()=>[Math.min(1, S.stats.walls || 0),1],
    rw:{coins:600}, hint:"Ton équipe creuse même quand tu ne joues pas. Toutes les 7 minutes, elle trouve une fouille à faire.", go:"idle"},
+  /* la pêche vient après la première fouille : la canne se déterre dans l'une des trois premières */
+  {id:"d7",  n:"Pêcher un premier Pokémon",     chk:()=>(S.stats.fish || 0)>=1, goal:()=>[Math.min(1, S.stats.fish || 0),1],
+   rw:{shards:20}, get hint(){ return rodLevel() ? "Capture, onglet Pêche : lance près d'une ombre, et ferre au « ! »."
+     : "Une Vieille Canne est enfouie dans l'une de tes trois premières fouilles du Forage."; }, go:"@fish"},
   {id:"d10", n:"Archiver 25 espèces",           chk:()=>dexTotal()>=25,      goal:()=>[dexTotal(),25],
    rw:{shards:40}, hint:"Le premier verrou légendaire s'ouvre à 25 espèces de Kanto."},
   {id:"d11", n:"Faire évoluer un Pokémon",      chk:()=>S.stats.evolutions>=1, goal:()=>[S.stats.evolutions,1],
@@ -44458,6 +45041,37 @@ function guideTick(){
   checkDirectives();
   if(!milestone) checkPzEvents();
 }
+
+/* ---------- la veille ----------
+   Une directive, un succès, une pastille du dock ne se vérifiaient qu'après
+   certaines actions : souvent, l'annonce n'arrivait qu'au changement d'onglet.
+   Toutes les secondes et demie, on regarde. Les annonces passent par la file
+   habituelle (rien par-dessus une révélation, un combat ou une scène) ; les
+   paliers qui ouvrent une fenêtre attendent un moment calme. */
+let WATCH_SIG = "";
+function watchQuiet(){
+  if(typeof sheetOpen === "function" && sheetOpen()) return false;
+  if(overlayBusy()) return false;
+  if(typeof stageHold === "function" && stageHold()) return false;
+  if(typeof screenLive === "function" && screenLive()) return false;
+  return true;
+}
+function watchTick(){
+  if(!S || !S.flags || typeof document === "undefined" || !document.getElementById || !document.getElementById("screen")) return false;
+  if(typeof introSeen === "function" && !introSeen()) return false;
+  const boot = document.getElementById("boot");
+  if(boot && boot.style && boot.style.display === "flex") return false;
+  if(typeof CINE !== "undefined" && CINE && !CINE.dead) return false;
+  /* la Brèche recouvre tout, annonces comprises : elle fait ses comptes à la sortie */
+  if(typeof BR !== "undefined" && BR) return false;
+  if(watchQuiet()) guideTick();
+  else checkDirectives();
+  checkAchievements();
+  const sig = typeof dockSig === "function" ? dockSig() : "";
+  if(sig !== WATCH_SIG){ WATCH_SIG = sig; try { renderDock(); } catch(e){} }
+  return true;
+}
+if(typeof setInterval === "function") setInterval(()=>{ try { watchTick(); } catch(e){} }, 1500);
 
 /* ===== 81-cosmetics.js ===== */
 /* ============================================================

@@ -351,6 +351,17 @@ function sqFightAfter(){
   cv.addEventListener("pointerdown", e=>{ const r = cv.getBoundingClientRect(); sqTap(e.clientX - r.left, e.clientY - r.top); });
   sqDrawSkills(); sqOrder();
   if(!SQV.raf) SQV.raf = requestAnimationFrame(sqFrame);
+  sqResRestore(SQB);
+}
+/* le combat est fini et l'écran a été redessiné : le bilan reprend sa place, boutons à jour */
+function sqResRestore(B){
+  if(!B || !B._ended || !B.resHtml) return false;
+  const el = document.getElementById("sqres"); if(!el) return false;
+  el.innerHTML = B.resHtml;
+  el.classList.add("on");
+  sqButtons(B);
+  try { const r = document.getElementById("sqrep"); if(r) r.checked = !!sqState().repeat; } catch(e){}
+  return true;
 }
 function sqUnitPos(u, i, list){
   const W = SQV.W, H = SQV.H;
@@ -1120,7 +1131,8 @@ function sqEnd(){
   setTimeout(()=>{
     if(SQB !== B) return;
     const el = document.getElementById("sqres"); if(!el) return;
-    el.innerHTML = `
+    /* gardé : si l'écran est redessiné (un niveau d'Archiviste, un coffre), le bilan revient tel quel */
+    B.resHtml = `
       <div class="sw-rtitle ${B.result ? "" : "bad"}">${B.result ? "VICTOIRE" : "DÉFAITE"}</div>
       ${B.result ? `<div class="sq-stars">${[0, 1, 2].map(k=>`<i class="${k < R.stars ? "on" : ""}" style="--d:${250 + k * 220}ms">★</i>`).join("")}</div>
         <div class="tiny dim" style="margin:-4px 0 6px">${R.stars >= 3 ? "Aucun K.O. : trois étoiles." : R.stars === 2 ? "Un K.O. : deux étoiles. Aucun K.O. pour la troisième." : "Plusieurs K.O. : une étoile. Aucun K.O. pour trois étoiles."}</div>` : ""}
@@ -1147,6 +1159,7 @@ function sqEnd(){
       ${B.result && !B.lock && q.auto ? `<label class="sq2-rep"><input type="checkbox" id="sqrep" ${q.repeat ? "checked" : ""} onchange="sqRepeatSet(this.checked)"> Rejouer automatiquement ce palier</label>
         <div class="sq2-repc" id="sqrepc"></div>` : ""}
       <div class="sw-rbtn" id="sw-rbtn">${B.rbtn()}</div>`;
+    el.innerHTML = B.resHtml;
     el.classList.add("on");
     pmdWake();
     if(B.result && !B.lock && q.auto && q.repeat && !B.cardObj) sqRepeatCountdown(B);

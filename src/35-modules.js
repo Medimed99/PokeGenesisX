@@ -85,6 +85,7 @@ SCREENS.modules = {
 };
 /* une salle pas encore ouverte : on le dit, au lieu d'y entrer par une porte derobee */
 ACTIONS.goto = d => {
+  if(d.to === "@fish"){ fishGo(true); return; }
   const req = typeof MODULE_REQ !== "undefined" && MODULE_REQ[d.to];
   if(req && !moduleUnlocked(d.to)){
     const miss = typeof moduleMissing === "function" ? moduleMissing(d.to) : [req.d];

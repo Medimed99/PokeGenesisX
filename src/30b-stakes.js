@@ -204,5 +204,6 @@ function stakesTagHtml(){
   /* courtes : la carte est étroite, et la police pixel large (« Légendaire » est déjà écrit sur la carte) */
   if(ENC.roam) return `<div class="stk-tag roam">ERRANT · UNE SEULE BALLE</div>`;
   if(ENC.horde) return `<div class="stk-tag horde">HORDE ${ENC.horde.i}/${ENC.horde.n} · CAPTURE FACILE</div>`;
+  if(ENC.fished && ENC.hook === "perfect") return `<div class="stk-tag fish">FERRAGE PARFAIT · +20 %</div>`;
   return "";
 }

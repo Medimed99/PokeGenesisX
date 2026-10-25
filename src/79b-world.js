@@ -475,13 +475,14 @@ ACTIONS.worldspot = d => {
   if(s.go === "@heart" || !s.go){ ACTIONS.worldprojects(); return; }
   /* la faille, une fois la Couche Zéro ouverte : c'est par là qu'on descend */
   if(k === "rift" && typeof finaleStage === "function" && finaleStage() === "ready"){ ACTIONS.zerogo(); return; }
-  if(s.go === "@fish"){ S.capMode = "fish"; go("capture"); return; }
+  /* le lac : la pêche elle-même, pas l'écran de capture avec le Pokémon des herbes */
+  if(s.go === "@fish"){ fishGo(); return; }
   if(!spotOpen(k)){
     const m = typeof moduleMissing === "function" ? moduleMissing(s.mod) : [];
     toast(`${R.names[k] || s.n} : ${m.length ? "il reste " + m.join(" · ") : "pas encore ouvert"}`, "", "lock"); return;
   }
   if(k === "pc" && !moduleUnlocked("eggs")){ go("pokebox"); return; }
-  if(k === "grass") S.capMode = "classic";
+  if(k === "grass") capModeSet("classic");
   go(s.go);
 };
 ACTIONS.worldview = d => { worldState().view = d.r; save(); refresh(); };

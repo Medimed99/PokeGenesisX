@@ -17,7 +17,7 @@ const fs = require("fs");
 const ORDER = ['_dexblob.js','_atlas.js','_atlas_shiny.js','_pmd.js','_items.js','_lore.js','_pzportrait.js','_pzanim.js','_chars.js','_trainers.js','_cardart.js','00-slugs.js','01-data.js','02-story.js','10-core.js','15-fx.js','20-ui.js','30-capture.js','30b-stakes.js','30c-onze.js','30c-bonus.js','32-world.js','33-fishing.js','34-research.js','36-lore.js','37-cine.js','37b-moments.js','37c-stage.js','37d-plateau.js','37e-decors.js','37f-mise-en-scene.js','38-forage.js','38b-forge.js','38c-dig-plus.js','39-daily.js','39b-events.js','39c-session.js','39p-demandes.js','39r-rival.js',
   '35-modules.js','40-battle.js','40b-picker.js','41-arena.js','42-team.js','50-expedition.js','51-expscene.js','51m-expmap.js','52-expgear.js','54-tower.js','55-squad.js','55b-squad-ui.js','55c-squad-fight.js','55h-histoire.js','56-breche.js','57-breche-run.js','58-breche-ui.js','59-breche-plus.js','59m-breche-map.js','59a-breche-attacks.js','59p-breche-pmd.js','59f-breche-feel.js','59g-breche-bossfight.js','59s-breche-share.js','59d-breche-depth.js','59k-breche-fx.js','59w-breche-world.js','59l-breche-legends.js','60-poker.js','61-poker-content.js','62-poker-table.js','70-collection.js','72-bag.js','73-cards.js','73b-cardpowers.js','73c-cardreveal.js','73d-reindex.js','73e-provenance.js','73f-chrono.js','73g-pzcard.js','73h-eras.js','73i-displaymodes.js','73j-cardnews.js','74-eggs.js','75-extras.js','76-items.js','77-secrets.js','78-milestones.js','79-ux.js','79b-world.js','79c-legend.js','80-guide.js','81-cosmetics.js','85-journal.js','86-saga.js','87-finale.js','88-share-mn.js','90-admin.js','95-online.js','95b-social.js','96-pwa.js','96b-music.js','99-boot.js'];
 const code = ORDER.map(f=>fs.readFileSync("src/"+f,"utf8")).join("\n");
-eval(code + "\n;" + 'global.__api={POKE,POKE_IDS,evalHand,genMap,EXP_ROWS,deepFill,newState,catchChance,typeMult,RARITY,ACHIEVEMENTS,JOKERS,STORY,anteTarget,makeFighter,damageCalc,xpForLevel,handBase,HANDS,newDeck,movesFor,dexTotal,famOf,stageOf,DIRECTIVES,INFOS,TUTOS,PZ_EVENTS,atlasIndex,ATLAS_N,ATLAS_BACK0,SLUGS,cardChips,grantCardV,grantSecretCard,cardVariants,cardHas,cardOwnedCount,cardTotal,CARD_MONS,CARD_SERIES_DEF,CARD_ORDER,rollCardSeries,randomCard,migrateCards,CARD_INDEX,cardChecksum,cardBytes,tcardHtml,cardBackHtml,GEN_TAG,boosterRank,seriesName,seriesFound,monFound,cardSubtitle,cardSpec,cardEra,cardPips,cardArt,cardBg,cardEntryOf,CARD_SCENES,CARD_YEARS,CARD_MN,CARD_ATLAS,resolveName,KNOWN_NAMES,sixthItem,glitchSixthItem,GEN_MARKS,checkChainMark,specialDay,isNightWindow,PZ_POKE_LINES,SIXTH_SLOTS,KONAMI,karpDealDay,karpDealAvailable,BST_BANDS,bstBand,wildIdFor,NODE_W,nodeTypeFor,EXP_ITEMS,rollExpItem,itemMinFloor,EXP_MODES,expRunModes,genMap,traitLevels,traitBonus,TOWER_TRAITS,HABITATS,HABITAT_IDS,habitatWeight,isNight,WEATHER,WEATHER_IDS,weatherDef,speciesInHabitat,FRAGMENTS,RIFT_ARC,checkFragments,riftTick,riftStage,fragmentsFound,fragNext,fragPending,fragOn,fragOnCatch,fragFound,FRAG_SRC,signatureMove,moveTierName,STRATA,forage,forageRate,forageAdvance,digPower,digAff,digRate,crewIds,wallEvery,wallCap,genWall,digHit,digClaim,DIG_LOOT,FOR_UPS,offlineHours,forageTick,EGG_TIERS,EXCLUSIVES,EXCL_SOURCE,isExclusive,RODS,fishPool,newFishEncounter,speciesForRarity,eggPool,repelRarity,lureMul,rstreak,rstreakCatch,rstreakBreak,RSTREAK_MILES,PERMANENTS,charmMul,runeMul,shinyOdds,friendCheck,friendEvo,canEvolve,codeHash,CODES,isSafariDay,SAFARI_POOL,botSpecies,botRate,botHours,FACTIONS,FACTION_RANKS,factionRank,factionMul,factionPts,todayRows,todayPending,REGIONS,unlockedRegions,nextEncounter,newEncounter,rollRarity,fleeChance,RARITY,CINEMAS,CINE_WHO,CINE_T,corruptText,CINE_POS,moduleUnlocked,checkAchievements,sqSkillsOf,sqLeaderOf,sqNewBattle,sqNext,sqTurnStart,sqAct,sqSync,sqSyncReady,sqPredict,sqSkip,sqAI,sqFinish,sqUpgrade,sqState,sqStars,sqZoneOpen,SQ_ZONES,SQ_STAGES,sqWaves,sqSkillLv,MAP_ROWS,MAP_SHAPE,EXP_MAPS,expGainLevels,expExpected,EXP_GAIN,startExpedition,openSector,afterFightRewards,lineRoot,createBattle,bStep,bSpeed,arOn,arNeed,AR_KIND,AR_BIOME,towerState,SCREENS,brSummonBoss,brBossDown,BR_PATTERNS,BR_KIT_BY_TYPE,brBossKit,brTerrainReact,brTerrainUnder,brDecal,brHit,brAddZone,brMapNear,brMapPre,brUpdate,ACTIONS,ITEM_IDX,TREASURE_KEYS,BALLS,BERRIES,STONES,CHESTS,PERMANENTS,TREASURES,EXP_ITEMS,REPELS,ringGrade,RING_GRADES,evSeason,evSeasonKey,evWeeklyLegend,evWeekIndex,evState,evTier,evRunPoints,EV_TRACK,EV_SEASONS,brShareText,BR_KIND,BR_ATK,BR_LEGEND,brArchFor,brFire,brWeaponStats,brSpawnFoe,pwaAfterIntro,pwaInstallable,pwaEnv,brChunkAt,brPushOut,brMastery,BR_TERRAIN,brMissionsFor,brNewRun,brUpdate,brXpNeed,brChoices,brWeaponStats,brDaily,brGuardianWin,brGuardianFor,ROOM_MOMENTS,roomMomentsTick,sqLockOpen,sqLockWaves,sqLockGate,sqLockLevel,sqLockAt,sqLockFinish,brNextEvo,brState,BR_ARCH,BR_ITEMS,ACTIVITIES,COSMETICS,FX_LAYERS,badgeCine,secretCine,BADGES,HANDS,MODULE_REQ,SCREENS,adminHash,ADMIN_HASH,ATELIER_TABS,STORY,RIFT_ARC,directStory,cineFor,RESEARCH_TASKS,researchOf,researchLevel,researchMax,researchTick,taskGoal,RESEARCH_TIERS,legendEntry,showDiscovery,getDISCOVER:()=>DISCOVER,brLandscape,brOrient,aimDown,startAim,stopAim,getAIM:()=>AIM,STORY_BY_ID_:STORY,taskDone,researchSync,researchMigrate,researchTotal,researchFicheHtml,researchCatchHtml,researchPanelHtml,researchNear,researchCellHtml,taskProg,sqLootGrant,expEndScene,EXP_MODES_:EXP_MODES,RELICS,TALENTS,talentOf,PERFECT_ODDS,rollPerfect,weekStamp,REPORT_ROWS,lineRoot,towerLevel,towerBand,BUFF_STATS,TRAINERS,expEnemyLevel,setBuddy,buddyTick,buddyTier,buddyBonus,buddy,rollWeekly,weeklyTick,weeklyRollover,openChest,WEEKLY_POOL,BUDDY_FINDS,BUDDY_MAX_TIER,BUDDY_TIER_AFF,CHESTS,addToDex,weekKey,aimBonus,BOOSTS,startBoost,boostActive,LUCKY_DAYS,rollLuckyDay,luckyF,TREASURES,rollTreasure,treasureValue,REGION_TIERS,checkRegionTiers,regionTiersDone,rollContract,contractTick,CONTRACTS,CYCLE_MODS,PERKS,cycleReward,perkLv,loreOf,LORE,PZ_EMOS,pzMood,HELD_ITEMS,grantHeld,heldActive,PLANETS,SPECTRALS,QUEST_POOLS,questMix,rollQuests,bonusSources,bonusTotals,raidState,raidEnd,raidTierReached,raidTotal,RAID_TIERS,wkSubmit,wkState,chalEncode,chalDecode,potState,potAdd,potLose,potMul,roamState,ROAMERS,srcHint,newEncounter,catchChance,fleeChance,getHorde:()=>HORDE,setHorde:v=>{HORDE=v},worldState,worldReg,projOf,projNeedOk,projCanPay,worldNextProj,CHAPTERS,chapterIdx,WORLD_PROJECTS,WORLD_SPOTS,legendOfBlock,legendNow,legendNext,LEG_IDS,legEnd,legState,starsOf,starMul,teamGiveXp,teamXpNeed,teamPower,monPower,candyCost,teamCandyGain,teamIds,teamOnEvolve,STAR_STEPS,addXp,sqUnit,sessState,sessRoll,sessProg,sessDone,sessReward,SESSION_OBJ,nextStep,levelUnlocks,stageHold,banner,Music,MUSIC_TRACKS,musicResolve,cardTier,CARD_POWERS,ORES,ORE_IDS,oreOf,oreHave,oreGain,TOOLS,toolTier,toolCost,toolCanForge,PICK_T,HAMMER_T,DRILL_T,FOR_SITES,siteOpen,siteReachable,siteSwitch,siteDepth,mainMaxM,stratumHard,toolSvg,PK_DECKS,pkBuildDeck,startPoker,pkScore,pkStartRound,pkRollShop,jokerAvail,evalHandRainbow,sanctPlace,sanctChance,sanctJoin,cardShopWares,CARD_ITEM_IDS,MOMENT_Q,cardRevealExpect,cardPowersFlush,CARD_POWER_PENDING,reidxFeed,reidxPts,reidxNext,reidxMigrate,reidxWeave,reidxPanel,reidxRevealHtml,REIDX_AT,REIDX_FRAG,getRT:()=>REIDX_TRACE,cardHowSet,cardHowText,cardRecordHtml,cardNoteRoll,cardNoteOf,cardNoteSign,CARD_NOTES,cardNotesPanelHtml,pzGiftDue,pzGiftGive,pzGiftPick,cardIntegrityBias,CHRONO_END,CHRONO_ERA,chronoEras,chronoComplete,chronoUnseen,chronoLine,chronoMigrate,chronoState,grantPzCard,pzCardOwned,pzCardTick,pzCardPanelHtml,CARD_PZ,skinOf,skinSet,skinChoices,eraVar,eraRecolor,eraSpriteHtml,skinRowHtml,skinZoomHtml,eraOfV,eraBody,eraAuraHalo,eraAuraGlow,eraAuraMotes,displayModeOpen,displayModeOf,displayModesHtml,cnewsPending,cnewsInit,cnewsShow,cnewsHtml,cnewsItems,cnewsHeroPick,reidxQuiet,reidxCalm,reidxSkip,versionText,versionRowHtml,buildV,updAnnounce,throwChance,aimResText,forStrataReached,forAnnounceNew,forNewMoment,achBanner,expBag,expBagAdd,expEquip,expLeaveNeedsAsk,endExpedition,expLastHtml,mnSprite,mnSpriteHtml,spriteUrl,getMISSING:()=>MISSING_SPRITE,BR_LEG_FIRE,BR_LEG_ZONE,BR_LEG_DRAW,BR_LEG_KIND,BR_LEG_NEW,lgDrawStates,lgDrawSerpent,lgPickTargets,lgSerpAt,brChoiceHtml,brFireExtra,brZones,brZone,brChestGift,brChestTier,brChestWaiting,BR_FRAGS,BR_CHEST_TIERS,BR_SURGES,brRecomputeMods,BR_MAXLV,setScreen:v=>{currentScreen=v},sprite,pkWishBonus,pkDeckTargetMul,psyFamilies,pkOpp,pkEvoTick,pkToggle,pkPlay,skipResolve,commitResolve,pkDraw,PK_LEADER_ORDER,RIVALS,rivalPrize,rivalRec,safariWeek,localYmd,introSeen,calmFx,applyCalm,brShake,mnShareOpen,mnShareText,mnShareRowHtml,mnShareOffer,mnShareAnswer,storyQWaiting,storyQHintHtml,raidBossFighter,raidXp,RAID_TURNS,RAID_DMG_CAP,setStatus,endOfTurnStatus,pzAskEnsure,pzAskState,pzAskQuest,pzAskOnCatch,pzAskFulfill,pzAskPool,pzAskRowHtml,pzAskHomeHtml,rollQuests,questTick,today,finishBattle,handleKO,histFight,histAfterBattle,histOnEvolve,histRows,histHtml,histFaithful,histDay,histHow,setDexHow:v=>{DEX_HOW=v},ONZE,ONZE_SURE,ONZE_GAP,onzeNext,onzeState,onzeMet,onzeCaught,onzeOnEvolve,monNick,onzePanelHtml,onzeDexHtml,onzeRevealBeats,STORY_Q,STORY_Q_ORDER,storyAns,storyAnswer,storyWhen,storyQPending,pzRecall,pzRecallLine,creditsAnswersHtml,STORY_BY_ID,directStory,expFight,enemySpecFor,expUnstick,getBATTLE:()=>BATTLE,legOpen,legendCardHtml,storyThread,storyThreadHtml,storyRecapHtml,MAIN_ARC,MEM_SCENES,mainArcNext,mainArcPending,pzFmt,pzMask,pzName,frNum,sagaConn,sagaState,sagaKnown,sagaWrote,pzLog,pzLogTick,pzFileHtml,pzMemPct,memoryPanelHtml,finaleReqs,finaleReady,finaleStage,sagaCardHtml,sagaWritePz,creditsRollHtml,sagaCycleBeat,sagaPath,finaleWaves,mnUnit,echoUnit,finalPhase,finaleAfterChoice,finalPrep,finalPrepHtml,nameBytes,nameSprite,hex2,fragAuthor,checkStoryTriggers,STORY_TITLES,STORY_ACTS,cycleReady,cycleCopy,sqLoadWave,sqCheck,sqAlive,setS:function(v){S=v},getS:function(){return S},setENC:function(v){ENC=v},getENC:function(){return ENC},getCINE:function(){return CINE},getCineLast:function(){return CINE_LAST},playStory:playStory,PL_BEATS,PL_SETS,PL_KINDS,plKitForTest:(x,w,h)=>plKit(x,plRng(1),w,h),PMD_META,PL_PROPS,PL_EMOTES,PL_LIGHTS,PL_WL,PL_MOOD,PL_FONT,PL_BG,STAGE,SW_MAP,SW_W,SW_H,swarmColors,plText,plTextW,plRng,plHash,plDir,stDefragN,pzReal,stFirstMon,PZX,PZ_STRIP,MAJOR_SCENES};');
+eval(code + "\n;" + 'global.__api={POKE,POKE_IDS,evalHand,genMap,EXP_ROWS,deepFill,newState,catchChance,typeMult,RARITY,ACHIEVEMENTS,JOKERS,STORY,anteTarget,makeFighter,damageCalc,xpForLevel,handBase,HANDS,newDeck,movesFor,dexTotal,famOf,stageOf,DIRECTIVES,INFOS,TUTOS,PZ_EVENTS,atlasIndex,ATLAS_N,ATLAS_BACK0,SLUGS,cardChips,grantCardV,grantSecretCard,cardVariants,cardHas,cardOwnedCount,cardTotal,CARD_MONS,CARD_SERIES_DEF,CARD_ORDER,rollCardSeries,randomCard,migrateCards,CARD_INDEX,cardChecksum,cardBytes,tcardHtml,cardBackHtml,GEN_TAG,boosterRank,seriesName,seriesFound,monFound,cardSubtitle,cardSpec,cardEra,cardPips,cardArt,cardBg,cardEntryOf,CARD_SCENES,CARD_YEARS,CARD_MN,CARD_ATLAS,resolveName,KNOWN_NAMES,sixthItem,glitchSixthItem,GEN_MARKS,checkChainMark,specialDay,isNightWindow,PZ_POKE_LINES,SIXTH_SLOTS,KONAMI,karpDealDay,karpDealAvailable,BST_BANDS,bstBand,wildIdFor,NODE_W,nodeTypeFor,EXP_ITEMS,rollExpItem,itemMinFloor,EXP_MODES,expRunModes,genMap,traitLevels,traitBonus,TOWER_TRAITS,HABITATS,HABITAT_IDS,habitatWeight,isNight,WEATHER,WEATHER_IDS,weatherDef,speciesInHabitat,FRAGMENTS,RIFT_ARC,checkFragments,riftTick,riftStage,fragmentsFound,fragNext,fragPending,fragOn,fragOnCatch,fragFound,FRAG_SRC,signatureMove,moveTierName,STRATA,forage,forageRate,forageAdvance,digPower,digAff,digRate,crewIds,wallEvery,wallCap,genWall,digHit,digClaim,DIG_LOOT,FOR_UPS,offlineHours,forageTick,EGG_TIERS,EXCLUSIVES,EXCL_SOURCE,isExclusive,RODS,fishPool,newFishEncounter,speciesForRarity,eggPool,repelRarity,lureMul,rstreak,rstreakCatch,rstreakBreak,RSTREAK_MILES,PERMANENTS,charmMul,runeMul,shinyOdds,friendCheck,friendEvo,canEvolve,codeHash,CODES,isSafariDay,SAFARI_POOL,botSpecies,botRate,botHours,FACTIONS,FACTION_RANKS,factionRank,factionMul,factionPts,todayRows,todayPending,REGIONS,unlockedRegions,nextEncounter,newEncounter,rollRarity,fleeChance,RARITY,CINEMAS,CINE_WHO,CINE_T,corruptText,CINE_POS,moduleUnlocked,checkAchievements,sqSkillsOf,sqLeaderOf,sqNewBattle,sqNext,sqTurnStart,sqAct,sqSync,sqSyncReady,sqPredict,sqSkip,sqAI,sqFinish,sqUpgrade,sqState,sqStars,sqZoneOpen,SQ_ZONES,SQ_STAGES,sqWaves,sqSkillLv,MAP_ROWS,MAP_SHAPE,EXP_MAPS,expGainLevels,expExpected,EXP_GAIN,startExpedition,openSector,afterFightRewards,lineRoot,createBattle,bStep,bSpeed,arOn,arNeed,AR_KIND,AR_BIOME,towerState,SCREENS,brSummonBoss,brBossDown,BR_PATTERNS,BR_KIT_BY_TYPE,brBossKit,brTerrainReact,brTerrainUnder,brDecal,brHit,brAddZone,brMapNear,brMapPre,brUpdate,ACTIONS,ITEM_IDX,TREASURE_KEYS,BALLS,BERRIES,STONES,CHESTS,PERMANENTS,TREASURES,EXP_ITEMS,REPELS,ringGrade,RING_GRADES,evSeason,evSeasonKey,evWeeklyLegend,evWeekIndex,evState,evTier,evRunPoints,EV_TRACK,EV_SEASONS,brShareText,BR_KIND,BR_ATK,BR_LEGEND,brArchFor,brFire,brWeaponStats,brSpawnFoe,pwaAfterIntro,pwaInstallable,pwaEnv,brChunkAt,brPushOut,brMastery,BR_TERRAIN,brMissionsFor,brNewRun,brUpdate,brXpNeed,brChoices,brWeaponStats,brDaily,brGuardianWin,brGuardianFor,ROOM_MOMENTS,roomMomentsTick,sqLockOpen,sqLockWaves,sqLockGate,sqLockLevel,sqLockAt,sqLockFinish,brNextEvo,brState,BR_ARCH,BR_ITEMS,ACTIVITIES,COSMETICS,FX_LAYERS,badgeCine,secretCine,BADGES,HANDS,MODULE_REQ,SCREENS,adminHash,ADMIN_HASH,ATELIER_TABS,STORY,RIFT_ARC,directStory,cineFor,RESEARCH_TASKS,researchOf,researchLevel,researchMax,researchTick,taskGoal,RESEARCH_TIERS,legendEntry,showDiscovery,getDISCOVER:()=>DISCOVER,brLandscape,brOrient,aimDown,startAim,stopAim,getAIM:()=>AIM,STORY_BY_ID_:STORY,taskDone,researchSync,researchMigrate,researchTotal,researchFicheHtml,researchCatchHtml,researchPanelHtml,researchNear,researchCellHtml,taskProg,sqLootGrant,expEndScene,EXP_MODES_:EXP_MODES,RELICS,TALENTS,talentOf,PERFECT_ODDS,rollPerfect,weekStamp,REPORT_ROWS,lineRoot,towerLevel,towerBand,BUFF_STATS,TRAINERS,expEnemyLevel,setBuddy,buddyTick,buddyTier,buddyBonus,buddy,rollWeekly,weeklyTick,weeklyRollover,openChest,WEEKLY_POOL,BUDDY_FINDS,BUDDY_MAX_TIER,BUDDY_TIER_AFF,CHESTS,addToDex,weekKey,aimBonus,BOOSTS,startBoost,boostActive,LUCKY_DAYS,rollLuckyDay,luckyF,TREASURES,rollTreasure,treasureValue,REGION_TIERS,checkRegionTiers,regionTiersDone,rollContract,contractTick,CONTRACTS,CYCLE_MODS,PERKS,cycleReward,perkLv,loreOf,LORE,PZ_EMOS,pzMood,HELD_ITEMS,grantHeld,heldActive,PLANETS,SPECTRALS,QUEST_POOLS,questMix,rollQuests,bonusSources,bonusTotals,raidState,raidEnd,raidTierReached,raidTotal,RAID_TIERS,wkSubmit,wkState,chalEncode,chalDecode,potState,potAdd,potLose,potMul,roamState,ROAMERS,srcHint,newEncounter,catchChance,fleeChance,getHorde:()=>HORDE,setHorde:v=>{HORDE=v},worldState,worldReg,projOf,projNeedOk,projCanPay,worldNextProj,CHAPTERS,chapterIdx,WORLD_PROJECTS,WORLD_SPOTS,legendOfBlock,legendNow,legendNext,LEG_IDS,legEnd,legState,starsOf,starMul,teamGiveXp,teamXpNeed,teamPower,monPower,candyCost,teamCandyGain,teamIds,teamOnEvolve,STAR_STEPS,addXp,sqUnit,sessState,sessRoll,sessProg,sessDone,sessReward,SESSION_OBJ,nextStep,levelUnlocks,stageHold,banner,Music,MUSIC_TRACKS,musicResolve,cardTier,CARD_POWERS,ORES,ORE_IDS,oreOf,oreHave,oreGain,TOOLS,toolTier,toolCost,toolCanForge,PICK_T,HAMMER_T,DRILL_T,FOR_SITES,siteOpen,siteReachable,siteSwitch,siteDepth,mainMaxM,stratumHard,toolSvg,PK_DECKS,pkBuildDeck,startPoker,pkScore,pkStartRound,pkRollShop,jokerAvail,evalHandRainbow,sanctPlace,sanctChance,sanctJoin,cardShopWares,CARD_ITEM_IDS,MOMENT_Q,cardRevealExpect,cardPowersFlush,CARD_POWER_PENDING,reidxFeed,reidxPts,reidxNext,reidxMigrate,reidxWeave,reidxPanel,reidxRevealHtml,REIDX_AT,REIDX_FRAG,getRT:()=>REIDX_TRACE,cardHowSet,cardHowText,cardRecordHtml,cardNoteRoll,cardNoteOf,cardNoteSign,CARD_NOTES,cardNotesPanelHtml,pzGiftDue,pzGiftGive,pzGiftPick,cardIntegrityBias,CHRONO_END,CHRONO_ERA,chronoEras,chronoComplete,chronoUnseen,chronoLine,chronoMigrate,chronoState,grantPzCard,pzCardOwned,pzCardTick,pzCardPanelHtml,CARD_PZ,skinOf,skinSet,skinChoices,eraVar,eraRecolor,eraSpriteHtml,skinRowHtml,skinZoomHtml,eraOfV,eraBody,eraAuraHalo,eraAuraGlow,eraAuraMotes,displayModeOpen,displayModeOf,displayModesHtml,cnewsPending,cnewsInit,cnewsShow,cnewsHtml,cnewsItems,cnewsHeroPick,reidxQuiet,reidxCalm,reidxSkip,versionText,versionRowHtml,buildV,updAnnounce,throwChance,aimResText,forStrataReached,forAnnounceNew,forNewMoment,achBanner,expBag,expBagAdd,expEquip,expLeaveNeedsAsk,endExpedition,expLastHtml,mnSprite,mnSpriteHtml,spriteUrl,getMISSING:()=>MISSING_SPRITE,BR_LEG_FIRE,BR_LEG_ZONE,BR_LEG_DRAW,BR_LEG_KIND,BR_LEG_NEW,lgDrawStates,lgDrawSerpent,lgPickTargets,lgSerpAt,brChoiceHtml,brFireExtra,brZones,brZone,brChestGift,brChestTier,brChestWaiting,BR_FRAGS,BR_CHEST_TIERS,BR_SURGES,brRecomputeMods,BR_MAXLV,setScreen:v=>{currentScreen=v},sprite,pkWishBonus,pkDeckTargetMul,psyFamilies,pkOpp,pkEvoTick,pkToggle,pkPlay,skipResolve,commitResolve,pkDraw,PK_LEADER_ORDER,RIVALS,rivalPrize,rivalRec,safariWeek,localYmd,introSeen,calmFx,applyCalm,brShake,mnShareOpen,mnShareText,mnShareRowHtml,mnShareOffer,mnShareAnswer,storyQWaiting,storyQHintHtml,raidBossFighter,raidXp,RAID_TURNS,RAID_DMG_CAP,setStatus,endOfTurnStatus,pzAskEnsure,pzAskState,pzAskQuest,pzAskOnCatch,pzAskFulfill,pzAskPool,pzAskRowHtml,pzAskHomeHtml,rollQuests,questTick,today,finishBattle,handleKO,histFight,histAfterBattle,histOnEvolve,histRows,histHtml,histFaithful,histDay,histHow,setDexHow:v=>{DEX_HOW=v},ONZE,ONZE_SURE,ONZE_GAP,onzeNext,onzeState,onzeMet,onzeCaught,onzeOnEvolve,monNick,onzePanelHtml,onzeDexHtml,onzeRevealBeats,STORY_Q,STORY_Q_ORDER,storyAns,storyAnswer,storyWhen,storyQPending,pzRecall,pzRecallLine,creditsAnswersHtml,STORY_BY_ID,directStory,expFight,enemySpecFor,expUnstick,getBATTLE:()=>BATTLE,legOpen,legendCardHtml,storyThread,storyThreadHtml,storyRecapHtml,MAIN_ARC,MEM_SCENES,mainArcNext,mainArcPending,pzFmt,pzMask,pzName,frNum,sagaConn,sagaState,sagaKnown,sagaWrote,pzLog,pzLogTick,pzFileHtml,pzMemPct,memoryPanelHtml,finaleReqs,finaleReady,finaleStage,sagaCardHtml,sagaWritePz,creditsRollHtml,sagaCycleBeat,sagaPath,finaleWaves,mnUnit,echoUnit,finalPhase,finaleAfterChoice,finalPrep,finalPrepHtml,nameBytes,nameSprite,hex2,fragAuthor,checkStoryTriggers,STORY_TITLES,STORY_ACTS,cycleReady,cycleCopy,sqLoadWave,sqCheck,sqAlive,setS:function(v){S=v},getS:function(){return S},setENC:function(v){ENC=v},getENC:function(){return ENC},getCINE:function(){return CINE},getCineLast:function(){return CINE_LAST},playStory:playStory,PL_BEATS,PL_SETS,PL_KINDS,plKitForTest:(x,w,h)=>plKit(x,plRng(1),w,h),PMD_META,PL_PROPS,PL_EMOTES,PL_LIGHTS,PL_WL,PL_MOOD,PL_FONT,PL_BG,STAGE,SW_MAP,SW_W,SW_H,swarmColors,plText,plTextW,plRng,plHash,plDir,stDefragN,pzReal,stFirstMon,PZX,PZ_STRIP,MAJOR_SCENES,screenLive,calmRefresh,sqResRestore,storyAfter,watchTick,dockSig,setCur:(n,a)=>{currentScreen=n;screenArg=a},setSQB:v=>{SQB=v},swapPlayCine:f=>{const o=playCine;playCine=f;return o},swapRender:f=>{const o=render;render=f;return o},setBR:v=>{BR=v},setAIMv:v=>{AIM=v},rodWallDue,capModeSet,fishTap,fishUpdate,fishReset,rollFishSpec,getFISHING:()=>FISHING,setPOND:v=>{POND=v},getPOND:()=>POND,SESSION_OBJ_:SESSION_OBJ,currentDirective};');
 const A = global.__api;
 let pass=0, fail=0;
 const t = (n, cond, extra) => { cond?pass++:(fail++,console.log("  ECHEC:",n,extra||"")); };
@@ -1276,6 +1276,194 @@ t("verrou levé : l'entrée au Pokédex s'ouvre comme une capture, avec l'attaqu
   let done2 = 0; A.legendEntry({id:146, name:"Sulfura", core:false}, ()=>{ done2++; });
   return ok && done === 1 && !A.getDISCOVER() && done2 === 1;
 })());
+t("Tour : un combat (résultats compris) est un écran vivant, que la fin d'un moment ne redessine pas", (()=>{
+  A.setS(A.newState());
+  A.setCur("tower", "fight"); A.setSQB({_ended:true});
+  const live = A.screenLive() === true;
+  A.setCur("tower", "zone");
+  const zone = A.screenLive() === false;
+  A.setCur("capture", null); A.setSQB(null); A.setAIMv(null);
+  const cap = A.screenLive() === false;
+  A.setAIMv({pos:0}); const aiming = A.screenLive() === true; A.setAIMv(null);
+  A.setBR({}); const br = A.screenLive() === true; A.setBR(null);
+  /* la fin du moment « Niveau supérieur » passe par le rafraîchissement calme */
+  const src = require("fs").readFileSync("src/37c-stage.js", "utf8");
+  const lv = /kind:"levelup"[\s\S]*?then:\(\)=>\{ try \{ calmRefresh\(\)/.test(src);
+  return live && zone && cap && aiming && br && lv;
+})());
+t("Tour : si l'écran est redessiné après le combat, le bilan de victoire revient avec ses boutons", (()=>{
+  const els = {sqres:{innerHTML:"", cls:[], classList:{add(c){ els.sqres.cls.push(c); }, remove(){}}}, "sw-rbtn":{innerHTML:""}};
+  const gid = global.document.getElementById;
+  global.document.getElementById = id=>els[id] || null;
+  const B = {_ended:true, resHtml:`<div class="sw-rtitle">VICTOIRE</div><div class="sw-rbtn" id="sw-rbtn"></div>`, rbtn:()=>`<button>Rejouer</button>`};
+  let ok = false, early = true;
+  try {
+    A.setSQB(B);
+    ok = A.sqResRestore(B);
+    early = A.sqResRestore({_ended:false, resHtml:"x"}) === false;   /* pendant le combat : rien */
+  } finally { global.document.getElementById = gid; A.setSQB(null); }
+  return ok && early && /VICTOIRE/.test(els.sqres.innerHTML) && els.sqres.cls.includes("on") && /Rejouer/.test(els["sw-rbtn"].innerHTML);
+})());
+t("une scène jouée sans suite (« elle est jolie ») remet l'écran à jour en finissant : la capture passe à la rencontre suivante", (()=>{
+  A.setS(A.newState()); const S0 = A.getS();
+  S0.story = S0.story.filter(x=>x !== "pz_shiny");
+  let got = null;
+  const old = A.swapPlayCine((sc, done)=>{ got = done; });
+  try { A.playStory("pz_shiny"); } finally { A.swapPlayCine(old); }
+  /* et la suite redessine l'écran de capture, qui tire alors une nouvelle rencontre */
+  let drawn = 0; const r0 = A.swapRender(()=>{ drawn++; });
+  const gid = global.document.getElementById;
+  global.document.getElementById = id=>id === "screen" ? {} : null;
+  A.setCur("capture", null); A.setAIMv(null);
+  try { if(got) got(); } finally { global.document.getElementById = gid; A.swapRender(r0); }
+  return got === A.storyAfter && drawn === 1;
+})());
+t("la veille : une directive remplie ailleurs et un succès s'annoncent sans changer d'onglet", (()=>{
+  A.setS(A.newState()); const S0 = A.getS();
+  S0.flags.intro = true; S0.story = ["intro"];
+  S0.dirDone = A.DIRECTIVES.map(d=>d.id).filter(id=>id !== "d14");
+  S0.pokerMeta.bestAnte = 1; S0.stats.bestStreak = 25;
+  /* sans écran, la veille ne fait rien (rien ne tourne pendant un chargement) */
+  const idle = A.watchTick() === false && !S0.dirDone.includes("d14");
+  const gid = global.document.getElementById;
+  global.document.getElementById = id=>id === "screen" ? {} : null;
+  let ran = false;
+  const r0 = A.swapRender(()=>{});
+  try { A.setCur("capture", null); A.setAIMv(null); A.setBR(null); ran = A.watchTick(); }
+  catch(e){ ran = "err " + e.message; }
+  finally { global.document.getElementById = gid; A.swapRender(r0); }
+  return idle && ran === true && S0.dirDone.includes("d14") && S0.ach.includes("streak25") && typeof A.dockSig() === "string";
+})());
+t("la Vieille Canne se déterre dans l'une des trois premières fouilles, et revient tant qu'elle n'est pas sortie", (()=>{
+  A.setS(A.newState()); const S0 = A.getS();
+  S0.rod = 0; S0.stats.walls = 0; S0.flags.rodAt = 2;
+  const hasRod = w => w.items.some(it=>it.k === "rod");
+  const w0 = A.genWall(0);
+  const early = !hasRod(w0);                       /* prévue à la troisième fouille */
+  S0.stats.walls = 2;
+  const w1 = A.genWall(0);
+  const due = hasRod(w1) && w1.items.find(it=>it.k === "rod").cells.every(c=>w1.L[c] <= 3);
+  /* la fouille s'effondre avant que la canne soit dégagée : elle revient à la suivante */
+  A.digClaim(w1);
+  const again = S0.rod === 0 && S0.stats.walls === 3 && hasRod(A.genWall(0));
+  /* cette fois, elle est dégagée */
+  const w2 = A.genWall(0); const it = w2.items.find(x=>x.k === "rod"); it.found = true;
+  const rows = A.digClaim(w2);
+  const got = S0.rod === 1 && S0.flags.rodReveal === true && rows.some(r=>r.label === "Vieille Canne");
+  const gone = !hasRod(A.genWall(0)) && A.rodWallDue() === false;
+  /* le tirage : toujours l'une des trois premières */
+  let inRange = true;
+  for(let k = 0; k < 60; k++){ A.setS(A.newState()); A.getS().rod = 0; A.rodWallDue(); const r = A.getS().flags.rodAt; if(!(r >= 0 && r <= 2)) inRange = false; }
+  return early && due && again && got && gone && inRange;
+})());
+t("pêche : plus de quêtes de pêche sans canne, et la directive vient après la première fouille", (()=>{
+  A.setS(A.newState()); const S0 = A.getS();
+  S0.level = 10; S0.rod = 0;
+  const fishObj = A.SESSION_OBJ_.find(o=>o.k === "fish");
+  const noRod = !fishObj.req();
+  S0.rod = 1; const withRod = fishObj.req() === true;
+  const ids = A.DIRECTIVES.map(d=>d.id);
+  const order = ids.indexOf("d7") === ids.indexOf("d9") + 1;
+  const d7 = A.DIRECTIVES.find(d=>d.id === "d7");
+  S0.rod = 0; const h0 = /fouilles du Forage/.test(d7.hint);
+  S0.rod = 1; const h1 = /Pêche/.test(d7.hint);
+  return noRod && withRod && order && h0 && h1 && d7.go === "@fish";
+})());
+t("pêche : passer en mode Pêche efface la rencontre des herbes (le lac montrait encore le Pokémon terrestre)", (()=>{
+  A.setS(A.newState()); const S0 = A.getS();
+  S0.rod = 0; S0.capMode = "classic";
+  A.setENC({id:16, level:5, shiny:false, rar:0, attempts:0});
+  const refused = A.capModeSet("fish") === false && S0.capMode === "classic";
+  S0.rod = 1;
+  const ok = A.capModeSet("fish") === true && S0.capMode === "fish" && A.getENC() === null;
+  /* même mode : la rencontre en cours reste (on ne retire plus en touchant l'onglet) */
+  A.setENC({id:129, level:5, shiny:false, rar:0, attempts:0, fished:true});
+  A.capModeSet("fish"); const kept = A.getENC() && A.getENC().id === 129;
+  /* une rencontre terrestre en mode Pêche : effacée */
+  A.setENC({id:16, level:5, shiny:false, rar:0, attempts:0});
+  A.capModeSet("fish"); const cleared = A.getENC() === null;
+  return refused && ok && kept && cleared;
+})());
+/* un étang réglé à la main : une ombre, rien d'autre */
+const pondWith = (spec, x, y) => {
+  const S0 = A.getS();
+  A.setPOND({key:(S0.region || "") + ":" + (S0.rod || 0), shadows:[{spec, kind:spec.kind, size:1, seed:0.3, born:0, until:1e12,
+    mode:spec.kind === "treasure" ? "still" : "swim", a:0, sp:0.00005, x, y}], last:0, nextSpawn:1e15, ripples:[], drops:[]});
+  A.fishReset();
+};
+const fishRun = (from, to, stop) => { for(let t2 = from; t2 <= to; t2 += 20){ A.fishUpdate(t2); if(stop && stop(t2)) return t2; } return to; };
+t("pêche : lancer près d'une ombre, elle vient ; ferrer avant le « ! » la fait fuir", (()=>{
+  A.setS(A.newState()); const S0 = A.getS(); S0.rod = 1; S0.capMode = "fish"; A.setENC(null);
+  pondWith({kind:"mon", id:129, rar:0, level:5, shiny:false}, 0.5, 0.5);
+  A.fishUpdate(1000);
+  const cast = A.fishTap(0.52, 0.5, 1000, false) === "cast";
+  const ghost = A.fishTap(0.52, 0.5, 1100, false) === "ignore";      /* pendant le vol du bouchon */
+  fishRun(1020, 1500);
+  const coming = ["come", "near"].includes(A.getFISHING().st);
+  const tooSoon = A.fishTap(null, null, 1500, true) === "ignore";   /* juste après l'arrivée du bouchon */
+  const early = A.fishTap(null, null, 1800, true) === "early" && A.getFISHING().st === "miss";
+  const fled = A.getPOND().shadows[0].mode === "flee";
+  fishRun(1820, 3000);
+  return cast && ghost && coming && tooSoon && early && fled && A.getFISHING().st === "idle";
+})());
+t("pêche : ferré au « ! », ça tient toujours ; très vite, c'est parfait (+20 % à la capture)", (()=>{
+  A.setS(A.newState()); const S0 = A.getS(); S0.rod = 1; S0.capMode = "fish";
+  let allHeld = true, perfectOk = false, goodOk = false;
+  for(let k = 0; k < 12; k++){
+    A.setENC(null);
+    pondWith({kind:"mon", id:129, rar:0, level:5, shiny:false}, 0.5, 0.5);
+    A.fishUpdate(1000); A.fishTap(0.5, 0.5, 1000, false);
+    const bite = fishRun(1020, 20000, ()=>A.getFISHING().st === "bite");
+    if(A.getFISHING().st !== "bite"){ allHeld = false; break; }
+    const late = k % 2 ? 600 : 120;                                    /* bien / parfait */
+    const q = A.fishTap(0.1, 0.9, bite + late, false);
+    if(q !== (late <= A.RODS[0].perfect ? "perfect" : "good")) allHeld = false;
+    fishRun(bite + late + 20, bite + late + 2000, ()=>!!A.getENC());
+    const E = A.getENC();
+    if(!E || !E.fished || E.id !== 129) { allHeld = false; break; }
+    if(E.hook === "perfect") perfectOk = true; else goodOk = true;
+  }
+  const fishN = S0.stats.fish === 12;
+  /* la prise sonnée : +20 % */
+  A.setENC({id:129, level:5, shiny:false, rar:0, attempts:0, fished:true, hook:"good"});
+  const c0 = A.catchChance("poke");
+  A.setENC({id:129, level:5, shiny:false, rar:0, attempts:0, fished:true, hook:"perfect"});
+  const c1 = A.catchChance("poke");
+  A.setENC(null);
+  return allHeld && perfectOk && goodOk && fishN && Math.abs(c1 - Math.min(0.98, c0 * 1.2)) < 1e-9;
+})());
+t("pêche : le « ! » attend la Vieille Canne 850 ms, puis ça décroche", (()=>{
+  A.setS(A.newState()); const S0 = A.getS(); S0.rod = 1; S0.capMode = "fish"; A.setENC(null);
+  pondWith({kind:"mon", id:129, rar:0, level:5, shiny:false}, 0.5, 0.5);
+  A.fishUpdate(1000); A.fishTap(0.5, 0.5, 1000, false);
+  const bite = fishRun(1020, 20000, ()=>A.getFISHING().st === "bite");
+  fishRun(bite + 20, bite + 840);
+  const still = A.getFISHING().st === "bite";
+  fishRun(bite + 860, bite + 900);
+  return still && A.getFISHING().st === "miss" && A.getFISHING().miss === "late" && !A.getENC();
+})());
+t("pêche : une ombre immobile qui brille au fond, c'est un trésor, toujours remonté", (()=>{
+  A.setS(A.newState()); const S0 = A.getS(); S0.rod = 2; S0.capMode = "fish"; A.setENC(null);
+  pondWith({kind:"treasure"}, 0.4, 0.5);
+  A.fishUpdate(1000);
+  const near = A.fishTap(0.41, 0.5, 1000, false) === "cast";
+  const bite = fishRun(1020, 20000, ()=>A.getFISHING().st === "bite");
+  const before = Object.values(S0.treasures || {}).reduce((a, b)=>a + b, 0);
+  A.fishTap(null, null, bite + 100, true);
+  fishRun(bite + 120, bite + 2000, ()=>A.getFISHING().st === "idle");
+  const after = Object.values(S0.treasures || {}).reduce((a, b)=>a + b, 0);
+  return near && after === before + 1 && !A.getENC() && S0.stats.fish === 1;
+})());
+t("pêche : une ligne à l'eau est un écran vivant (rien ne la redessine)", (()=>{
+  A.setS(A.newState()); const S0 = A.getS(); S0.rod = 1; S0.capMode = "fish"; A.setENC(null);
+  A.setCur("capture", null); A.setAIMv(null); A.setBR(null);
+  pondWith({kind:"mon", id:129, rar:0, level:5, shiny:false}, 0.5, 0.5);
+  const idle = A.screenLive() === false;
+  A.fishUpdate(1000); A.fishTap(0.5, 0.5, 1000, false);
+  const live = A.screenLive() === true;
+  A.fishReset();
+  return idle && live;
+})());
 t("Brèche : un téléphone à l'horizontale se détecte, et la partie se met en pause", (()=>{
   return typeof A.brLandscape() === "boolean" && typeof A.brOrient === "function";
 })());
@@ -1646,7 +1834,7 @@ t("chaque exclusivité a une source", (()=>{
 t("les cannes s'améliorent sur tous les axes", (()=>{
   for(let i=1;i<A.RODS.length;i++){
     const a = A.RODS[i-1], b = A.RODS[i];
-    if(!(b.hook > a.hook && b.shiny > a.shiny && b.cost > a.cost)) return false;
+    if(!(b.window > a.window && b.perfect > a.perfect && b.rare > a.rare && b.shiny > a.shiny && b.cost > a.cost)) return false;
   }
   return true;
 })());

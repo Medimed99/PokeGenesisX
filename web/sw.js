@@ -1,7 +1,7 @@
 /* Service worker : les images portent une empreinte, on peut donc les garder
    indefiniment. Le HTML passe par le reseau d'abord, pour qu'une nouvelle
    version soit prise en compte des le rechargement suivant. */
-const CACHE = "pcg-286391ab";
+const CACHE = "pcg-d72c5492";
 const PRECACHE = ["./", "./index.html", "./manifest.webmanifest", "./icon.svg", "./icon-192.png", "./icon-512.png", "./apple-touch-icon.png", "assets/atlas.bbef68a8.png", "assets/pz.a6df0f88.png", "assets/prof.52b677ef.png", "assets/missingno.15e6b208.png", "assets/atlas_shiny.7226dda6.png", "assets/card_px.a82ac432.webp", "assets/card_hd.88ad05ca.webp"];
 
 self.addEventListener("install", e => {

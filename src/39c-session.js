@@ -19,7 +19,7 @@ const SESSION_OBJ = [
   {k:"exc",   i:"star",    go:"capture", g:[1, 2, 2, 3, 4],      n:t=>t > 1 ? `Réussir ${t} lancers Excellent` : "Réussir un lancer Excellent", v:()=>S.stats.excellent || 0,
    req:()=>typeof skillEnabled === "function" && skillEnabled()},
   {k:"streak",i:"bolt",    go:"capture", g:[5, 8, 10, 14, 18],   n:t=>`Atteindre une série de ${t} captures`, v:()=>S.streak || 0, abs:1},
-  {k:"fish",  i:"capture", go:"capture", g:[2, 3, 4, 5, 6],      n:t=>`Pêcher ${t} Pokémon`, v:()=>S.stats.fish || 0, req:()=>S.level >= 4, set:()=>{ S.capMode = "fish"; }},
+  {k:"fish",  i:"capture", go:"capture", g:[2, 3, 4, 5, 6],      n:t=>`Pêcher ${t} Pokémon`, v:()=>S.stats.fish || 0, req:()=>!!S.rod, set:()=>{ capModeSet("fish"); }},
   {k:"walls", i:"bolt",    go:"idle",    g:[1, 1, 2, 2, 3],      n:t=>t > 1 ? `Faire ${t} fouilles au Forage` : "Faire une fouille au Forage", v:()=>S.stats.walls || 0,
    req:t=>moduleUnlocked("idle") && forage().walls >= t},
   {k:"tower", i:"user",    go:"tower",   g:[1, 2, 2, 3, 3],      n:t=>t > 1 ? `Gagner ${t} combats de la Tour` : "Gagner un combat de la Tour", v:()=>(typeof sqState === "function" && sqState().clears) || 0,
@@ -121,7 +121,7 @@ ACTIONS.sessopen = () => {
     kicker:"COFFRE DE SESSION · " + (t + 1) + " / " + SESSION_CHESTS, title:SESSION_NAMES[t], sub:parts.join(" · "),
     line:s.tier < SESSION_CHESTS ? `Trois nouveaux objectifs. Le prochain coffre est un ${SESSION_NAMES[s.tier].toLowerCase()}, {nom}. Je dis ça, je ne dis rien.`
                                  : "Cinq coffres aujourd'hui. Je n'en ai plus. Reviens demain, j'en aurai fabriqué d'autres.",
-    then:()=>{ try { refresh(); } catch(e){} }}, true);
+    then:()=>{ try { calmRefresh(); } catch(e){} }}, true);
   try { Sfx.win(); } catch(e){}
   renderNextStep();
 };
@@ -187,6 +187,7 @@ ACTIONS.nextstep = () => {
   const n = nextStep(); if(!n) return;
   if(n.go === "@sess") return ACTIONS.sessopen();
   if(n.go.startsWith("@obj:")) return ACTIONS.sessgo({k:n.go.slice(5)});
+  if(n.go === "@fish") return fishGo(true);
   go(n.go, n.arg);
 };
 /* le bandeau : seulement là où l'on choisit quoi faire, jamais en pleine partie */

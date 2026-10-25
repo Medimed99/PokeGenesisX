@@ -283,6 +283,8 @@ const DIG_LOOT = [
   {k:"ever",   ic:"dig:ever",  w:2, h:2, n:"Pierre Stase",    wt:si=>3, give:si=>({coins:900 + si * 500})},
   {k:"held",   ic:"held:h_relic", w:2, h:2, n:"Objet ancien", wt:si=>si >= 2 ? 0.8 : 0, rare:1, give:()=>({held:1})},
   {k:"mon",    ic:null,        w:3, h:3, n:"Pokémon endormi", wt:si=>3.5, rare:1, give:(si, it)=>({mon:it.mon})},
+  /* jamais tirée au hasard : la Vieille Canne, dans l'une des trois premières fouilles (33-fishing.js) */
+  {k:"rod",    ic:"rod:old",   w:5, h:2, n:"Vieille Canne",   wt:si=>0, rare:1, give:()=>({rod:1})},
   /* jamais tiree au hasard : placee quand une page des onze attend dans le Forage */
   {k:"page",   ic:null,        w:3, h:2, n:"Page de journal", wt:si=>0, rare:1, give:(si, it)=>({page:it.page})}
 ];
@@ -329,12 +331,21 @@ function genWall(si, rnd){
   const tot = table.reduce((a, x)=>a + x[1], 0);
   const n = 3 + Math.floor(rnd() * 2) + (si >= 4 && rnd() < 0.45 ? 1 : 0);
   let tries = 0;
+  /* la Vieille Canne : couchée dans la roche, sous une couche plus tendre (on la devine) */
+  if(typeof rodWallDue === "function" && rodWallDue()) for(let t = 0; t < 80; t++){
+    const x0 = Math.floor(rnd() * (W - 4)), y0 = Math.floor(rnd() * (H - 1));
+    const it = {k:"rod", x:x0, y:y0, w:5, h:2, found:false};
+    it.cells = digMask(it).map(([x, y])=>(y0 + y) * W + x0 + x);
+    it.cells.forEach(c=>{ occ[c] = items.length; L[c] = Math.min(L[c], 3); });
+    items.push(it); break;
+  }
   /* une page des onze attend dans le Forage : elle est dans cette paroi, une fois sur deux */
   const pg = typeof fragPending === "function" ? fragPending("forage") : null;
   if(pg && rnd() < 0.5) for(let t = 0; t < 60; t++){
     const x0 = Math.floor(rnd() * (W - 2)), y0 = Math.floor(rnd() * (H - 1));
     const it = {k:"page", x:x0, y:y0, w:3, h:2, found:false, page:pg.id};
     it.cells = digMask(it).map(([x, y])=>(y0 + y) * W + x0 + x);
+    if(it.cells.some(c=>occ[c] >= 0)) continue;
     it.cells.forEach(c=>{ occ[c] = items.length; });
     items.push(it); break;
   }
@@ -428,6 +439,10 @@ function digClaim(wall){
     if(g.treasure){ S.treasures = S.treasures || {}; S.treasures[g.treasure] = (S.treasures[g.treasure] || 0) + 1; S.stats.treasures = (S.stats.treasures || 0) + 1; }
     if(g.egg && typeof grantEgg === "function") grantEgg(g.egg);
     if(g.held && typeof randomHeld === "function"){ const h = randomHeld(); if(h && grantHeld(h)) row.label = HELD_ITEMS[h].n; else gain("shards", 40); }
+    if(g.rod){
+      if(!S.rod){ S.rod = 1; S.flags.rodReveal = true; }
+      row.label = "Vieille Canne";
+    }
     if(g.page){
       const fr = FRAGMENTS.find(x=>x.id === g.page);
       if(fr && !(S.fragments || []).includes(fr.id)) fragFound(fr, `Dans une fouille, couche « ${STRATA[wall.si].n} », à ${fmt(Math.floor(forage().m))} m`);
@@ -835,7 +850,18 @@ function digDraw(dt){
       x.fillStyle = o.pal[0]; x.fillRect(X + c * 0.3, Y + c * 0.25, c * 0.18, c * 0.14);
       continue;
     }
-    if(it.k === "page"){
+    if(it.k === "rod"){
+      /* la Vieille Canne, couchée : poignée, moulinet, scion, et le fil qui pend */
+      const cy = Math.round(Y + h * 0.5);
+      x.fillStyle = "#4a2f18"; x.fillRect(X + 3, cy - 3, Math.round(c * 1.3), 6);
+      x.fillStyle = "#8a5a2e"; x.fillRect(X + 4, cy - 2, Math.round(c * 1.3) - 2, 2);
+      x.fillStyle = "#9aa6b8"; x.fillRect(Math.round(X + c * 1.3), cy - 6, Math.round(c * 0.6), Math.round(c * 0.6));
+      x.fillStyle = "#5d6878"; x.fillRect(Math.round(X + c * 1.3) + 2, cy - 4, Math.round(c * 0.6) - 4, Math.round(c * 0.6) - 4);
+      x.fillStyle = "#7a5230"; x.fillRect(Math.round(X + c * 1.9), cy - 1, Math.round(w - c * 1.9 - 4), 3);
+      x.fillStyle = "#c9d4e2"; x.fillRect(X + w - 7, cy - 2, 3, 5);
+      x.strokeStyle = "rgba(230,240,255,.7)"; x.lineWidth = 1;
+      x.beginPath(); x.moveTo(X + w - 5, cy + 3); x.quadraticCurveTo(X + w - 14, Y + h - 2, Math.round(X + c * 2.3), Y + h - 4); x.stroke();
+    } else if(it.k === "page"){
       x.fillStyle = "#e8d9a8"; x.fillRect(X + 3, Y + 3, w - 6, h - 6);
       x.fillStyle = "#c9b27a"; x.fillRect(X + 3, Y + h - 7, w - 6, 4);
       x.fillStyle = "#7a6a48"; for(let k = 0; k < 4; k++) x.fillRect(X + 8, Y + 8 + k * (h - 16) / 4, w - 16 - (k % 2) * 10, 2);
@@ -915,6 +941,9 @@ function digEnd(left){
     </div>`;
   el.classList.add("on");
   if(rows.length) try { Sfx.win(); } catch(e){}
+  /* la Vieille Canne : la pêche s'ouvre, on le dit tout de suite */
+  if(rows.some(r=>r.it && r.it.k === "rod") && typeof showRodDiscovery === "function")
+    setTimeout(()=>{ if(S.flags.rodReveal) showRodDiscovery(); }, 1100);
   /* les caisses s'ouvrent après le bilan, une par une */
   for(const r of rows) if(r.crate && typeof crateShow === "function") crateShow(r.crateTier, r.crate);
   /* un minerai jamais vu : son usage est dit dans le bilan lui-même, sans fenêtre de plus */
@@ -941,6 +970,7 @@ function digGainText(g){
   if(g.held) return "Objet tenu";
   if(g.mon) return "Il rejoint ton Pokédex";
   if(g.page) return "Rangée dans le journal, avec les autres pages";
+  if(g.rod) return "La pêche s'ouvre : Capture, onglet Pêche";
   return "";
 }
 ACTIONS.fowallback = () => { DIG = null; go("idle"); if(typeof checkStoryTriggers === "function") checkStoryTriggers(); };

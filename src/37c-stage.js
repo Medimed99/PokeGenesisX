@@ -30,7 +30,8 @@ function stageHold(){
   const d = typeof document !== "undefined" && document.getElementById ? document.getElementById("discover") : null;
   if(d && /\bon\b/.test(d.className || "")) return true;
   /* un combat de la Tour en cours : les annonces attendent les résultats */
-  try { if(SQB && !SQB._ended && currentScreen === "tower") return true; } catch(e){}
+  /* (seulement l'écran du combat : un combat abandonné en changeant d'onglet ne retient plus rien) */
+  try { if(SQB && !SQB._ended && currentScreen === "tower" && screenArg === "fight") return true; } catch(e){}
   return false;
 }
 const STAGE_Q = [];
@@ -154,7 +155,7 @@ function stageLevelUp(L, up){
     kicker:"ARCHIVISTE", title:up > 1 ? `+${up} niveaux` : "Niveau supérieur",
     sub:`+${fmt(coins)} PokéCoins${cores ? " · +1 Noyau" : ""}${opens.length ? " · s'ouvre : " + opens.join(", ") : next ? ` · prochaine salle au niveau ${next.lv}` : ""}`,
     line:typeof pzLine === "function" ? pzLine("levelup") : null, dur:4200,
-    then:()=>{ try { refresh(); } catch(e){} }});
+    then:()=>{ try { calmRefresh(); } catch(e){} }});
 }
 
 /* ---------- grand : les captures qui comptent ---------- */

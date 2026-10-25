@@ -282,6 +282,26 @@ function render(anim){
   renderAdmFab();
 }
 function refresh(){ if(document.getElementById("screen")) render(); }
+/* un écran vivant : un combat de la Tour (ses résultats compris), une visée, une balle en vol.
+   Le redessiner l'effacerait — on ne met alors à jour que la barre du haut et le dock. */
+function screenLive(){
+  try { if(currentScreen === "tower" && screenArg === "fight" && typeof SQB !== "undefined" && SQB) return true; } catch(e){}
+  try { if(currentScreen === "capture" && ((typeof AIM !== "undefined" && AIM) || (typeof busy !== "undefined" && busy))) return true; } catch(e){}
+  /* un combat d'Expédition ou de rival, une run de la Brèche, une fouille du Forage */
+  try { if(currentScreen === "battle" && typeof BATTLE !== "undefined" && BATTLE && !BATTLE.over) return true; } catch(e){}
+  try { if(typeof BR !== "undefined" && BR) return true; } catch(e){}
+  try { if(currentScreen === "idle" && screenArg === "wall" && typeof DIG !== "undefined" && DIG && !DIG.ended) return true; } catch(e){}
+  /* une ligne à l'eau */
+  try { if(currentScreen === "capture" && S.capMode === "fish" && !ENC && typeof FISHING !== "undefined" && FISHING.st !== "idle") return true; } catch(e){}
+  return false;
+}
+/* le rafraîchissement qui suit un moment, une scène, un coffre : il arrive quand le joueur
+   ne l'attend pas, donc il ne doit jamais casser ce qu'il est en train de faire */
+function calmRefresh(){
+  if(!document.getElementById("screen")) return;
+  if(screenLive()){ try { renderTopbar(); renderDock(); } catch(e){} return; }
+  render();
+}
 
 /* delegation d'evenements : tout element [data-act] declenche ACTIONS[act] */
 document.addEventListener("click", e=>{
@@ -340,14 +360,19 @@ const DOCK = [
   {k:"dex",      n:"Collection", i:"dex"},
   {k:"bag",      n:"Sac",     i:"box"}
 ];
-function renderDock(){
-  const d = document.getElementById("dock");
-  const alerts = {
+/* les pastilles du dock : ce qui attend le joueur dans chaque onglet */
+function dockAlerts(){
+  return {
     modules: canOpenBox() || questsReady(),
     dex: moduleUnlocked("eggs") && eggState().inc.some(x=>x.steps >= EGG_TIERS[x.tier].steps),
     profile: false,
     team: typeof teamIds === "function" && teamIds().some(id=>typeof evoReady === "function" && evoReady(id))
   };
+}
+function dockSig(){ const a = dockAlerts(); return DOCK.map(x=>a[x.k] ? 1 : 0).join(""); }
+function renderDock(){
+  const d = document.getElementById("dock");
+  const alerts = dockAlerts();
   d.innerHTML = DOCK.map(x=>`<button data-act="nav" data-to="${x.k}" class="${currentScreen===x.k?"on":""}">
       ${ic(x.i)}<span>${x.n}</span>${alerts[x.k]?'<i class="badge"></i>':""}</button>`).join("");
 }
@@ -412,7 +437,7 @@ function playStory(id, onDone){
     const cine = cineFor(id);
     if(cine){
       if(id !== "__dyn" && !S.story.includes(id)) S.story.push(id);
-      playCine(cine, onDone);
+      playCine(cine, onDone || storyAfter);
       return;
     }
   }
@@ -506,8 +531,11 @@ function endStory(){
   const cb = storyDone; storyDone = null; storyCur = null;
   checkAchievements();
   save();
-  if(cb) cb(); else refresh();
+  if(cb) cb(); else calmRefresh();
 }
+/* après une scène appelée sans suite (« jolie », le premier œuf, un trésor…) : l'écran
+   se remet à jour. Sans cela, la capture restait figée sur le Pokémon qu'on venait d'attraper. */
+function storyAfter(){ try { checkAchievements(); } catch(e){} saveSoon(); calmRefresh(); }
 
 /* --- declencheurs narratifs ---
    Trois sortes de scènes, dans cet ordre de priorité :

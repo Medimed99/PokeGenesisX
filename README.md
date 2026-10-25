@@ -528,6 +528,51 @@ Le jeu envoyé à un ami : ses notes brutes, et ce qu'elles ont changé.
 - **Visée de capture** : le curseur s'arrête au moment où le doigt se pose, n'importe où dans l'écran
   (`aimDown`, en capture sur `#screen`) ; le clic qui suit est avalé ; baies, Balls et cagnotte
   s'effacent et ne répondent plus pendant la visée.
+- **Bilan de la Tour après un niveau d'Archiviste** : la fin du moment « Niveau supérieur » redessinait
+  l'écran et effaçait le bilan. Les rafraîchissements qui arrivent sans que le joueur les demande (fin
+  d'un moment, d'une scène, d'un coffre) passent par `calmRefresh` : sur un écran vivant (`screenLive` :
+  combat de la Tour résultats compris, visée ou Balle en vol, combat d'Expédition, Brèche, fouille), seuls
+  la barre du haut et le dock se redessinent. Et le bilan est gardé (`B.resHtml`) : si l'écran est
+  redessiné quand même, `sqResRestore` le remet avec ses boutons à jour.
+- **Capture après « elle est jolie »** : une scène appelée sans suite passait par la cinématique, qui ne
+  redessinait rien en finissant ; la capture restait figée sur le chromatique. `playStory` donne
+  désormais la suite par défaut (`storyAfter` : succès, sauvegarde, `calmRefresh`), comme l'ancienne
+  scène racontée.
+- **Quêtes et succès annoncés tout de suite** : directives et succès n'étaient vérifiés qu'après
+  certaines actions, souvent au changement d'onglet. Une veille (`watchTick`, toutes les 1,5 s) vérifie
+  succès et directive en cours, et redessine le dock quand une pastille change (`dockSig`) ; les paliers
+  qui ouvrent une fenêtre attendent un moment calme. Un combat de la Tour abandonné en changeant d'onglet
+  ne retenait plus les annonces sur les autres écrans de la Tour.
+
+### La pêche, refaite (`33-fishing.js`)
+
+- **Le lac** posait `S.capMode = "fish"` sans effacer la rencontre : on arrivait sur l'onglet Pêche
+  avec le Pokémon des herbes à l'écran. Tout changement de mode passe par `capModeSet` (qui efface la
+  rencontre quand le mode change, et seulement alors) ; `fishGo` mène à l'étang depuis le lac, la
+  directive, la prochaine étape ou la fin d'une fouille. En pêche, une rencontre qui ne sort pas de
+  l'eau est effacée au rendu.
+- **La Vieille Canne se déterre** dans l'une des trois premières fouilles du Forage (`S.flags.rodAt`,
+  tiré une fois) ; si la fouille s'effondre avant qu'elle soit dégagée, elle revient dans la suivante
+  (`rodWallDue`). Elle est couchée sous une roche plus tendre (3 couches au plus). À la fin de la
+  fouille, l'écran « Déterrée au Forage » propose de pêcher tout de suite. Elle ne tombe plus d'une
+  capture (1 sur 90). L'objectif de session « Pêcher » demande la canne (il demandait le niveau 4), et
+  la directive de pêche vient juste après la première fouille, avec un indice qui dit où chercher.
+- **« Ferrer » ne marchait pas toujours** : une touche ferrée à temps lâchait encore sur un tirage
+  (45 % à la Vieille Canne) ; une fois sur quatorze, la touche devait être un trésor, que
+  `rollTreasure` refusait cinq fois sur six — rien ne se passait, sans un mot. Au total, près d'une
+  touche ferrée à temps sur deux ne donnait rien. Et l'écran entier était redessiné à chaque étape :
+  le bouton était remplacé sous le doigt, le toucher comptait au relâché, et deux touchers rapides sur
+  « Lancer » ferraient trop tôt. Désormais, ferrée à temps, une prise tient toujours ; le toucher
+  compte dès que le doigt se pose (`pointerdown`), sur l'eau comme sur le bouton ; rien n'est
+  redessiné pendant la pêche (une ligne à l'eau est un écran vivant pour `calmRefresh`).
+- **L'étang** : une toile en demi-taille agrandie sans lissage (pixel net), qui suit le jour, la nuit
+  et la pluie. Trois ombres nagent : leur taille dit la rareté, un reflet doré trahit un chromatique,
+  une ombre immobile qui brille au fond est un trésor (toujours remonté, `rollTreasure(…, true)`).
+  On touche l'eau pour lancer où l'on veut (le bouton vise la plus grande ombre) ; l'ombre la plus
+  proche vient, goûte le bouchon une à trois fois (plus les grosses) — ferrer là la fait fuir — puis
+  le « ! » des jeux d'origine. Ferrée vite (330 ms à la Vieille Canne, 390 et 450 ensuite), c'est un
+  **ferrage parfait** : +20 % à la capture, affiché sur la rencontre. La prise saute hors de l'eau, et
+  la rencontre garde l'eau en fond. Les cannes allongent la touche (850, 1 000, 1 150 ms).
 
 ## Audit de cohérence (octobre 2026)
 
