@@ -17,7 +17,7 @@ const fs = require("fs");
 const ORDER = ['_dexblob.js','_atlas.js','_atlas_shiny.js','_pmd.js','_items.js','_lore.js','_pzportrait.js','_pzanim.js','_chars.js','_trainers.js','_cardart.js','00-slugs.js','01-data.js','02-story.js','10-core.js','15-fx.js','20-ui.js','30-capture.js','30b-stakes.js','30c-onze.js','30c-bonus.js','32-world.js','33-fishing.js','34-research.js','36-lore.js','37-cine.js','37b-moments.js','37c-stage.js','37d-plateau.js','37e-decors.js','37f-mise-en-scene.js','38-forage.js','38b-forge.js','38c-dig-plus.js','39-daily.js','39b-events.js','39c-session.js','39p-demandes.js','39r-rival.js',
   '35-modules.js','40-battle.js','40b-picker.js','41-arena.js','42-team.js','50-expedition.js','51-expscene.js','51m-expmap.js','52-expgear.js','54-tower.js','55-squad.js','55b-squad-ui.js','55c-squad-fight.js','55h-histoire.js','56-breche.js','57-breche-run.js','58-breche-ui.js','59-breche-plus.js','59m-breche-map.js','59a-breche-attacks.js','59p-breche-pmd.js','59f-breche-feel.js','59g-breche-bossfight.js','59s-breche-share.js','59d-breche-depth.js','59k-breche-fx.js','59w-breche-world.js','59l-breche-legends.js','60-poker.js','61-poker-content.js','62-poker-table.js','70-collection.js','72-bag.js','73-cards.js','73b-cardpowers.js','73c-cardreveal.js','73d-reindex.js','73e-provenance.js','73f-chrono.js','73g-pzcard.js','73h-eras.js','73i-displaymodes.js','73j-cardnews.js','74-eggs.js','75-extras.js','76-items.js','77-secrets.js','78-milestones.js','79-ux.js','79b-world.js','79c-legend.js','80-guide.js','81-cosmetics.js','85-journal.js','86-saga.js','87-finale.js','88-share-mn.js','90-admin.js','95-online.js','95b-social.js','96-pwa.js','96b-music.js','99-boot.js'];
 const code = ORDER.map(f=>fs.readFileSync("src/"+f,"utf8")).join("\n");
-eval(code + "\n;" + 'global.__api={POKE,POKE_IDS,evalHand,genMap,EXP_ROWS,deepFill,newState,catchChance,typeMult,RARITY,ACHIEVEMENTS,JOKERS,STORY,anteTarget,makeFighter,damageCalc,xpForLevel,handBase,HANDS,newDeck,movesFor,dexTotal,famOf,stageOf,DIRECTIVES,INFOS,TUTOS,PZ_EVENTS,atlasIndex,ATLAS_N,ATLAS_BACK0,SLUGS,cardChips,grantCardV,grantSecretCard,cardVariants,cardHas,cardOwnedCount,cardTotal,CARD_MONS,CARD_SERIES_DEF,CARD_ORDER,rollCardSeries,randomCard,migrateCards,CARD_INDEX,cardChecksum,cardBytes,tcardHtml,cardBackHtml,GEN_TAG,boosterRank,seriesName,seriesFound,monFound,cardSubtitle,cardSpec,cardEra,cardPips,cardArt,cardBg,cardEntryOf,CARD_SCENES,CARD_YEARS,CARD_MN,CARD_ATLAS,resolveName,KNOWN_NAMES,sixthItem,glitchSixthItem,GEN_MARKS,checkChainMark,specialDay,isNightWindow,PZ_POKE_LINES,SIXTH_SLOTS,KONAMI,karpDealDay,karpDealAvailable,BST_BANDS,bstBand,wildIdFor,NODE_W,nodeTypeFor,EXP_ITEMS,rollExpItem,itemMinFloor,EXP_MODES,expRunModes,genMap,traitLevels,traitBonus,TOWER_TRAITS,HABITATS,HABITAT_IDS,habitatWeight,isNight,WEATHER,WEATHER_IDS,weatherDef,speciesInHabitat,FRAGMENTS,RIFT_ARC,checkFragments,riftTick,riftStage,fragmentsFound,fragNext,fragPending,fragOn,fragOnCatch,fragFound,FRAG_SRC,signatureMove,moveTierName,STRATA,forage,forageRate,forageAdvance,digPower,digAff,digRate,crewIds,wallEvery,wallCap,genWall,digHit,digClaim,DIG_LOOT,FOR_UPS,offlineHours,forageTick,EGG_TIERS,EXCLUSIVES,EXCL_SOURCE,isExclusive,RODS,fishPool,newFishEncounter,speciesForRarity,eggPool,repelRarity,lureMul,rstreak,rstreakCatch,rstreakBreak,RSTREAK_MILES,PERMANENTS,charmMul,runeMul,shinyOdds,friendCheck,friendEvo,canEvolve,codeHash,CODES,isSafariDay,SAFARI_POOL,botSpecies,botRate,botHours,FACTIONS,FACTION_RANKS,factionRank,factionMul,factionPts,todayRows,todayPending,REGIONS,unlockedRegions,nextEncounter,newEncounter,rollRarity,fleeChance,RARITY,CINEMAS,CINE_WHO,CINE_T,corruptText,CINE_POS,moduleUnlocked,checkAchievements,sqSkillsOf,sqLeaderOf,sqNewBattle,sqNext,sqTurnStart,sqAct,sqSync,sqSyncReady,sqPredict,sqSkip,sqAI,sqFinish,sqUpgrade,sqState,sqStars,sqZoneOpen,SQ_ZONES,SQ_STAGES,sqWaves,sqSkillLv,MAP_ROWS,MAP_SHAPE,EXP_MAPS,expGainLevels,expExpected,EXP_GAIN,startExpedition,openSector,afterFightRewards,lineRoot,createBattle,bStep,bSpeed,arOn,arNeed,AR_KIND,AR_BIOME,towerState,SCREENS,brSummonBoss,brBossDown,BR_PATTERNS,BR_KIT_BY_TYPE,brBossKit,brTerrainReact,brTerrainUnder,brDecal,brHit,brAddZone,brMapNear,brMapPre,brUpdate,ACTIONS,ITEM_IDX,TREASURE_KEYS,BALLS,BERRIES,STONES,CHESTS,PERMANENTS,TREASURES,EXP_ITEMS,REPELS,ringGrade,RING_GRADES,evSeason,evSeasonKey,evWeeklyLegend,evWeekIndex,evState,evTier,evRunPoints,EV_TRACK,EV_SEASONS,brShareText,BR_KIND,BR_ATK,BR_LEGEND,brArchFor,brFire,brWeaponStats,brSpawnFoe,pwaAfterIntro,pwaInstallable,pwaEnv,brChunkAt,brPushOut,brMastery,BR_TERRAIN,brMissionsFor,brNewRun,brUpdate,brXpNeed,brChoices,brWeaponStats,brDaily,brGuardianWin,brGuardianFor,ROOM_MOMENTS,roomMomentsTick,sqLockOpen,sqLockWaves,sqLockGate,sqLockLevel,sqLockAt,sqLockFinish,brNextEvo,brState,BR_ARCH,BR_ITEMS,ACTIVITIES,COSMETICS,FX_LAYERS,badgeCine,secretCine,BADGES,HANDS,MODULE_REQ,SCREENS,adminHash,ADMIN_HASH,ATELIER_TABS,STORY,RIFT_ARC,directStory,cineFor,RESEARCH_TASKS,researchOf,researchLevel,researchMax,researchTick,taskGoal,RESEARCH_TIERS,TALENTS,talentOf,PERFECT_ODDS,rollPerfect,weekStamp,REPORT_ROWS,lineRoot,towerLevel,towerBand,BUFF_STATS,TRAINERS,expEnemyLevel,setBuddy,buddyTick,buddyTier,buddyBonus,buddy,rollWeekly,weeklyTick,weeklyRollover,openChest,WEEKLY_POOL,BUDDY_FINDS,BUDDY_MAX_TIER,BUDDY_TIER_AFF,CHESTS,addToDex,weekKey,aimBonus,BOOSTS,startBoost,boostActive,LUCKY_DAYS,rollLuckyDay,luckyF,TREASURES,rollTreasure,treasureValue,REGION_TIERS,checkRegionTiers,regionTiersDone,rollContract,contractTick,CONTRACTS,CYCLE_MODS,PERKS,cycleReward,perkLv,loreOf,LORE,PZ_EMOS,pzMood,HELD_ITEMS,grantHeld,heldActive,PLANETS,SPECTRALS,QUEST_POOLS,questMix,rollQuests,bonusSources,bonusTotals,raidState,raidEnd,raidTierReached,raidTotal,RAID_TIERS,wkSubmit,wkState,chalEncode,chalDecode,potState,potAdd,potLose,potMul,roamState,ROAMERS,srcHint,newEncounter,catchChance,fleeChance,getHorde:()=>HORDE,setHorde:v=>{HORDE=v},worldState,worldReg,projOf,projNeedOk,projCanPay,worldNextProj,CHAPTERS,chapterIdx,WORLD_PROJECTS,WORLD_SPOTS,legendOfBlock,legendNow,legendNext,LEG_IDS,legEnd,legState,starsOf,starMul,teamGiveXp,teamXpNeed,teamPower,monPower,candyCost,teamCandyGain,teamIds,teamOnEvolve,STAR_STEPS,addXp,sqUnit,sessState,sessRoll,sessProg,sessDone,sessReward,SESSION_OBJ,nextStep,levelUnlocks,stageHold,banner,Music,MUSIC_TRACKS,musicResolve,cardTier,CARD_POWERS,ORES,ORE_IDS,oreOf,oreHave,oreGain,TOOLS,toolTier,toolCost,toolCanForge,PICK_T,HAMMER_T,DRILL_T,FOR_SITES,siteOpen,siteReachable,siteSwitch,siteDepth,mainMaxM,stratumHard,toolSvg,PK_DECKS,pkBuildDeck,startPoker,pkScore,pkStartRound,pkRollShop,jokerAvail,evalHandRainbow,sanctPlace,sanctChance,sanctJoin,cardShopWares,CARD_ITEM_IDS,MOMENT_Q,cardRevealExpect,cardPowersFlush,CARD_POWER_PENDING,reidxFeed,reidxPts,reidxNext,reidxMigrate,reidxWeave,reidxPanel,reidxRevealHtml,REIDX_AT,REIDX_FRAG,getRT:()=>REIDX_TRACE,cardHowSet,cardHowText,cardRecordHtml,cardNoteRoll,cardNoteOf,cardNoteSign,CARD_NOTES,cardNotesPanelHtml,pzGiftDue,pzGiftGive,pzGiftPick,cardIntegrityBias,CHRONO_END,CHRONO_ERA,chronoEras,chronoComplete,chronoUnseen,chronoLine,chronoMigrate,chronoState,grantPzCard,pzCardOwned,pzCardTick,pzCardPanelHtml,CARD_PZ,skinOf,skinSet,skinChoices,eraVar,eraRecolor,eraSpriteHtml,skinRowHtml,skinZoomHtml,eraOfV,eraBody,eraAuraHalo,eraAuraGlow,eraAuraMotes,displayModeOpen,displayModeOf,displayModesHtml,cnewsPending,cnewsInit,cnewsShow,cnewsHtml,cnewsItems,cnewsHeroPick,reidxQuiet,reidxCalm,reidxSkip,versionText,versionRowHtml,buildV,updAnnounce,throwChance,aimResText,forStrataReached,forAnnounceNew,forNewMoment,achBanner,expBag,expBagAdd,expEquip,expLeaveNeedsAsk,endExpedition,expLastHtml,mnSprite,mnSpriteHtml,spriteUrl,getMISSING:()=>MISSING_SPRITE,BR_LEG_FIRE,BR_LEG_ZONE,BR_LEG_DRAW,BR_LEG_KIND,BR_LEG_NEW,lgDrawStates,lgDrawSerpent,lgPickTargets,lgSerpAt,brChoiceHtml,brFireExtra,brZones,brZone,brChestGift,brChestTier,brChestWaiting,BR_FRAGS,BR_CHEST_TIERS,BR_SURGES,brRecomputeMods,BR_MAXLV,setScreen:v=>{currentScreen=v},sprite,pkWishBonus,pkDeckTargetMul,psyFamilies,pkOpp,pkEvoTick,pkToggle,pkPlay,skipResolve,commitResolve,pkDraw,PK_LEADER_ORDER,RIVALS,rivalPrize,rivalRec,safariWeek,localYmd,introSeen,calmFx,applyCalm,brShake,mnShareOpen,mnShareText,mnShareRowHtml,mnShareOffer,mnShareAnswer,storyQWaiting,storyQHintHtml,raidBossFighter,raidXp,RAID_TURNS,RAID_DMG_CAP,setStatus,endOfTurnStatus,pzAskEnsure,pzAskState,pzAskQuest,pzAskOnCatch,pzAskFulfill,pzAskPool,pzAskRowHtml,pzAskHomeHtml,rollQuests,questTick,today,finishBattle,handleKO,histFight,histAfterBattle,histOnEvolve,histRows,histHtml,histFaithful,histDay,histHow,setDexHow:v=>{DEX_HOW=v},ONZE,ONZE_SURE,ONZE_GAP,onzeNext,onzeState,onzeMet,onzeCaught,onzeOnEvolve,monNick,onzePanelHtml,onzeDexHtml,onzeRevealBeats,STORY_Q,STORY_Q_ORDER,storyAns,storyAnswer,storyWhen,storyQPending,pzRecall,pzRecallLine,creditsAnswersHtml,STORY_BY_ID,directStory,expFight,enemySpecFor,expUnstick,getBATTLE:()=>BATTLE,legOpen,legendCardHtml,storyThread,storyThreadHtml,storyRecapHtml,MAIN_ARC,MEM_SCENES,mainArcNext,mainArcPending,pzFmt,pzMask,pzName,frNum,sagaConn,sagaState,sagaKnown,sagaWrote,pzLog,pzLogTick,pzFileHtml,pzMemPct,memoryPanelHtml,finaleReqs,finaleReady,finaleStage,sagaCardHtml,sagaWritePz,creditsRollHtml,sagaCycleBeat,sagaPath,finaleWaves,mnUnit,echoUnit,finalPhase,finaleAfterChoice,finalPrep,finalPrepHtml,nameBytes,nameSprite,hex2,fragAuthor,checkStoryTriggers,STORY_TITLES,STORY_ACTS,cycleReady,cycleCopy,sqLoadWave,sqCheck,sqAlive,setS:function(v){S=v},getS:function(){return S},setENC:function(v){ENC=v},getENC:function(){return ENC},getCINE:function(){return CINE},getCineLast:function(){return CINE_LAST},playStory:playStory,PL_BEATS,PL_SETS,PL_KINDS,plKitForTest:(x,w,h)=>plKit(x,plRng(1),w,h),PMD_META,PL_PROPS,PL_EMOTES,PL_LIGHTS,PL_WL,PL_MOOD,PL_FONT,PL_BG,STAGE,SW_MAP,SW_W,SW_H,swarmColors,plText,plTextW,plRng,plHash,plDir,stDefragN,pzReal,stFirstMon,PZX,PZ_STRIP,MAJOR_SCENES};');
+eval(code + "\n;" + 'global.__api={POKE,POKE_IDS,evalHand,genMap,EXP_ROWS,deepFill,newState,catchChance,typeMult,RARITY,ACHIEVEMENTS,JOKERS,STORY,anteTarget,makeFighter,damageCalc,xpForLevel,handBase,HANDS,newDeck,movesFor,dexTotal,famOf,stageOf,DIRECTIVES,INFOS,TUTOS,PZ_EVENTS,atlasIndex,ATLAS_N,ATLAS_BACK0,SLUGS,cardChips,grantCardV,grantSecretCard,cardVariants,cardHas,cardOwnedCount,cardTotal,CARD_MONS,CARD_SERIES_DEF,CARD_ORDER,rollCardSeries,randomCard,migrateCards,CARD_INDEX,cardChecksum,cardBytes,tcardHtml,cardBackHtml,GEN_TAG,boosterRank,seriesName,seriesFound,monFound,cardSubtitle,cardSpec,cardEra,cardPips,cardArt,cardBg,cardEntryOf,CARD_SCENES,CARD_YEARS,CARD_MN,CARD_ATLAS,resolveName,KNOWN_NAMES,sixthItem,glitchSixthItem,GEN_MARKS,checkChainMark,specialDay,isNightWindow,PZ_POKE_LINES,SIXTH_SLOTS,KONAMI,karpDealDay,karpDealAvailable,BST_BANDS,bstBand,wildIdFor,NODE_W,nodeTypeFor,EXP_ITEMS,rollExpItem,itemMinFloor,EXP_MODES,expRunModes,genMap,traitLevels,traitBonus,TOWER_TRAITS,HABITATS,HABITAT_IDS,habitatWeight,isNight,WEATHER,WEATHER_IDS,weatherDef,speciesInHabitat,FRAGMENTS,RIFT_ARC,checkFragments,riftTick,riftStage,fragmentsFound,fragNext,fragPending,fragOn,fragOnCatch,fragFound,FRAG_SRC,signatureMove,moveTierName,STRATA,forage,forageRate,forageAdvance,digPower,digAff,digRate,crewIds,wallEvery,wallCap,genWall,digHit,digClaim,DIG_LOOT,FOR_UPS,offlineHours,forageTick,EGG_TIERS,EXCLUSIVES,EXCL_SOURCE,isExclusive,RODS,fishPool,newFishEncounter,speciesForRarity,eggPool,repelRarity,lureMul,rstreak,rstreakCatch,rstreakBreak,RSTREAK_MILES,PERMANENTS,charmMul,runeMul,shinyOdds,friendCheck,friendEvo,canEvolve,codeHash,CODES,isSafariDay,SAFARI_POOL,botSpecies,botRate,botHours,FACTIONS,FACTION_RANKS,factionRank,factionMul,factionPts,todayRows,todayPending,REGIONS,unlockedRegions,nextEncounter,newEncounter,rollRarity,fleeChance,RARITY,CINEMAS,CINE_WHO,CINE_T,corruptText,CINE_POS,moduleUnlocked,checkAchievements,sqSkillsOf,sqLeaderOf,sqNewBattle,sqNext,sqTurnStart,sqAct,sqSync,sqSyncReady,sqPredict,sqSkip,sqAI,sqFinish,sqUpgrade,sqState,sqStars,sqZoneOpen,SQ_ZONES,SQ_STAGES,sqWaves,sqSkillLv,MAP_ROWS,MAP_SHAPE,EXP_MAPS,expGainLevels,expExpected,EXP_GAIN,startExpedition,openSector,afterFightRewards,lineRoot,createBattle,bStep,bSpeed,arOn,arNeed,AR_KIND,AR_BIOME,towerState,SCREENS,brSummonBoss,brBossDown,BR_PATTERNS,BR_KIT_BY_TYPE,brBossKit,brTerrainReact,brTerrainUnder,brDecal,brHit,brAddZone,brMapNear,brMapPre,brUpdate,ACTIONS,ITEM_IDX,TREASURE_KEYS,BALLS,BERRIES,STONES,CHESTS,PERMANENTS,TREASURES,EXP_ITEMS,REPELS,ringGrade,RING_GRADES,evSeason,evSeasonKey,evWeeklyLegend,evWeekIndex,evState,evTier,evRunPoints,EV_TRACK,EV_SEASONS,brShareText,BR_KIND,BR_ATK,BR_LEGEND,brArchFor,brFire,brWeaponStats,brSpawnFoe,pwaAfterIntro,pwaInstallable,pwaEnv,brChunkAt,brPushOut,brMastery,BR_TERRAIN,brMissionsFor,brNewRun,brUpdate,brXpNeed,brChoices,brWeaponStats,brDaily,brGuardianWin,brGuardianFor,ROOM_MOMENTS,roomMomentsTick,sqLockOpen,sqLockWaves,sqLockGate,sqLockLevel,sqLockAt,sqLockFinish,brNextEvo,brState,BR_ARCH,BR_ITEMS,ACTIVITIES,COSMETICS,FX_LAYERS,badgeCine,secretCine,BADGES,HANDS,MODULE_REQ,SCREENS,adminHash,ADMIN_HASH,ATELIER_TABS,STORY,RIFT_ARC,directStory,cineFor,RESEARCH_TASKS,researchOf,researchLevel,researchMax,researchTick,taskGoal,RESEARCH_TIERS,legendEntry,showDiscovery,getDISCOVER:()=>DISCOVER,brLandscape,brOrient,aimDown,startAim,stopAim,getAIM:()=>AIM,STORY_BY_ID_:STORY,taskDone,researchSync,researchMigrate,researchTotal,researchFicheHtml,researchCatchHtml,researchPanelHtml,researchNear,researchCellHtml,taskProg,sqLootGrant,expEndScene,EXP_MODES_:EXP_MODES,RELICS,TALENTS,talentOf,PERFECT_ODDS,rollPerfect,weekStamp,REPORT_ROWS,lineRoot,towerLevel,towerBand,BUFF_STATS,TRAINERS,expEnemyLevel,setBuddy,buddyTick,buddyTier,buddyBonus,buddy,rollWeekly,weeklyTick,weeklyRollover,openChest,WEEKLY_POOL,BUDDY_FINDS,BUDDY_MAX_TIER,BUDDY_TIER_AFF,CHESTS,addToDex,weekKey,aimBonus,BOOSTS,startBoost,boostActive,LUCKY_DAYS,rollLuckyDay,luckyF,TREASURES,rollTreasure,treasureValue,REGION_TIERS,checkRegionTiers,regionTiersDone,rollContract,contractTick,CONTRACTS,CYCLE_MODS,PERKS,cycleReward,perkLv,loreOf,LORE,PZ_EMOS,pzMood,HELD_ITEMS,grantHeld,heldActive,PLANETS,SPECTRALS,QUEST_POOLS,questMix,rollQuests,bonusSources,bonusTotals,raidState,raidEnd,raidTierReached,raidTotal,RAID_TIERS,wkSubmit,wkState,chalEncode,chalDecode,potState,potAdd,potLose,potMul,roamState,ROAMERS,srcHint,newEncounter,catchChance,fleeChance,getHorde:()=>HORDE,setHorde:v=>{HORDE=v},worldState,worldReg,projOf,projNeedOk,projCanPay,worldNextProj,CHAPTERS,chapterIdx,WORLD_PROJECTS,WORLD_SPOTS,legendOfBlock,legendNow,legendNext,LEG_IDS,legEnd,legState,starsOf,starMul,teamGiveXp,teamXpNeed,teamPower,monPower,candyCost,teamCandyGain,teamIds,teamOnEvolve,STAR_STEPS,addXp,sqUnit,sessState,sessRoll,sessProg,sessDone,sessReward,SESSION_OBJ,nextStep,levelUnlocks,stageHold,banner,Music,MUSIC_TRACKS,musicResolve,cardTier,CARD_POWERS,ORES,ORE_IDS,oreOf,oreHave,oreGain,TOOLS,toolTier,toolCost,toolCanForge,PICK_T,HAMMER_T,DRILL_T,FOR_SITES,siteOpen,siteReachable,siteSwitch,siteDepth,mainMaxM,stratumHard,toolSvg,PK_DECKS,pkBuildDeck,startPoker,pkScore,pkStartRound,pkRollShop,jokerAvail,evalHandRainbow,sanctPlace,sanctChance,sanctJoin,cardShopWares,CARD_ITEM_IDS,MOMENT_Q,cardRevealExpect,cardPowersFlush,CARD_POWER_PENDING,reidxFeed,reidxPts,reidxNext,reidxMigrate,reidxWeave,reidxPanel,reidxRevealHtml,REIDX_AT,REIDX_FRAG,getRT:()=>REIDX_TRACE,cardHowSet,cardHowText,cardRecordHtml,cardNoteRoll,cardNoteOf,cardNoteSign,CARD_NOTES,cardNotesPanelHtml,pzGiftDue,pzGiftGive,pzGiftPick,cardIntegrityBias,CHRONO_END,CHRONO_ERA,chronoEras,chronoComplete,chronoUnseen,chronoLine,chronoMigrate,chronoState,grantPzCard,pzCardOwned,pzCardTick,pzCardPanelHtml,CARD_PZ,skinOf,skinSet,skinChoices,eraVar,eraRecolor,eraSpriteHtml,skinRowHtml,skinZoomHtml,eraOfV,eraBody,eraAuraHalo,eraAuraGlow,eraAuraMotes,displayModeOpen,displayModeOf,displayModesHtml,cnewsPending,cnewsInit,cnewsShow,cnewsHtml,cnewsItems,cnewsHeroPick,reidxQuiet,reidxCalm,reidxSkip,versionText,versionRowHtml,buildV,updAnnounce,throwChance,aimResText,forStrataReached,forAnnounceNew,forNewMoment,achBanner,expBag,expBagAdd,expEquip,expLeaveNeedsAsk,endExpedition,expLastHtml,mnSprite,mnSpriteHtml,spriteUrl,getMISSING:()=>MISSING_SPRITE,BR_LEG_FIRE,BR_LEG_ZONE,BR_LEG_DRAW,BR_LEG_KIND,BR_LEG_NEW,lgDrawStates,lgDrawSerpent,lgPickTargets,lgSerpAt,brChoiceHtml,brFireExtra,brZones,brZone,brChestGift,brChestTier,brChestWaiting,BR_FRAGS,BR_CHEST_TIERS,BR_SURGES,brRecomputeMods,BR_MAXLV,setScreen:v=>{currentScreen=v},sprite,pkWishBonus,pkDeckTargetMul,psyFamilies,pkOpp,pkEvoTick,pkToggle,pkPlay,skipResolve,commitResolve,pkDraw,PK_LEADER_ORDER,RIVALS,rivalPrize,rivalRec,safariWeek,localYmd,introSeen,calmFx,applyCalm,brShake,mnShareOpen,mnShareText,mnShareRowHtml,mnShareOffer,mnShareAnswer,storyQWaiting,storyQHintHtml,raidBossFighter,raidXp,RAID_TURNS,RAID_DMG_CAP,setStatus,endOfTurnStatus,pzAskEnsure,pzAskState,pzAskQuest,pzAskOnCatch,pzAskFulfill,pzAskPool,pzAskRowHtml,pzAskHomeHtml,rollQuests,questTick,today,finishBattle,handleKO,histFight,histAfterBattle,histOnEvolve,histRows,histHtml,histFaithful,histDay,histHow,setDexHow:v=>{DEX_HOW=v},ONZE,ONZE_SURE,ONZE_GAP,onzeNext,onzeState,onzeMet,onzeCaught,onzeOnEvolve,monNick,onzePanelHtml,onzeDexHtml,onzeRevealBeats,STORY_Q,STORY_Q_ORDER,storyAns,storyAnswer,storyWhen,storyQPending,pzRecall,pzRecallLine,creditsAnswersHtml,STORY_BY_ID,directStory,expFight,enemySpecFor,expUnstick,getBATTLE:()=>BATTLE,legOpen,legendCardHtml,storyThread,storyThreadHtml,storyRecapHtml,MAIN_ARC,MEM_SCENES,mainArcNext,mainArcPending,pzFmt,pzMask,pzName,frNum,sagaConn,sagaState,sagaKnown,sagaWrote,pzLog,pzLogTick,pzFileHtml,pzMemPct,memoryPanelHtml,finaleReqs,finaleReady,finaleStage,sagaCardHtml,sagaWritePz,creditsRollHtml,sagaCycleBeat,sagaPath,finaleWaves,mnUnit,echoUnit,finalPhase,finaleAfterChoice,finalPrep,finalPrepHtml,nameBytes,nameSprite,hex2,fragAuthor,checkStoryTriggers,STORY_TITLES,STORY_ACTS,cycleReady,cycleCopy,sqLoadWave,sqCheck,sqAlive,setS:function(v){S=v},getS:function(){return S},setENC:function(v){ENC=v},getENC:function(){return ENC},getCINE:function(){return CINE},getCineLast:function(){return CINE_LAST},playStory:playStory,PL_BEATS,PL_SETS,PL_KINDS,plKitForTest:(x,w,h)=>plKit(x,plRng(1),w,h),PMD_META,PL_PROPS,PL_EMOTES,PL_LIGHTS,PL_WL,PL_MOOD,PL_FONT,PL_BG,STAGE,SW_MAP,SW_W,SW_H,swarmColors,plText,plTextW,plRng,plHash,plDir,stDefragN,pzReal,stFirstMon,PZX,PZ_STRIP,MAJOR_SCENES};');
 const A = global.__api;
 let pass=0, fail=0;
 const t = (n, cond, extra) => { cond?pass++:(fail++,console.log("  ECHEC:",n,extra||"")); };
@@ -618,10 +618,81 @@ t("expédition : la fin est gardée au camp, et dit ce qui reste", (()=>{
   for(const id of [4, 7, 1]) A.addToDex(id, 20, false);
   try { A.startExpedition([4, 7, 1]); } catch(e){}   /* l'écran n'existe pas ici, le parcours si */
   A.setScreen("capture");
+  const lv0 = S0.dex[4].lvl;
   A.endExpedition(true);
   const L = S0.expLast, html = A.expLastHtml();
-  return !S0.expedition && L && L.win === true && L.gains.length === 3 && L.gains.every(g=>g.add >= 2)
-    && html.includes("Dernière expédition : réussie") && html.includes("Bulbizarre") && !/undefined|NaN/.test(html);
+  return !S0.expedition && L && L.win === true && L.back.length === 3 && L.candy > 0 && S0.candy === L.candy
+    && S0.dex[4].lvl === lv0
+    && html.includes("Dernière expédition : réussie") && html.includes("Bonbons d'équipe") && html.includes("Donner les bonbons")
+    && !/undefined|NaN/.test(html);
+})());
+t("expédition : chaque Pokémon revenu d'une expédition réussie rapporte 4 bonbons, la relique 2 de plus", (()=>{
+  const run1 = (relic)=>{
+    A.setS(A.newState()); const S0 = A.getS();
+    S0.daily.firstWin = {expedition:true};                    /* sans la première victoire du jour */
+    for(const id of [4, 7, 1]) A.addToDex(id, 20, false);
+    try { A.startExpedition([4, 7, 1]); } catch(e){}
+    A.setScreen("capture");
+    if(relic) S0.expedition.relics.push("r_xp");
+    A.endExpedition(true);
+    return S0.expLast.candy;
+  };
+  return run1(false) === 12 && run1(true) === 18;
+})());
+t("expédition : une recrue sauvage ne rapporte rien, un Pokémon K.O. non plus", (()=>{
+  A.setS(A.newState()); const S0 = A.getS();
+  S0.daily.firstWin = {expedition:true};
+  for(const id of [4, 7, 1]) A.addToDex(id, 20, false);
+  try { A.startExpedition([4, 7, 1]); } catch(e){}
+  A.setScreen("capture");
+  const run = S0.expedition;
+  run.team.push({id:19, level:9, hp:20, maxHp:20});          /* une recrue, sans espèce de départ */
+  run.team[1].hp = 0;                                         /* Carapuce K.O. */
+  A.endExpedition(true);
+  return S0.expLast.candy === 8 && S0.expLast.back.length === 2 && S0.expLast.ko.join() === "7";
+})());
+t("expédition : abandonner aussitôt parti ne rapporte aucun bonbon, et ne fait monter personne", (()=>{
+  A.setS(A.newState()); const S0 = A.getS();
+  for(const id of [4, 7, 1]) A.addToDex(id, 20, false);
+  try { A.startExpedition([4, 7, 1]); } catch(e){}
+  A.setScreen("capture");
+  A.endExpedition(false);
+  return S0.expLast.candy === 0 && (S0.candy || 0) === 0 && S0.dex[4].lvl === 20 && S0.dex[7].lvl === 20;
+})());
+t("expédition : le Champion donne 2 bonbons tout de suite, et la fin les recompte", (()=>{
+  A.setS(A.newState()); const S0 = A.getS();
+  S0.daily.firstWin = {expedition:true};
+  for(const id of [4, 7, 1]) A.addToDex(id, 20, false);
+  try { A.startExpedition([4, 7, 1]); } catch(e){}
+  A.setScreen("capture");
+  const run = S0.expedition;
+  try { A.afterFightRewards(run, "champ", [16]); } catch(e){}
+  const mid = S0.candy === 2 && run.candy === 2 && run.pend && run.pend.candy === 2;
+  A.endExpedition(true);
+  return mid && S0.expLast.candy === 2 + 12 && S0.candy === 14;
+})());
+t("expédition : le Nuzlocke paie vraiment ×1,8, comme il l'annonce", (()=>{
+  const coins = (mode)=>{
+    A.setS(A.newState()); const S0 = A.getS();
+    S0.daily.firstWin = {expedition:true}; S0.expMode = mode;
+    for(const id of [4, 7, 1]) A.addToDex(id, 20, false);
+    try { A.startExpedition([4, 7, 1]); } catch(e){}
+    A.setScreen("capture");
+    const c0 = S0.shards;
+    A.endExpedition(true);
+    return {c:S0.shards - c0, k:S0.expLast.candy};
+  };
+  /* au noyau sans détour : 60 Fragments, et rien d'autre ne change entre les deux modes */
+  const a = coins("classic"), b = coins("nuzlocke");
+  return b.c - a.c === Math.round(60 * 1.8) - 60 && b.k === Math.round(12 * 1.8);
+})());
+t("expédition : plus de « désindexé — définitif » ; un K.O. reste dans l'archive, et les règles le disent", (()=>{
+  const src = require("fs").readFileSync("src/50-expedition.js", "utf8") + require("fs").readFileSync("src/52-expgear.js", "utf8");
+  const ok1 = !/définitif/.test(src.replace(/\/\*[\s\S]*?\*\//g, "")) && !/perdu jusqu'au bout/.test(src);
+  A.setS(A.newState()); A.setScreen("expedition");
+  const html = A.SCREENS.expedition.html();
+  return ok1 && html.includes("reste toujours dans ton archive") && html.includes("Bonbons d'équipe")
+    && !/niveaux permanents|niveaux de combat permanents/.test(html) && html.includes("Toutes les règles");
 })());
 t("MissingNo : sans toile (tests), la fêlure retombe sur l'image de secours, partout pareil", (()=>{
   A.setS(A.newState());
@@ -1165,13 +1236,135 @@ t("une tâche accomplie fait monter le niveau de recherche", (()=>{
   const S0 = A.getS();
   A.addToDex(25, 10, false);
   const avant = A.researchLevel(25);
-  for(let i=0;i<10;i++) A.researchTick(25, "catch", 1);
+  for(let i=0;i<10;i++){ A.addToDex(25, 10, false); A.researchTick(25, "catch", 1); }
   return avant === 0 && A.researchLevel(25) === 1;
 })());
 t("sept paliers de recherche, croissants", (()=>{
   const n = A.RESEARCH_TIERS.map(x=>x.n);
   return n.length === 7 && n.every((v,i)=>i===0 || v > n[i-1]) &&
     A.RESEARCH_TIERS.every(x=>x.rw && Object.keys(x.rw).length);
+})());
+t("rencontre : les étiquettes tiennent dans la carte (courtes, et jamais plus larges qu'elle)", (()=>{
+  const src = require("fs").readFileSync("src/30c-onze.js", "utf8") + require("fs").readFileSync("src/30b-stakes.js", "utf8");
+  const css = require("fs").readFileSync("src/style.css", "utf8");
+  const tags = [...src.matchAll(/class="stk-tag [a-z]+">([^<]+)</g)].map(m=>m[1].replace(/\$\{[^}]+\}/g, "9"));
+  return tags.length >= 3 && tags.every(t2=>t2.length <= 28) && /\.stk-tag\{[^}]*max-width:calc\(100% - 24px\)/.test(css);
+})());
+t("Brèche : toutes les fenêtres montrent des sprites fixes, l'éveil compris", (()=>{
+  const fs2 = require("fs"), files = fs2.readdirSync("src").filter(f=>/^5[6-9].*breche.*\.js$/.test(f));
+  return files.length >= 5 && files.every(f=>!/anim:\s*true/.test(fs2.readFileSync("src/" + f, "utf8")));
+})());
+t("le premier trésor : la scène dit ce que c'est et quoi en faire, plus d'objet « tombé de l'extérieur »", (()=>{
+  const sc = A.STORY_BY_ID_.find(x=>x.id === "pz_treasure"), txt = sc.lines.map(l=>l.t).join(" ");
+  return /trésor/i.test(txt) && /Trésors/.test(txt) && /vendre|rachète/.test(txt) && !/extérieur/.test(txt);
+})());
+t("verrou levé : l'entrée au Pokédex s'ouvre comme une capture, avec l'attaque signature de la Brèche, puis rend la main", (()=>{
+  A.setS(A.newState()); const S0 = A.getS();
+  A.addToDex(146, 40, false);
+  /* l'écran de nouvelle entrée existe dans le jeu, pas ici : on lui prête un élément le temps du test */
+  const gid = global.document.getElementById;
+  global.document.getElementById = id=>id === "discover" ? {className:"", style:{setProperty(){}}, innerHTML:"", onclick:null, classList:{add(){}, remove(){}}} : null;
+  let done = 0, D = null;
+  try {
+    A.legendEntry({id:146, name:"Sulfura", core:false}, ()=>{ done++; });
+    D = A.getDISCOVER();
+  } finally { global.document.getElementById = gid; }
+  const ok = D && D.c.id === 146 && D.opts && /Attaque signature/.test(D.opts.note) && /Sillage Ardent|Pique-Feu/.test(D.opts.note) && /Noyaux/.test(D.opts.tiles);
+  if(D) D.timers.forEach(t2=>clearTimeout(t2));
+  A.ACTIONS.dcdone();
+  /* sans écran d'entrée, la suite passe quand même */
+  let done2 = 0; A.legendEntry({id:146, name:"Sulfura", core:false}, ()=>{ done2++; });
+  return ok && done === 1 && !A.getDISCOVER() && done2 === 1;
+})());
+t("Brèche : un téléphone à l'horizontale se détecte, et la partie se met en pause", (()=>{
+  return typeof A.brLandscape() === "boolean" && typeof A.brOrient === "function";
+})());
+t("visée : un toucher n'importe où l'arrête, au moment où le doigt se pose, sans rien activer d'autre", (()=>{
+  A.setS(A.newState()); const S0 = A.getS();
+  A.addToDex(16, 5, false);
+  A.setENC({id:16, level:5, shiny:false, rar:0, attempts:0});
+  const raf0 = global.requestAnimationFrame, caf0 = global.cancelAnimationFrame;
+  global.requestAnimationFrame = ()=>0; global.cancelAnimationFrame = ()=>{};
+  A.startAim();
+  const on = !!A.getAIM();
+  A.setENC(null);                 /* sans rencontre, la Ball ne part pas : seul l'arrêt est testé */
+  let stopped = 0, prevented = 0;
+  const ev = {button:0, preventDefault(){ prevented++; }, stopPropagation(){ stopped++; }};
+  try { A.aimDown(ev); } catch(e){}
+  global.requestAnimationFrame = raf0; global.cancelAnimationFrame = caf0;
+  return on && !A.getAIM() && prevented === 1 && stopped === 1;
+})());
+t("recherche : la tâche de doublons, ce sont les étoiles (★★ à quatre exemplaires)", (()=>{
+  A.setS(A.newState()); const S0 = A.getS();
+  const sh0 = S0.shards;
+  for(let i = 0; i < 3; i++) A.addToDex(16, 5, false);
+  const before = A.researchLevel(16) === 0 && A.starsOf(16) === 1;
+  A.addToDex(16, 5, false);
+  return before && A.starsOf(16) === 2 && A.researchLevel(16) === 1 && S0.research[16].ok.catch === 1 && S0.shards > sh0
+    && A.taskGoal(A.RESEARCH_TASKS[0], 16) === 4 && A.taskGoal(A.RESEARCH_TASKS[0], 150) === 1;
+})());
+t("recherche : une tâche n'est payée qu'une fois", (()=>{
+  A.setS(A.newState()); const S0 = A.getS();
+  for(let i = 0; i < 4; i++) A.addToDex(19, 5, false);
+  const sh = S0.shards;
+  return A.researchSync(19) === 0 && A.researchSync(19) === 0 && S0.shards === sh && S0.stats.research === 1;
+})());
+t("recherche : une chromatique obtenue, même par un œuf, remplit sa tâche", (()=>{
+  A.setS(A.newState()); const S0 = A.getS();
+  A.addToDex(25, 5, true);
+  return A.taskDone(A.RESEARCH_TASKS[3], 25) && S0.research[25].ok.shiny === 1;
+})());
+t("recherche : les parties d'avant gardent tout, rien n'est payé deux fois, les captures rejoignent les étoiles", (()=>{
+  A.setS(A.newState()); const S0 = A.getS();
+  delete S0.resV;
+  S0.dex[19] = {c:2, lvl:5, shiny:false};
+  S0.research = {19:{catch:6, battle:3, evolve:0, shiny:0}, 74:{catch:0, battle:2, evolve:0, shiny:0}};
+  S0.researchTiers = []; S0.stats.research = 2;
+  const sh = S0.shards;
+  A.researchMigrate();
+  const ok = S0.dex[19].tc === 6 && A.starsOf(19) === 2 && S0.research[19].ok.catch === 1 && S0.research[19].ok.battle === 1
+    && !S0.research[74].ok.battle && S0.shards === sh && S0.resV === 2 && S0.stats.research === 2;
+  /* la fiche d'une espèce vaincue mais pas archivée compte aussi */
+  A.researchTick(74, "battle", 1);
+  return ok && A.researchSync(19) === 0 && S0.research[74].ok.battle === 1 && A.researchTotal() === 3;
+})());
+t("recherche : les combats de la Tour comptent pour « en vaincre au combat »", (()=>{
+  A.setS(A.newState()); const S0 = A.getS();
+  A.sqLootGrant({kos:[16, 16, 16, 19], loot:{coins:10, scrolls:0, candy:0}, result:true});
+  return A.taskProg(A.RESEARCH_TASKS[1], 16) === 3 && A.taskProg(A.RESEARCH_TASKS[1], 19) === 1
+    && S0.research[16].ok.battle === 1 && !S0.research[19].ok.battle;
+})());
+t("recherche : plus d'onglet à part, la fiche du Pokédex dit quoi faire et ce que ça rapporte", (()=>{
+  A.setS(A.newState()); const S0 = A.getS();
+  for(let i = 0; i < 3; i++) A.addToDex(1, 12, false);
+  const f = A.researchFiche = A.researchFicheHtml(1);
+  const okF = f.includes("Atteindre ★★") && f.includes("3/4") && f.includes("En vaincre 3 au combat") && f.includes("Tour")
+    && f.includes("La faire évoluer") && f.includes("En obtenir une chromatique") && f.includes(`+${2 + A.POKE[1].rar} Fragments`)
+    && f.includes("palier 25") && !/undefined|NaN/.test(f);
+  const p = A.researchPanelHtml();
+  const okP = p.includes("Recherche") && p.includes("Palier 25") && !/undefined|NaN/.test(p);
+  A.setScreen("dex"); A.ACTIONS.dexmode({m:"research"});
+  const d = A.SCREENS.dex.html();
+  const okD = d.includes("dx-rs") && d.includes("Bulbizarre") && !/undefined|NaN/.test(d);
+  A.ACTIONS.dexmode({m:"all"});
+  return !A.SCREENS.research && okF && okP && okD;
+})());
+t("recherche : sous une capture, les étoiles, la fiche, et ce qui vient de se remplir", (()=>{
+  A.setS(A.newState());
+  for(let i = 0; i < 3; i++) A.addToDex(16, 5, false);
+  const a = A.researchCatchHtml(16);
+  A.addToDex(16, 5, false);
+  const b = A.researchCatchHtml(16), c = A.researchCatchHtml(16);
+  return a.includes("3/4") && a.includes("Recherche") && !a.includes("Tâche de recherche")
+    && b.includes("★★ atteint") && b.includes("Tâche de recherche") && b.includes("Fragments")
+    && !c.includes("Tâche de recherche") && !/undefined|NaN/.test(a + b);
+})());
+t("recherche : presque rempli — à une capture, à un combat, ou prête à évoluer", (()=>{
+  A.setS(A.newState()); const S0 = A.getS();
+  for(let i = 0; i < 3; i++) A.addToDex(16, 5, false);
+  A.researchTick(19, "battle", 2); A.addToDex(19, 5, false);
+  const near = A.researchNear("kanto");
+  return near.some(x=>x.id === 16 && x.k === "catch") && near.some(x=>x.id === 19 && x.k === "battle");
 })());
 
 /* --- intègres et talents --- */

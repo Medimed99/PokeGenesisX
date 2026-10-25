@@ -228,12 +228,36 @@ function aimGrade(pos, zone){
 }
 function aimBonus(pos, zone){ const g = aimGrade(pos, zone); return g ? g.mul : 1; }
 function aimSpeed(){ return 70 + (ENC ? ENC.rar : 0) * 32; }          /* % de barre par seconde */
+/* Arrêter le curseur : un toucher n'importe où dans l'écran de capture, au moment où le doigt se
+   pose. Avant, seul le bouton STOP réagissait, au relâché (le curseur avait encore filé), et un
+   pouce un peu bas tombait sur les baies, juste en dessous : « Stop » activait une baie, ou rien. */
+/* le clic qui suit ce toucher (au relâché du doigt) ne doit rien relancer ni rien activer ; seul
+   celui-là : le toucher suivant, lui, compte normalement */
+let AIM_SWALLOW = null;
+if(typeof document !== "undefined" && document.addEventListener){
+  document.addEventListener("pointerdown", ()=>{ if(!AIM) AIM_SWALLOW = null; }, true);
+  document.addEventListener("pointerup", ()=>{ if(AIM_SWALLOW && !AIM_SWALLOW.up) AIM_SWALLOW.up = Date.now(); }, true);
+  document.addEventListener("click", e=>{
+    const w = AIM_SWALLOW; if(!w) return;
+    AIM_SWALLOW = null;
+    if(w.up ? Date.now() - w.up < 400 : Date.now() - w.t < 1500){ e.stopPropagation(); e.preventDefault(); }
+  }, true);
+}
+function aimDown(e){
+  if(!AIM || (e.button !== undefined && e.button > 0)) return;
+  e.preventDefault(); e.stopPropagation();
+  AIM_SWALLOW = {t:Date.now(), up:0};
+  lockAim();
+}
+function aimBody(on){ try { document.body.classList.toggle("aiming", !!on); } catch(e){} }
 function startAim(){
   if(AIM) return;
   const w = Math.max(16, 34 - (ENC ? ENC.rar : 0) * 4);                 /* cible plus etroite si rare */
   const lo = 12 + rng() * (76 - w);
   AIM = {pos:0, dir:1, zone:[lo, lo + w], t:0, raf:0};
   refresh();
+  aimBody(true);
+  try { const sc = document.getElementById("screen"); if(sc && sc.addEventListener){ AIM.host = sc; sc.addEventListener("pointerdown", aimDown, true); } } catch(e){}
   const loop = now => {
     if(!AIM) return;
     const dt = AIM.t ? Math.min(50, now - AIM.t) : 0; AIM.t = now;
@@ -246,7 +270,10 @@ function startAim(){
   };
   AIM.raf = requestAnimationFrame(loop);
 }
-function stopAim(){ if(AIM){ cancelAnimationFrame(AIM.raf); AIM = null; } }
+function stopAim(){
+  if(AIM){ cancelAnimationFrame(AIM.raf); try { if(AIM.host) AIM.host.removeEventListener("pointerdown", aimDown, true); } catch(e){} AIM = null; }
+  aimBody(false);
+}
 function lockAim(){
   if(!AIM) return;
   const pos = AIM.pos, zone = AIM.zone;
@@ -582,9 +609,11 @@ function c_isBig(e){ return e.shiny || e.rar >= 4; }
 /* --- révélation d'une espèce inédite ---
    Le cœur emotionnel d'un jeu de collection merite mieux qu'une notification. */
 let DISCOVER = null;
-function showDiscovery(c, rw){
+/* opts (facultatif) : d'autres tuiles que les gains d'une capture, une note sous la fiche, et ce qui
+   suit (onDone) quand l'entrée n'arrive pas par une capture — un légendaire libéré d'un verrou, par exemple */
+function showDiscovery(c, rw, opts){
   const box = document.getElementById("discover");
-  if(!box){ showCatchResult(c, rw); return; }
+  if(!box){ if(opts && opts.onDone) opts.onDone(); else showCatchResult(c, rw); return; }
   const p = POKE[c.id];
   const accent = c.shiny ? "var(--amber)" : RARITY[c.rar].c;
   box.className = "on";
@@ -602,11 +631,13 @@ function showDiscovery(c, rw){
       <div class="wrap dc-tags" id="dc-tags" style="justify-content:center"></div>
       <div class="dc-lore" id="dc-lore"></div>
       <div class="tiles dc-rw" id="dc-rw"></div>
+      <div class="dc-res" id="dc-res"></div>
       <button class="btn pri wide dc-ok" id="dc-ok" data-act="dcdone">Archiver</button>
     </div>`;
   box.onclick = e => { if(DISCOVER && DISCOVER.step < 4) dcJump(); };
 
-  DISCOVER = {c, rw, step:0, timers:[]};
+  /* la fiche de recherche de la nouvelle espèce : lue tout de suite, montrée avec les gains (34) */
+  DISCOVER = {c, rw, step:0, timers:[], opts:opts || null, res:typeof researchCatchHtml === "function" ? researchCatchHtml(c.id) : ""};
   const at = (ms, fn) => DISCOVER.timers.push(setTimeout(fn, ms));
 
   at(520, ()=>{
@@ -663,18 +694,22 @@ function dcJump(){
   set("dc-name", esc(p.name) + (c.shiny ? ' <span class="gold-t">◆</span>' : ""), "in");
   set("dc-tags", typeTags(p.types) + rarTag(c.rar) + `<span class="tt t1">Niv.${c.level}</span>`, "in");
   set("dc-lore", esc(loreOf(c.id)), "in");
-  set("dc-rw", `
+  const O = DISCOVER.opts || {};
+  set("dc-rw", O.tiles || `
     <div class="tile gold"><div class="k">PokéCoins</div><div class="v">+${fmt(rw.coins)}</div></div>
     <div class="tile accent"><div class="k">Expérience</div><div class="v">+${fmt(rw.xp)}</div></div>
     <div class="tile"><div class="k">Intégrité</div><div class="v ok">+${rw.integ.toFixed(2)}%</div></div>
     <div class="tile"><div class="k">Chaîne</div><div class="v">${S.streak}</div></div>`, "in");
+  if(O.note || DISCOVER.res) set("dc-res", (O.note || "") + (DISCOVER.res || ""), "in");
   const ok = document.getElementById("dc-ok");
   if(ok) ok.classList.add("in");
 }
 ACTIONS.dcdone = () => {
+  const after = DISCOVER && DISCOVER.opts && DISCOVER.opts.onDone;
   const box = document.getElementById("discover");
   if(box){ box.className = ""; box.innerHTML = ""; box.onclick = null; }
   if(DISCOVER){ DISCOVER.timers.forEach(t=>{ clearTimeout(t); clearInterval(t); }); DISCOVER = null; }
+  if(after){ after(); return; }
   if(!checkStoryTriggers()){ nextEncounter(); refresh(); }
 };
 
@@ -792,7 +827,7 @@ SCREENS.capture = {
     <div id="aim-slot">${AIM ? aimBarHtml(AIM) : ""}</div>
 
     <button class="throwbtn ${AIM?"locking":""}" data-act="throwsel"
-      ${(!ENC||busy||stock<=0)?"disabled":""} style="margin-bottom:9px">
+      ${(!ENC||busy||stock<=0)?"disabled":""} style="margin-bottom:14px">
       ${AIM ? "STOP !"
         : ENC ? (stock<=0 ? "STOCK ÉPUISÉ"
           : ENC.missing ? "ANALYSER LA FAILLE"

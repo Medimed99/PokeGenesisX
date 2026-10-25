@@ -76,8 +76,11 @@ for(const k of screens){
   });
 }
 /* variantes de filtres */
-for(const r of ["kanto","johto","hoenn"]) for(const m of ["all","owned","missing","shiny"])
+for(const r of ["kanto","johto","hoenn"]) for(const m of ["all","owned","missing","shiny","evo","research"])
   t("dex "+r+"/"+m, ()=>{ A.setFilter(r,m); A.SCREENS.dex.html(); });
+/* la fiche du Pokédex : possédé, absent, légendaire, chromatique, Porygon-Z */
+for(const id of [1, 16, 25, 133, 150, 151, 386, 474])
+  t("fiche "+id, ()=>{ if(id % 2) A.addToDex && A.addToDex(id, 30, id === 25); A.ACTIONS.dexopen({id:String(id)}); });
 for(const c of ["balls","berries","items","stones","chests","cos"])
   t("boutique "+c, ()=>{ A.setShopCat(c); A.SCREENS.shop.html(); });
 for(const tb of ["stats","ach","cards","cos","set"])

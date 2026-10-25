@@ -113,7 +113,7 @@ const Music = {
     if(s === "poker") return "poker";
     if(s === "world") return "monde";
     if(s === "battle") return "combat";
-    if(["dex", "cards", "eggs", "research", "bag", "shop", "profile", "atelier", "team"].includes(s)) return "collection";
+    if(["dex", "cards", "eggs", "bag", "shop", "profile", "atelier", "team"].includes(s)) return "collection";
     return "accueil";
   },
   sync(){ if(this.unlocked) this.play(this.pick()); }

@@ -12,7 +12,7 @@
 - **Acte III — La raison** : Ce qui est écrit · Un trou de ta taille · La porte · Le dernier souvenir
 - **Acte IV — La Couche Zéro** : Cent pour cent · La Couche Zéro · Le nom · La question
 - **Après — Les connexions suivantes** : Un écho · Sauvegardé · Connexion suivante · La page de trop · Trop tôt · Nouvelle partie · Jusqu'au bout de la phrase
-- **Moments — Ce qui arrive en chemin** : Une ébauche · Un objet · Nulle part écrit · Le silence · Pas au niveau · Mal encodée · Ce n'est pas toi · Un abus toléré
+- **Moments — Ce qui arrive en chemin** : Une ébauche · Un trésor · Nulle part écrit · Le silence · Pas au niveau · Mal encodée · Ce n'est pas toi · Un abus toléré
 - **Les pages de journal** · **La faille** · **choses_formidables.txt** · **Les salles** · **Les cartes** · **Le générique**
 
 ---
@@ -824,7 +824,7 @@
 
 **PORYGON-Z** — Nouvelle ligne : « Aujourd'hui, ‹nom› a écrit au lieu d'effacer. » Formidable. Le mot est trop faible. Je n'en ai pas de plus fort. Je vais en fabriquer un.
 
-**PORYGON-Z** — Je relis le début du fichier. Ta première ligne : Salamèche, le 14 septembre. 1 840 captures depuis, et Pikachu, qui ne t'a jamais lâché. Je n'en oublierai aucune.
+**PORYGON-Z** — Je relis le début du fichier. Ta première ligne : Salamèche, le 15 septembre. 1 840 captures depuis, et Pikachu, qui ne t'a jamais lâché. Je n'en oublierai aucune.
 
 **PORYGON-Z** — Le monde ne craint plus rien. Les chromatiques remontent de la Couche Zéro en nombre anormal, et je n'ai aucune intention de le signaler.
 
@@ -912,15 +912,15 @@
 
 **PORYGON-Z** — Je l'ai déjà ajoutée à « choses_formidables.txt ». Elle n'a même pas de nom. Ce n'est pas grave.
 
-### Un objet  `pz_treasure`
+### Un trésor  `pz_treasure`
 
-*L'objet remonté ne ressemble à rien de ce que contient l'archive. Il est lourd, poli, et parfaitement inutile.*
+*Un trésor vient de remonter : pas un Pokémon, un objet. Poli, lourd, et sans aucun usage.*
 
-**PORYGON-Z** — Ce n'est pas une entité. Ce n'est pas un fichier. C'est un objet.
+**PORYGON-Z** — Les anciennes versions du monde en étaient pleines : perles, écailles, morceaux d'étoile. La pêche et le Forage en remontent des couches d'avant.
 
-**PORYGON-Z** — Or il n'y a pas d'objets dans ce monde. Seulement des définitions et des références.
+**PORYGON-Z** — Il ne sert à rien, mais la boutique le rachète, parfois très cher. Sac, onglet Trésors : « Tout vendre ».
 
-**PORYGON-Z** — Quelqu'un a donc laissé tomber quelque chose depuis l'extérieur. Je préfère ne pas développer. Range-le. Range-le bien.
+**PORYGON-Z** — Tu peux aussi le garder. Moi, je l'aurais déjà vendu. Je compte trop bien pour être sentimental.
 
 ### Nulle part écrit  `pz_buddy`
 

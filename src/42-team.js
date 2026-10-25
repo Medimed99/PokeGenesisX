@@ -6,8 +6,8 @@
    · SIX POKÉMON, le premier est ton partenaire.
    · ILS GRANDISSENT AVEC TOI : chaque point d'expérience que tu
      gagnes, où que ce soit, leur en donne une part. Les Bonbons
-     d'équipe (coffres, fouilles, victoires) les font monter d'un
-     niveau à la demande.
+     d'équipe (Expédition, fouilles, Tour, coffres) les font monter
+     d'un niveau à la demande.
    · LES ÉTOILES : chaque exemplaire capturé de l'espèce compte.
      1 à 5 étoiles, +6 % de statistiques par étoile, dans tous les
      combats où tes Pokémon se battent.
@@ -23,17 +23,21 @@ function starMul(id){ return 1 + STAR_BONUS * Math.max(0, starsOf(id) - 1); }
 function nextStarAt(id){ const n = dexTotalCaught(id); return STAR_STEPS.find(k=>k > n) || null; }
 function starsHtml(id, cls){ const s = starsOf(id); return `<span class="stars ${cls || ""}">${"★".repeat(s)}<i>${"★".repeat(5 - s)}</i></span>`; }
 
-/* les exemplaires capturés ne diminuent plus quand on fait évoluer : on garde le total */
+/* les exemplaires capturés ne diminuent plus quand on fait évoluer : on garde le total.
+   Les étoiles sont aussi la tâche de doublons de la recherche (34) : chaque exemplaire la fait avancer. */
 if(typeof addToDex === "function"){
   const _ad = addToDex;
   addToDex = function(id, level, shiny){
+    if(typeof researchMigrate === "function") researchMigrate();
     const before = S.dex[id] ? starsOf(id) : 0;
     const r = _ad.apply(this, arguments);
     const e = S.dex[id];
     if(e){ e.tc = Math.max(e.tc || 0, (e.c || 0) - 1) + 1; }
     const after = starsOf(id);
+    if(after > before && before > 0) STAR_FRESH = {id, s:after, t:Date.now(), st:S};
     if(after > before && before > 0 && S.team.includes(id) && typeof banner === "function")
       banner({kicker:"ÉTOILE", title:`${POKE[id].name} passe à ${after} ★`, sub:`+${Math.round(STAR_BONUS * 100)} % de statistiques dans tous les combats`, spr:id, c:"#ffd24a", dur:2600});
+    if(typeof researchSync === "function") researchSync(id);
     return r;
   };
 }
@@ -174,15 +178,19 @@ SCREENS.team = {
                 : `<button class="btn xs wide ${(S.candy || 0) >= c && e.lvl < 100 ? "pri" : ""}" data-act="teamfeed" data-id="${id}" ${(S.candy || 0) >= c && e.lvl < 100 ? "" : "disabled"}>+1 niv · ${c} ${ic("seed")}</button>`}
         </div>`; }).join("")}</div>
       <button class="btn wide" style="margin-top:10px" data-act="teamedit">${ic("refresh")} Changer l'équipe</button>
-      <div class="panel" style="margin-top:12px">
-        <div class="h sm">COMMENT ELLE GRANDIT</div>
-        <div class="tiny">· Chaque point d'<b>expérience</b> que tu gagnes, où que ce soit, en donne ${Math.round(TEAM_XP_SHARE * 100)} % à chacun des six.</div>
-        <div class="tiny">· Les <b>Bonbons d'équipe</b> (coffres de session, fouilles, victoires) font monter d'un niveau à la demande.</div>
-        <div class="tiny">· Les <b>étoiles</b> viennent des exemplaires capturés : ${STAR_STEPS.join(", ")} exemplaires pour 1 à 5 ★. Chaque étoile après la première : +${Math.round(STAR_BONUS * 100)} % de statistiques en combat.</div>
-        <div class="tiny">· Le premier de l'équipe est ton <b>partenaire</b> : il t'accompagne sur l'écran d'accueil.</div>
-      </div>`;
+      ${teamHowHtml()}`;
   }
 };
+/* trois façons de grandir, une ligne chacune : le détail est dans le guide */
+function teamHowHtml(){
+  const row = (i, n, d) => `<div class="tm-hr"><span class="tm-hi">${i}</span><div><b>${n}</b><small>${d}</small></div></div>`;
+  return `<div class="tm-how">
+    <div class="tm-hh">Ce qui fait monter ton équipe ${infoBtn("team")}</div>
+    ${row(ic("bolt"), "Expérience", `${Math.round(TEAM_XP_SHARE * 100)} % de tout ce que tu gagnes, pour chacun des six. La Tour en donne en plus à ceux qui combattent.`)}
+    ${row(ic("seed"), "Bonbons d'équipe", "+1 niveau, à qui tu veux. Expédition, Forage, Tour, coffres de session.")}
+    ${row("★", "Étoiles", `Chaque exemplaire obtenu compte (${STAR_STEPS.slice(1).join(", ")}) : +${Math.round(STAR_BONUS * 100)} % de stats en combat par étoile.`)}
+  </div>`;
+}
 ACTIONS.teamedit = () => {
   if(typeof teamPicker !== "function") return;
   teamPicker("Mon équipe — 6 Pokémon, le premier est ton partenaire", 6, sel=>{ S.team = sel.slice(0, 6); save(); refresh(); }, S.team);
@@ -199,10 +207,7 @@ if(typeof digClaim === "function"){
   const _dc = digClaim;
   digClaim = function(wall){ const r = _dc.apply(this, arguments); teamCandyGain(1 + (wall && wall.si >= 4 ? 1 : 0)); return r; };
 }
-if(typeof afterFightRewards === "function"){
-  const _af = afterFightRewards;
-  afterFightRewards = function(run, kind){ if(kind === "champ" || kind === "boss" || kind === "legend") teamCandyGain(kind === "boss" ? 5 : 2); return _af.apply(this, arguments); };
-}
+/* l'Expédition compte elle-même ses bonbons (50) : elle les montre à la fin du parcours */
 if(typeof sqFinish === "function"){
   const _sf = sqFinish;
   sqFinish = function(B){ const r = _sf.apply(this, arguments); if(B && B.result) teamCandyGain(1); return r; };

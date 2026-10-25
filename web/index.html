@@ -2831,6 +2831,16 @@ body:has(#discover.on) #pztalk,body:has(#sheet-root.on) #pztalk,body:has(#tuto.o
 #breche.on{display:block;position:fixed;inset:0;z-index:400;background:#05020c;overflow:hidden;
   touch-action:none;-webkit-user-select:none;user-select:none}
 #br-cv{position:absolute;inset:0;width:100%;height:100%;display:block}
+/* téléphone à l'horizontale : tout s'efface derrière une consigne, la partie est en pause */
+#br-rotate{display:none}
+#breche.land #br-rotate{display:flex;position:absolute;inset:0;z-index:50;flex-direction:column;align-items:center;justify-content:center;gap:10px;
+  padding:24px;text-align:center;background:#05020cf2;color:#fff}
+#br-rotate b{font-size:15px;font-weight:600}
+#br-rotate small{font-size:12px;color:#cbd6e6;max-width:320px;line-height:1.45}
+.brr-phone{width:34px;height:56px;border:3px solid var(--cyan);border-radius:8px;position:relative;margin-bottom:6px;animation:brrTurn 2.2s ease-in-out infinite}
+.brr-phone i{position:absolute;left:50%;bottom:4px;width:8px;height:3px;margin-left:-4px;border-radius:2px;background:var(--cyan)}
+@keyframes brrTurn{0%,20%{transform:rotate(-90deg)}55%,100%{transform:rotate(0)}}
+body.calm .brr-phone{animation:none}
 /* joystick flottant : il apparaît là où le pouce se pose */
 #br-stick{position:absolute;width:92px;height:92px;margin:-46px 0 0 -46px;border-radius:50%;pointer-events:none;
   border:2px solid rgba(53,240,214,.35);background:radial-gradient(closest-side,rgba(53,240,214,.08),transparent);
@@ -2917,7 +2927,10 @@ body:has(#discover.on) #pztalk,body:has(#sheet-root.on) #pztalk,body:has(#tuto.o
 /* coffre */
 .br-roll{width:96px;height:96px;margin:12px auto;display:flex;align-items:center;justify-content:center;border-radius:14px;
   background:radial-gradient(closest-side,rgba(255,210,74,.25),transparent);border:2px solid #ffd24a}
-.br-roll .spr{width:72px;height:72px}
+/* un Pokémon dans la roulette : sa boîte de 26 px gardait sa largeur et la hauteur passait à 72 px —
+   le sprite s'étirait en hauteur et débordait du cadre. Boîte carrée, sprite qui la remplit. */
+.br-roll .sprbox{width:40px!important;height:40px!important}
+.br-roll .spr{width:100%;height:100%;flex:0 0 100%}
 .br-roll.done{animation:brPop .45s cubic-bezier(.2,1.6,.4,1);box-shadow:0 0 30px rgba(255,210,74,.6)}
 @keyframes brPop{50%{transform:scale(1.18)}}
 .br-gifts{display:flex;flex-direction:column;gap:6px;margin-bottom:12px;text-align:left}
@@ -4491,7 +4504,8 @@ details.fo-more[open]>summary::before{content:"▾ "}
 .roam-tr{display:flex;gap:4px;margin-top:3px}
 .roam-tr i{width:16px;height:5px;border-radius:3px;background:#3a2a20}
 .roam-tr i.on{background:#ff8a3d;box-shadow:0 0 6px #ff8a3d}
-.stk-tag{position:absolute;bottom:36px;left:50%;transform:translateX(-50%);z-index:4;font-size:9px;letter-spacing:1.4px;font-family:var(--font-px,monospace);padding:3px 9px;border-radius:9px;white-space:nowrap}
+.stk-tag{position:absolute;bottom:36px;left:50%;transform:translateX(-50%);z-index:4;font-size:9px;letter-spacing:1.4px;font-family:var(--font-px,monospace);padding:3px 9px;border-radius:9px;
+  width:max-content;max-width:calc(100% - 24px);white-space:normal;text-align:center;line-height:1.6}
 .stk-tag.horde{background:#5ce07a22;border:1px solid #5ce07a;color:#5ce07a}
 .stk-tag.roam{background:#ff8a3d22;border:1px solid #ff8a3d;color:#ff8a3d;animation:lgGlow 1.4s ease-in-out infinite}
 #enc-stage.roaming{box-shadow:inset 0 0 60px #ff8a3d55}
@@ -5688,6 +5702,9 @@ button.zc-card{cursor:pointer}
    le second toucher (arrêter le curseur) doit tomber au même endroit que le premier, même sur un
    petit écran et avec le bandeau « Prochaine étape » */
 #aim-slot{position:relative;height:0;z-index:6}
+/* pendant la visée, tout l'écran arrête le curseur : les baies et les Balls s'effacent et ne
+   répondent plus (un pouce un peu bas les activait) */
+body.aiming #screen .berrychip,body.aiming #screen .ballpick,body.aiming #screen .potbox,body.aiming #screen .bonuschip{opacity:.32;pointer-events:none;transition:opacity .15s}
 #aim-slot .aimbar{position:absolute;left:0;right:0;bottom:8px;margin:0;
   background:linear-gradient(90deg,#070d18,#0d1728,#070d18);box-shadow:0 -6px 16px rgba(4,8,16,.9),0 4px 10px rgba(4,8,16,.8)}
 
@@ -5755,9 +5772,9 @@ body.calm #app.shake{animation:none !important}
 #enc-stage.onze .plate{box-shadow:0 0 30px rgba(217,179,140,.35)}
 #enc-stage.onze::after{content:"";position:absolute;inset:0;z-index:3;pointer-events:none;border-radius:inherit;
   box-shadow:inset 0 0 60px rgba(217,179,140,.28)}
-.enc-nick{width:100%;font-family:var(--font-px);font-size:11px;letter-spacing:1.5px;color:#f6dfbd;
+.enc-nick{width:100%;font-family:var(--font-px);font-size:10px;letter-spacing:1px;color:#f6dfbd;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
   text-shadow:0 0 10px rgba(217,179,140,.7),0 2px 0 rgba(0,0,0,.8)}
-.enc-nick small{display:block;margin-top:2px;font-family:var(--font-mono);font-size:9px;letter-spacing:1px;color:#cdb18f}
+.enc-nick small{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.5px;color:#cdb18f;text-shadow:none}
 .stk-tag.onze{background:#d9b38c22;border:1px solid #d9b38c;color:#f6dfbd}
 #moment.k-onze .mo-spr{filter:sepia(.5) saturate(.85)}
 #moment.k-onze .mo-quote{animation-delay:1.1s;color:#f6dfbd}
@@ -6109,6 +6126,139 @@ body.era-g2 #xscene{filter:saturate(1.3) contrast(1.06)}
 @media (prefers-reduced-motion:reduce){.cn-face.pop{animation:none}.wl-file .wl-b div,.wl-log div{animation-duration:.01s;animation-delay:0s}}
 body.calm .cn-face.pop{animation:none}
 
+/* ============================================================
+   LA RECHERCHE DANS LE POKÉDEX — 25 octobre
+   L'en-tête dit combien de tâches et ce que rapporte le prochain
+   palier ; chaque case porte quatre traits ; la fiche liste ce qui
+   reste à faire, et où ; la capture montre quand ça avance.
+   ============================================================ */
+.dxhead{padding-bottom:9px}
+.respanel{display:flex;align-items:center;gap:8px;margin-top:10px;padding-top:9px;border-top:1px dashed var(--line)}
+.rp-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px;padding:0;border:0;background:none;text-align:left;color:inherit}
+.rp-h{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.rp-h b{font-family:var(--font-px);font-size:8px;letter-spacing:.6px;color:var(--ink2);text-transform:uppercase}
+.rp-h em{font-style:normal;font-size:11px;color:var(--cyan)}
+.rp-n{font-size:10px;color:var(--ink3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.respanel.on .rp-h b{color:var(--cyan)}
+.respanel .bar>i{background:linear-gradient(90deg,var(--cyan-d),var(--cyan))}
+
+/* quatre traits au pied de chaque case : une tâche chacun, dorés quand la fiche est complète */
+.dexcell .dx-rs{position:absolute;left:8px;right:8px;bottom:4px;display:flex;gap:2px;z-index:2;pointer-events:none}
+.dexcell .dx-rs i{flex:1;height:2px;border-radius:1px;background:#ffffff1c}
+.dexcell .dx-rs i.on{background:var(--cyan);box-shadow:0 0 4px #35f0d680}
+.dexcell .dx-rs.full i{background:var(--amber);box-shadow:0 0 4px #ffc85780}
+.dexcell .nm{margin-bottom:3px}
+
+/* avec le filtre Recherche : ce qui est à un geste d'être rempli */
+.resnear{margin:-2px 0 10px}
+.rn-h{font-size:9.5px;color:var(--ink3);margin-bottom:5px}
+.rn-row{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+.rn-row::-webkit-scrollbar{display:none}
+.rn-c{flex:0 0 auto;display:flex;align-items:center;gap:5px;padding:3px 9px 3px 3px;border-radius:var(--r);
+  border:1px solid color-mix(in srgb,var(--cyan) 40%,var(--line));background:rgba(53,240,214,.06);color:var(--ink);text-align:left}
+.rn-c .spr{width:28px;height:28px}
+.rn-c span{display:flex;flex-direction:column;line-height:1.3}
+.rn-c b{font-size:10.5px;font-weight:600}
+.rn-c small{font-size:9.5px;color:var(--cyan)}
+
+/* la fiche : l'essentiel en chiffres */
+.dx-facts{display:flex;gap:6px}
+.dx-facts span{flex:1;display:flex;flex-direction:column;gap:2px;padding:5px 7px;border:1px solid var(--line);border-radius:var(--r);background:#ffffff06}
+.dx-facts small{font-size:9px;color:var(--ink3)}
+.dx-facts b{font-family:var(--font-px);font-size:10px}
+.dx-stars{display:flex;align-items:center;gap:7px;margin-top:7px}
+.dx-stars .stars{font-size:13px}
+.dx-stars small{font-size:9.5px;color:var(--ink3)}
+.dx-tal{margin-top:7px;font-size:10.5px;color:var(--ink2);display:flex;flex-wrap:wrap;align-items:center;gap:4px}
+.dx-tal b{color:var(--cyan);font-weight:600}
+.dx-tal small{flex-basis:100%;font-size:9.5px;color:var(--ink3);line-height:1.4}
+
+/* la fiche de recherche : une ligne par tâche, la consigne seulement pour ce qui reste */
+.resfiche{margin-top:12px;border:1px solid var(--line2);border-radius:var(--r);background:linear-gradient(180deg,var(--s2),var(--s1));padding:9px 10px}
+.resfiche.full{border-color:color-mix(in srgb,var(--amber) 55%,var(--line))}
+.rf-h{display:flex;align-items:center;gap:7px;margin-bottom:4px}
+.rf-h b{font-family:var(--font-px);font-size:8px;letter-spacing:.6px;color:var(--ink2);text-transform:uppercase}
+.rf-c{font-family:var(--font-px);font-size:9px;color:var(--cyan)}
+.resfiche.full .rf-c{color:var(--amber)}
+.rf-t{display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-top:1px solid #ffffff0a}
+.rf-h+.rf-t{border-top:0}
+.rf-k{flex:0 0 auto;width:15px;height:15px;margin-top:1px;border-radius:3px;border:1px solid var(--line2);
+  display:inline-flex;align-items:center;justify-content:center;font-style:normal;font-size:10px;color:#04060b}
+.rf-t.ok .rf-k{background:var(--cyan);border-color:var(--cyan)}
+.resfiche.full .rf-t.ok .rf-k{background:var(--amber);border-color:var(--amber)}
+.rf-n{font-size:11.5px;line-height:1.35}
+.rf-t.ok .rf-n{color:var(--ink3)}
+.rf-d{font-size:9.5px;color:var(--ink3);line-height:1.4;margin-top:2px}
+.rf-p{flex:0 0 auto;font-size:10.5px;color:var(--cyan);font-variant-numeric:tabular-nums;margin-top:1px}
+.rf-f{margin-top:6px;padding-top:7px;border-top:1px dashed var(--line);font-size:9.5px;color:var(--ink3);line-height:1.45}
+.rf-f b{color:var(--ink2);font-weight:600}
+
+/* sous une capture : les étoiles, la fiche, ce qui vient de se remplir */
+.resline{display:flex;align-items:center;gap:8px;margin:-2px 0 8px;padding:6px 9px;border:1px solid var(--line);border-radius:var(--r);background:linear-gradient(180deg,var(--s2),var(--s1));font-size:10.5px}
+.resline .rl-n{color:var(--ink2);flex:1;text-align:left}
+.resline .rl-r{color:var(--ink3)}
+.resline .rl-r b{color:var(--cyan);font-weight:600}
+.resline.up{border-color:color-mix(in srgb,#ffd24a 55%,var(--line));background:rgba(255,210,74,.06)}
+.resline.up .rl-n{color:#ffd24a}
+.resdone{margin:-3px 0 9px;padding:6px 9px;border-radius:var(--r);border:1px solid color-mix(in srgb,var(--cyan) 50%,var(--line));
+  background:linear-gradient(0deg,rgba(53,240,214,.09),rgba(53,240,214,.09)),var(--s1);color:var(--cyan);font-size:10.5px;text-align:left;animation:resPop .5s cubic-bezier(.2,.9,.25,1.2)}
+@keyframes resPop{0%{opacity:0;transform:scale(.94)}100%{opacity:1;transform:none}}
+.dc-res{opacity:0;transition:opacity .3s;margin-top:9px}
+/* un légendaire libéré : ce qu'il fera dans la Brèche */
+.dc-sig{display:flex;flex-direction:column;gap:3px;margin:0 0 8px;padding:9px 11px;border-radius:var(--r);text-align:left;
+  border:1px solid color-mix(in srgb,var(--ac,#ffd24a) 55%,var(--line));background:linear-gradient(0deg,rgba(255,210,74,.07),rgba(255,210,74,.07)),var(--s1)}
+.dc-sig small{font-size:9.5px;color:var(--ink3);letter-spacing:.3px}
+.dc-sig b{font-size:13px;color:#ffd24a}
+.dc-sig span{font-size:10.5px;color:var(--ink2);line-height:1.4}
+.dc-sig em{font-style:normal;font-size:10px;color:var(--ink3);margin-top:2px}
+.dc-res.in{opacity:1}
+body.calm .resdone{animation:none}
+
+/* ============================================================
+   MON ÉQUIPE — ce qui la fait monter, en trois lignes
+   ============================================================ */
+.tm-how{margin-top:12px;border:1px solid var(--line);border-radius:12px;padding:10px 11px;background:linear-gradient(180deg,var(--s2),var(--s1))}
+.tm-hh{display:flex;align-items:center;justify-content:space-between;font-family:var(--font-px);font-size:8px;letter-spacing:.5px;color:var(--ink2);margin-bottom:6px;text-transform:uppercase}
+.tm-hr{display:flex;align-items:flex-start;gap:9px;padding:6px 0;border-top:1px solid #ffffff0a}
+.tm-hh+.tm-hr{border-top:0}
+.tm-hi{flex:0 0 24px;height:24px;border-radius:7px;display:inline-flex;align-items:center;justify-content:center;background:#ffffff08;border:1px solid var(--line);color:#ffd24a;font-size:13px}
+.tm-hi svg{width:15px;height:15px}
+.tm-hr b{display:block;font-size:11.5px;font-weight:600}
+.tm-hr small{display:block;font-size:10px;color:var(--ink3);line-height:1.4;margin-top:1px}
+
+/* ============================================================
+   EXPÉDITION — des bonbons au retour, et des règles qui se lisent
+   ============================================================ */
+/* le camp : quatre règles, une ligne chacune ; le reste dans le guide */
+.xl-rules{border:1px solid var(--line);border-radius:var(--r);background:linear-gradient(180deg,var(--s2),var(--s1));padding:9px 11px 6px;margin:12px 0 10px}
+.xl-rh{font-family:var(--font-px);font-size:8px;letter-spacing:.6px;color:var(--ink2);text-transform:uppercase;margin-bottom:4px}
+.xl-r{display:flex;gap:10px;padding:6px 0;border-top:1px solid #ffffff0a;font-size:10.5px;line-height:1.45}
+.xl-rh+.xl-r{border-top:0}
+.xl-r b{flex:0 0 58px;color:var(--cyan);font-weight:600}
+.xl-r span{color:var(--ink2)}
+.xl-more{display:block;width:100%;margin-top:3px;padding:7px 0 3px;border:0;border-top:1px dashed var(--line);background:none;color:var(--ink3);font-size:10px;text-align:center}
+.xl-more:active{color:var(--cyan)}
+.xl-stats{font-size:10px;color:var(--ink3);text-align:center;margin:0 0 8px}
+
+/* la fin : les bonbons d'abord, au-dessus de la tête de ceux qui reviennent */
+.xs-up.xs-gift{display:inline-flex;align-items:center;gap:2px;color:#ffb3e0}
+.xs-up.xs-gift svg{width:11px;height:11px}
+.xs-candy{display:flex;align-items:center;gap:10px;margin:6px 0 8px;padding:9px 11px;border-radius:10px;
+  border:1px solid #ff9ed655;background:linear-gradient(90deg,rgba(255,158,214,.12),rgba(255,158,214,.03))}
+.xs-candy .xc-i{flex:0 0 30px;height:30px;border-radius:9px;display:inline-flex;align-items:center;justify-content:center;background:#ff9ed61f;color:#ffb3e0}
+.xs-candy .xc-i svg{width:18px;height:18px}
+.xs-candy .xc-t{display:flex;flex-direction:column;gap:2px;text-align:left}
+.xs-candy b{font-size:14px;color:#ffd1ec;font-weight:700}
+.xs-candy small{font-size:10.5px;color:var(--ink2)}
+.xs-candy.none{border-color:var(--line);background:#ffffff05}
+.xs-candy.none b{color:var(--ink2)}
+.xs-candy.sm{padding:6px 9px;margin:4px 0 8px}
+.xs-candy.sm .xc-i{flex-basis:24px;height:24px}
+.xs-candy.sm b{font-size:12px}
+.xs-split{display:flex;flex-wrap:wrap;gap:5px;margin:-2px 0 8px}
+.xs-split span{font-size:10px;color:var(--ink3);padding:2px 7px;border:1px solid var(--line);border-radius:10px}
+.xs-ko{font-size:10.5px;color:var(--ink2);margin:8px 0 2px;line-height:1.45}
+
 </style>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
@@ -6137,7 +6287,7 @@ body.calm .cn-face.pop{animation:none}
 </div>
 <script>
 /* version du jeu (buildver.py) */
-const BUILD_V = "899c2e7f", BUILD_LABEL = "24 octobre 2026, 20 h 47";
+const BUILD_V = "8ca6c7dd", BUILD_LABEL = "25 octobre 2026, 12 h 56";
 /* Version hebergee : les images sont servies comme fichiers, pas encodees
    dans le HTML. Les noms portent une empreinte : on peut donc les mettre en
    cache indefiniment sans jamais servir une version perimee. */
@@ -7762,11 +7912,13 @@ const STORY = [
   {w:"pz", m:"Happy", t:"Je l'ai déjà ajoutée à « choses_formidables.txt ». Elle n'a même pas de nom. Ce n'est pas grave."}
 ]},
 
+/* le premier trésor (pêche ou Forage) : dire ce que c'est et quoi en faire. L'ancienne version
+   parlait d'un objet « tombé de l'extérieur » : personne ne comprenait de quoi il s'agissait. */
 { id:"pz_treasure", art:-1, lines:[
-  {w:"", t:"L'objet remonté ne ressemble à rien de ce que contient l'archive. Il est lourd, poli, et parfaitement inutile."},
-  {w:"pz", t:"Ce n'est pas une entité. Ce n'est pas un fichier. C'est un objet."},
-  {w:"pz", m:"Worried", t:"Or il n'y a pas d'objets dans ce monde. Seulement des définitions et des références."},
-  {w:"pz", t:"Quelqu'un a donc laissé tomber quelque chose depuis l'extérieur. Je préfère ne pas développer. Range-le. Range-le bien."}
+  {w:"", t:"Un trésor vient de remonter : pas un Pokémon, un objet. Poli, lourd, et sans aucun usage."},
+  {w:"pz", t:"Les anciennes versions du monde en étaient pleines : perles, écailles, morceaux d'étoile. La pêche et le Forage en remontent des couches d'avant."},
+  {w:"pz", m:"Happy", t:"Il ne sert à rien, mais la boutique le rachète, parfois très cher. Sac, onglet Trésors : « Tout vendre »."},
+  {w:"pz", t:"Tu peux aussi le garder. Moi, je l'aurais déjà vendu. Je compte trop bien pour être sentimental."}
 ]},
 
 { id:"pz_buddy", art:-1, lines:[
@@ -9542,12 +9694,36 @@ function aimGrade(pos, zone){
 }
 function aimBonus(pos, zone){ const g = aimGrade(pos, zone); return g ? g.mul : 1; }
 function aimSpeed(){ return 70 + (ENC ? ENC.rar : 0) * 32; }          /* % de barre par seconde */
+/* Arrêter le curseur : un toucher n'importe où dans l'écran de capture, au moment où le doigt se
+   pose. Avant, seul le bouton STOP réagissait, au relâché (le curseur avait encore filé), et un
+   pouce un peu bas tombait sur les baies, juste en dessous : « Stop » activait une baie, ou rien. */
+/* le clic qui suit ce toucher (au relâché du doigt) ne doit rien relancer ni rien activer ; seul
+   celui-là : le toucher suivant, lui, compte normalement */
+let AIM_SWALLOW = null;
+if(typeof document !== "undefined" && document.addEventListener){
+  document.addEventListener("pointerdown", ()=>{ if(!AIM) AIM_SWALLOW = null; }, true);
+  document.addEventListener("pointerup", ()=>{ if(AIM_SWALLOW && !AIM_SWALLOW.up) AIM_SWALLOW.up = Date.now(); }, true);
+  document.addEventListener("click", e=>{
+    const w = AIM_SWALLOW; if(!w) return;
+    AIM_SWALLOW = null;
+    if(w.up ? Date.now() - w.up < 400 : Date.now() - w.t < 1500){ e.stopPropagation(); e.preventDefault(); }
+  }, true);
+}
+function aimDown(e){
+  if(!AIM || (e.button !== undefined && e.button > 0)) return;
+  e.preventDefault(); e.stopPropagation();
+  AIM_SWALLOW = {t:Date.now(), up:0};
+  lockAim();
+}
+function aimBody(on){ try { document.body.classList.toggle("aiming", !!on); } catch(e){} }
 function startAim(){
   if(AIM) return;
   const w = Math.max(16, 34 - (ENC ? ENC.rar : 0) * 4);                 /* cible plus etroite si rare */
   const lo = 12 + rng() * (76 - w);
   AIM = {pos:0, dir:1, zone:[lo, lo + w], t:0, raf:0};
   refresh();
+  aimBody(true);
+  try { const sc = document.getElementById("screen"); if(sc && sc.addEventListener){ AIM.host = sc; sc.addEventListener("pointerdown", aimDown, true); } } catch(e){}
   const loop = now => {
     if(!AIM) return;
     const dt = AIM.t ? Math.min(50, now - AIM.t) : 0; AIM.t = now;
@@ -9560,7 +9736,10 @@ function startAim(){
   };
   AIM.raf = requestAnimationFrame(loop);
 }
-function stopAim(){ if(AIM){ cancelAnimationFrame(AIM.raf); AIM = null; } }
+function stopAim(){
+  if(AIM){ cancelAnimationFrame(AIM.raf); try { if(AIM.host) AIM.host.removeEventListener("pointerdown", aimDown, true); } catch(e){} AIM = null; }
+  aimBody(false);
+}
 function lockAim(){
   if(!AIM) return;
   const pos = AIM.pos, zone = AIM.zone;
@@ -9896,9 +10075,11 @@ function c_isBig(e){ return e.shiny || e.rar >= 4; }
 /* --- révélation d'une espèce inédite ---
    Le cœur emotionnel d'un jeu de collection merite mieux qu'une notification. */
 let DISCOVER = null;
-function showDiscovery(c, rw){
+/* opts (facultatif) : d'autres tuiles que les gains d'une capture, une note sous la fiche, et ce qui
+   suit (onDone) quand l'entrée n'arrive pas par une capture — un légendaire libéré d'un verrou, par exemple */
+function showDiscovery(c, rw, opts){
   const box = document.getElementById("discover");
-  if(!box){ showCatchResult(c, rw); return; }
+  if(!box){ if(opts && opts.onDone) opts.onDone(); else showCatchResult(c, rw); return; }
   const p = POKE[c.id];
   const accent = c.shiny ? "var(--amber)" : RARITY[c.rar].c;
   box.className = "on";
@@ -9916,11 +10097,13 @@ function showDiscovery(c, rw){
       <div class="wrap dc-tags" id="dc-tags" style="justify-content:center"></div>
       <div class="dc-lore" id="dc-lore"></div>
       <div class="tiles dc-rw" id="dc-rw"></div>
+      <div class="dc-res" id="dc-res"></div>
       <button class="btn pri wide dc-ok" id="dc-ok" data-act="dcdone">Archiver</button>
     </div>`;
   box.onclick = e => { if(DISCOVER && DISCOVER.step < 4) dcJump(); };
 
-  DISCOVER = {c, rw, step:0, timers:[]};
+  /* la fiche de recherche de la nouvelle espèce : lue tout de suite, montrée avec les gains (34) */
+  DISCOVER = {c, rw, step:0, timers:[], opts:opts || null, res:typeof researchCatchHtml === "function" ? researchCatchHtml(c.id) : ""};
   const at = (ms, fn) => DISCOVER.timers.push(setTimeout(fn, ms));
 
   at(520, ()=>{
@@ -9977,18 +10160,22 @@ function dcJump(){
   set("dc-name", esc(p.name) + (c.shiny ? ' <span class="gold-t">◆</span>' : ""), "in");
   set("dc-tags", typeTags(p.types) + rarTag(c.rar) + `<span class="tt t1">Niv.${c.level}</span>`, "in");
   set("dc-lore", esc(loreOf(c.id)), "in");
-  set("dc-rw", `
+  const O = DISCOVER.opts || {};
+  set("dc-rw", O.tiles || `
     <div class="tile gold"><div class="k">PokéCoins</div><div class="v">+${fmt(rw.coins)}</div></div>
     <div class="tile accent"><div class="k">Expérience</div><div class="v">+${fmt(rw.xp)}</div></div>
     <div class="tile"><div class="k">Intégrité</div><div class="v ok">+${rw.integ.toFixed(2)}%</div></div>
     <div class="tile"><div class="k">Chaîne</div><div class="v">${S.streak}</div></div>`, "in");
+  if(O.note || DISCOVER.res) set("dc-res", (O.note || "") + (DISCOVER.res || ""), "in");
   const ok = document.getElementById("dc-ok");
   if(ok) ok.classList.add("in");
 }
 ACTIONS.dcdone = () => {
+  const after = DISCOVER && DISCOVER.opts && DISCOVER.opts.onDone;
   const box = document.getElementById("discover");
   if(box){ box.className = ""; box.innerHTML = ""; box.onclick = null; }
   if(DISCOVER){ DISCOVER.timers.forEach(t=>{ clearTimeout(t); clearInterval(t); }); DISCOVER = null; }
+  if(after){ after(); return; }
   if(!checkStoryTriggers()){ nextEncounter(); refresh(); }
 };
 
@@ -10106,7 +10293,7 @@ SCREENS.capture = {
     <div id="aim-slot">${AIM ? aimBarHtml(AIM) : ""}</div>
 
     <button class="throwbtn ${AIM?"locking":""}" data-act="throwsel"
-      ${(!ENC||busy||stock<=0)?"disabled":""} style="margin-bottom:9px">
+      ${(!ENC||busy||stock<=0)?"disabled":""} style="margin-bottom:14px">
       ${AIM ? "STOP !"
         : ENC ? (stock<=0 ? "STOCK ÉPUISÉ"
           : ENC.missing ? "ANALYSER LA FAILLE"
@@ -10492,8 +10679,9 @@ if(typeof breakStreak === "function"){
 /* le dessus de la scène : horde, ou légendaire errant */
 function stakesTagHtml(){
   if(!ENC) return "";
-  if(ENC.roam) return `<div class="stk-tag roam">LÉGENDAIRE ERRANT · UNE SEULE BALLE</div>`;
-  if(ENC.horde) return `<div class="stk-tag horde">HORDE · ${ENC.horde.i} / ${ENC.horde.n} · capture facilitée</div>`;
+  /* courtes : la carte est étroite, et la police pixel large (« Légendaire » est déjà écrit sur la carte) */
+  if(ENC.roam) return `<div class="stk-tag roam">ERRANT · UNE SEULE BALLE</div>`;
+  if(ENC.horde) return `<div class="stk-tag horde">HORDE ${ENC.horde.i}/${ENC.horde.n} · CAPTURE FACILE</div>`;
   return "";
 }
 
@@ -10646,8 +10834,10 @@ if(typeof SCREENS !== "undefined" && SCREENS.capture && SCREENS.capture.stage){
     if(!ENC || !ENC.onze) return h;
     const o = onzeOf(ENC.onze); if(!o) return h;
     return h.replace('<div id="enc-stage" class="', '<div id="enc-stage" class="onze ')
-      .replace('<div class="enc-nm">', `<div class="enc-nick">« ${esc(o.nick)} »<small>connexion ${pad2(o.c)}</small></div><div class="enc-nm">`)
-      .replace('<div class="plate"></div>', `<div class="stk-tag onze">REVENU D'UNE SAUVEGARDE D'AVANT · IL NE FUIRA PAS</div><div class="plate"></div>`);
+      .replace('<div class="enc-nm">', `<div class="enc-nick">« ${esc(o.nick)} » <small>connexion ${pad2(o.c)}</small></div><div class="enc-nm">`)
+      /* « revenu d'une sauvegarde d'avant » ne tenait pas dans la carte avec la police pixel : le surnom
+         et la connexion le disent déjà ; reste ce qui change le geste */
+      .replace('<div class="plate"></div>', `<div class="stk-tag onze">IL NE FUIRA PAS</div><div class="plate"></div>`);
   };
 }
 
@@ -11243,49 +11433,132 @@ ACTIONS.buyrod = () => {
 /* ===== 34-research.js ===== */
 /* ============================================================
    34 — RECHERCHE, INTÉGRITÉ, TALENTS
-   Une fois capturee, une espece ne servait plus a rien. Trois
-   couches lui rendent une valeur individuelle :
 
-   · les TACHES DE RECHERCHE donnent a chacune des 386 especes
-     quatre objectifs propres, sans ajouter le moindre systeme ;
-   · les POKEMON INTEGRES sont un second axe de collection,
-     independant du chromatique ;
-   · les TALENTS donnent a chaque espece un trait de combat tire
+   · LA RECHERCHE donne à chaque Pokémon une fiche de quatre
+     tâches. Elle vivait dans un onglet à part, et les joueurs ne
+     comprenaient ni à quoi elle servait ni comment s'en servir :
+     elle avançait sans qu'on le voie, son écran ne proposait rien
+     à faire, et 87 % de ses tâches recomptaient les doublons, que
+     les étoiles comptent déjà. Elle vit maintenant dans le
+     Pokédex, sur la fiche de chaque Pokémon ; sa tâche de doublons,
+     ce sont les étoiles (★★) ; et elle se montre au moment où elle
+     avance (capture, combat, évolution).
+   · les POKÉMON INTÈGRES sont un second axe de collection,
+     indépendant du chromatique ;
+   · les TALENTS donnent à chaque espèce un trait de combat tiré
      de son type dominant.
    ============================================================ */
 
-/* ---------- tâches de recherche ---------- */
+/* ---------- les tâches ----------
+   Les étoiles comptent les exemplaires obtenus (42) : ★★ à quatre.
+   Un Altéré ou un Légendaire se croise trop rarement pour en
+   demander quatre : la première étoile suffit. */
+function resCatchStars(id){ return POKE[id] && POKE[id].rar >= 4 ? 1 : 2; }
+function resStarAt(n){ return (typeof STAR_STEPS !== "undefined" ? STAR_STEPS : [1, 4, 10, 25, 60])[n - 1]; }
 const RESEARCH_TASKS = [
-  {k:"catch",  n:"En restaurer {n}",        goal:id=>POKE[id].rar >= 4 ? 2 : POKE[id].rar >= 2 ? 4 : 8,
-   d:"Capturer plusieurs exemplaires de cette espèce."},
-  {k:"battle", n:"En vaincre {n} au combat", goal:id=>POKE[id].rar >= 4 ? 1 : 3,
-   d:"L'affronter en Expédition ou contre un verrou."},
-  {k:"evolve", n:"La faire évoluer",         goal:id=>(POKE[id].evo && POKE[id].evo.length) ? 1 : 0,
-   d:"Réécrire cette espèce en sa forme suivante."},
-  {k:"shiny",  n:"En croiser une chromatique", goal:()=>1,
-   d:"Rencontrer un exemplaire dont les couleurs ne correspondent pas."}
+  {k:"catch",  n:id=>"Atteindre " + "★".repeat(resCatchStars(id)), s:id=>"★".repeat(resCatchStars(id)),
+   goal:id=>resStarAt(resCatchStars(id)), d:"Les étoiles comptent les exemplaires obtenus."},
+  {k:"battle", n:id=>`En vaincre ${POKE[id].rar >= 4 ? 1 : 3} au combat`, s:()=>"vaincu au combat",
+   goal:id=>POKE[id].rar >= 4 ? 1 : 3, d:"En Expédition, à la Tour ou dans la Brèche."},
+  {k:"evolve", n:()=>"La faire évoluer", s:()=>"évolution",
+   goal:id=>(POKE[id].evo && POKE[id].evo.length) ? 1 : 0, d:"Depuis sa fiche, rubrique Évolution."},
+  {k:"shiny",  n:()=>"En obtenir une chromatique", s:()=>"chromatique",
+   goal:()=>1, d:"Au hasard des rencontres ; la chaîne augmente la chance."}
 ];
 function researchOf(id){
   S.research = S.research || {};
-  S.research[id] = S.research[id] || {catch:0, battle:0, evolve:0, shiny:0};
+  S.research[id] = S.research[id] || {catch:0, battle:0, evolve:0, shiny:0, ok:{}};
   return S.research[id];
 }
 function taskGoal(t, id){ return typeof t.goal === "function" ? t.goal(id) : t.goal; }
+function taskName(t, id){ return typeof t.n === "function" ? t.n(id) : t.n; }
+/* où en est une tâche : les étoiles et la chromatique se lisent sur l'entrée du Pokédex. La tâche
+   de doublons, ce sont exactement les étoiles : un seul compteur, celui que le joueur voit. */
+function taskProg(t, id){
+  const r = (S.research && S.research[id]) || {}, e = S.dex && S.dex[id];
+  if(t.k === "catch") return e ? (typeof dexTotalCaught === "function" ? dexTotalCaught(id) : Math.max(e.tc || 0, e.c || 0)) : 0;
+  if(t.k === "shiny") return Math.max(r.shiny || 0, e && e.shiny ? 1 : 0);
+  return r[t.k] || 0;
+}
 function taskDone(t, id){
   const g = taskGoal(t, id);
-  return g > 0 && researchOf(id)[t.k] >= g;
+  return g > 0 && taskProg(t, id) >= g;
 }
-/* niveau de recherche d'une espece : le nombre de taches accomplies */
-function researchLevel(id){
-  return RESEARCH_TASKS.filter(t=>taskGoal(t, id) > 0 && taskDone(t, id)).length;
-}
+/* niveau de recherche d'une espèce : le nombre de tâches remplies */
+function researchLevel(id){ return RESEARCH_TASKS.filter(t=>taskDone(t, id)).length; }
 function researchMax(id){ return RESEARCH_TASKS.filter(t=>taskGoal(t, id) > 0).length; }
+/* les espèces qui ont une fiche : celles de l'archive, et celles qu'on a déjà affrontées */
+function researchIds(){
+  const ids = new Set();
+  for(const k in (S.dex || {})) ids.add(+k);
+  for(const k in (S.research || {})) ids.add(+k);
+  return [...ids].filter(id=>POKE[id] && id >= 1 && id <= 386);
+}
 function researchTotal(){
+  researchMigrate();
   let n = 0;
-  for(const id in (S.research || {})) n += researchLevel(+id);
+  for(const id of researchIds()) n += researchLevel(id);
   return n;
 }
-/* paliers globaux : ce que la recherche rapporte a l'Archiviste */
+
+/* ---------- les parties d'avant ----------
+   Les captures recomptées par la recherche rejoignent les étoiles, et ce qui était
+   déjà rempli est noté sans être payé une seconde fois. Chaque porte d'entrée
+   (capture, combat, Pokédex, guide) passe par ici avant de compter quoi que ce soit. */
+function researchMigrate(){
+  if(typeof S === "undefined" || !S || S.resV >= 2) return;
+  S.resV = 2;
+  S.research = S.research || {};
+  for(const k in S.research){
+    const r = S.research[k], e = S.dex && S.dex[k];
+    if(e && r && r.catch > 0) e.tc = Math.max(e.tc || 0, e.c || 0, r.catch);
+  }
+  for(const id of researchIds()){
+    const r = researchOf(id);
+    r.ok = r.ok || {};
+    for(const t of RESEARCH_TASKS) if(taskDone(t, id)) r.ok[t.k] = 1;
+  }
+  S.stats.research = Math.max(S.stats.research || 0, researchTotal());
+}
+
+/* ---------- quand une tâche se remplit ----------
+   Une capture le dit sur son propre écran ; ailleurs (combat, évolution), un message. */
+let RES_FRESH = [];      /* les tâches qui viennent d'être remplies */
+let STAR_FRESH = null;   /* la dernière étoile gagnée (posée par 42) */
+function researchSync(id){
+  if(typeof S === "undefined" || !S || !id || !POKE[id] || id > 386) return 0;
+  researchMigrate();
+  const r = researchOf(id);
+  r.ok = r.ok || {};
+  const done = RESEARCH_TASKS.filter(t=>!r.ok[t.k] && taskDone(t, id));
+  if(!done.length) return 0;
+  for(const t of done) r.ok[t.k] = 1;
+  const n = done.length, s0 = S.shards || 0;
+  S.stats.research = (S.stats.research || 0) + n;
+  if(typeof factionPts === "function") factionPts(5 * n);
+  gain("shards", n * (2 + POKE[id].rar));
+  const ev = {id, ks:done.map(t=>t.k), sh:(S.shards || 0) - s0, t:Date.now(), shown:false, st:S};
+  RES_FRESH.push(ev);
+  if(RES_FRESH.length > 8) RES_FRESH.shift();
+  setTimeout(()=>{ if(!ev.shown){ ev.shown = true; toast(researchToastText(ev), "", "dex"); } }, 80);
+  saveSoon();
+  return n;
+}
+function researchToastText(ev){
+  const labels = ev.ks.map(k=>{ const t = RESEARCH_TASKS.find(x=>x.k === k); return t ? t.s(ev.id) : k; });
+  return `Recherche de ${POKE[ev.id].name} : ${labels.join(", ")} ✓ · +${ev.sh} Fragments`;
+}
+/* progression d'une tâche, appelée par le reste du jeu */
+function researchTick(id, kind, n){
+  if(typeof S === "undefined" || !S || !id || !POKE[id]) return;
+  researchMigrate();
+  const r = researchOf(id);
+  r[kind] = (r[kind] || 0) + (n || 1);
+  researchSync(id);
+  saveSoon();
+}
+
+/* ---------- les paliers : ce que la recherche rapporte ---------- */
 const RESEARCH_TIERS = [
   {n:25,   rw:{coins:3000, shards:30}},
   {n:60,   rw:{cores:2, balls:{hyper:10}}},
@@ -11295,37 +11568,23 @@ const RESEARCH_TIERS = [
   {n:550,  rw:{cores:20}},
   {n:800,  rw:{cores:30, cos:"fx_prism"}}
 ];
+function researchNextTier(){ return RESEARCH_TIERS.find(t=>!(S.researchTiers || []).includes(t.n)) || null; }
 function checkResearchTiers(){
   S.researchTiers = S.researchTiers || [];
   const tot = researchTotal();
-  for(let i = 0; i < RESEARCH_TIERS.length; i++){
-    const t = RESEARCH_TIERS[i];
+  for(const t of RESEARCH_TIERS){
     if(tot < t.n || S.researchTiers.includes(t.n)) continue;
     S.researchTiers.push(t.n);
     grantReward(t.rw);
     addIntegrity(0.8);
     Sfx.win();
     save();
-    revealSheet(`RECHERCHE — ${t.n} TÂCHES`, rewardItems(t.rw),
-      {icon:"dex", sub:"Le Pokédex n'est plus un inventaire : c'est un travail."});
+    const nx = researchNextTier();
+    revealSheet(`RECHERCHE · ${t.n} TÂCHES`, rewardItems(t.rw),
+      {icon:"dex", sub:`${t.n} tâches remplies dans le Pokédex.${nx ? ` Prochain palier : ${nx.n}.` : ""}`});
     return true;
   }
   return false;
-}
-/* progression d'une tache, appelee par le reste du jeu */
-function researchTick(id, kind, n){
-  if(!id || !POKE[id]) return;
-  const r = researchOf(id);
-  const before = researchLevel(id);
-  r[kind] = (r[kind] || 0) + (n || 1);
-  const after = researchLevel(id);
-  if(after > before){
-    S.stats.research = (S.stats.research || 0) + (after - before);
-    factionPts(5 * (after - before));
-    gain("shards", 2 + POKE[id].rar);
-    toast(`Recherche : ${POKE[id].name} ${after}/${researchMax(id)}`, "", "dex");
-  }
-  saveSoon();
 }
 
 /* ---------- Pokémon intègres ----------
@@ -11372,99 +11631,137 @@ function talentOf(id){
 }
 
 /* ============================================================
-   ÉCRAN DE RECHERCHE
+   LA RECHERCHE DANS LE POKÉDEX
    ============================================================ */
-let RES_FILTER = "todo";
-SCREENS.research = {
-  html(){
-    const tot = researchTotal();
-    const next = RESEARCH_TIERS.find(t=>!(S.researchTiers||[]).includes(t.n));
-    const r = regionDef(DEX_FILTER.region);
-    const ids = [];
-    for(let i = r.from; i <= r.to; i++){
-      if(!S.dex[i]) continue;
-      const lv = researchLevel(i), mx = researchMax(i);
-      if(RES_FILTER === "todo" && lv >= mx) continue;
-      if(RES_FILTER === "done" && lv < mx) continue;
-      ids.push(i);
-    }
-    ids.sort((a,b)=>researchLevel(b) - researchLevel(a) || a - b);
-
-    return `
-      <div class="h">${ic("dex")} RECHERCHE ${infoBtn("research")}</div>
-      <div class="sub">Chaque espèce archivée porte quatre objectifs qui lui sont propres.
-        Les remplir fait avancer la recherche générale.</div>
-
-      <div class="panel bracket">
-        <div class="row between tiny"><span class="muted">Tâches accomplies</span>
-          <b class="cy mono-num">${tot}</b></div>
-        ${next ? `<div class="bar" style="margin-top:6px"><i style="width:${Math.min(100, tot/next.n*100)}%"></i></div>
-          <div class="tiny dim" style="margin-top:4px">Prochain palier à ${next.n} —
-            ${esc(rewardText(next.rw))}</div>`
-          : `<div class="tiny ok" style="margin-top:5px">Tous les paliers de recherche sont atteints.</div>`}
-      </div>
-
-      <div class="chipbar">
-        ${REGIONS.filter(x=>regionUnlocked(x.key)).map(x=>`
-          <button class="chip ${DEX_FILTER.region===x.key?"on":""}" data-act="dexregion" data-r="${x.key}">
-            ${esc(x.name)}</button>`).join("")}
-      </div>
-      <div class="chipbar">
-        ${[["todo","En cours"],["done","Terminées"],["all","Toutes"]].map(([k,n])=>`
-          <button class="chip ${RES_FILTER===k?"on":""}" data-act="resfilter" data-f="${k}">${n}</button>`).join("")}
-      </div>
-
-      ${ids.length ? `<div class="list">
-        ${ids.slice(0, 60).map(id=>{
-          const lv = researchLevel(id), mx = researchMax(id);
-          return `<div class="resrow2 ${lv>=mx?"full":""}" data-act="resdetail" data-id="${id}">
-            <span class="sprbox" style="width:40px;height:40px">${sprite(id, S.dex[id].shiny, "")}</span>
-            <div class="grow">
-              <div class="row between"><span class="tiny">${esc(POKE[id].name)}
-                ${isPerfect(id)?'<span class="perfmark">◈</span>':""}</span>
-                <span class="tiny ${lv>=mx?"gold-t":"dim"}">${lv}/${mx}</span></div>
-              <div class="pipline">
-                ${RESEARCH_TASKS.filter(t=>taskGoal(t,id)>0).map(t=>`
-                  <span class="cpip ${taskDone(t,id)?"on":""}" style="--rc:var(--cyan)"></span>`).join("")}
-              </div>
-            </div>
-            ${ic("arrow")}
-          </div>`;}).join("")}
-      </div>` : `<div class="empty">Rien à afficher pour ce filtre.</div>`}
-      <button class="btn ghost wide" style="margin-top:10px" data-act="goto" data-to="dex">Retour au Pokédex</button>`;
+/* où le trouver : l'habitat dont les types lui ressemblent le plus, et l'heure */
+function resWhere(id){
+  const p = POKE[id];
+  if(!p) return "";
+  if(typeof exclusiveLabel === "function" && exclusiveLabel(id)) return exclusiveLabel(id);
+  if(typeof isGuardianSpecies === "function" && isGuardianSpecies(id) && !isReleasedGuardian(id))
+    return "Il garde un verrou de la Tour : on le capture une fois le verrou levé.";
+  const reg = REGIONS.find(r=>id >= r.from && id <= r.to);
+  let best = null, bw = 0;
+  if(typeof HABITATS !== "undefined") for(const k in HABITATS){
+    const m = p.types.filter(t=>HABITATS[k].types.includes(t)).length;
+    if(m > bw){ bw = m; best = HABITATS[k]; }
   }
-};
-ACTIONS.resfilter = d => { RES_FILTER = d.f; refresh(); };
-ACTIONS.resdetail = d => {
-  const id = +d.id, r = researchOf(id);
-  const tal = talentOf(id);
-  sheet(`${sheetHead(POKE[id].name)}
-    <div class="row" style="gap:11px;margin-bottom:10px">
-      <span class="sprbox" style="width:58px;height:58px">${sprite(id, S.dex[id].shiny, "", {anim:true})}</span>
-      <div class="grow">
-        <div class="wrap" style="gap:3px">${typeTags(POKE[id].types)}${rarTag(POKE[id].rar)}</div>
-        ${isPerfect(id) ? `<div class="tiny" style="color:var(--cyan);margin-top:5px">
-          ◈ Exemplaire intègre — +8% sur toutes les statistiques</div>` : ""}
-      </div>
+  const night = typeof NIGHT_TYPES !== "undefined" && p.types.some(t=>NIGHT_TYPES.includes(t));
+  const day = typeof DAY_TYPES !== "undefined" && p.types.some(t=>DAY_TYPES.includes(t));
+  const when = night && !day ? ", surtout la nuit" : day && !night ? ", surtout le jour" : "";
+  return (reg ? reg.name + " · " : "") + (best ? best.n : "un peu partout") + when;
+}
+/* une ligne sous chaque tâche qui reste : quoi faire, et où */
+function researchHint(t, id){
+  if(t.k === "catch") return esc(resWhere(id));
+  if(t.k === "battle") return esc(t.d);
+  if(t.k === "evolve"){
+    if(!S.dex[id]) return esc(t.d);
+    if(typeof evoReady === "function" && evoReady(id)) return `<b class="ok">Elle peut évoluer maintenant</b> : rubrique Évolution, juste en dessous.`;
+    const ev = (POKE[id].evo || [])[0], chk = ev && typeof canEvolve === "function" ? canEvolve(id, ev) : null;
+    return esc(chk && !chk.ok ? chk.why : t.d);
+  }
+  if(t.k === "shiny") return esc(`Au hasard des rencontres : en ce moment, ${typeof shinyOddsText === "function" ? shinyOddsText() : "1 sur 1 000"}. La chaîne augmente la chance.`);
+  return "";
+}
+/* la fiche de recherche d'un Pokémon, dans sa fiche du Pokédex */
+function researchFicheHtml(id){
+  researchMigrate();
+  const ts = RESEARCH_TASKS.filter(t=>taskGoal(t, id) > 0);
+  if(!ts.length) return "";
+  if(!S.dex[id] && !ts.some(t=>taskProg(t, id) > 0)) return "";
+  const lv = researchLevel(id), mx = ts.length, full = lv >= mx;
+  const nx = researchNextTier();
+  return `<div class="resfiche ${full ? "full" : ""}">
+    <div class="rf-h"><b>Recherche</b><span class="rf-c">${lv}/${mx}</span><span class="grow"></span>${infoBtn("research")}</div>
+    ${ts.map(t=>{
+      const g = taskGoal(t, id), cur = Math.min(g, taskProg(t, id)), ok = cur >= g;
+      const hint = ok ? "" : researchHint(t, id);
+      return `<div class="rf-t ${ok ? "ok" : ""}">
+        <i class="rf-k">${ok ? "✓" : ""}</i>
+        <div class="grow"><div class="rf-n">${esc(taskName(t, id))}</div>${hint ? `<div class="rf-d">${hint}</div>` : ""}</div>
+        ${g > 1 && !ok ? `<span class="rf-p">${cur}/${g}</span>` : ""}
+      </div>`;}).join("")}
+    <div class="rf-f">${full ? "Fiche complète." : `Chaque tâche : <b>+${2 + POKE[id].rar} Fragments</b>${nx ? `, et un pas vers le palier ${nx.n} du Pokédex (${esc(rewardText(nx.rw))})` : ""}.`}</div>
+  </div>`;
+}
+/* quatre traits sous chaque case du Pokédex */
+function researchCellHtml(id){
+  const ts = RESEARCH_TASKS.filter(t=>taskGoal(t, id) > 0);
+  if(!ts.length) return "";
+  const done = ts.map(t=>taskDone(t, id));
+  return `<span class="dx-rs ${done.every(Boolean) ? "full" : ""}">${done.map(d=>`<i class="${d ? "on" : ""}"></i>`).join("")}</span>`;
+}
+/* l'en-tête du Pokédex : le compte, et ce que rapporte le prochain palier */
+function researchPanelHtml(){
+  const tot = researchTotal(), nx = researchNextTier();
+  const done = (S.researchTiers || []).filter(n=>RESEARCH_TIERS.some(t=>t.n === n));
+  const from = done.length ? Math.max(...done.filter(n=>!nx || n < nx.n), 0) : 0;
+  const on = typeof DEX_FILTER !== "undefined" && DEX_FILTER.mode === "research";
+  return `<div class="respanel ${on ? "on" : ""}">
+    <button class="rp-main" data-act="dexmode" data-m="${on ? "all" : "research"}">
+      <span class="rp-h"><b>Recherche</b><em class="mono-num">${tot} tâche${tot > 1 ? "s" : ""}</em></span>
+      ${nx ? `<span class="bar thin"><i style="width:${Math.max(2, Math.min(100, (tot - from) / Math.max(1, nx.n - from) * 100)).toFixed(1)}%"></i></span>
+        <span class="rp-n">Palier ${nx.n}${tot >= nx.n ? " atteint" : ""} : ${esc(rewardText(nx.rw))}</span>`
+        : `<span class="rp-n">Tous les paliers sont atteints.</span>`}
+    </button>${infoBtn("research")}
+  </div>`;
+}
+/* avec le filtre Recherche : ce qui est à une capture, un combat ou une évolution d'être rempli */
+function researchNear(region){
+  const r = regionDef(region), out = [];
+  if(!r) return out;
+  for(let i = r.from; i <= r.to && out.length < 4; i++){
+    if(!S.dex[i]) continue;
+    for(const t of RESEARCH_TASKS){
+      const g = taskGoal(t, i);
+      if(g <= 0 || taskDone(t, i)) continue;
+      const left = g - taskProg(t, i);
+      if(t.k === "evolve" ? (typeof evoReady === "function" && evoReady(i)) : (t.k === "catch" || t.k === "battle") && left === 1){
+        out.push({id:i, k:t.k, left}); break;
+      }
+    }
+  }
+  return out;
+}
+function researchNearHtml(region){
+  const near = researchNear(region);
+  const say = {catch:"plus qu'un exemplaire", battle:"plus qu'un combat", evolve:"peut évoluer"};
+  return near.length ? `<div class="resnear"><div class="rn-h">Presque rempli</div><div class="rn-row">
+    ${near.map(x=>`<button class="rn-c" data-act="dexopen" data-id="${x.id}">${sprite(x.id, S.dex[x.id].shiny, "")}
+      <span><b>${esc(POKE[x.id].name)}</b><small>${say[x.k]}</small></span></button>`).join("")}</div></div>` : "";
+}
+/* sous une capture : les étoiles de l'espèce et sa fiche, et ce qui vient de se remplir */
+function researchCatchHtml(id){
+  if(!POKE[id] || !S.dex[id] || id > 386) return "";
+  const fresh = RES_FRESH.filter(x=>x.id === id && x.st === S && !x.shown && Date.now() - x.t < 5000);
+  for(const x of fresh) x.shown = true;
+  const n = typeof dexTotalCaught === "function" ? dexTotalCaught(id) : S.dex[id].c;
+  const s = typeof starsOf === "function" ? starsOf(id) : 0, nx = typeof nextStarAt === "function" ? nextStarAt(id) : null;
+  const up = STAR_FRESH && STAR_FRESH.id === id && STAR_FRESH.st === S && Date.now() - STAR_FRESH.t < 5000;
+  const lv = researchLevel(id), mx = researchMax(id);
+  const ks = fresh.flatMap(x=>x.ks), sh = fresh.reduce((a, x)=>a + x.sh, 0);
+  const labels = ks.map(k=>{ const t = RESEARCH_TASKS.find(x=>x.k === k); return t ? t.s(id) : k; });
+  return `<div class="resline ${up ? "up" : ""}">
+      <span class="rl-s">${typeof starsHtml === "function" ? starsHtml(id) : ""}</span>
+      <span class="rl-n">${up ? `${"★".repeat(s)} atteint` : nx ? `${n}/${nx} vers ${"★".repeat(s + 1)}` : `${n} obtenus`}</span>
+      <span class="rl-r">Recherche <b>${lv}/${mx}</b></span>
     </div>
-    ${tal ? `<div class="panel tight">
-      <div class="h sm">TALENT</div>
-      <div class="tiny"><b class="cy">${esc(tal.n)}</b> — ${esc(tal.d)}</div>
-    </div>` : ""}
-    <div class="h sm">TÂCHES</div>
-    <div class="list">
-      ${RESEARCH_TASKS.filter(t=>taskGoal(t,id)>0).map(t=>{
-        const g = taskGoal(t, id), cur = Math.min(g, r[t.k] || 0), ok = cur >= g;
-        return `<div class="item ${ok?"on":""}">
-          <div class="grow">
-            <div class="t">${esc(t.n.replace("{n}", g))}</div>
-            <div class="d">${esc(t.d)}</div>
-            <div class="bar thin" style="margin-top:5px"><i style="width:${cur/g*100}%"></i></div>
-          </div>
-          <span class="tiny ${ok?"ok":"dim"} mono-num">${cur}/${g}</span>
-        </div>`;}).join("")}
-    </div>`);
-};
+    ${ks.length ? `<div class="resdone">✓ Tâche de recherche : ${esc(labels.join(", "))} · +${sh} Fragments</div>` : ""}`;
+}
+/* une capture le dit sur son propre écran : les messages en double sont retenus */
+if(typeof showCatchResult === "function"){
+  const _scr = showCatchResult;
+  showCatchResult = function(c, rw){
+    const r = _scr.apply(this, arguments);
+    try {
+      const host = document.querySelector("#sheet-root .sheet .tiles");
+      const html = c && researchCatchHtml(c.id);
+      if(host && html) host.insertAdjacentHTML("afterend", html);
+    } catch(e){}
+    return r;
+  };
+}
 
 /* ===== 36-lore.js ===== */
 /* ============================================================
@@ -18314,7 +18611,7 @@ ACTIONS.nextstep = () => {
   go(n.go, n.arg);
 };
 /* le bandeau : seulement là où l'on choisit quoi faire, jamais en pleine partie */
-const NEXTSTEP_SCREENS = ["capture", "modules", "dex", "bag", "profile", "today", "world", "team", "cards", "research", "shop", "daily", "pokebox"];
+const NEXTSTEP_SCREENS = ["capture", "modules", "dex", "bag", "profile", "today", "world", "team", "cards", "shop", "daily", "pokebox"];
 function renderNextStep(){
   if(typeof document === "undefined" || !document.getElementById) return;
   const dock = document.getElementById("dock");
@@ -19252,7 +19549,7 @@ function endOfTurnStatus(f, side){
   blog(`<span style="color:${STATUS[st.k].c}">${esc(f.name)} subit ${dmg} — ${STATUS[st.k].n}.</span>`);
   popDamage(side, dmg, 1, STATUS[st.k].c);
   if(f.hp <= 0){
-    blog(`<span class="bad">${esc(f.name)} est désindexé.</span>`);
+    blog(`<span class="bad">${esc(f.name)} est K.O.</span>`);
     handleKO(side);
   }
 }
@@ -19434,7 +19731,7 @@ function applyMove(side, att, def, mv){
   renderArena();
 
   if(def.hp <= 0){
-    blog(`<span class="bad">${esc(def.name)} est désindexé.</span>`);
+    blog(`<span class="bad">${esc(def.name)} est K.O.</span>`);
     if(target === "foe" && def.id) researchTick(def.id, "battle", 1);
     handleKO(target);
   } else if(BATTLE.boss && side === "a" && BATTLE.phase === 1 && def.hp / def.maxHp <= 0.5){
@@ -19925,10 +20222,10 @@ ACTIONS.useitem = d => {
     arHook("sync");
   } else {
     const ko = BATTLE.allies.find(x=>x.hp <= 0);
-    if(!ko){ toast("Aucun Pokémon désindexé", "bad", "cross"); return; }
+    if(!ko){ toast("Aucun Pokémon K.O.", "bad", "cross"); return; }
     S.items.revive--;
     ko.hp = Math.floor(ko.maxHp*0.5);
-    blog(`<span class="ok">${esc(ko.name)} est réindexé.</span>`);
+    blog(`<span class="ok">${esc(ko.name)} revient au combat.</span>`);
     arHook("revive", ko);
   }
   saveSoon(); renderArena(); refresh();
@@ -21166,8 +21463,8 @@ function arSync(){
    · SIX POKÉMON, le premier est ton partenaire.
    · ILS GRANDISSENT AVEC TOI : chaque point d'expérience que tu
      gagnes, où que ce soit, leur en donne une part. Les Bonbons
-     d'équipe (coffres, fouilles, victoires) les font monter d'un
-     niveau à la demande.
+     d'équipe (Expédition, fouilles, Tour, coffres) les font monter
+     d'un niveau à la demande.
    · LES ÉTOILES : chaque exemplaire capturé de l'espèce compte.
      1 à 5 étoiles, +6 % de statistiques par étoile, dans tous les
      combats où tes Pokémon se battent.
@@ -21183,17 +21480,21 @@ function starMul(id){ return 1 + STAR_BONUS * Math.max(0, starsOf(id) - 1); }
 function nextStarAt(id){ const n = dexTotalCaught(id); return STAR_STEPS.find(k=>k > n) || null; }
 function starsHtml(id, cls){ const s = starsOf(id); return `<span class="stars ${cls || ""}">${"★".repeat(s)}<i>${"★".repeat(5 - s)}</i></span>`; }
 
-/* les exemplaires capturés ne diminuent plus quand on fait évoluer : on garde le total */
+/* les exemplaires capturés ne diminuent plus quand on fait évoluer : on garde le total.
+   Les étoiles sont aussi la tâche de doublons de la recherche (34) : chaque exemplaire la fait avancer. */
 if(typeof addToDex === "function"){
   const _ad = addToDex;
   addToDex = function(id, level, shiny){
+    if(typeof researchMigrate === "function") researchMigrate();
     const before = S.dex[id] ? starsOf(id) : 0;
     const r = _ad.apply(this, arguments);
     const e = S.dex[id];
     if(e){ e.tc = Math.max(e.tc || 0, (e.c || 0) - 1) + 1; }
     const after = starsOf(id);
+    if(after > before && before > 0) STAR_FRESH = {id, s:after, t:Date.now(), st:S};
     if(after > before && before > 0 && S.team.includes(id) && typeof banner === "function")
       banner({kicker:"ÉTOILE", title:`${POKE[id].name} passe à ${after} ★`, sub:`+${Math.round(STAR_BONUS * 100)} % de statistiques dans tous les combats`, spr:id, c:"#ffd24a", dur:2600});
+    if(typeof researchSync === "function") researchSync(id);
     return r;
   };
 }
@@ -21334,15 +21635,19 @@ SCREENS.team = {
                 : `<button class="btn xs wide ${(S.candy || 0) >= c && e.lvl < 100 ? "pri" : ""}" data-act="teamfeed" data-id="${id}" ${(S.candy || 0) >= c && e.lvl < 100 ? "" : "disabled"}>+1 niv · ${c} ${ic("seed")}</button>`}
         </div>`; }).join("")}</div>
       <button class="btn wide" style="margin-top:10px" data-act="teamedit">${ic("refresh")} Changer l'équipe</button>
-      <div class="panel" style="margin-top:12px">
-        <div class="h sm">COMMENT ELLE GRANDIT</div>
-        <div class="tiny">· Chaque point d'<b>expérience</b> que tu gagnes, où que ce soit, en donne ${Math.round(TEAM_XP_SHARE * 100)} % à chacun des six.</div>
-        <div class="tiny">· Les <b>Bonbons d'équipe</b> (coffres de session, fouilles, victoires) font monter d'un niveau à la demande.</div>
-        <div class="tiny">· Les <b>étoiles</b> viennent des exemplaires capturés : ${STAR_STEPS.join(", ")} exemplaires pour 1 à 5 ★. Chaque étoile après la première : +${Math.round(STAR_BONUS * 100)} % de statistiques en combat.</div>
-        <div class="tiny">· Le premier de l'équipe est ton <b>partenaire</b> : il t'accompagne sur l'écran d'accueil.</div>
-      </div>`;
+      ${teamHowHtml()}`;
   }
 };
+/* trois façons de grandir, une ligne chacune : le détail est dans le guide */
+function teamHowHtml(){
+  const row = (i, n, d) => `<div class="tm-hr"><span class="tm-hi">${i}</span><div><b>${n}</b><small>${d}</small></div></div>`;
+  return `<div class="tm-how">
+    <div class="tm-hh">Ce qui fait monter ton équipe ${infoBtn("team")}</div>
+    ${row(ic("bolt"), "Expérience", `${Math.round(TEAM_XP_SHARE * 100)} % de tout ce que tu gagnes, pour chacun des six. La Tour en donne en plus à ceux qui combattent.`)}
+    ${row(ic("seed"), "Bonbons d'équipe", "+1 niveau, à qui tu veux. Expédition, Forage, Tour, coffres de session.")}
+    ${row("★", "Étoiles", `Chaque exemplaire obtenu compte (${STAR_STEPS.slice(1).join(", ")}) : +${Math.round(STAR_BONUS * 100)} % de stats en combat par étoile.`)}
+  </div>`;
+}
 ACTIONS.teamedit = () => {
   if(typeof teamPicker !== "function") return;
   teamPicker("Mon équipe — 6 Pokémon, le premier est ton partenaire", 6, sel=>{ S.team = sel.slice(0, 6); save(); refresh(); }, S.team);
@@ -21359,10 +21664,7 @@ if(typeof digClaim === "function"){
   const _dc = digClaim;
   digClaim = function(wall){ const r = _dc.apply(this, arguments); teamCandyGain(1 + (wall && wall.si >= 4 ? 1 : 0)); return r; };
 }
-if(typeof afterFightRewards === "function"){
-  const _af = afterFightRewards;
-  afterFightRewards = function(run, kind){ if(kind === "champ" || kind === "boss" || kind === "legend") teamCandyGain(kind === "boss" ? 5 : 2); return _af.apply(this, arguments); };
-}
+/* l'Expédition compte elle-même ses bonbons (50) : elle les montre à la fin du parcours */
 if(typeof sqFinish === "function"){
   const _sf = sqFinish;
   sqFinish = function(B){ const r = _sf.apply(this, arguments); if(B && B.result) teamCandyGain(1); return r; };
@@ -21530,7 +21832,7 @@ const RELICS = [
   {id:"r_psy", n:"Noyau psionique",    d:"+35% de dégâts des attaques Psy.",       dmgType:14},
   {id:"r_rev", n:"Réindexation auto",  d:"Une fois par parcours : après un combat perdu, un allié se relève à 40 % et le combat reprend.", revive:1},
   {id:"r_shard",n:"Extracteur",        d:"+8 Fragments par combat remporté.",      shard:8},
-  {id:"r_xp",  n:"Compilateur",        d:"Niveau permanent supplémentaire à la fin du run.", xp:1},
+  {id:"r_xp",  n:"Compilateur",        d:"Si l'expédition réussit : +2 Bonbons d'équipe par Pokémon qui revient.", xp:1},
   {id:"r_corr",n:"Affinité corrompue", d:"+8% de dégâts par palier de corruption du run.", corr:1}
 ];
 
@@ -21814,19 +22116,23 @@ function endExpedition(win){
   if(!run || run.ended) return;
   run.ended = true;
 
-  /* niveaux permanents : on garde l'avant et l'apres pour pouvoir les montrer */
-  const bonusLv = 1 + relicVal(run, "xp") + (win ? 1 : 0);
-  const gains = [];
-  for(const m of run.team){
-    const aid = m.base || m.id;             /* l'espece de l'archive, meme si elle a evolue en route */
-    if(!S.dex[aid]) continue;               /* une recrue sauvage n'entre pas a l'archive */
-    const before = S.dex[aid].lvl;
-    const add = m.hp > 0 ? bonusLv : 0;
-    S.dex[aid].lvl = Math.min(100, before + add);
-    gains.push({id:aid, before, after:S.dex[aid].lvl, alive:m.hp > 0});
-  }
+  /* Ce qui revient : des Bonbons d'équipe, à donner à qui l'on veut (Mon équipe). Avant, les
+     survivants gagnaient un ou deux niveaux d'archive : peu, pour eux seuls, alors que partout
+     ailleurs ce sont les bonbons qui font monter les niveaux. Seule une expédition réussie paie
+     ceux qui reviennent : abandonner aussitôt parti ne doit rien rapporter. Le mode Nuzlocke
+     promettait « récompenses ×1,8 » sans jamais l'appliquer : c'est fait. */
+  const modeMul = (EXP_MODES[run.mode] && !EXP_MODES[run.mode].go && EXP_MODES[run.mode].mult) || 1;
+  const first = win ? consumeFirstWin("expedition") : 1;
+  /* ceux de l'archive, partis du camp : une recrue sauvage n'y entre pas, elle ne rapporte rien */
+  const mine = m => !!(m.base && S.dex[m.base]);
+  const back = run.team.filter(m=>m.hp > 0 && mine(m));
+  const per = win ? 2 * (2 + relicVal(run, "xp")) : 0;
+  const endCandy = Math.round(per * back.length * modeMul * first);
+  if(endCandy > 0 && typeof teamCandyGain === "function") teamCandyGain(endCandy);
+  const fightCandy = run.candy || 0;
+  run.candy = fightCandy + endCandy;
 
-  const mult = (win ? 1 : 0.35) * (win ? consumeFirstWin("expedition") : 1);
+  const mult = (win ? 1 : 0.35) * first * modeMul;
   const shards = Math.round((60 + run.floor*12 + run.corruption*18) * mult);
   const coins  = Math.round((500 + run.floor*140) * mult);
   const xp     = Math.round((260 + run.floor*55) * mult);
@@ -21863,10 +22169,11 @@ function endExpedition(win){
 
   const relicList = run.relics.map(id=>RELICS.find(x=>x.id===id)).filter(Boolean);
   /* ce que le camp retiendra : affiché en tête de l'Expédition au retour */
-  S.expLast = {win, t:Date.now(), sec:(run.mapIdx || 0) + 1, maps:run.maps || 3,
-    gains:gains.map(g=>({id:g.id, add:g.after - g.before, alive:g.alive})), egg:win ? pendingEgg : null};
+  S.expLast = {win, t:Date.now(), sec:(run.mapIdx || 0) + 1, maps:run.maps || 3, candy:run.candy,
+    back:back.map(m=>m.base), ko:run.team.filter(m=>m.hp <= 0 && mine(m)).map(m=>m.base), egg:win ? pendingEgg : null};
   save();
-  EXP_END = {run, win, gains, shards, coins, xp, loot, relicList};
+  EXP_END = {run, win, back:back.length, per:back.length ? Math.round(endCandy / back.length) : 0, endCandy, fightCandy,
+    candy:run.candy, shards, coins, xp, loot, relicList};
   /* parti en plein combat (menu du bas) : la fin attend qu'on revienne à l'Expédition.
      Les succès et les fenêtres du guide passent après le butin, pas par-dessus la fin. */
   const shown = expHere() && expEndScene(EXP_END);
@@ -21878,26 +22185,30 @@ let EXP_END = null;
 function expHere(){ return typeof currentScreen === "undefined" || currentScreen === "expedition" || currentScreen === "battle"; }
 function expEndScene(v){
   const run = v.run, win = v.win, c = win ? "#35f0d6" : "#ff3d7f";
-  const ups = [];
-  run.team.forEach((m, i)=>{ const g = v.gains.find(x=>x.id === (m.base || m.id)); if(g && g.after > g.before) ups.push({i, from:g.before, to:g.after}); });
-  const fallenN = v.gains.filter(g=>!g.alive).map(g=>POKE[g.id].name);
-  const add = ups.length ? ups[0].to - ups[0].from : 0;
-  const lvTxt = ups.length ? `${ups.length} Pokémon gagne${ups.length > 1 ? "nt" : ""} ${add} niveau${add > 1 ? "x" : ""} pour de bon` : "Aucun niveau gagné cette fois";
+  /* chaque Pokémon revenu porte ses bonbons au-dessus de la tête */
+  const mine = m => !!(m.base && S.dex[m.base]);
+  const gifts = v.per ? run.team.map((m, i)=>m.hp > 0 && mine(m) ? {i, n:v.per} : null).filter(Boolean) : [];
+  const koN = run.team.filter(m=>m.hp <= 0 && mine(m)).map(m=>POKE[m.id] ? POKE[m.id].name : "").filter(Boolean);
   const loot = !!(pendingEgg || pendingBooster);
+  const parts = [];
+  if(v.endCandy) parts.push(`${v.back} Pokémon revenu${v.back > 1 ? "s" : ""} : +${v.endCandy}`);
+  if(v.fightCandy) parts.push(`Champions${win ? " et noyau" : ""} : +${v.fightCandy}`);
   const stage = `<div class="xs-sun"></div>
     <div class="xs-endhead" style="--xc:${c}"><small>${win ? "EXPÉDITION RÉUSSIE" : "EXPÉDITION TERMINÉE"}</small>
       <b>${win ? "Le noyau est atteint" : `Arrêtée au secteur ${(run.mapIdx || 0) + 1} sur ${run.maps || 3}`}</b></div>
-    ${xsTeam(run, {walk:win, size:52, ups})}`;
+    ${xsTeam(run, {walk:win, size:52, gifts})}`;
   const panel = `<div class="xs-kicker" style="color:${c}">${win ? "FIN DU PARCOURS" : "RETOUR AU CAMP"}</div>
-    <div class="xs-title">${win ? "Ton équipe rentre victorieuse" : "Ton équipe rentre plus tôt"}</div>
-    <div class="xs-say">${esc(lvTxt)}.${win ? " Ces niveaux restent, inscrits dans ton archive." : " Les récompenses du parcours sont gardées, en plus petit."}${fallenN.length ? ` Désindexés en route, sans rien gagner : ${esc(fallenN.join(", "))}.` : ""}</div>
+    <div class="xs-candy ${v.candy ? "" : "none"}"><span class="xc-i">${ic("seed")}</span>
+      <span class="xc-t"><b>+${v.candy || 0} Bonbons d'équipe</b><small>${v.candy ? "À donner à qui tu veux, dans Mon équipe." : "Seule une expédition réussie paie ceux qui reviennent."}</small></span></div>
+    ${parts.length ? `<div class="xs-split">${parts.map(x=>`<span>${esc(x)}</span>`).join("")}</div>` : ""}
     <div class="xs-endtiles">
       <span><small>Fragments</small><b>+${v.shards}</b></span>
       <span><small>PokéCoins</small><b>+${fmt(v.coins)}</b></span>
       <span><small>Expérience</small><b>+${fmt(v.xp)}</b></span>
       <span><small>${win ? "Noyaux" : "Secteur"}</small><b>${win ? "+1" : `${(run.mapIdx || 0) + 1}/${run.maps || 3}`}</b></span>
     </div>
-    ${v.loot.length ? `<div class="xs-say">Butin : ${v.loot.map(l=>esc(l.label) + (l.sub ? ` (${esc(l.sub)})` : "")).join(", ")}${v.relicList.length ? ` · ${v.relicList.length} relique${v.relicList.length > 1 ? "s" : ""} rendue${v.relicList.length > 1 ? "s" : ""} au système` : ""}.</div>` : ""}
+    ${koN.length ? `<div class="xs-ko">K.O. en route : ${esc(koN.join(", "))}. ${koN.length > 1 ? "Ils sont" : "Il est"} toujours dans ton archive.</div>` : ""}
+    ${v.loot.length ? `<div class="xs-say">Butin : ${v.loot.map(l=>esc(l.label) + (l.sub ? ` (${esc(l.sub)})` : "")).join(", ")}.</div>` : ""}
     <button class="btn pri wide" data-act="expenddone">${loot ? "Ouvrir le butin" : "Retour au camp"}</button>`;
   if(typeof xsOpen === "function" && xsOpen("end", c, stage, panel)){
     try { (win ? Sfx.win : Sfx.lose)(); } catch(e){}
@@ -21965,15 +22276,15 @@ ACTIONS.expleave = d => {
 function expLastHtml(){
   const L = S.expLast;
   if(!L || Date.now() - L.t > 24 * 3600 * 1000) return "";
-  const up = (L.gains || []).filter(g=>g.add > 0);
-  const names = up.map(g=>POKE[g.id] ? POKE[g.id].name : "").filter(Boolean);
   const eggOk = L.egg && typeof moduleUnlocked === "function" && moduleUnlocked("eggs");
+  const candy = L.candy || 0;
   return `<div class="panel xlast ${L.win ? "win" : "lose"}">
-    <div class="row between"><b>${L.win ? "Dernière expédition : réussie" : "Dernière expédition : terminée plus tôt"}</b>
+    <div class="row between"><b>${L.win ? "Dernière expédition : réussie" : `Dernière expédition : arrêtée au secteur ${L.sec} sur ${L.maps}`}</b>
       <span class="tiny dim">il y a ${fmtTime(Date.now() - L.t)}</span></div>
-    <div class="tiny muted" style="margin-top:4px">${L.win ? "Le noyau a été atteint." : `Arrêtée au secteur ${L.sec} sur ${L.maps}.`}
-      ${names.length ? `${esc(names.join(", "))} : +${up[0].add} niveau${up[0].add > 1 ? "x" : ""} pour de bon.` : "Aucun niveau gagné."}</div>
-    ${eggOk ? `<button class="btn sm" style="margin-top:8px" data-act="goto" data-to="eggs">${ic("box")} Voir l'œuf à la Couveuse</button>` : ""}
+    ${L.candy !== undefined ? `<div class="tiny muted" style="margin-top:4px">${candy ? `+${candy} Bonbons d'équipe rapportés.` : "Aucun bonbon rapporté cette fois."}</div>` : ""}
+    ${candy || eggOk ? `<div class="row" style="gap:6px;margin-top:8px;flex-wrap:wrap">
+      ${candy ? `<button class="btn sm" data-act="goto" data-to="team">${ic("seed")} Donner les bonbons</button>` : ""}
+      ${eggOk ? `<button class="btn sm" data-act="goto" data-to="eggs">${ic("box")} Voir l'œuf</button>` : ""}</div>` : ""}
   </div>`;
 }
 
@@ -22027,66 +22338,40 @@ SCREENS.expedition = {
       </div>`;
   },
 
+  /* Le camp : ce qu'on rapporte, le mode, et quatre règles en une ligne chacune.
+     Le reste (reliques, Bits, corruption, recrues) est dans le guide. */
   lobby(){
     const ok = moduleUnlocked("expedition");
+    const rule = (k, t) => `<div class="xl-r"><b>${k}</b><span>${t}</span></div>`;
+    const w = S.stats.expWins || 0, n = S.stats.expRuns || 0;
     return `
       <div class="h">${ic("map")} EXPÉDITION ${infoBtn("expedition")}</div>
-      <div class="sub">Une sonde profonde dans une couche non cartographiée.</div>
       ${expLastHtml()}
-      ${moduleGoal("Trois cartes, trois Champions. Vos Pokémon repartent de leur <b>forme de base, au niveau 5</b>, et grandissent en route : ce sont vos choix de chemin qui font leur niveau.",
-        "Des niveaux de combat permanents pour les survivants, des œufs, et des cartes de collection.")}
+      ${moduleGoal("Trois cartes, deux Champions, puis le noyau. Tes Pokémon repartent au niveau 5 et grandissent en route.",
+        "des <b>Bonbons d'équipe</b>, un œuf et une carte de collection.")}
 
-      <div class="h sm">COMMENT DESCENDRE</div>
+      <div class="h sm">MODE</div>
       <div class="modegrid c3">
         ${Object.entries(EXP_MODES).map(([k,md])=>`
           <div class="modecard ${(!md.go && expMode()===k)?"on":""} ${md.go?"dest":""}"
             data-act="expsetmode" data-m="${k}" style="--mc:${md.c}">
             <div class="mc-n">${esc(md.n)}</div>
             <div class="mc-d">${esc(md.d)}</div>
-            ${md.mult>1?`<div class="mc-x">récompenses ×${md.mult}</div>`:""}
+            ${md.mult>1?`<div class="mc-x">récompenses ×${String(md.mult).replace(".", ",")}</div>`:""}
             ${md.go?`<div class="mc-x" style="color:var(--violet)">record : étage ${(S.tower&&S.tower.best)||0}</div>`:""}
           </div>`).join("")}
       </div>
 
-      <div class="panel bracket">
-        <div class="map-flow"><span>DÉPART (haut)</span><i></i><span class="bad">CHAMPION (bas)</span></div>
-        <div class="tiny">Chaque carte a le même dessin : sept rangées de nœuds puis un Champion, dont le
-          type reste secret. Son badge ouvre la carte suivante ; au bout de la troisième attend le Noyau.
-          Touchez un nœud lointain pour voir ce qu'il cache et la route qui y mène.</div>
+      <div class="xl-rules">
+        <div class="xl-rh">En bref</div>
+        ${rule("Bonbons", "4 pour chacun de tes Pokémon qui revient du noyau, 2 par Champion battu, 5 au noyau.")}
+        ${rule("Niveaux", "Herbes +1, dresseurs et Élites +2, Champion +3. Ils ne valent que pour le parcours.")}
+        ${rule("Soins", "Les PV remontent peu entre deux combats. Le Centre Pokémon, avant le Champion, soigne tout.")}
+        ${rule("K.O.", "Un Pokémon K.O. reste toujours dans ton archive : rien n'est jamais supprimé.")}
+        <button class="xl-more" data-act="info" data-k="expedition">Toutes les règles</button>
       </div>
 
-      <div class="panel">
-        <div class="h sm">LA PROGRESSION</div>
-        <div class="tiny">· <b>Hautes herbes : +1 niveau</b> à toute l'équipe. <b>Dresseur ou Élite : +2</b>.
-          <b>Champion : +3</b>. Tout le reste (objets, recrues, événements, boutique) : +0.</div>
-        <div class="tiny">· Vos Pokémon <b>évoluent en route</b>, au niveau de leur évolution.</div>
-        <div class="tiny">· Un <b>échange</b> rend un Pokémon <b>quatre niveaux</b> au-dessus de celui que vous cédez.
-          Une recrue arrive au niveau de l'équipe.</div>
-        <div class="tiny">· Les adversaires montent avec la carte, pas avec vous : éviter les combats, c'est prendre du retard.</div>
-      </div>
-
-      <div class="panel">
-        <div class="h sm">CE QU'IL FAUT SAVOIR</div>
-        <div class="tiny">· Les <b>PV ne remontent qu'en partie</b> après un combat. Le Centre Pokémon, juste avant
-          le Champion, remet tout à neuf — mais il coûte la case d'à côté.</div>
-        <div class="tiny">· Les <b>Élites</b> garantissent une relique. Les reliques s'appliquent à
-          toute l'équipe pour le reste du run.</div>
-        <div class="tiny">· Les <b>Bits</b> ne servent qu'à l'intérieur du parcours et sont perdus à la fin.</div>
-        <div class="tiny">· La <b>corruption</b> améliore le butin et renforce les ennemis. Elle ne redescend pas.</div>
-        <div class="tiny">· Des entités sauvages peuvent rejoindre l'équipe en route (6 maximum).</div>
-      </div>
-
-      <div class="panel edge">
-        <div class="h sm">POURQUOI Y ALLER</div>
-        <div class="tiny">Les Pokémon qui <b>survivent</b> gagnent des <b class="cy">niveaux permanents</b>.
-          L'archive retient l'espèce que vous avez choisie, même si elle a évolué en route.</div>
-      </div>
-
-      <div class="tiles" style="margin-bottom:10px">
-        <div class="tile accent"><div class="k">Terminées</div><div class="v">${S.stats.expWins}</div></div>
-        <div class="tile"><div class="k">Tentatives</div><div class="v">${S.stats.expRuns}</div></div>
-      </div>
-
+      <div class="xl-stats">${w} réussie${w > 1 ? "s" : ""} · ${n} tentative${n > 1 ? "s" : ""}</div>
       <button class="btn pri wide" data-act="expstart" ${ok?"":"disabled"}>Composer l'équipe et partir</button>
       <button class="btn ghost wide" style="margin-top:7px" data-act="goto" data-to="modules">Retour aux modules</button>`;
   },
@@ -22217,7 +22502,7 @@ function expUnstick(run){
 /* ce qu'un noeud promet, dit simplement */
 function expNodeInfo(n, run){
   const t = NODE_TYPES[n.t] || NODE_TYPES.fight;
-  if(n.t === "champ") return {k:"CHAMPION", t:"Le Champion du secteur", d:"Son type reste secret jusqu'au combat. Trois Pokémon. Le vaincre donne un badge, trois niveaux à l'équipe et une relique à choisir.", c:"var(--amber)"};
+  if(n.t === "champ") return {k:"CHAMPION", t:"Le Champion du secteur", d:"Son type reste secret jusqu'au combat. Trois Pokémon. Le vaincre donne un badge, +3 niveaux à l'équipe, 2 Bonbons d'équipe et une relique à choisir.", c:"var(--amber)"};
   if(n.t === "trainer"){
     const tr = n.tr !== undefined && TRAINERS[n.tr] ? TRAINERS[n.tr] : null;
     if(tr) return {k:"DRESSEUR", t:`${esc(tr.n)} <span class="tt t${tr.t}">${TYPE_NAMES[tr.t]}</span>`,
@@ -22228,7 +22513,7 @@ function expNodeInfo(n, run){
     trainer:["DRESSEUR", "Dresseur", "Deux Pokémon d'un même type."],
     elite:["ÉLITE", "Signature élite", "Deux adversaires solides. Une relique garantie, parfois un objet tenu."],
     draft:["RECRUTEMENT", "Trois Poké Balls", "Trois candidats, un seul rejoint l'équipe."],
-    swap:["ÉCHANGE", "Terminal d'échange", "Céder un membre contre un Pokémon trois niveaux au-dessus."],
+    swap:["ÉCHANGE", "Terminal d'échange", "Céder un membre contre un Pokémon quatre niveaux au-dessus de lui."],
     event:["ÉVÉNEMENT", "Inconnu", "Porygon-Z raconte. Un choix, une conséquence."],
     shop:["BOUTIQUE", "Kecleon", "Soins, reliques et PV contre des Bits."],
     rest:["REPOS", "Feu de camp", "Se soigner, ou fouiller les cendres pour une relique."],
@@ -22325,8 +22610,8 @@ ACTIONS.exprevive = () => {
   const down = fallen(run);
   if(!run.revives || !down.length) return;
   sheet(`${sheetHead("Réindexer un membre")}
-    <div class="tiny muted" style="margin-bottom:9px">Une seule réindexation par parcours.
-      Le membre revient à la moitié de ses points de vie. Ce choix est définitif.</div>
+    <div class="tiny muted" style="margin-bottom:9px">Une seule par parcours : le Pokémon choisi revient
+      à la moitié de ses points de vie.</div>
     <div class="tp-sel">
       ${down.map(m=>{
         const i = run.team.indexOf(m);
@@ -22334,7 +22619,7 @@ ACTIONS.exprevive = () => {
           <span class="sprbox" style="width:38px;height:38px">${sprite(m.id, runShiny(m), "ghosted", {skin:true})}</span>
           <div class="grow"><div class="tiny">${esc(POKE[m.id].name)}
             <span class="dim">N.${m.level}</span></div>
-            <div class="tiny bad">désindexé</div></div>
+            <div class="tiny bad">K.O.</div></div>
           <button class="btn xs pri" data-act="exprevivedo" data-i="${i}">Réindexer</button>
         </div>`;}).join("")}
     </div>
@@ -22525,15 +22810,21 @@ function expFight(run, kind, spec){
                            : `Des entités hostiles bloquent le passage.`,
     onEnd: win => {
       run.pend = null;
-      const before = run.team.filter(m=>m.hp > 0).length;
+      const up = run.team.filter(m=>m.hp > 0);
       for(const f of allies) if(f.ref){ f.ref.hp = Math.max(0, f.hp); }
-      const lost = before - run.team.filter(m=>m.hp > 0).length;
-      if(lost > 0){
+      const fell = up.filter(m=>m.hp <= 0);
+      const lost = fell.length;
+      /* « désindexé — définitif » faisait croire que le Pokémon était effacé de l'archive :
+         il est K.O. pour ce parcours, et rien d'autre */
+      if(lost > 0 && win){
         run.lost = (run.lost || 0) + lost;
         buzz([50,40,80]);
-        toast(lost > 1 ? `${lost} membres désindexés — définitif` : "Un membre désindexé — définitif",
-              "bad", "cross");
-      }
+        const who = fell.map(m=>POKE[m.id] ? POKE[m.id].name : "").filter(Boolean).join(" et ") || "Un Pokémon";
+        toast(expMode() === "nuzlocke"
+          ? `${who} ${lost > 1 ? "sont" : "est"} K.O. jusqu'à la fin du parcours. Rien n'est supprimé de ton archive.`
+          : `${who} ${lost > 1 ? "sont" : "est"} K.O. : retour au prochain combat, à 25 % de ${lost > 1 ? "leurs" : "ses"} PV.`,
+          "bad", "cross");
+      } else if(lost > 0) run.lost = (run.lost || 0) + lost;
       /* la relique de réindexation : une fois par parcours, un allié se relève et le combat reste à livrer.
          Avant, la défaite comptait comme un passage : le nœud était franchi sans victoire, et un champion
          perdu au bout d'un secteur laissait la carte sans aucune issue. */
@@ -22555,6 +22846,9 @@ function expFight(run, kind, spec){
 }
 
 function afterFightRewards(run, kind, beaten){
+  /* les Champions et le noyau donnent leurs Bonbons d'équipe tout de suite ; la fin du parcours les recompte */
+  const candy = kind === "boss" ? 5 : (kind === "champ" || kind === "legend") ? 2 : 0;
+  if(candy && typeof teamCandyGain === "function"){ teamCandyGain(candy); run.candy = (run.candy || 0) + candy; }
   const heal = (run.maps ? 0.35 : 0.25) + relicVal(run, "post");
   const before = run.team.map(m=>m.hp);
   const back = classicRecover(run);
@@ -22578,7 +22872,7 @@ function afterFightRewards(run, kind, beaten){
     healTeam(run, 0.4);
     const avail = RELICS.filter(x => !run.relics.includes(x.id));
     const offer = shuffle(avail.slice()).slice(0, 3).map(x => x.id);
-    run.pend = {k:"badge", leader:L, bits, ups:lv.ups, evos:lv.evos, relics:offer};
+    run.pend = {k:"badge", leader:L, bits, ups:lv.ups, evos:lv.evos, relics:offer, candy};
     save();
     if(expHere()){ if(typeof closeSheet === "function") closeSheet(); expResume(run); }
     return;
@@ -22728,6 +23022,7 @@ function xsTeam(run, opts){
   return `<div class="xs-team ${opts.cls || ""}">${run.team.map((m, i)=>`
     <div class="xs-mon ${m.hp <= 0 ? "ko" : ""}" style="--d:${i * 70}ms">
       ${opts.ups && opts.ups.find(u=>u.i === i) ? `<span class="xs-up" style="--d:${500 + i * 90}ms">+${opts.ups.find(u=>u.i === i).to - opts.ups.find(u=>u.i === i).from}</span>` : ""}
+      ${opts.gifts && opts.gifts.find(u=>u.i === i) ? `<span class="xs-up xs-gift" style="--d:${500 + i * 90}ms">+${opts.gifts.find(u=>u.i === i).n}${ic("seed")}</span>` : ""}
       ${pmdCanvas(m.id, opts.dir === undefined ? 0 : opts.dir, opts.size || 40, {walk:opts.walk && m.hp > 0, shiny:runShiny(m), mine:true})}
       ${opts.bars ? `<div class="bar hp ${m.hp / m.maxHp > .5 ? "" : m.hp / m.maxHp > .2 ? "mid" : "low"}"><i data-to="${Math.max(0, m.hp / m.maxHp * 100)}"
         style="width:${Math.max(0, (opts.from && opts.from[i] !== undefined ? opts.from[i] : m.hp) / m.maxHp * 100)}%"></i></div>` : ""}
@@ -22914,6 +23209,7 @@ const XS_SCENES = {
     const panel = `<div class="xs-kicker" style="color:${c}">BADGE OBTENU · ${esc(L.n.toUpperCase())}</div>
       <div class="xs-title">Le secteur ${(run.mapIdx || 0) + 1} est franchi</div>
       ${xsLvLine(p.ups)}
+      ${p.candy ? `<div class="xs-candy sm"><span class="xc-i">${ic("seed")}</span><span class="xc-t"><b>+${p.candy} Bonbons d'équipe</b></span></div>` : ""}
       <div class="xs-say">Choisissez une relique pour la suite :</div>
       <div class="xs-relics">${p.relics.map(id=>{ const r = RELICS.find(x=>x.id === id); return r ? `<button class="xs-rc" data-act="xsbadge" data-id="${id}">
         ${itemIcon("held:h_relic", 26) || ic("shard2")}<span><b>${esc(r.n)}</b><small>${esc(r.d)}</small></span></button>` : ""; }).join("")}</div>
@@ -22968,7 +23264,8 @@ const XS_SCENES = {
     if(p.step === "give"){
       const c = p.list[p.pick];
       xsPanel(`<div class="xs-kicker" style="color:var(--violet)">TERMINAL D'ÉCHANGE</div>
-        <div class="xs-title">Céder qui contre ${esc(POKE[c.id].name)} N.${c.lvl} ?</div>
+        <div class="xs-title">Céder qui contre ${esc(POKE[c.id].name)} ?</div>
+        <div class="xs-say">Il arrive quatre niveaux au-dessus de celui que tu cèdes.</div>
         ${xsTeamPick(run, "xsswapgive")}
         <button class="btn ghost wide" data-act="xsdraftback">Revenir aux offres</button>`);
       return;
@@ -22976,7 +23273,7 @@ const XS_SCENES = {
     const stage = `<div class="xs-term">${pmdCanvas(137, 0, 96)}<div class="xs-screen"><i></i><i></i><i></i></div></div>
       <div class="xs-cards">${p.list.map((c, i)=>xsMonCard(c, i, "xsswap", p.seen ? 0 : 600 + i * 260)).join("")}</div>`;
     const panel = `<div class="xs-kicker" style="color:#9b6bff">TERMINAL D'ÉCHANGE</div>
-      <div class="xs-title">Un Pokémon contre un autre, trois niveaux au-dessus</div>
+      <div class="xs-title">Un Pokémon contre un autre, quatre niveaux au-dessus</div>
       <div class="xs-say">Choisissez ce que vous voulez recevoir, puis qui vous cédez.</div>
       <button class="btn ghost wide" data-act="xsdraftskip">Ne rien échanger · +${60 + run.floor * 6} Bits</button>`;
     xsOpen("swap", "#9b6bff", stage, panel);
@@ -23231,7 +23528,7 @@ function xsMonCard(c, i, act, delay){
     <span class="xc-face">${pmdCanvas(c.id, 0, 64)}
       <b>${esc(p.name)}</b>
       <span class="wrap" style="justify-content:center;gap:2px">${typeTags(p.types)}</span>
-      <small>N.${c.lvl} · total ${p.bst}</small></span></button>`;
+      <small>${act === "xsswap" ? "+4 niveaux" : "N." + c.lvl} · total ${p.bst}</small></span></button>`;
 }
 /* choisir un membre de l'équipe, dans la scène */
 function xsTeamPick(run, act, showItem){
@@ -23911,13 +24208,13 @@ ACTIONS.expgear = () => {
    donc au meme endroit. */
 const EXP_MODES = {
   classic: {n:"Classique",
-            d:"Trois cartes, deux Champions, un noyau. Un Pokémon tombé revient au combat suivant à 25%.",
+            d:"Un Pokémon K.O. revient au combat suivant, à 25 % de ses PV.",
             c:"var(--cyan)", mult:1},
   nuzlocke:{n:"Nuzlocke",
-            d:"Le même parcours, mais un Pokémon tombé est perdu jusqu'au bout. Ni recrutement, ni échange.",
+            d:"Un Pokémon K.O. ne revient pas de tout le parcours. Ni recrue, ni échange.",
             c:"var(--magenta)", mult:1.8},
   tower:   {n:"La Tour",
-            d:"Combats d'équipe à quatre : meneur, trois compétences par Pokémon, six ailes de paliers et les verrous légendaires.",
+            d:"Combats d'équipe à quatre, six ailes de paliers, et les verrous légendaires.",
             c:"var(--violet)", mult:1, go:"tower"}
 };
 /* la Tour n'est pas un mode de parcours : c'est une destination */
@@ -24851,6 +25148,7 @@ function sqLoot(B, t, ev, g){
   if(t.side !== "foe" || t._looted) return;
   t._looted = true;
   B.loot = B.loot || {coins:0, scrolls:0, candy:0};
+  (B.kos = B.kos || []).push(t.id);          /* la recherche compte les espèces vaincues (34) */
   const coins = Math.round((4 + t.level * 1.2) * (t.boss ? 6 : 1));
   const scroll = t.guardian ? 0 : t.boss ? 1 : (B.rnd() < 0.035 ? 1 : 0);
   const candy = B.rnd() < (t.boss ? 0.6 : 0.1) ? 1 : 0;
@@ -25040,6 +25338,11 @@ function sqFinish(B){
 /* le butin ramasse pendant le combat : tout en cas de victoire, les PokeCoins seuls en cas de defaite */
 function sqLootGrant(B){
   if(B._lootDone) return B._lootDone;
+  if(typeof researchTick === "function"){
+    const n = {};
+    for(const id of (B.kos || [])) n[id] = (n[id] || 0) + 1;
+    for(const id in n) researchTick(+id, "battle", n[id]);
+  }
   const L = Object.assign({coins:0, scrolls:0, candy:0}, B.loot || {});
   if(!B.result){ L.scrolls = 0; L.candy = 0; }
   if(L.coins) gain("coins", L.coins);
@@ -26656,8 +26959,11 @@ function sqEnd(){
   const nextOk = B.result && !last && !B.lock;
   /* la carte émise par le verrou se révèle quand le joueur a fini de lire */
   B.cardObj = R.gw && R.gw.cardObj && typeof cardReveal === "function" ? R.gw.cardObj : null;
+  /* puis son entrée au Pokédex, comme une capture : on ne comprenait pas qu'on l'avait obtenu */
+  B.entry = R.lock && R.first && S.dex[R.lock.g.id] ? R.lock.g : null;
   const canUp = sqCanUpgradeSomething(B.allies.map(u=>u.id));
-  B.rbtn = ()=>B.cardObj ? `<button class="btn pri wide" data-act="sqcard">Révéler la carte</button>` : `
+  B.rbtn = ()=>B.cardObj ? `<button class="btn pri wide" data-act="sqcard">Révéler la carte</button>`
+    : B.entry ? `<button class="btn pri wide" data-act="sqentry">Voir son entrée au Pokédex</button>` : `
         <button class="btn" data-act="sqagain">${B.result ? "Rejouer" : "Réessayer"}</button>
         <button class="btn" data-act="sqprepagain">Préparation</button>
         ${nextOk ? `<button class="btn pri" data-act="sqnext">Suivant</button>` : `<button class="btn pri" data-act="sqzoneend">${B.lock ? "Verrous" : last && B.result ? "Aile" : "Retour"}</button>`}
@@ -26723,9 +27029,30 @@ function sqRestart(z, s, d){
 ACTIONS.sqcard = () => {
   const B = SQB; if(!B || !B.cardObj) return;
   const c = B.cardObj; B.cardObj = null;
-  const done = ()=>{ const el = document.getElementById("sw-rbtn"); if(el && SQB === B) el.innerHTML = B.rbtn(); };
+  const done = ()=>{ if(B.entry) sqEntry(B); else sqButtons(B); };
   if(!cardReveal([c], {kicker:"VERROU LEVÉ", onDone:done})) done();
 };
+function sqButtons(B){ const el = document.getElementById("sw-rbtn"); if(el && SQB === B) el.innerHTML = B.rbtn(); }
+function sqEntry(B){
+  const g = B && B.entry; if(!g) return;
+  B.entry = null;
+  legendEntry(g, ()=>sqButtons(B));
+}
+/* le légendaire libéré entre au Pokédex : la même fiche qu'une capture, et ce qu'il fera dans la Brèche.
+   Sert au verrou de la Tour comme à celui de la Brèche. */
+function legendEntry(g, onDone){
+  const id = g.id, e = S.dex[id], A = typeof brArch === "function" ? brArch(id) : null;
+  const tiles = `
+    <div class="tile gold"><div class="k">Niveau</div><div class="v">N.${e ? e.lvl : 1}</div></div>
+    <div class="tile accent"><div class="k">Noyaux</div><div class="v">+${g.core ? 4 : 2}</div></div>
+    <div class="tile"><div class="k">Intégrité</div><div class="v ok">+${g.core ? 5 : 2.5}%</div></div>
+    <div class="tile"><div class="k">Carte</div><div class="v">+1</div></div>`;
+  const note = A && A.n ? `<div class="dc-sig"><small>Attaque signature, dans la Brèche</small><b>${esc(A.n)}</b>
+      ${A.d ? `<span>${esc(A.d)}</span>` : ""}<em>Choisis-le comme Pokémon de départ, ou recrute-le en route.</em></div>` : "";
+  showDiscovery({id, shiny:false, rar:POKE[id].rar, level:e ? e.lvl : 1}, {coins:0, xp:0, integ:0},
+    {tiles, note, onDone:onDone || (()=>{})});
+}
+ACTIONS.sqentry = () => sqEntry(SQB);
 ACTIONS.sqagain = () => { const B = SQB; if(!B) return; sqRepeatStop(); sqWingFlush(); sqRestart(B.z, B.s, B.d); ACTIONS.sqfight(); };
 ACTIONS.sqprepagain = () => { const B = SQB; if(!B) return; sqRepeatStop(); sqWingFlush(); sqRestart(B.z, B.s, B.d); SQB = null; SQV = null; go("tower", "prep"); };
 ACTIONS.sqnext = () => { const B = SQB; if(!B) return; sqRepeatStop(); sqRestart(B.z, B.s + 1, B.d); SQB = null; SQV = null; go("tower", "prep"); if(typeof checkStoryTriggers === "function") checkStoryTriggers(); };
@@ -27345,13 +27672,23 @@ function brStart(R){
   box.innerHTML = brShellHtml();
   const cv = document.getElementById("br-cv");
   const fit = () => {
+    if(!cv.isConnected || !cv.clientWidth || !cv.clientHeight) return;
     const dpr = Math.min(2, window.devicePixelRatio || 1);
     cv.width = Math.round(cv.clientWidth * dpr); cv.height = Math.round(cv.clientHeight * dpr);
     R.dpr = dpr; R.W = cv.clientWidth; R.H = cv.clientHeight;
   };
   fit();
-  R.fit = fit;
-  window.addEventListener("resize", fit);
+  /* Tourner le téléphone : sur iPhone, l'événement arrive avant que la page ait pris ses nouvelles
+     dimensions, et le retour en portrait gardait une toile aux mesures du paysage. On remesure
+     après coup, et la toile se remesure d'elle-même quand sa taille change. En paysage, la partie
+     se met en pause et demande de revenir à la verticale (le jeu se joue en portrait). */
+  const refit = () => { fit(); requestAnimationFrame(fit); setTimeout(fit, 250); setTimeout(fit, 700); brOrient(R); };
+  R.fit = refit;
+  window.addEventListener("resize", refit);
+  window.addEventListener("orientationchange", refit);
+  if(typeof ResizeObserver !== "undefined"){ try { R.ro = new ResizeObserver(()=>fit()); R.ro.observe(cv); } catch(e){} }
+  try { if(screen.orientation && screen.orientation.lock) screen.orientation.lock("portrait").catch(()=>{}); } catch(e){}
+  brOrient(R);
   brInput(R, cv);
   brHud(R);
   R.last = performance.now();
@@ -27381,10 +27718,25 @@ function brStop(){
   if(!BR) return;
   cancelAnimationFrame(BR.raf);
   window.removeEventListener("resize", BR.fit);
+  window.removeEventListener("orientationchange", BR.fit);
+  if(BR.ro){ try { BR.ro.disconnect(); } catch(e){} }
   document.removeEventListener("visibilitychange", BR.onVis);
   const box = document.getElementById("breche");
   if(box){ box.className = ""; box.innerHTML = ""; }
   BR = null;
+}
+
+/* un téléphone tenu à l'horizontale (pas une tablette, ni un ordinateur) */
+function brLandscape(){
+  try { return matchMedia("(orientation: landscape) and (pointer: coarse)").matches && window.innerHeight < 560; }
+  catch(e){ return false; }
+}
+function brOrient(R){
+  const box = document.getElementById("breche");
+  if(!box) return;
+  const land = brLandscape();
+  box.classList.toggle("land", land);
+  if(land && R && !R.over && !R.paused && !R.modal && typeof brPause === "function") brPause(true);
 }
 
 /* ============================================================
@@ -28353,6 +28705,8 @@ function brState(){
    la vie, la progression de la partie, l'equipe, les objets et les boosts. */
 function brShellHtml(){
   return `<canvas id="br-cv"></canvas>
+    <div id="br-rotate"><span class="brr-phone"><i></i></span><b>Remets ton téléphone à la verticale</b>
+      <small>La Brèche se joue en portrait. La partie t'attend, en pause.</small></div>
     <div id="br-stick"><i></i></div>
     <div class="br-hud">
       <div class="br-row1">
@@ -28846,7 +29200,8 @@ function brEvolve(R, w, to, stage){
       : `<b>${esc(POKE[from].name)}</b> a évolué en <b>${esc(POKE[to].name)}</b> !${fresh && stage >= 2 ? `<div class="tiny" style="color:#ffd24a">Nouvelle évolution découverte</div>` : ""}`;
     m.classList.add("done");
     /* l'éveil : ses couleurs basculent en chromatique, sous les yeux du joueur */
-    if(awaken){ const ea = document.getElementById("br-ea"); if(ea){ ea.innerHTML = sprite(from, true, "", {anim:true, eager:true}); ea.classList.add("shinyon"); } }
+    /* sprite fixe, comme toutes les fenêtres de la Brèche : l'animé détonnait */
+    if(awaken){ const ea = document.getElementById("br-ea"); if(ea){ ea.innerHTML = sprite(from, true, ""); ea.classList.add("shinyon"); } }
     const ok = document.getElementById("br-evok"); if(ok) ok.style.visibility = "visible";
     try { Sfx.win(); buzz([30, 40, 80]); } catch(e){}
     brBurst(R, R.x, R.y, "#ffffff", 40, 260, 0.8);
@@ -28984,6 +29339,8 @@ function brFinish(R, won, quit){
 function brScore(R){ return Math.round(R.kills + R.t * 2 + R.lv * 10 + (R.won ? 500 : 0) + (R.endless ? (R.t - R.bossAt) * 4 : 0)); }
 function brShowResults(R, o){
   R.over = true;
+  /* le gardien libéré : son entrée au Pokédex s'ouvre en sortant de la Brèche (l'écran de la Brèche la cacherait) */
+  if(o.gw && o.gw.first && R.guardian && S.dex[R.guardian.id]) R.entryG = R.guardian;
   if(o.gw && o.gw.cardObj && typeof cardReveal === "function"){ const c = o.gw.cardObj; o.gw.cardObj = null; setTimeout(()=>cardReveal([c], {kicker:"VERROU LEVÉ", onDone:()=>{}}), 1500); }
   R.lastResults = o;
   const m = document.getElementById("br-modal");
@@ -29028,9 +29385,16 @@ function brShowResults(R, o){
     <button class="btn wide" style="margin-top:7px" data-act="brshare">${ic("star")} Partager ma run</button>
   </div>`;
 }
-ACTIONS.brexit = () => { brStop(); go("breche"); checkStoryTriggers(); };
+ACTIONS.brexit = () => {
+  const g = BR && BR.entryG;
+  brStop(); go("breche");
+  if(g && typeof legendEntry === "function") legendEntry(g, ()=>{ refresh(); checkStoryTriggers(); });
+  else checkStoryTriggers();
+};
 ACTIONS.bragain = () => {
-  const R = BR; const o = {region:R.region, hab:R.hab, starter:R.team[0].id, daily:R.daily, seed:R.daily ? R.seed : 0, mod:R.mod, guardian:brGuardianFor(R.region)};
+  const R = BR;
+  if(R && R.entryG){ ACTIONS.brexit(); return; }        /* d'abord l'entrée du gardien libéré */
+  const o = {region:R.region, hab:R.hab, starter:R.team[0].id, daily:R.daily, seed:R.daily ? R.seed : 0, mod:R.mod, guardian:brGuardianFor(R.region)};
   brStop(); brStart(brNewRun(o));
 };
 
@@ -36773,12 +37137,14 @@ SCREENS.dex = {
     const total = r.to - r.from + 1;
     const owned = dexCount(DEX_FILTER.region);
     const ids = [];
+    const resOn = DEX_FILTER.mode === "research" && typeof researchLevel === "function";
     for(let i=r.from;i<=r.to;i++){
       const e = S.dex[i];
       if(DEX_FILTER.mode === "owned" && !e) continue;
       if(DEX_FILTER.mode === "missing" && e) continue;
       if(DEX_FILTER.mode === "shiny" && !(e && e.shiny)) continue;
       if(DEX_FILTER.mode === "evo" && !(e && evoReady(i))) continue;
+      if(resOn && !(e && researchLevel(i) < researchMax(i))) continue;
       if(DEX_FILTER.type && !POKE[i].types.includes(DEX_FILTER.type)) continue;
       ids.push(i);
     }
@@ -36787,7 +37153,7 @@ SCREENS.dex = {
         ${REGIONS.map(x=>`<button class="${DEX_FILTER.region===x.key?"on":""}" data-act="dexreg" data-r="${x.key}">
           ${esc(x.name)}</button>`).join("")}
       </div>
-      <div class="panel bracket">
+      <div class="panel bracket dxhead">
         <div class="row">
           <div class="ring">
             <svg viewBox="0 0 54 54">
@@ -36798,9 +37164,8 @@ SCREENS.dex = {
             <span class="val">${Math.round(owned/total*100)}%</span>
           </div>
           <div class="grow">
-            <div class="h sm" style="margin:0 0 3px">${esc(r.name.toUpperCase())} ${infoBtn("evolution")}</div>
-            <div class="tiny muted">${esc(r.desc)}</div>
-            <div class="tiny cy mono-num" style="margin-top:4px">${owned} / ${total} espèces archivées</div>
+            <div class="row between"><span class="h sm" style="margin:0">${esc(r.name.toUpperCase())}</span>${infoBtn("rarete")}</div>
+            <div class="tiny cy mono-num" style="margin-top:2px">${owned} / ${total} espèces archivées</div>
             <div class="wrap" style="margin-top:6px">
               ${REGION_TIERS.map(t=>{
                 const got = regionTiersDone(r.key).includes(t.pct);
@@ -36809,11 +37174,10 @@ SCREENS.dex = {
             </div>
           </div>
         </div>
+        ${typeof researchPanelHtml === "function" ? researchPanelHtml() : ""}
       </div>
-      <div class="row between" style="margin-bottom:5px">
-        <span class="grow"></span>${infoBtn("rarete")}</div>
       <div class="chipbar">
-        ${[["all","Tous"],["owned","Possédés"],["missing","Manquants"],["shiny","Chromatiques"],
+        ${[["all","Tous"],["owned","Possédés"],["missing","Manquants"],["research","Recherche"],["shiny","Chromatiques"],
            ["evo","Peut évoluer" + (evoReadyCount(DEX_FILTER.region) ? " · " + evoReadyCount(DEX_FILTER.region) : "")]]
           .map(([k,n])=>`<button class="chip ${DEX_FILTER.mode===k?"on":""}" data-act="dexmode" data-m="${k}">${n}</button>`).join("")}
       </div>
@@ -36822,6 +37186,7 @@ SCREENS.dex = {
         ${Object.keys(TYPE_NAMES).map(t=>`<button class="chip ${DEX_FILTER.type==+t?"on":""}"
           data-act="dextype" data-t="${t}"><span class="tt t${t}" style="border:0;padding:0">${TYPE_NAMES[t]}</span></button>`).join("")}
       </div>
+      ${resOn && typeof researchNearHtml === "function" ? researchNearHtml(DEX_FILTER.region) : ""}
       <div class="dexgrid">
         ${ids.map(i=>{
           const e = S.dex[i];
@@ -36833,19 +37198,26 @@ SCREENS.dex = {
             ${sprite(i, e&&e.shiny, e?"":"ghosted")}
             ${sh?'<span class="shi">✦ CHROMA</span>':""}
             <span class="nm">${e?esc(POKE[i].name):"— — —"}</span>
+            ${e && typeof researchCellHtml === "function" ? researchCellHtml(i) : ""}
           </div>`;}).join("")}
       </div>
       ${ids.length?"":`<div class="empty">${ic("eye")}<div style="margin-top:8px">
-        Aucune entrée ne correspond à ce filtre.</div></div>`}`;
+        ${resOn && owned && !DEX_FILTER.type ? "Toutes tes fiches de ce secteur sont complètes." : "Aucune entrée ne correspond à ce filtre."}</div></div>`}`;
   }
 };
 ACTIONS.dexreg = d => { DEX_FILTER.region = d.r; refresh(); };
 ACTIONS.dexmode = d => { DEX_FILTER.mode = d.m; refresh(); };
 ACTIONS.dextype = d => { DEX_FILTER.type = +d.t; refresh(); };
 
+/* La fiche d'un Pokémon, de ce qu'on fait vers ce qu'on lit : l'essentiel en chiffres,
+   la recherche (ce qui reste à faire, et où), l'évolution ; puis la notice, l'histoire et
+   les statistiques. */
 ACTIONS.dexopen = d => {
   const id = +d.id, p = POKE[id], e = S.dex[id];
   const stats = [["PV",p.hp],["Attaque",p.atk],["Défense",p.def],["Atq. Spé.",p.spa],["Déf. Spé.",p.spd],["Vitesse",p.spe]];
+  const tal = e && typeof talentOf === "function" ? talentOf(id) : null;
+  const tc = e && typeof dexTotalCaught === "function" ? dexTotalCaught(id) : 0;
+  const nx = e && typeof nextStarAt === "function" ? nextStarAt(id) : null;
   /* Porygon-Z n'a pas de numéro national ici : la vraie fin l'écrit à l'entrée 387 */
   sheet(`${sheetHead("N°" + (id === 474 ? 387 : id) + (e ? " — " + p.name : " — entrée absente"))}
     <div class="row top" style="gap:12px">
@@ -36855,14 +37227,32 @@ ACTIONS.dexopen = d => {
         ${e&&e.shiny?'<div class="tiny gold-t">chromatique obtenu</div>':""}
       </div>
       <div class="grow">
-        <div class="wrap" style="margin-bottom:6px">${typeTags(p.types)}${rarTag(p.rar)}</div>
-        ${e?`<div class="tiny">Exemplaires : <b>${e.c}</b></div>
-             <div class="tiny">Niveau de combat : <b class="cy">${e.lvl}</b></div>
-             <div class="tiny muted">Taux de capture : ${p.catch}</div>`
+        <div class="wrap" style="margin-bottom:7px">${typeTags(p.types)}${rarTag(p.rar)}</div>
+        ${e?`<div class="dx-facts">
+              <span><small>Niveau</small><b class="cy">${e.lvl}</b></span>
+              <span><small>Exemplaires</small><b>${e.c}</b></span>
+            </div>
+            ${typeof starsHtml === "function" ? `<div class="dx-stars">${starsHtml(id)}
+              <small>${tc} obtenu${tc > 1 ? "s" : ""}${nx ? ` · prochaine à ${nx}` : " · maximum"}</small></div>` : ""}
+            ${isPerfect(id) ? `<div class="tiny" style="color:var(--cyan);margin-top:5px">◈ Exemplaire intègre : +8 % sur toutes les statistiques</div>` : ""}
+            ${tal ? `<div class="dx-tal">Talent <b>${esc(tal.n)}</b> ${infoBtn("talents")}<small>${esc(tal.d)}</small></div>` : ""}`
            : `<div class="tiny muted">Cette entité n'a pas encore été restaurée.
               Sa ligne reste illisible.</div>`}
       </div>
     </div>
+    ${typeof researchFicheHtml === "function" ? researchFicheHtml(id) : ""}
+    ${p.evo.length?`<div class="h sm" style="margin-top:12px">ÉVOLUTION ${infoBtn("evolution")}</div>
+      ${p.evo.map(ev=>{
+        const chk = canEvolve(id, ev);
+        return `<div class="item" style="margin-bottom:5px">
+          ${sprite(ev.to,false,"sm")}
+          <div class="grow"><div class="t">${esc(POKE[ev.to].name)}</div>
+            <div class="d">Niv.${ev.lvl} · ${dupCost(id)} exemplaires · ${fmt(evoCoinCost(id))} PokéCoins
+              ${ev.stone?` · ${esc(STONES[ev.stone]?.name||"Pierre")}`:""}</div>
+            ${chk.ok?"":`<div class="tiny bad">${esc(chk.why)}</div>`}</div>
+          <button class="btn sm ${chk.ok?"pri":""}" data-act="evolve" data-id="${id}" data-to="${ev.to}"
+            ${chk.ok?"":"disabled"}>Faire évoluer</button></div>`;}).join("")}`:""}
+    ${p.from?`<div class="tiny muted" style="margin-top:6px">Évolue depuis ${esc(POKE[p.from].name)}.</div>`:""}
     ${e && typeof skinRowHtml === "function" ? skinRowHtml(id) : ""}
     ${loreOf(id) ? `<div class="lore ${e?"":"sealed"}">
       ${e ? esc(loreOf(id))
@@ -36875,18 +37265,7 @@ ACTIONS.dexopen = d => {
       <span class="tiny muted" style="width:62px">${n}</span>
       <span class="bar grow"><i style="width:${Math.min(100,v/200*100)}%"></i></span>
       <b class="tiny mono-num" style="width:26px;text-align:right">${v}</b></div>`).join("")}
-    ${p.evo.length?`<hr class="sep"><div class="h sm">ÉVOLUTION</div>
-      ${p.evo.map(ev=>{
-        const chk = canEvolve(id, ev);
-        return `<div class="item" style="margin-bottom:5px">
-          ${sprite(ev.to,false,"sm")}
-          <div class="grow"><div class="t">${esc(POKE[ev.to].name)}</div>
-            <div class="d">Niv.${ev.lvl} · ${dupCost(id)} exemplaires · ${fmt(evoCoinCost(id))} PokéCoins
-              ${ev.stone?` · ${esc(STONES[ev.stone]?.name||"Pierre")}`:""}</div>
-            ${chk.ok?"":`<div class="tiny bad">${esc(chk.why)}</div>`}</div>
-          <button class="btn sm ${chk.ok?"pri":""}" data-act="evolve" data-id="${id}" data-to="${ev.to}"
-            ${chk.ok?"":"disabled"}>Faire évoluer</button></div>`;}).join("")}`:""}
-    ${p.from?`<div class="tiny muted" style="margin-top:6px">Évolue depuis ${esc(POKE[p.from].name)}.</div>`:""}`);
+    <div class="tiny dim" style="margin-top:6px">Taux de capture : ${p.catch}</div>`);
 };
 ACTIONS.evolve = d => {
   const id = +d.id, to = +d.to;
@@ -37060,7 +37439,7 @@ SCREENS.shop = {
   items(){
     const list = [
       {k:"potion", n:"Restauration", d:"Soigne 55% des PV d'un Pokémon en combat.", p:250, cur:"coins", i:"heart"},
-      {k:"revive", n:"Réindexation", d:"Réanime un Pokémon désindexé à 50% de ses PV.", p:700, cur:"coins", i:"refresh"}
+      {k:"revive", n:"Réindexation", d:"Réanime un Pokémon K.O. à 50 % de ses PV.", p:700, cur:"coins", i:"refresh"}
     ];
     return `<div class="list">${list.map(it=>`
       <div class="shopitem">
@@ -37703,7 +38082,7 @@ SCREENS.bag = {
       d:"Rend 55% des points de vie d'un Pokémon, pendant un combat.",
       extra:`<div class="tiny dim">S'utilise depuis l'écran de combat.</div>`}));
     if(S.items.revive) list.push(bagRow({item:"revive", icon:"refresh", n:"Réindexation", q:S.items.revive,
-      d:"Remet en jeu un Pokémon désindexé, à la moitié de ses points de vie.",
+      d:"Remet en jeu un Pokémon K.O., à la moitié de ses points de vie.",
       extra:`<div class="tiny dim">S'utilise depuis l'écran de combat.</div>`}));
     if(S.items.radar) list.push(bagRow({item:"radar", icon:"boss", n:"Radar Légendaire", q:S.items.radar,
       d:"Force une rencontre légendaire dans le secteur actif.",
@@ -39114,7 +39493,7 @@ const REIDX_AT = 6;
 const REIDX_FRAG = 15;
 /* les écrans où une restauration en attente peut s'afficher d'elle-même */
 const REIDX_QUIET = ["capture", "cards", "profile", "journal", "dex", "modules", "today", "team", "bag", "pokebox",
-  "shop", "stats", "succes", "daily", "idle", "research", "eggs", "hall", "atelier", "faction", "social", "online", "settings",
+  "shop", "stats", "succes", "daily", "idle", "eggs", "hall", "atelier", "faction", "social", "online", "settings",
   "boss", "tower"];
 /* ce que chaque doublon a produit, dans l'ordre : la révélation l'accroche au bon exemplaire */
 let REIDX_TRACE = [];
@@ -42283,7 +42662,7 @@ function reportLine(n, dInteg){
 
    Principe retenu : chaque chose est rangee la ou on la cherche.
    · le HUB ne garde que les activites, dans l'ordre ou elles s'ouvrent ;
-   · la COLLECTION regroupe Pokedex, Recherche, Cartes, Couveuse ;
+   · la COLLECTION regroupe Pokedex (et sa recherche), Cartes, Couveuse ;
    · le SAC accueille la Boutique ;
    · AUJOURD'HUI absorbe le cadeau quotidien et les quetes ;
    · le PROFIL est un bandeau : on le touche, on le personnalise.
@@ -42356,7 +42735,6 @@ function segBar(items, active){
 function collectionTabs(active){
   const items = [
     {k:"dex", n:"Pokédex", i:"dex"},
-    {k:"research", n:"Recherche", i:"eye"},
     {k:"cards", n:"Cartes", i:"cards"}
   ];
   if(moduleUnlocked("eggs")) items.push({k:"eggs", n:"Couveuse", i:"box",
@@ -42376,7 +42754,7 @@ function withTabs(keys, bar){
     sc._tabbed = true;
   }
 }
-withTabs(["dex", "research", "cards", "eggs"], collectionTabs);
+withTabs(["dex", "cards", "eggs"], collectionTabs);
 withTabs(["bag", "shop"], bagTabs);
 
 /* ---------- le bandeau de profil ---------- */
@@ -43414,17 +43792,23 @@ const INFOS = {
   evolution:{n:"Faire évoluer", d:`
     <p>Depuis le Pokédex, ouvrez la fiche d'une espèce que vous possédez. Une évolution demande
     trois choses :</p>
-    <p>· un <b>niveau de combat</b> suffisant, qui monte en expédition ;<br>
+    <p>· un <b>niveau</b> suffisant (expérience, Tour, Bonbons d'équipe) ;<br>
     · plusieurs <b>exemplaires</b> de l'espèce, donc des doublons ;<br>
     · des PokéCoins, et parfois une <b>pierre</b> vendue en boutique.</p>
-    <p>L'espèce évoluée entre au Pokédex comme une entrée à part entière : c'est un des moyens
-    les plus rapides de compléter l'archive.</p>`},
+    <p>L'espèce évoluée entre au Pokédex comme une entrée à part entière, et l'évolution remplit
+    une tâche de sa fiche de recherche.</p>`},
 
   team:{n:"L'équipe", d:`
-    <p>Votre archive sert d'équipe de combat. Chaque espèce possède un <b>niveau de combat</b>
-    indépendant du nombre d'exemplaires.</p>
-    <p>Ce niveau monte en <b>expédition</b> : les survivants d'un run gagnent des niveaux
-    définitifs. C'est le lien principal entre l'expédition et les Data Guardians.</p>
+    <p>Chaque Pokémon de votre archive a un <b>niveau</b>, le même dans tous les combats. Il monte
+    de quatre façons :</p>
+    <p>· <b>l'expérience</b> : chaque point que vous gagnez, partout, en donne 60 % à chacun des six
+    de Mon équipe ;<br>
+    · <b>la Tour</b> : ceux qui y combattent gagnent en plus leur propre expérience ;<br>
+    · <b>les Bonbons d'équipe</b> : +1 niveau, à qui vous voulez, depuis Mon équipe. L'Expédition en
+    rapporte, comme le Forage, la Tour, les coffres de session et les légendaires de passage ;<br>
+    · <b>le compagnon</b> gagne des niveaux avec son affinité.</p>
+    <p>Les <b>étoiles</b> viennent des exemplaires obtenus (4, 10, 25, 60) : +6 % de statistiques en
+    combat par étoile.</p>
     <p>En combat, le tableau des types décide de presque tout : un ×2 vaut mieux que dix niveaux.</p>`},
 
   tower:{n:"La Tour", d:`
@@ -43445,25 +43829,31 @@ const INFOS = {
     <p>Au sommet des ailes 2, 4 et 6 se tiennent les <b>verrous légendaires</b> : ceux de Kanto en Normal,
     de Johto en Difficile, de Hoenn en Enfer.</p>`},
   expedition:{n:"L'expédition", d:`
-    <p>Trois cartes au même dessin, chacune gardée par un <b>Champion</b> dont le type reste secret.
-    Vous partez du <b>haut</b> et descendez vers lui ; son badge ouvre la carte suivante, et au bout
-    de la troisième attend le <b>noyau</b>.</p>
-    <p>On part de la <b>forme de base, au niveau 5</b>. Hautes herbes <b>+1</b>, dresseurs et élites
-    <b>+2</b>, champion <b>+3</b>, le reste <b>+0</b>. Les Pokémon évoluent en route. Un échange rend
-    un Pokémon quatre niveaux au-dessus.</p>
-    <p>Les points de vie ne remontent qu'en partie après un combat. Le Centre Pokémon, avant le
+    <p><b>Le parcours</b> — trois cartes au même dessin. Vous partez du <b>haut</b>. Les deux
+    premières finissent sur un <b>Champion</b> dont le type reste secret ; son badge ouvre la carte
+    suivante. Au bout de la troisième attend le <b>noyau</b>.</p>
+    <p><b>Ce que vous rapportez</b> — si le noyau est atteint, chacun de vos Pokémon qui en revient
+    rapporte 4 <b>Bonbons d'équipe</b> (les recrues sauvages ne comptent pas), en plus des 2 de chaque
+    Champion et des 5 du noyau. Vous les donnez à qui vous voulez, dans Mon équipe. Une expédition
+    réussie rapporte aussi un œuf, une carte de collection et 1 Noyau.</p>
+    <p><b>Les niveaux du parcours</b> — on part de la <b>forme de base, au niveau 5</b>. Hautes herbes
+    <b>+1</b>, dresseurs et élites <b>+2</b>, Champion <b>+3</b>, le reste <b>+0</b>. Les Pokémon
+    évoluent en route ; un échange rend un Pokémon quatre niveaux au-dessus de celui que vous cédez.
+    Ces niveaux ne valent que pour le parcours.</p>
+    <p><b>K.O.</b> — en Classique, un Pokémon K.O. revient au combat suivant à 25 % de ses PV. En
+    Nuzlocke, il ne revient plus de tout le parcours. Dans les deux cas, il reste dans votre archive :
+    rien n'est jamais supprimé.</p>
+    <p><b>Les soins</b> — les PV ne remontent qu'en partie après un combat. Le Centre Pokémon, avant le
     Champion, soigne tout.</p>
-    <p>Les <b>reliques</b> modifient toute l'équipe pour le reste du run. Les <b>Bits</b> ne
-    servent qu'à l'intérieur du parcours.</p>
-    <p>Les <b>objets</b> (coffres, boutique Kecleon) se portent : un par Pokémon, actif pendant ses combats.
-    Le bouton <b>Sac</b>, sous la carte, montre qui porte quoi ; on y garde un objet pour plus tard, on le
-    donne, on le reprend.</p>
-    <p>Le menu du bas met le parcours en pause : on le reprend depuis l'accueil, carte « L'Expédition ».</p>
-    <p>La <b>corruption</b> monte quand vous prenez des risques : meilleur butin, ennemis plus forts.
+    <p><b>Reliques, Bits, objets</b> — les reliques valent pour toute l'équipe jusqu'à la fin du parcours.
+    Les Bits ne servent qu'à l'intérieur. Les objets (coffres, boutique Kecleon) se portent, un par
+    Pokémon ; le bouton <b>Sac</b> montre qui porte quoi.</p>
+    <p><b>Pause</b> — le menu du bas met le parcours en pause : on le reprend depuis l'accueil.</p>
+    <p><b>Corruption</b> — elle monte quand vous prenez des risques : meilleur butin, ennemis plus forts.
     Elle ne redescend jamais.</p>
-    <p>Si tu possèdes des <b>cartes de légendaires</b>, un <b>Sanctuaire</b> doré peut se cacher dans le
-    deuxième secteur : un légendaire de ta collection t'y attend. Bats-le, il rejoint ton équipe.
-    Certaines cartes font aussi vendre à Kecleon un objet unique.</p>`},
+    <p><b>Sanctuaire</b> — si vous possédez des cartes de légendaires, un Sanctuaire doré peut se cacher
+    dans le deuxième secteur : un légendaire de votre collection vous y attend. Battu, il rejoint
+    l'équipe. Certaines cartes font aussi vendre à Kecleon un objet unique.</p>`},
 
   poker:{n:"Le Poké-Poker", d:`
     <p>Un deck de 52 cartes, mais les cartes sont des <b>Pokémon</b>. Il n'y a ni couleur ni rang :
@@ -43571,12 +43961,18 @@ const INFOS = {
     <p>On en trouve dans la PokéBox, les archives scellées, les trésors d'expédition, et en boutique.</p>`},
 
   research:{n:"La recherche", d:`
-    <p>Chaque espèce archivée porte quatre objectifs qui lui sont propres : en restaurer plusieurs,
-    en vaincre au combat, la faire évoluer, en croiser une chromatique.</p>
-    <p>Chaque tâche accomplie rapporte des Fragments et fait monter un compteur général qui débloque
-    sept paliers — jusqu'à une Master Ball et des cosmétiques.</p>
-    <p>C'est ce qui donne une valeur individuelle aux 386 espèces : sans elle, un Pokémon capturé ne
-    sert plus jamais à rien.</p>`},
+    <p><b>Chaque Pokémon a sa fiche de recherche</b>, dans le Pokédex : touchez-le pour la voir.
+    Elle compte jusqu'à quatre tâches :</p>
+    <p>· <b>★★</b> : en avoir obtenu quatre exemplaires (une étoile suffit pour un Altéré ou un
+    Légendaire) ;<br>
+    · <b>en vaincre au combat</b>, en Expédition, à la Tour ou dans la Brèche ;<br>
+    · <b>la faire évoluer</b>, si elle évolue ;<br>
+    · <b>en obtenir une chromatique</b>.</p>
+    <p><b>Ce que ça rapporte</b> — chaque tâche donne des Fragments, et les tâches de tout le
+    Pokédex s'additionnent : à 25, 60, 120… elles débloquent un palier (PokéCoins, Noyaux, Hyper
+    Balls, une Master Ball, des cosmétiques).</p>
+    <p>Le filtre <b>Recherche</b> du Pokédex montre les fiches à compléter, et ce qui est presque
+    rempli.</p>`},
 
   monde:{n:"Habitats, heure et météo", d:`
     <p><b>Habitats</b> — chaque secteur se découpe en six lieux, qui s'ouvrent au fil de vos captures.
@@ -43761,7 +44157,7 @@ const TUTOS = {
     {sel:"#map-scroll", t:"Tu pars de la porte, en haut, vers le Champion du secteur, en bas. Touche un nœud lointain : je te dis ce qu'il cache."},
     {sel:".team-strip", t:"Ton équipe repart au niveau 5. Hautes herbes +1, dresseurs +2, le reste rien. C'est ta route qui fait ta force."},
     {sel:'[data-act="expgear"]', t:"Les objets que tu trouves se portent : un par Pokémon. Le Sac montre qui porte quoi, et garde le reste pour plus tard."},
-    {sel:"#screen", t:"Deux badges, puis le noyau. Ce qui survit en revient renforcé pour de bon. Ramène-les-moi entiers, s'il te plaît. J'ai commencé à leur donner des surnoms."}
+    {sel:"#screen", t:"Deux badges, puis le noyau. Chacun de tes Pokémon qui en revient rapporte des Bonbons d'équipe. Ramène-les-moi entiers, s'il te plaît. J'ai commencé à leur donner des surnoms."}
   ]},
   tower:{steps:[
     {sel:".sw-world", t:"La Tour. L'archive y empile ce qu'elle n'arrive plus à ranger : six ailes de souvenirs corrompus, posées les unes sur les autres."},
@@ -43902,7 +44298,7 @@ const DIRECTIVES = [
   {id:"d11", n:"Faire évoluer un Pokémon",      chk:()=>S.stats.evolutions>=1, goal:()=>[S.stats.evolutions,1],
    rw:{coins:1200, stones:{fire:1}}, hint:"Pokédex, fiche d'une espèce que tu as en plusieurs exemplaires.", go:"dex"},
   {id:"d13", n:"Réussir une Expédition", chk:()=>S.stats.expWins>=1,  goal:()=>[S.stats.expWins,1],
-   rw:{shards:60}, hint:"Tes survivants gagneront des niveaux définitifs.", go:"expedition"},
+   rw:{shards:60}, hint:"Chacun de tes Pokémon qui revient du noyau rapporte des Bonbons d'équipe.", go:"expedition"},
   {id:"d13b", n:"Battre le boss de la Forêt de Jade", chk:()=>typeof sqStars === "function" && sqStars(0, SQ_STAGES - 1, 0) > 0,
    goal:()=>[typeof sqStars === "function" && sqStars(0, SQ_STAGES - 1, 0) > 0 ? 1 : 0, 1],
    rw:{coins:1500}, hint:"La Tour : quatre Pokémon de ton archive, à leur niveau. Le septième palier porte le boss.", go:"tower"},
@@ -44186,7 +44582,7 @@ const STORY_TITLES = {
   cy_e_open:"Connexion suivante", cy_e_page:"La page de trop", cy_e_mid:"Trop tôt",
   cy_w_open:"Nouvelle partie", cy_w_prof:"Jusqu'au bout de la phrase",
   pz_box:"Un abus toléré", pz_shiny:"Mal encodée", pz_fail:"Ce n'est pas toi",
-  pz_egg:"Une ébauche", pz_treasure:"Un objet", pz_buddy:"Nulle part écrit",
+  pz_egg:"Une ébauche", pz_treasure:"Un trésor", pz_buddy:"Nulle part écrit",
   pz_region_full:"Le silence", pz_first_guardian_fail:"Pas au niveau"
 };
 const STORY_ACTS = [
@@ -47739,7 +48135,7 @@ const Music = {
     if(s === "poker") return "poker";
     if(s === "world") return "monde";
     if(s === "battle") return "combat";
-    if(["dex", "cards", "eggs", "research", "bag", "shop", "profile", "atelier", "team"].includes(s)) return "collection";
+    if(["dex", "cards", "eggs", "bag", "shop", "profile", "atelier", "team"].includes(s)) return "collection";
     return "accueil";
   },
   sync(){ if(this.unlocked) this.play(this.pick()); }

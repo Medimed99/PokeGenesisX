@@ -13,6 +13,8 @@ function brState(){
    la vie, la progression de la partie, l'equipe, les objets et les boosts. */
 function brShellHtml(){
   return `<canvas id="br-cv"></canvas>
+    <div id="br-rotate"><span class="brr-phone"><i></i></span><b>Remets ton téléphone à la verticale</b>
+      <small>La Brèche se joue en portrait. La partie t'attend, en pause.</small></div>
     <div id="br-stick"><i></i></div>
     <div class="br-hud">
       <div class="br-row1">
@@ -506,7 +508,8 @@ function brEvolve(R, w, to, stage){
       : `<b>${esc(POKE[from].name)}</b> a évolué en <b>${esc(POKE[to].name)}</b> !${fresh && stage >= 2 ? `<div class="tiny" style="color:#ffd24a">Nouvelle évolution découverte</div>` : ""}`;
     m.classList.add("done");
     /* l'éveil : ses couleurs basculent en chromatique, sous les yeux du joueur */
-    if(awaken){ const ea = document.getElementById("br-ea"); if(ea){ ea.innerHTML = sprite(from, true, "", {anim:true, eager:true}); ea.classList.add("shinyon"); } }
+    /* sprite fixe, comme toutes les fenêtres de la Brèche : l'animé détonnait */
+    if(awaken){ const ea = document.getElementById("br-ea"); if(ea){ ea.innerHTML = sprite(from, true, ""); ea.classList.add("shinyon"); } }
     const ok = document.getElementById("br-evok"); if(ok) ok.style.visibility = "visible";
     try { Sfx.win(); buzz([30, 40, 80]); } catch(e){}
     brBurst(R, R.x, R.y, "#ffffff", 40, 260, 0.8);
@@ -644,6 +647,8 @@ function brFinish(R, won, quit){
 function brScore(R){ return Math.round(R.kills + R.t * 2 + R.lv * 10 + (R.won ? 500 : 0) + (R.endless ? (R.t - R.bossAt) * 4 : 0)); }
 function brShowResults(R, o){
   R.over = true;
+  /* le gardien libéré : son entrée au Pokédex s'ouvre en sortant de la Brèche (l'écran de la Brèche la cacherait) */
+  if(o.gw && o.gw.first && R.guardian && S.dex[R.guardian.id]) R.entryG = R.guardian;
   if(o.gw && o.gw.cardObj && typeof cardReveal === "function"){ const c = o.gw.cardObj; o.gw.cardObj = null; setTimeout(()=>cardReveal([c], {kicker:"VERROU LEVÉ", onDone:()=>{}}), 1500); }
   R.lastResults = o;
   const m = document.getElementById("br-modal");
@@ -688,9 +693,16 @@ function brShowResults(R, o){
     <button class="btn wide" style="margin-top:7px" data-act="brshare">${ic("star")} Partager ma run</button>
   </div>`;
 }
-ACTIONS.brexit = () => { brStop(); go("breche"); checkStoryTriggers(); };
+ACTIONS.brexit = () => {
+  const g = BR && BR.entryG;
+  brStop(); go("breche");
+  if(g && typeof legendEntry === "function") legendEntry(g, ()=>{ refresh(); checkStoryTriggers(); });
+  else checkStoryTriggers();
+};
 ACTIONS.bragain = () => {
-  const R = BR; const o = {region:R.region, hab:R.hab, starter:R.team[0].id, daily:R.daily, seed:R.daily ? R.seed : 0, mod:R.mod, guardian:brGuardianFor(R.region)};
+  const R = BR;
+  if(R && R.entryG){ ACTIONS.brexit(); return; }        /* d'abord l'entrée du gardien libéré */
+  const o = {region:R.region, hab:R.hab, starter:R.team[0].id, daily:R.daily, seed:R.daily ? R.seed : 0, mod:R.mod, guardian:brGuardianFor(R.region)};
   brStop(); brStart(brNewRun(o));
 };
 

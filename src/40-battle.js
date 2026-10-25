@@ -90,7 +90,7 @@ function endOfTurnStatus(f, side){
   blog(`<span style="color:${STATUS[st.k].c}">${esc(f.name)} subit ${dmg} — ${STATUS[st.k].n}.</span>`);
   popDamage(side, dmg, 1, STATUS[st.k].c);
   if(f.hp <= 0){
-    blog(`<span class="bad">${esc(f.name)} est désindexé.</span>`);
+    blog(`<span class="bad">${esc(f.name)} est K.O.</span>`);
     handleKO(side);
   }
 }
@@ -272,7 +272,7 @@ function applyMove(side, att, def, mv){
   renderArena();
 
   if(def.hp <= 0){
-    blog(`<span class="bad">${esc(def.name)} est désindexé.</span>`);
+    blog(`<span class="bad">${esc(def.name)} est K.O.</span>`);
     if(target === "foe" && def.id) researchTick(def.id, "battle", 1);
     handleKO(target);
   } else if(BATTLE.boss && side === "a" && BATTLE.phase === 1 && def.hp / def.maxHp <= 0.5){
@@ -763,10 +763,10 @@ ACTIONS.useitem = d => {
     arHook("sync");
   } else {
     const ko = BATTLE.allies.find(x=>x.hp <= 0);
-    if(!ko){ toast("Aucun Pokémon désindexé", "bad", "cross"); return; }
+    if(!ko){ toast("Aucun Pokémon K.O.", "bad", "cross"); return; }
     S.items.revive--;
     ko.hp = Math.floor(ko.maxHp*0.5);
-    blog(`<span class="ok">${esc(ko.name)} est réindexé.</span>`);
+    blog(`<span class="ok">${esc(ko.name)} revient au combat.</span>`);
     arHook("revive", ko);
   }
   saveSoon(); renderArena(); refresh();

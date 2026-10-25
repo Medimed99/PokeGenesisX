@@ -128,6 +128,7 @@ function xsTeam(run, opts){
   return `<div class="xs-team ${opts.cls || ""}">${run.team.map((m, i)=>`
     <div class="xs-mon ${m.hp <= 0 ? "ko" : ""}" style="--d:${i * 70}ms">
       ${opts.ups && opts.ups.find(u=>u.i === i) ? `<span class="xs-up" style="--d:${500 + i * 90}ms">+${opts.ups.find(u=>u.i === i).to - opts.ups.find(u=>u.i === i).from}</span>` : ""}
+      ${opts.gifts && opts.gifts.find(u=>u.i === i) ? `<span class="xs-up xs-gift" style="--d:${500 + i * 90}ms">+${opts.gifts.find(u=>u.i === i).n}${ic("seed")}</span>` : ""}
       ${pmdCanvas(m.id, opts.dir === undefined ? 0 : opts.dir, opts.size || 40, {walk:opts.walk && m.hp > 0, shiny:runShiny(m), mine:true})}
       ${opts.bars ? `<div class="bar hp ${m.hp / m.maxHp > .5 ? "" : m.hp / m.maxHp > .2 ? "mid" : "low"}"><i data-to="${Math.max(0, m.hp / m.maxHp * 100)}"
         style="width:${Math.max(0, (opts.from && opts.from[i] !== undefined ? opts.from[i] : m.hp) / m.maxHp * 100)}%"></i></div>` : ""}
@@ -314,6 +315,7 @@ const XS_SCENES = {
     const panel = `<div class="xs-kicker" style="color:${c}">BADGE OBTENU · ${esc(L.n.toUpperCase())}</div>
       <div class="xs-title">Le secteur ${(run.mapIdx || 0) + 1} est franchi</div>
       ${xsLvLine(p.ups)}
+      ${p.candy ? `<div class="xs-candy sm"><span class="xc-i">${ic("seed")}</span><span class="xc-t"><b>+${p.candy} Bonbons d'équipe</b></span></div>` : ""}
       <div class="xs-say">Choisissez une relique pour la suite :</div>
       <div class="xs-relics">${p.relics.map(id=>{ const r = RELICS.find(x=>x.id === id); return r ? `<button class="xs-rc" data-act="xsbadge" data-id="${id}">
         ${itemIcon("held:h_relic", 26) || ic("shard2")}<span><b>${esc(r.n)}</b><small>${esc(r.d)}</small></span></button>` : ""; }).join("")}</div>
@@ -368,7 +370,8 @@ const XS_SCENES = {
     if(p.step === "give"){
       const c = p.list[p.pick];
       xsPanel(`<div class="xs-kicker" style="color:var(--violet)">TERMINAL D'ÉCHANGE</div>
-        <div class="xs-title">Céder qui contre ${esc(POKE[c.id].name)} N.${c.lvl} ?</div>
+        <div class="xs-title">Céder qui contre ${esc(POKE[c.id].name)} ?</div>
+        <div class="xs-say">Il arrive quatre niveaux au-dessus de celui que tu cèdes.</div>
         ${xsTeamPick(run, "xsswapgive")}
         <button class="btn ghost wide" data-act="xsdraftback">Revenir aux offres</button>`);
       return;
@@ -376,7 +379,7 @@ const XS_SCENES = {
     const stage = `<div class="xs-term">${pmdCanvas(137, 0, 96)}<div class="xs-screen"><i></i><i></i><i></i></div></div>
       <div class="xs-cards">${p.list.map((c, i)=>xsMonCard(c, i, "xsswap", p.seen ? 0 : 600 + i * 260)).join("")}</div>`;
     const panel = `<div class="xs-kicker" style="color:#9b6bff">TERMINAL D'ÉCHANGE</div>
-      <div class="xs-title">Un Pokémon contre un autre, trois niveaux au-dessus</div>
+      <div class="xs-title">Un Pokémon contre un autre, quatre niveaux au-dessus</div>
       <div class="xs-say">Choisissez ce que vous voulez recevoir, puis qui vous cédez.</div>
       <button class="btn ghost wide" data-act="xsdraftskip">Ne rien échanger · +${60 + run.floor * 6} Bits</button>`;
     xsOpen("swap", "#9b6bff", stage, panel);
@@ -631,7 +634,7 @@ function xsMonCard(c, i, act, delay){
     <span class="xc-face">${pmdCanvas(c.id, 0, 64)}
       <b>${esc(p.name)}</b>
       <span class="wrap" style="justify-content:center;gap:2px">${typeTags(p.types)}</span>
-      <small>N.${c.lvl} · total ${p.bst}</small></span></button>`;
+      <small>${act === "xsswap" ? "+4 niveaux" : "N." + c.lvl} · total ${p.bst}</small></span></button>`;
 }
 /* choisir un membre de l'équipe, dans la scène */
 function xsTeamPick(run, act, showItem){

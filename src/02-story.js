@@ -340,11 +340,13 @@ const STORY = [
   {w:"pz", m:"Happy", t:"Je l'ai déjà ajoutée à « choses_formidables.txt ». Elle n'a même pas de nom. Ce n'est pas grave."}
 ]},
 
+/* le premier trésor (pêche ou Forage) : dire ce que c'est et quoi en faire. L'ancienne version
+   parlait d'un objet « tombé de l'extérieur » : personne ne comprenait de quoi il s'agissait. */
 { id:"pz_treasure", art:-1, lines:[
-  {w:"", t:"L'objet remonté ne ressemble à rien de ce que contient l'archive. Il est lourd, poli, et parfaitement inutile."},
-  {w:"pz", t:"Ce n'est pas une entité. Ce n'est pas un fichier. C'est un objet."},
-  {w:"pz", m:"Worried", t:"Or il n'y a pas d'objets dans ce monde. Seulement des définitions et des références."},
-  {w:"pz", t:"Quelqu'un a donc laissé tomber quelque chose depuis l'extérieur. Je préfère ne pas développer. Range-le. Range-le bien."}
+  {w:"", t:"Un trésor vient de remonter : pas un Pokémon, un objet. Poli, lourd, et sans aucun usage."},
+  {w:"pz", t:"Les anciennes versions du monde en étaient pleines : perles, écailles, morceaux d'étoile. La pêche et le Forage en remontent des couches d'avant."},
+  {w:"pz", m:"Happy", t:"Il ne sert à rien, mais la boutique le rachète, parfois très cher. Sac, onglet Trésors : « Tout vendre »."},
+  {w:"pz", t:"Tu peux aussi le garder. Moi, je l'aurais déjà vendu. Je compte trop bien pour être sentimental."}
 ]},
 
 { id:"pz_buddy", art:-1, lines:[

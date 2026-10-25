@@ -1107,8 +1107,11 @@ function sqEnd(){
   const nextOk = B.result && !last && !B.lock;
   /* la carte émise par le verrou se révèle quand le joueur a fini de lire */
   B.cardObj = R.gw && R.gw.cardObj && typeof cardReveal === "function" ? R.gw.cardObj : null;
+  /* puis son entrée au Pokédex, comme une capture : on ne comprenait pas qu'on l'avait obtenu */
+  B.entry = R.lock && R.first && S.dex[R.lock.g.id] ? R.lock.g : null;
   const canUp = sqCanUpgradeSomething(B.allies.map(u=>u.id));
-  B.rbtn = ()=>B.cardObj ? `<button class="btn pri wide" data-act="sqcard">Révéler la carte</button>` : `
+  B.rbtn = ()=>B.cardObj ? `<button class="btn pri wide" data-act="sqcard">Révéler la carte</button>`
+    : B.entry ? `<button class="btn pri wide" data-act="sqentry">Voir son entrée au Pokédex</button>` : `
         <button class="btn" data-act="sqagain">${B.result ? "Rejouer" : "Réessayer"}</button>
         <button class="btn" data-act="sqprepagain">Préparation</button>
         ${nextOk ? `<button class="btn pri" data-act="sqnext">Suivant</button>` : `<button class="btn pri" data-act="sqzoneend">${B.lock ? "Verrous" : last && B.result ? "Aile" : "Retour"}</button>`}
@@ -1174,9 +1177,30 @@ function sqRestart(z, s, d){
 ACTIONS.sqcard = () => {
   const B = SQB; if(!B || !B.cardObj) return;
   const c = B.cardObj; B.cardObj = null;
-  const done = ()=>{ const el = document.getElementById("sw-rbtn"); if(el && SQB === B) el.innerHTML = B.rbtn(); };
+  const done = ()=>{ if(B.entry) sqEntry(B); else sqButtons(B); };
   if(!cardReveal([c], {kicker:"VERROU LEVÉ", onDone:done})) done();
 };
+function sqButtons(B){ const el = document.getElementById("sw-rbtn"); if(el && SQB === B) el.innerHTML = B.rbtn(); }
+function sqEntry(B){
+  const g = B && B.entry; if(!g) return;
+  B.entry = null;
+  legendEntry(g, ()=>sqButtons(B));
+}
+/* le légendaire libéré entre au Pokédex : la même fiche qu'une capture, et ce qu'il fera dans la Brèche.
+   Sert au verrou de la Tour comme à celui de la Brèche. */
+function legendEntry(g, onDone){
+  const id = g.id, e = S.dex[id], A = typeof brArch === "function" ? brArch(id) : null;
+  const tiles = `
+    <div class="tile gold"><div class="k">Niveau</div><div class="v">N.${e ? e.lvl : 1}</div></div>
+    <div class="tile accent"><div class="k">Noyaux</div><div class="v">+${g.core ? 4 : 2}</div></div>
+    <div class="tile"><div class="k">Intégrité</div><div class="v ok">+${g.core ? 5 : 2.5}%</div></div>
+    <div class="tile"><div class="k">Carte</div><div class="v">+1</div></div>`;
+  const note = A && A.n ? `<div class="dc-sig"><small>Attaque signature, dans la Brèche</small><b>${esc(A.n)}</b>
+      ${A.d ? `<span>${esc(A.d)}</span>` : ""}<em>Choisis-le comme Pokémon de départ, ou recrute-le en route.</em></div>` : "";
+  showDiscovery({id, shiny:false, rar:POKE[id].rar, level:e ? e.lvl : 1}, {coins:0, xp:0, integ:0},
+    {tiles, note, onDone:onDone || (()=>{})});
+}
+ACTIONS.sqentry = () => sqEntry(SQB);
 ACTIONS.sqagain = () => { const B = SQB; if(!B) return; sqRepeatStop(); sqWingFlush(); sqRestart(B.z, B.s, B.d); ACTIONS.sqfight(); };
 ACTIONS.sqprepagain = () => { const B = SQB; if(!B) return; sqRepeatStop(); sqWingFlush(); sqRestart(B.z, B.s, B.d); SQB = null; SQV = null; go("tower", "prep"); };
 ACTIONS.sqnext = () => { const B = SQB; if(!B) return; sqRepeatStop(); sqRestart(B.z, B.s + 1, B.d); SQB = null; SQV = null; go("tower", "prep"); if(typeof checkStoryTriggers === "function") checkStoryTriggers(); };

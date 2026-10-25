@@ -2812,6 +2812,16 @@ body:has(#discover.on) #pztalk,body:has(#sheet-root.on) #pztalk,body:has(#tuto.o
 #breche.on{display:block;position:fixed;inset:0;z-index:400;background:#05020c;overflow:hidden;
   touch-action:none;-webkit-user-select:none;user-select:none}
 #br-cv{position:absolute;inset:0;width:100%;height:100%;display:block}
+/* téléphone à l'horizontale : tout s'efface derrière une consigne, la partie est en pause */
+#br-rotate{display:none}
+#breche.land #br-rotate{display:flex;position:absolute;inset:0;z-index:50;flex-direction:column;align-items:center;justify-content:center;gap:10px;
+  padding:24px;text-align:center;background:#05020cf2;color:#fff}
+#br-rotate b{font-size:15px;font-weight:600}
+#br-rotate small{font-size:12px;color:#cbd6e6;max-width:320px;line-height:1.45}
+.brr-phone{width:34px;height:56px;border:3px solid var(--cyan);border-radius:8px;position:relative;margin-bottom:6px;animation:brrTurn 2.2s ease-in-out infinite}
+.brr-phone i{position:absolute;left:50%;bottom:4px;width:8px;height:3px;margin-left:-4px;border-radius:2px;background:var(--cyan)}
+@keyframes brrTurn{0%,20%{transform:rotate(-90deg)}55%,100%{transform:rotate(0)}}
+body.calm .brr-phone{animation:none}
 /* joystick flottant : il apparaît là où le pouce se pose */
 #br-stick{position:absolute;width:92px;height:92px;margin:-46px 0 0 -46px;border-radius:50%;pointer-events:none;
   border:2px solid rgba(53,240,214,.35);background:radial-gradient(closest-side,rgba(53,240,214,.08),transparent);
@@ -2898,7 +2908,10 @@ body:has(#discover.on) #pztalk,body:has(#sheet-root.on) #pztalk,body:has(#tuto.o
 /* coffre */
 .br-roll{width:96px;height:96px;margin:12px auto;display:flex;align-items:center;justify-content:center;border-radius:14px;
   background:radial-gradient(closest-side,rgba(255,210,74,.25),transparent);border:2px solid #ffd24a}
-.br-roll .spr{width:72px;height:72px}
+/* un Pokémon dans la roulette : sa boîte de 26 px gardait sa largeur et la hauteur passait à 72 px —
+   le sprite s'étirait en hauteur et débordait du cadre. Boîte carrée, sprite qui la remplit. */
+.br-roll .sprbox{width:40px!important;height:40px!important}
+.br-roll .spr{width:100%;height:100%;flex:0 0 100%}
 .br-roll.done{animation:brPop .45s cubic-bezier(.2,1.6,.4,1);box-shadow:0 0 30px rgba(255,210,74,.6)}
 @keyframes brPop{50%{transform:scale(1.18)}}
 .br-gifts{display:flex;flex-direction:column;gap:6px;margin-bottom:12px;text-align:left}
@@ -4472,7 +4485,8 @@ details.fo-more[open]>summary::before{content:"▾ "}
 .roam-tr{display:flex;gap:4px;margin-top:3px}
 .roam-tr i{width:16px;height:5px;border-radius:3px;background:#3a2a20}
 .roam-tr i.on{background:#ff8a3d;box-shadow:0 0 6px #ff8a3d}
-.stk-tag{position:absolute;bottom:36px;left:50%;transform:translateX(-50%);z-index:4;font-size:9px;letter-spacing:1.4px;font-family:var(--font-px,monospace);padding:3px 9px;border-radius:9px;white-space:nowrap}
+.stk-tag{position:absolute;bottom:36px;left:50%;transform:translateX(-50%);z-index:4;font-size:9px;letter-spacing:1.4px;font-family:var(--font-px,monospace);padding:3px 9px;border-radius:9px;
+  width:max-content;max-width:calc(100% - 24px);white-space:normal;text-align:center;line-height:1.6}
 .stk-tag.horde{background:#5ce07a22;border:1px solid #5ce07a;color:#5ce07a}
 .stk-tag.roam{background:#ff8a3d22;border:1px solid #ff8a3d;color:#ff8a3d;animation:lgGlow 1.4s ease-in-out infinite}
 #enc-stage.roaming{box-shadow:inset 0 0 60px #ff8a3d55}
@@ -5669,6 +5683,9 @@ button.zc-card{cursor:pointer}
    le second toucher (arrêter le curseur) doit tomber au même endroit que le premier, même sur un
    petit écran et avec le bandeau « Prochaine étape » */
 #aim-slot{position:relative;height:0;z-index:6}
+/* pendant la visée, tout l'écran arrête le curseur : les baies et les Balls s'effacent et ne
+   répondent plus (un pouce un peu bas les activait) */
+body.aiming #screen .berrychip,body.aiming #screen .ballpick,body.aiming #screen .potbox,body.aiming #screen .bonuschip{opacity:.32;pointer-events:none;transition:opacity .15s}
 #aim-slot .aimbar{position:absolute;left:0;right:0;bottom:8px;margin:0;
   background:linear-gradient(90deg,#070d18,#0d1728,#070d18);box-shadow:0 -6px 16px rgba(4,8,16,.9),0 4px 10px rgba(4,8,16,.8)}
 
@@ -5736,9 +5753,9 @@ body.calm #app.shake{animation:none !important}
 #enc-stage.onze .plate{box-shadow:0 0 30px rgba(217,179,140,.35)}
 #enc-stage.onze::after{content:"";position:absolute;inset:0;z-index:3;pointer-events:none;border-radius:inherit;
   box-shadow:inset 0 0 60px rgba(217,179,140,.28)}
-.enc-nick{width:100%;font-family:var(--font-px);font-size:11px;letter-spacing:1.5px;color:#f6dfbd;
+.enc-nick{width:100%;font-family:var(--font-px);font-size:10px;letter-spacing:1px;color:#f6dfbd;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
   text-shadow:0 0 10px rgba(217,179,140,.7),0 2px 0 rgba(0,0,0,.8)}
-.enc-nick small{display:block;margin-top:2px;font-family:var(--font-mono);font-size:9px;letter-spacing:1px;color:#cdb18f}
+.enc-nick small{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.5px;color:#cdb18f;text-shadow:none}
 .stk-tag.onze{background:#d9b38c22;border:1px solid #d9b38c;color:#f6dfbd}
 #moment.k-onze .mo-spr{filter:sepia(.5) saturate(.85)}
 #moment.k-onze .mo-quote{animation-delay:1.1s;color:#f6dfbd}
@@ -6089,3 +6106,136 @@ body.era-g2 #xscene{filter:saturate(1.3) contrast(1.06)}
 .cn-stage.pl-on~.cn-dialog.w-none .cn-next{left:50%;right:auto;margin-left:-6px}
 @media (prefers-reduced-motion:reduce){.cn-face.pop{animation:none}.wl-file .wl-b div,.wl-log div{animation-duration:.01s;animation-delay:0s}}
 body.calm .cn-face.pop{animation:none}
+
+/* ============================================================
+   LA RECHERCHE DANS LE POKÉDEX — 25 octobre
+   L'en-tête dit combien de tâches et ce que rapporte le prochain
+   palier ; chaque case porte quatre traits ; la fiche liste ce qui
+   reste à faire, et où ; la capture montre quand ça avance.
+   ============================================================ */
+.dxhead{padding-bottom:9px}
+.respanel{display:flex;align-items:center;gap:8px;margin-top:10px;padding-top:9px;border-top:1px dashed var(--line)}
+.rp-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px;padding:0;border:0;background:none;text-align:left;color:inherit}
+.rp-h{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.rp-h b{font-family:var(--font-px);font-size:8px;letter-spacing:.6px;color:var(--ink2);text-transform:uppercase}
+.rp-h em{font-style:normal;font-size:11px;color:var(--cyan)}
+.rp-n{font-size:10px;color:var(--ink3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.respanel.on .rp-h b{color:var(--cyan)}
+.respanel .bar>i{background:linear-gradient(90deg,var(--cyan-d),var(--cyan))}
+
+/* quatre traits au pied de chaque case : une tâche chacun, dorés quand la fiche est complète */
+.dexcell .dx-rs{position:absolute;left:8px;right:8px;bottom:4px;display:flex;gap:2px;z-index:2;pointer-events:none}
+.dexcell .dx-rs i{flex:1;height:2px;border-radius:1px;background:#ffffff1c}
+.dexcell .dx-rs i.on{background:var(--cyan);box-shadow:0 0 4px #35f0d680}
+.dexcell .dx-rs.full i{background:var(--amber);box-shadow:0 0 4px #ffc85780}
+.dexcell .nm{margin-bottom:3px}
+
+/* avec le filtre Recherche : ce qui est à un geste d'être rempli */
+.resnear{margin:-2px 0 10px}
+.rn-h{font-size:9.5px;color:var(--ink3);margin-bottom:5px}
+.rn-row{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+.rn-row::-webkit-scrollbar{display:none}
+.rn-c{flex:0 0 auto;display:flex;align-items:center;gap:5px;padding:3px 9px 3px 3px;border-radius:var(--r);
+  border:1px solid color-mix(in srgb,var(--cyan) 40%,var(--line));background:rgba(53,240,214,.06);color:var(--ink);text-align:left}
+.rn-c .spr{width:28px;height:28px}
+.rn-c span{display:flex;flex-direction:column;line-height:1.3}
+.rn-c b{font-size:10.5px;font-weight:600}
+.rn-c small{font-size:9.5px;color:var(--cyan)}
+
+/* la fiche : l'essentiel en chiffres */
+.dx-facts{display:flex;gap:6px}
+.dx-facts span{flex:1;display:flex;flex-direction:column;gap:2px;padding:5px 7px;border:1px solid var(--line);border-radius:var(--r);background:#ffffff06}
+.dx-facts small{font-size:9px;color:var(--ink3)}
+.dx-facts b{font-family:var(--font-px);font-size:10px}
+.dx-stars{display:flex;align-items:center;gap:7px;margin-top:7px}
+.dx-stars .stars{font-size:13px}
+.dx-stars small{font-size:9.5px;color:var(--ink3)}
+.dx-tal{margin-top:7px;font-size:10.5px;color:var(--ink2);display:flex;flex-wrap:wrap;align-items:center;gap:4px}
+.dx-tal b{color:var(--cyan);font-weight:600}
+.dx-tal small{flex-basis:100%;font-size:9.5px;color:var(--ink3);line-height:1.4}
+
+/* la fiche de recherche : une ligne par tâche, la consigne seulement pour ce qui reste */
+.resfiche{margin-top:12px;border:1px solid var(--line2);border-radius:var(--r);background:linear-gradient(180deg,var(--s2),var(--s1));padding:9px 10px}
+.resfiche.full{border-color:color-mix(in srgb,var(--amber) 55%,var(--line))}
+.rf-h{display:flex;align-items:center;gap:7px;margin-bottom:4px}
+.rf-h b{font-family:var(--font-px);font-size:8px;letter-spacing:.6px;color:var(--ink2);text-transform:uppercase}
+.rf-c{font-family:var(--font-px);font-size:9px;color:var(--cyan)}
+.resfiche.full .rf-c{color:var(--amber)}
+.rf-t{display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-top:1px solid #ffffff0a}
+.rf-h+.rf-t{border-top:0}
+.rf-k{flex:0 0 auto;width:15px;height:15px;margin-top:1px;border-radius:3px;border:1px solid var(--line2);
+  display:inline-flex;align-items:center;justify-content:center;font-style:normal;font-size:10px;color:#04060b}
+.rf-t.ok .rf-k{background:var(--cyan);border-color:var(--cyan)}
+.resfiche.full .rf-t.ok .rf-k{background:var(--amber);border-color:var(--amber)}
+.rf-n{font-size:11.5px;line-height:1.35}
+.rf-t.ok .rf-n{color:var(--ink3)}
+.rf-d{font-size:9.5px;color:var(--ink3);line-height:1.4;margin-top:2px}
+.rf-p{flex:0 0 auto;font-size:10.5px;color:var(--cyan);font-variant-numeric:tabular-nums;margin-top:1px}
+.rf-f{margin-top:6px;padding-top:7px;border-top:1px dashed var(--line);font-size:9.5px;color:var(--ink3);line-height:1.45}
+.rf-f b{color:var(--ink2);font-weight:600}
+
+/* sous une capture : les étoiles, la fiche, ce qui vient de se remplir */
+.resline{display:flex;align-items:center;gap:8px;margin:-2px 0 8px;padding:6px 9px;border:1px solid var(--line);border-radius:var(--r);background:linear-gradient(180deg,var(--s2),var(--s1));font-size:10.5px}
+.resline .rl-n{color:var(--ink2);flex:1;text-align:left}
+.resline .rl-r{color:var(--ink3)}
+.resline .rl-r b{color:var(--cyan);font-weight:600}
+.resline.up{border-color:color-mix(in srgb,#ffd24a 55%,var(--line));background:rgba(255,210,74,.06)}
+.resline.up .rl-n{color:#ffd24a}
+.resdone{margin:-3px 0 9px;padding:6px 9px;border-radius:var(--r);border:1px solid color-mix(in srgb,var(--cyan) 50%,var(--line));
+  background:linear-gradient(0deg,rgba(53,240,214,.09),rgba(53,240,214,.09)),var(--s1);color:var(--cyan);font-size:10.5px;text-align:left;animation:resPop .5s cubic-bezier(.2,.9,.25,1.2)}
+@keyframes resPop{0%{opacity:0;transform:scale(.94)}100%{opacity:1;transform:none}}
+.dc-res{opacity:0;transition:opacity .3s;margin-top:9px}
+/* un légendaire libéré : ce qu'il fera dans la Brèche */
+.dc-sig{display:flex;flex-direction:column;gap:3px;margin:0 0 8px;padding:9px 11px;border-radius:var(--r);text-align:left;
+  border:1px solid color-mix(in srgb,var(--ac,#ffd24a) 55%,var(--line));background:linear-gradient(0deg,rgba(255,210,74,.07),rgba(255,210,74,.07)),var(--s1)}
+.dc-sig small{font-size:9.5px;color:var(--ink3);letter-spacing:.3px}
+.dc-sig b{font-size:13px;color:#ffd24a}
+.dc-sig span{font-size:10.5px;color:var(--ink2);line-height:1.4}
+.dc-sig em{font-style:normal;font-size:10px;color:var(--ink3);margin-top:2px}
+.dc-res.in{opacity:1}
+body.calm .resdone{animation:none}
+
+/* ============================================================
+   MON ÉQUIPE — ce qui la fait monter, en trois lignes
+   ============================================================ */
+.tm-how{margin-top:12px;border:1px solid var(--line);border-radius:12px;padding:10px 11px;background:linear-gradient(180deg,var(--s2),var(--s1))}
+.tm-hh{display:flex;align-items:center;justify-content:space-between;font-family:var(--font-px);font-size:8px;letter-spacing:.5px;color:var(--ink2);margin-bottom:6px;text-transform:uppercase}
+.tm-hr{display:flex;align-items:flex-start;gap:9px;padding:6px 0;border-top:1px solid #ffffff0a}
+.tm-hh+.tm-hr{border-top:0}
+.tm-hi{flex:0 0 24px;height:24px;border-radius:7px;display:inline-flex;align-items:center;justify-content:center;background:#ffffff08;border:1px solid var(--line);color:#ffd24a;font-size:13px}
+.tm-hi svg{width:15px;height:15px}
+.tm-hr b{display:block;font-size:11.5px;font-weight:600}
+.tm-hr small{display:block;font-size:10px;color:var(--ink3);line-height:1.4;margin-top:1px}
+
+/* ============================================================
+   EXPÉDITION — des bonbons au retour, et des règles qui se lisent
+   ============================================================ */
+/* le camp : quatre règles, une ligne chacune ; le reste dans le guide */
+.xl-rules{border:1px solid var(--line);border-radius:var(--r);background:linear-gradient(180deg,var(--s2),var(--s1));padding:9px 11px 6px;margin:12px 0 10px}
+.xl-rh{font-family:var(--font-px);font-size:8px;letter-spacing:.6px;color:var(--ink2);text-transform:uppercase;margin-bottom:4px}
+.xl-r{display:flex;gap:10px;padding:6px 0;border-top:1px solid #ffffff0a;font-size:10.5px;line-height:1.45}
+.xl-rh+.xl-r{border-top:0}
+.xl-r b{flex:0 0 58px;color:var(--cyan);font-weight:600}
+.xl-r span{color:var(--ink2)}
+.xl-more{display:block;width:100%;margin-top:3px;padding:7px 0 3px;border:0;border-top:1px dashed var(--line);background:none;color:var(--ink3);font-size:10px;text-align:center}
+.xl-more:active{color:var(--cyan)}
+.xl-stats{font-size:10px;color:var(--ink3);text-align:center;margin:0 0 8px}
+
+/* la fin : les bonbons d'abord, au-dessus de la tête de ceux qui reviennent */
+.xs-up.xs-gift{display:inline-flex;align-items:center;gap:2px;color:#ffb3e0}
+.xs-up.xs-gift svg{width:11px;height:11px}
+.xs-candy{display:flex;align-items:center;gap:10px;margin:6px 0 8px;padding:9px 11px;border-radius:10px;
+  border:1px solid #ff9ed655;background:linear-gradient(90deg,rgba(255,158,214,.12),rgba(255,158,214,.03))}
+.xs-candy .xc-i{flex:0 0 30px;height:30px;border-radius:9px;display:inline-flex;align-items:center;justify-content:center;background:#ff9ed61f;color:#ffb3e0}
+.xs-candy .xc-i svg{width:18px;height:18px}
+.xs-candy .xc-t{display:flex;flex-direction:column;gap:2px;text-align:left}
+.xs-candy b{font-size:14px;color:#ffd1ec;font-weight:700}
+.xs-candy small{font-size:10.5px;color:var(--ink2)}
+.xs-candy.none{border-color:var(--line);background:#ffffff05}
+.xs-candy.none b{color:var(--ink2)}
+.xs-candy.sm{padding:6px 9px;margin:4px 0 8px}
+.xs-candy.sm .xc-i{flex-basis:24px;height:24px}
+.xs-candy.sm b{font-size:12px}
+.xs-split{display:flex;flex-wrap:wrap;gap:5px;margin:-2px 0 8px}
+.xs-split span{font-size:10px;color:var(--ink3);padding:2px 7px;border:1px solid var(--line);border-radius:10px}
+.xs-ko{font-size:10.5px;color:var(--ink2);margin:8px 0 2px;line-height:1.45}

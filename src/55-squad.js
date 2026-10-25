@@ -345,6 +345,7 @@ function sqLoot(B, t, ev, g){
   if(t.side !== "foe" || t._looted) return;
   t._looted = true;
   B.loot = B.loot || {coins:0, scrolls:0, candy:0};
+  (B.kos = B.kos || []).push(t.id);          /* la recherche compte les espèces vaincues (34) */
   const coins = Math.round((4 + t.level * 1.2) * (t.boss ? 6 : 1));
   const scroll = t.guardian ? 0 : t.boss ? 1 : (B.rnd() < 0.035 ? 1 : 0);
   const candy = B.rnd() < (t.boss ? 0.6 : 0.1) ? 1 : 0;
@@ -534,6 +535,11 @@ function sqFinish(B){
 /* le butin ramasse pendant le combat : tout en cas de victoire, les PokeCoins seuls en cas de defaite */
 function sqLootGrant(B){
   if(B._lootDone) return B._lootDone;
+  if(typeof researchTick === "function"){
+    const n = {};
+    for(const id of (B.kos || [])) n[id] = (n[id] || 0) + 1;
+    for(const id in n) researchTick(+id, "battle", n[id]);
+  }
   const L = Object.assign({coins:0, scrolls:0, candy:0}, B.loot || {});
   if(!B.result){ L.scrolls = 0; L.candy = 0; }
   if(L.coins) gain("coins", L.coins);

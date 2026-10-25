@@ -8,7 +8,7 @@
 
    Principe retenu : chaque chose est rangee la ou on la cherche.
    · le HUB ne garde que les activites, dans l'ordre ou elles s'ouvrent ;
-   · la COLLECTION regroupe Pokedex, Recherche, Cartes, Couveuse ;
+   · la COLLECTION regroupe Pokedex (et sa recherche), Cartes, Couveuse ;
    · le SAC accueille la Boutique ;
    · AUJOURD'HUI absorbe le cadeau quotidien et les quetes ;
    · le PROFIL est un bandeau : on le touche, on le personnalise.
@@ -81,7 +81,6 @@ function segBar(items, active){
 function collectionTabs(active){
   const items = [
     {k:"dex", n:"Pokédex", i:"dex"},
-    {k:"research", n:"Recherche", i:"eye"},
     {k:"cards", n:"Cartes", i:"cards"}
   ];
   if(moduleUnlocked("eggs")) items.push({k:"eggs", n:"Couveuse", i:"box",
@@ -101,7 +100,7 @@ function withTabs(keys, bar){
     sc._tabbed = true;
   }
 }
-withTabs(["dex", "research", "cards", "eggs"], collectionTabs);
+withTabs(["dex", "cards", "eggs"], collectionTabs);
 withTabs(["bag", "shop"], bagTabs);
 
 /* ---------- le bandeau de profil ---------- */

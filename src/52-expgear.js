@@ -226,13 +226,13 @@ ACTIONS.expgear = () => {
    donc au meme endroit. */
 const EXP_MODES = {
   classic: {n:"Classique",
-            d:"Trois cartes, deux Champions, un noyau. Un Pokémon tombé revient au combat suivant à 25%.",
+            d:"Un Pokémon K.O. revient au combat suivant, à 25 % de ses PV.",
             c:"var(--cyan)", mult:1},
   nuzlocke:{n:"Nuzlocke",
-            d:"Le même parcours, mais un Pokémon tombé est perdu jusqu'au bout. Ni recrutement, ni échange.",
+            d:"Un Pokémon K.O. ne revient pas de tout le parcours. Ni recrue, ni échange.",
             c:"var(--magenta)", mult:1.8},
   tower:   {n:"La Tour",
-            d:"Combats d'équipe à quatre : meneur, trois compétences par Pokémon, six ailes de paliers et les verrous légendaires.",
+            d:"Combats d'équipe à quatre, six ailes de paliers, et les verrous légendaires.",
             c:"var(--violet)", mult:1, go:"tower"}
 };
 /* la Tour n'est pas un mode de parcours : c'est une destination */

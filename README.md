@@ -506,6 +506,29 @@ Le jeu envoyé à un ami : ses notes brutes, et ce qu'elles ont changé.
   magenta, le nom du joueur à peine visible au fond, qui respire ; au « Regarde mon nom » de la Couche
   Zéro, elle s'ouvre et laisse place au sprite tiré du nom, puis au L.
 
+## Retours de Mehdi sur téléphone (25 octobre 2026)
+
+- **Étiquettes de la carte de rencontre** : avec la police pixel, « REVENU D'UNE SAUVEGARDE D'AVANT ·
+  IL NE FUIRA PAS » sortait de la carte. Les étiquettes sont courtes (« IL NE FUIRA PAS », « ERRANT ·
+  UNE SEULE BALLE », « HORDE 3/5 · CAPTURE FACILE ») et ne dépassent jamais la largeur de la carte ; le
+  surnom tient sur une ligne. Les captures d'écran de vérification chargent la vraie police.
+- **Coffres de la Brèche** : un Pokémon dans la roulette avait une boîte de 26 px et un sprite de 72 px
+  de haut — il s'étirait. Boîte carrée, sprite qui la remplit.
+- **Brèche et rotation** : le jeu demande le portrait (`screen.orientation.lock` quand c'est permis,
+  manifeste déjà en portrait). Un téléphone tenu à l'horizontale met la partie en pause derrière une
+  consigne ; au retour, la toile se remesure (après coup, et par `ResizeObserver`), car sur iPhone
+  l'événement arrive avant les nouvelles dimensions.
+- **Le premier trésor** (`pz_treasure`) dit ce qu'il est et quoi en faire (Sac, onglet Trésors, « Tout
+  vendre ») au lieu d'un objet « tombé de l'extérieur ».
+- **Verrou levé** : après la carte, l'écran de nouvelle entrée au Pokédex, comme une capture
+  (`legendEntry`, options de `showDiscovery`), avec son attaque signature dans la Brèche. Même chose
+  en sortant de la Brèche quand c'est elle qui a libéré le gardien.
+- **Éveil dans la Brèche** : le Pokémon éveillé passe en chromatique avec un sprite fixe, comme toutes
+  les fenêtres de la Brèche (l'animé détonnait).
+- **Visée de capture** : le curseur s'arrête au moment où le doigt se pose, n'importe où dans l'écran
+  (`aimDown`, en capture sur `#screen`) ; le clic qui suit est avalé ; baies, Balls et cagnotte
+  s'effacent et ne répondent plus pendant la visée.
+
 ## Audit de cohérence (octobre 2026)
 
 - **Bonus de première victoire** séparés par mode (`FIRST_WIN` : Expédition, Tour, Brèche, verrous, Poker) ;
@@ -544,7 +567,11 @@ Le jeu envoyé à un ami : ses notes brutes, et ce qu'elles ont changé.
   glacier, volcan, puis la faille), bâtiment et porte de départ en haut, grille du Champion en bas,
   sentiers en pointillés, sprites de carte des dresseurs (un par type, Rouge Feu) et icônes des
   services (hautes herbes, Poké Ball, sac, Centre, Boutique, « ? »).
-- L'archive reçoit les niveaux permanents sur l'espèce choisie au départ (`m.base`), même évoluée.
+- **Ce qui revient : des Bonbons d'équipe** (25 octobre). Une expédition réussie paie 4 bonbons par
+  Pokémon revenu (+2 avec la relique Compilateur), en plus des 2 de chaque Champion et des 5 du noyau,
+  comptés dans `run.candy` et montrés à la fin. Abandonner ne paie personne. Les niveaux gagnés en
+  route ne valent que pour le parcours. Le Nuzlocke applique enfin ses « récompenses ×1,8 ».
+  Un Pokémon K.O. reste dans l'archive : plus de « désindexé — définitif ».
 
 ## L'Expédition vécue — scènes (`51`, `_trainers`)
 
@@ -1057,7 +1084,7 @@ Principe : **chaque chose est rangée là où on la cherche.**
 |---|---|
 | Capture | capture, pêche, habitats |
 | Modules | *Aujourd'hui* (cadeau PokéBox, quêtes, contrats) + les **activités** : Forage, Expédition, Data Guardians, Poké-Poker — dans leur ordre de déblocage |
-| Collection | Pokédex · Recherche · Cartes · Couveuse |
+| Collection | Pokédex (et sa recherche) · Cartes · Couveuse |
 | Sac | Sac · Boutique |
 | Profil | un bandeau qui ouvre l'**Atelier**, et un menu : cartes, succès, statistiques, journal, en ligne, réglages |
 
@@ -1188,9 +1215,13 @@ les vingt minutes, change les raretés, et pèse 20% sur les dégâts des types 
 
 ## Recherche, intègres, talents
 
-**Recherche** — quatre tâches par espèce (en restaurer plusieurs, en vaincre au combat, la faire
-évoluer, en croiser une chromatique), sept paliers globaux. C'est ce qui donne une valeur
-individuelle aux 386 espèces sans ajouter le moindre système.
+**Recherche** — la fiche de chaque Pokémon, dans le Pokédex (25 octobre : plus d'onglet à part).
+Quatre tâches au plus : **★★** (les étoiles : quatre exemplaires obtenus, une seule pour un Altéré ou
+un Légendaire), en vaincre au combat (Expédition, Tour, Brèche), la faire évoluer, en obtenir une
+chromatique. Chaque tâche est payée une fois (`r.ok`), en Fragments ; les tâches de tout le Pokédex
+ouvrent sept paliers. L'en-tête du Pokédex dit le compte et le prochain palier, chaque case porte
+quatre traits, le filtre Recherche montre ce qui est presque rempli, la fiche dit quoi faire et où,
+et l'écran de capture montre quand ça avance. Les parties d'avant gardent tout (`researchMigrate`).
 
 **Intègres** — un exemplaire sur cinquante, +8% sur toutes les statistiques. Axe de collection
 indépendant du chromatique : un commun peut être intègre, un légendaire peut ne pas l'être.

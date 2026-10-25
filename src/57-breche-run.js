@@ -44,13 +44,23 @@ function brStart(R){
   box.innerHTML = brShellHtml();
   const cv = document.getElementById("br-cv");
   const fit = () => {
+    if(!cv.isConnected || !cv.clientWidth || !cv.clientHeight) return;
     const dpr = Math.min(2, window.devicePixelRatio || 1);
     cv.width = Math.round(cv.clientWidth * dpr); cv.height = Math.round(cv.clientHeight * dpr);
     R.dpr = dpr; R.W = cv.clientWidth; R.H = cv.clientHeight;
   };
   fit();
-  R.fit = fit;
-  window.addEventListener("resize", fit);
+  /* Tourner le téléphone : sur iPhone, l'événement arrive avant que la page ait pris ses nouvelles
+     dimensions, et le retour en portrait gardait une toile aux mesures du paysage. On remesure
+     après coup, et la toile se remesure d'elle-même quand sa taille change. En paysage, la partie
+     se met en pause et demande de revenir à la verticale (le jeu se joue en portrait). */
+  const refit = () => { fit(); requestAnimationFrame(fit); setTimeout(fit, 250); setTimeout(fit, 700); brOrient(R); };
+  R.fit = refit;
+  window.addEventListener("resize", refit);
+  window.addEventListener("orientationchange", refit);
+  if(typeof ResizeObserver !== "undefined"){ try { R.ro = new ResizeObserver(()=>fit()); R.ro.observe(cv); } catch(e){} }
+  try { if(screen.orientation && screen.orientation.lock) screen.orientation.lock("portrait").catch(()=>{}); } catch(e){}
+  brOrient(R);
   brInput(R, cv);
   brHud(R);
   R.last = performance.now();
@@ -80,10 +90,25 @@ function brStop(){
   if(!BR) return;
   cancelAnimationFrame(BR.raf);
   window.removeEventListener("resize", BR.fit);
+  window.removeEventListener("orientationchange", BR.fit);
+  if(BR.ro){ try { BR.ro.disconnect(); } catch(e){} }
   document.removeEventListener("visibilitychange", BR.onVis);
   const box = document.getElementById("breche");
   if(box){ box.className = ""; box.innerHTML = ""; }
   BR = null;
+}
+
+/* un téléphone tenu à l'horizontale (pas une tablette, ni un ordinateur) */
+function brLandscape(){
+  try { return matchMedia("(orientation: landscape) and (pointer: coarse)").matches && window.innerHeight < 560; }
+  catch(e){ return false; }
+}
+function brOrient(R){
+  const box = document.getElementById("breche");
+  if(!box) return;
+  const land = brLandscape();
+  box.classList.toggle("land", land);
+  if(land && R && !R.over && !R.paused && !R.modal && typeof brPause === "function") brPause(true);
 }
 
 /* ============================================================

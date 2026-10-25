@@ -39,12 +39,14 @@ SCREENS.dex = {
     const total = r.to - r.from + 1;
     const owned = dexCount(DEX_FILTER.region);
     const ids = [];
+    const resOn = DEX_FILTER.mode === "research" && typeof researchLevel === "function";
     for(let i=r.from;i<=r.to;i++){
       const e = S.dex[i];
       if(DEX_FILTER.mode === "owned" && !e) continue;
       if(DEX_FILTER.mode === "missing" && e) continue;
       if(DEX_FILTER.mode === "shiny" && !(e && e.shiny)) continue;
       if(DEX_FILTER.mode === "evo" && !(e && evoReady(i))) continue;
+      if(resOn && !(e && researchLevel(i) < researchMax(i))) continue;
       if(DEX_FILTER.type && !POKE[i].types.includes(DEX_FILTER.type)) continue;
       ids.push(i);
     }
@@ -53,7 +55,7 @@ SCREENS.dex = {
         ${REGIONS.map(x=>`<button class="${DEX_FILTER.region===x.key?"on":""}" data-act="dexreg" data-r="${x.key}">
           ${esc(x.name)}</button>`).join("")}
       </div>
-      <div class="panel bracket">
+      <div class="panel bracket dxhead">
         <div class="row">
           <div class="ring">
             <svg viewBox="0 0 54 54">
@@ -64,9 +66,8 @@ SCREENS.dex = {
             <span class="val">${Math.round(owned/total*100)}%</span>
           </div>
           <div class="grow">
-            <div class="h sm" style="margin:0 0 3px">${esc(r.name.toUpperCase())} ${infoBtn("evolution")}</div>
-            <div class="tiny muted">${esc(r.desc)}</div>
-            <div class="tiny cy mono-num" style="margin-top:4px">${owned} / ${total} espèces archivées</div>
+            <div class="row between"><span class="h sm" style="margin:0">${esc(r.name.toUpperCase())}</span>${infoBtn("rarete")}</div>
+            <div class="tiny cy mono-num" style="margin-top:2px">${owned} / ${total} espèces archivées</div>
             <div class="wrap" style="margin-top:6px">
               ${REGION_TIERS.map(t=>{
                 const got = regionTiersDone(r.key).includes(t.pct);
@@ -75,11 +76,10 @@ SCREENS.dex = {
             </div>
           </div>
         </div>
+        ${typeof researchPanelHtml === "function" ? researchPanelHtml() : ""}
       </div>
-      <div class="row between" style="margin-bottom:5px">
-        <span class="grow"></span>${infoBtn("rarete")}</div>
       <div class="chipbar">
-        ${[["all","Tous"],["owned","Possédés"],["missing","Manquants"],["shiny","Chromatiques"],
+        ${[["all","Tous"],["owned","Possédés"],["missing","Manquants"],["research","Recherche"],["shiny","Chromatiques"],
            ["evo","Peut évoluer" + (evoReadyCount(DEX_FILTER.region) ? " · " + evoReadyCount(DEX_FILTER.region) : "")]]
           .map(([k,n])=>`<button class="chip ${DEX_FILTER.mode===k?"on":""}" data-act="dexmode" data-m="${k}">${n}</button>`).join("")}
       </div>
@@ -88,6 +88,7 @@ SCREENS.dex = {
         ${Object.keys(TYPE_NAMES).map(t=>`<button class="chip ${DEX_FILTER.type==+t?"on":""}"
           data-act="dextype" data-t="${t}"><span class="tt t${t}" style="border:0;padding:0">${TYPE_NAMES[t]}</span></button>`).join("")}
       </div>
+      ${resOn && typeof researchNearHtml === "function" ? researchNearHtml(DEX_FILTER.region) : ""}
       <div class="dexgrid">
         ${ids.map(i=>{
           const e = S.dex[i];
@@ -99,19 +100,26 @@ SCREENS.dex = {
             ${sprite(i, e&&e.shiny, e?"":"ghosted")}
             ${sh?'<span class="shi">✦ CHROMA</span>':""}
             <span class="nm">${e?esc(POKE[i].name):"— — —"}</span>
+            ${e && typeof researchCellHtml === "function" ? researchCellHtml(i) : ""}
           </div>`;}).join("")}
       </div>
       ${ids.length?"":`<div class="empty">${ic("eye")}<div style="margin-top:8px">
-        Aucune entrée ne correspond à ce filtre.</div></div>`}`;
+        ${resOn && owned && !DEX_FILTER.type ? "Toutes tes fiches de ce secteur sont complètes." : "Aucune entrée ne correspond à ce filtre."}</div></div>`}`;
   }
 };
 ACTIONS.dexreg = d => { DEX_FILTER.region = d.r; refresh(); };
 ACTIONS.dexmode = d => { DEX_FILTER.mode = d.m; refresh(); };
 ACTIONS.dextype = d => { DEX_FILTER.type = +d.t; refresh(); };
 
+/* La fiche d'un Pokémon, de ce qu'on fait vers ce qu'on lit : l'essentiel en chiffres,
+   la recherche (ce qui reste à faire, et où), l'évolution ; puis la notice, l'histoire et
+   les statistiques. */
 ACTIONS.dexopen = d => {
   const id = +d.id, p = POKE[id], e = S.dex[id];
   const stats = [["PV",p.hp],["Attaque",p.atk],["Défense",p.def],["Atq. Spé.",p.spa],["Déf. Spé.",p.spd],["Vitesse",p.spe]];
+  const tal = e && typeof talentOf === "function" ? talentOf(id) : null;
+  const tc = e && typeof dexTotalCaught === "function" ? dexTotalCaught(id) : 0;
+  const nx = e && typeof nextStarAt === "function" ? nextStarAt(id) : null;
   /* Porygon-Z n'a pas de numéro national ici : la vraie fin l'écrit à l'entrée 387 */
   sheet(`${sheetHead("N°" + (id === 474 ? 387 : id) + (e ? " — " + p.name : " — entrée absente"))}
     <div class="row top" style="gap:12px">
@@ -121,14 +129,32 @@ ACTIONS.dexopen = d => {
         ${e&&e.shiny?'<div class="tiny gold-t">chromatique obtenu</div>':""}
       </div>
       <div class="grow">
-        <div class="wrap" style="margin-bottom:6px">${typeTags(p.types)}${rarTag(p.rar)}</div>
-        ${e?`<div class="tiny">Exemplaires : <b>${e.c}</b></div>
-             <div class="tiny">Niveau de combat : <b class="cy">${e.lvl}</b></div>
-             <div class="tiny muted">Taux de capture : ${p.catch}</div>`
+        <div class="wrap" style="margin-bottom:7px">${typeTags(p.types)}${rarTag(p.rar)}</div>
+        ${e?`<div class="dx-facts">
+              <span><small>Niveau</small><b class="cy">${e.lvl}</b></span>
+              <span><small>Exemplaires</small><b>${e.c}</b></span>
+            </div>
+            ${typeof starsHtml === "function" ? `<div class="dx-stars">${starsHtml(id)}
+              <small>${tc} obtenu${tc > 1 ? "s" : ""}${nx ? ` · prochaine à ${nx}` : " · maximum"}</small></div>` : ""}
+            ${isPerfect(id) ? `<div class="tiny" style="color:var(--cyan);margin-top:5px">◈ Exemplaire intègre : +8 % sur toutes les statistiques</div>` : ""}
+            ${tal ? `<div class="dx-tal">Talent <b>${esc(tal.n)}</b> ${infoBtn("talents")}<small>${esc(tal.d)}</small></div>` : ""}`
            : `<div class="tiny muted">Cette entité n'a pas encore été restaurée.
               Sa ligne reste illisible.</div>`}
       </div>
     </div>
+    ${typeof researchFicheHtml === "function" ? researchFicheHtml(id) : ""}
+    ${p.evo.length?`<div class="h sm" style="margin-top:12px">ÉVOLUTION ${infoBtn("evolution")}</div>
+      ${p.evo.map(ev=>{
+        const chk = canEvolve(id, ev);
+        return `<div class="item" style="margin-bottom:5px">
+          ${sprite(ev.to,false,"sm")}
+          <div class="grow"><div class="t">${esc(POKE[ev.to].name)}</div>
+            <div class="d">Niv.${ev.lvl} · ${dupCost(id)} exemplaires · ${fmt(evoCoinCost(id))} PokéCoins
+              ${ev.stone?` · ${esc(STONES[ev.stone]?.name||"Pierre")}`:""}</div>
+            ${chk.ok?"":`<div class="tiny bad">${esc(chk.why)}</div>`}</div>
+          <button class="btn sm ${chk.ok?"pri":""}" data-act="evolve" data-id="${id}" data-to="${ev.to}"
+            ${chk.ok?"":"disabled"}>Faire évoluer</button></div>`;}).join("")}`:""}
+    ${p.from?`<div class="tiny muted" style="margin-top:6px">Évolue depuis ${esc(POKE[p.from].name)}.</div>`:""}
     ${e && typeof skinRowHtml === "function" ? skinRowHtml(id) : ""}
     ${loreOf(id) ? `<div class="lore ${e?"":"sealed"}">
       ${e ? esc(loreOf(id))
@@ -141,18 +167,7 @@ ACTIONS.dexopen = d => {
       <span class="tiny muted" style="width:62px">${n}</span>
       <span class="bar grow"><i style="width:${Math.min(100,v/200*100)}%"></i></span>
       <b class="tiny mono-num" style="width:26px;text-align:right">${v}</b></div>`).join("")}
-    ${p.evo.length?`<hr class="sep"><div class="h sm">ÉVOLUTION</div>
-      ${p.evo.map(ev=>{
-        const chk = canEvolve(id, ev);
-        return `<div class="item" style="margin-bottom:5px">
-          ${sprite(ev.to,false,"sm")}
-          <div class="grow"><div class="t">${esc(POKE[ev.to].name)}</div>
-            <div class="d">Niv.${ev.lvl} · ${dupCost(id)} exemplaires · ${fmt(evoCoinCost(id))} PokéCoins
-              ${ev.stone?` · ${esc(STONES[ev.stone]?.name||"Pierre")}`:""}</div>
-            ${chk.ok?"":`<div class="tiny bad">${esc(chk.why)}</div>`}</div>
-          <button class="btn sm ${chk.ok?"pri":""}" data-act="evolve" data-id="${id}" data-to="${ev.to}"
-            ${chk.ok?"":"disabled"}>Faire évoluer</button></div>`;}).join("")}`:""}
-    ${p.from?`<div class="tiny muted" style="margin-top:6px">Évolue depuis ${esc(POKE[p.from].name)}.</div>`:""}`);
+    <div class="tiny dim" style="margin-top:6px">Taux de capture : ${p.catch}</div>`);
 };
 ACTIONS.evolve = d => {
   const id = +d.id, to = +d.to;
@@ -326,7 +341,7 @@ SCREENS.shop = {
   items(){
     const list = [
       {k:"potion", n:"Restauration", d:"Soigne 55% des PV d'un Pokémon en combat.", p:250, cur:"coins", i:"heart"},
-      {k:"revive", n:"Réindexation", d:"Réanime un Pokémon désindexé à 50% de ses PV.", p:700, cur:"coins", i:"refresh"}
+      {k:"revive", n:"Réindexation", d:"Réanime un Pokémon K.O. à 50 % de ses PV.", p:700, cur:"coins", i:"refresh"}
     ];
     return `<div class="list">${list.map(it=>`
       <div class="shopitem">

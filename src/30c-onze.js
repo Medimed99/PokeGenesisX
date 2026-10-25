@@ -146,8 +146,10 @@ if(typeof SCREENS !== "undefined" && SCREENS.capture && SCREENS.capture.stage){
     if(!ENC || !ENC.onze) return h;
     const o = onzeOf(ENC.onze); if(!o) return h;
     return h.replace('<div id="enc-stage" class="', '<div id="enc-stage" class="onze ')
-      .replace('<div class="enc-nm">', `<div class="enc-nick">« ${esc(o.nick)} »<small>connexion ${pad2(o.c)}</small></div><div class="enc-nm">`)
-      .replace('<div class="plate"></div>', `<div class="stk-tag onze">REVENU D'UNE SAUVEGARDE D'AVANT · IL NE FUIRA PAS</div><div class="plate"></div>`);
+      .replace('<div class="enc-nm">', `<div class="enc-nick">« ${esc(o.nick)} » <small>connexion ${pad2(o.c)}</small></div><div class="enc-nm">`)
+      /* « revenu d'une sauvegarde d'avant » ne tenait pas dans la carte avec la police pixel : le surnom
+         et la connexion le disent déjà ; reste ce qui change le geste */
+      .replace('<div class="plate"></div>', `<div class="stk-tag onze">IL NE FUIRA PAS</div><div class="plate"></div>`);
   };
 }
 

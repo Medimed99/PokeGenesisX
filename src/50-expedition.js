@@ -150,7 +150,7 @@ const RELICS = [
   {id:"r_psy", n:"Noyau psionique",    d:"+35% de dégâts des attaques Psy.",       dmgType:14},
   {id:"r_rev", n:"Réindexation auto",  d:"Une fois par parcours : après un combat perdu, un allié se relève à 40 % et le combat reprend.", revive:1},
   {id:"r_shard",n:"Extracteur",        d:"+8 Fragments par combat remporté.",      shard:8},
-  {id:"r_xp",  n:"Compilateur",        d:"Niveau permanent supplémentaire à la fin du run.", xp:1},
+  {id:"r_xp",  n:"Compilateur",        d:"Si l'expédition réussit : +2 Bonbons d'équipe par Pokémon qui revient.", xp:1},
   {id:"r_corr",n:"Affinité corrompue", d:"+8% de dégâts par palier de corruption du run.", corr:1}
 ];
 
@@ -434,19 +434,23 @@ function endExpedition(win){
   if(!run || run.ended) return;
   run.ended = true;
 
-  /* niveaux permanents : on garde l'avant et l'apres pour pouvoir les montrer */
-  const bonusLv = 1 + relicVal(run, "xp") + (win ? 1 : 0);
-  const gains = [];
-  for(const m of run.team){
-    const aid = m.base || m.id;             /* l'espece de l'archive, meme si elle a evolue en route */
-    if(!S.dex[aid]) continue;               /* une recrue sauvage n'entre pas a l'archive */
-    const before = S.dex[aid].lvl;
-    const add = m.hp > 0 ? bonusLv : 0;
-    S.dex[aid].lvl = Math.min(100, before + add);
-    gains.push({id:aid, before, after:S.dex[aid].lvl, alive:m.hp > 0});
-  }
+  /* Ce qui revient : des Bonbons d'équipe, à donner à qui l'on veut (Mon équipe). Avant, les
+     survivants gagnaient un ou deux niveaux d'archive : peu, pour eux seuls, alors que partout
+     ailleurs ce sont les bonbons qui font monter les niveaux. Seule une expédition réussie paie
+     ceux qui reviennent : abandonner aussitôt parti ne doit rien rapporter. Le mode Nuzlocke
+     promettait « récompenses ×1,8 » sans jamais l'appliquer : c'est fait. */
+  const modeMul = (EXP_MODES[run.mode] && !EXP_MODES[run.mode].go && EXP_MODES[run.mode].mult) || 1;
+  const first = win ? consumeFirstWin("expedition") : 1;
+  /* ceux de l'archive, partis du camp : une recrue sauvage n'y entre pas, elle ne rapporte rien */
+  const mine = m => !!(m.base && S.dex[m.base]);
+  const back = run.team.filter(m=>m.hp > 0 && mine(m));
+  const per = win ? 2 * (2 + relicVal(run, "xp")) : 0;
+  const endCandy = Math.round(per * back.length * modeMul * first);
+  if(endCandy > 0 && typeof teamCandyGain === "function") teamCandyGain(endCandy);
+  const fightCandy = run.candy || 0;
+  run.candy = fightCandy + endCandy;
 
-  const mult = (win ? 1 : 0.35) * (win ? consumeFirstWin("expedition") : 1);
+  const mult = (win ? 1 : 0.35) * first * modeMul;
   const shards = Math.round((60 + run.floor*12 + run.corruption*18) * mult);
   const coins  = Math.round((500 + run.floor*140) * mult);
   const xp     = Math.round((260 + run.floor*55) * mult);
@@ -483,10 +487,11 @@ function endExpedition(win){
 
   const relicList = run.relics.map(id=>RELICS.find(x=>x.id===id)).filter(Boolean);
   /* ce que le camp retiendra : affiché en tête de l'Expédition au retour */
-  S.expLast = {win, t:Date.now(), sec:(run.mapIdx || 0) + 1, maps:run.maps || 3,
-    gains:gains.map(g=>({id:g.id, add:g.after - g.before, alive:g.alive})), egg:win ? pendingEgg : null};
+  S.expLast = {win, t:Date.now(), sec:(run.mapIdx || 0) + 1, maps:run.maps || 3, candy:run.candy,
+    back:back.map(m=>m.base), ko:run.team.filter(m=>m.hp <= 0 && mine(m)).map(m=>m.base), egg:win ? pendingEgg : null};
   save();
-  EXP_END = {run, win, gains, shards, coins, xp, loot, relicList};
+  EXP_END = {run, win, back:back.length, per:back.length ? Math.round(endCandy / back.length) : 0, endCandy, fightCandy,
+    candy:run.candy, shards, coins, xp, loot, relicList};
   /* parti en plein combat (menu du bas) : la fin attend qu'on revienne à l'Expédition.
      Les succès et les fenêtres du guide passent après le butin, pas par-dessus la fin. */
   const shown = expHere() && expEndScene(EXP_END);
@@ -498,26 +503,30 @@ let EXP_END = null;
 function expHere(){ return typeof currentScreen === "undefined" || currentScreen === "expedition" || currentScreen === "battle"; }
 function expEndScene(v){
   const run = v.run, win = v.win, c = win ? "#35f0d6" : "#ff3d7f";
-  const ups = [];
-  run.team.forEach((m, i)=>{ const g = v.gains.find(x=>x.id === (m.base || m.id)); if(g && g.after > g.before) ups.push({i, from:g.before, to:g.after}); });
-  const fallenN = v.gains.filter(g=>!g.alive).map(g=>POKE[g.id].name);
-  const add = ups.length ? ups[0].to - ups[0].from : 0;
-  const lvTxt = ups.length ? `${ups.length} Pokémon gagne${ups.length > 1 ? "nt" : ""} ${add} niveau${add > 1 ? "x" : ""} pour de bon` : "Aucun niveau gagné cette fois";
+  /* chaque Pokémon revenu porte ses bonbons au-dessus de la tête */
+  const mine = m => !!(m.base && S.dex[m.base]);
+  const gifts = v.per ? run.team.map((m, i)=>m.hp > 0 && mine(m) ? {i, n:v.per} : null).filter(Boolean) : [];
+  const koN = run.team.filter(m=>m.hp <= 0 && mine(m)).map(m=>POKE[m.id] ? POKE[m.id].name : "").filter(Boolean);
   const loot = !!(pendingEgg || pendingBooster);
+  const parts = [];
+  if(v.endCandy) parts.push(`${v.back} Pokémon revenu${v.back > 1 ? "s" : ""} : +${v.endCandy}`);
+  if(v.fightCandy) parts.push(`Champions${win ? " et noyau" : ""} : +${v.fightCandy}`);
   const stage = `<div class="xs-sun"></div>
     <div class="xs-endhead" style="--xc:${c}"><small>${win ? "EXPÉDITION RÉUSSIE" : "EXPÉDITION TERMINÉE"}</small>
       <b>${win ? "Le noyau est atteint" : `Arrêtée au secteur ${(run.mapIdx || 0) + 1} sur ${run.maps || 3}`}</b></div>
-    ${xsTeam(run, {walk:win, size:52, ups})}`;
+    ${xsTeam(run, {walk:win, size:52, gifts})}`;
   const panel = `<div class="xs-kicker" style="color:${c}">${win ? "FIN DU PARCOURS" : "RETOUR AU CAMP"}</div>
-    <div class="xs-title">${win ? "Ton équipe rentre victorieuse" : "Ton équipe rentre plus tôt"}</div>
-    <div class="xs-say">${esc(lvTxt)}.${win ? " Ces niveaux restent, inscrits dans ton archive." : " Les récompenses du parcours sont gardées, en plus petit."}${fallenN.length ? ` Désindexés en route, sans rien gagner : ${esc(fallenN.join(", "))}.` : ""}</div>
+    <div class="xs-candy ${v.candy ? "" : "none"}"><span class="xc-i">${ic("seed")}</span>
+      <span class="xc-t"><b>+${v.candy || 0} Bonbons d'équipe</b><small>${v.candy ? "À donner à qui tu veux, dans Mon équipe." : "Seule une expédition réussie paie ceux qui reviennent."}</small></span></div>
+    ${parts.length ? `<div class="xs-split">${parts.map(x=>`<span>${esc(x)}</span>`).join("")}</div>` : ""}
     <div class="xs-endtiles">
       <span><small>Fragments</small><b>+${v.shards}</b></span>
       <span><small>PokéCoins</small><b>+${fmt(v.coins)}</b></span>
       <span><small>Expérience</small><b>+${fmt(v.xp)}</b></span>
       <span><small>${win ? "Noyaux" : "Secteur"}</small><b>${win ? "+1" : `${(run.mapIdx || 0) + 1}/${run.maps || 3}`}</b></span>
     </div>
-    ${v.loot.length ? `<div class="xs-say">Butin : ${v.loot.map(l=>esc(l.label) + (l.sub ? ` (${esc(l.sub)})` : "")).join(", ")}${v.relicList.length ? ` · ${v.relicList.length} relique${v.relicList.length > 1 ? "s" : ""} rendue${v.relicList.length > 1 ? "s" : ""} au système` : ""}.</div>` : ""}
+    ${koN.length ? `<div class="xs-ko">K.O. en route : ${esc(koN.join(", "))}. ${koN.length > 1 ? "Ils sont" : "Il est"} toujours dans ton archive.</div>` : ""}
+    ${v.loot.length ? `<div class="xs-say">Butin : ${v.loot.map(l=>esc(l.label) + (l.sub ? ` (${esc(l.sub)})` : "")).join(", ")}.</div>` : ""}
     <button class="btn pri wide" data-act="expenddone">${loot ? "Ouvrir le butin" : "Retour au camp"}</button>`;
   if(typeof xsOpen === "function" && xsOpen("end", c, stage, panel)){
     try { (win ? Sfx.win : Sfx.lose)(); } catch(e){}
@@ -585,15 +594,15 @@ ACTIONS.expleave = d => {
 function expLastHtml(){
   const L = S.expLast;
   if(!L || Date.now() - L.t > 24 * 3600 * 1000) return "";
-  const up = (L.gains || []).filter(g=>g.add > 0);
-  const names = up.map(g=>POKE[g.id] ? POKE[g.id].name : "").filter(Boolean);
   const eggOk = L.egg && typeof moduleUnlocked === "function" && moduleUnlocked("eggs");
+  const candy = L.candy || 0;
   return `<div class="panel xlast ${L.win ? "win" : "lose"}">
-    <div class="row between"><b>${L.win ? "Dernière expédition : réussie" : "Dernière expédition : terminée plus tôt"}</b>
+    <div class="row between"><b>${L.win ? "Dernière expédition : réussie" : `Dernière expédition : arrêtée au secteur ${L.sec} sur ${L.maps}`}</b>
       <span class="tiny dim">il y a ${fmtTime(Date.now() - L.t)}</span></div>
-    <div class="tiny muted" style="margin-top:4px">${L.win ? "Le noyau a été atteint." : `Arrêtée au secteur ${L.sec} sur ${L.maps}.`}
-      ${names.length ? `${esc(names.join(", "))} : +${up[0].add} niveau${up[0].add > 1 ? "x" : ""} pour de bon.` : "Aucun niveau gagné."}</div>
-    ${eggOk ? `<button class="btn sm" style="margin-top:8px" data-act="goto" data-to="eggs">${ic("box")} Voir l'œuf à la Couveuse</button>` : ""}
+    ${L.candy !== undefined ? `<div class="tiny muted" style="margin-top:4px">${candy ? `+${candy} Bonbons d'équipe rapportés.` : "Aucun bonbon rapporté cette fois."}</div>` : ""}
+    ${candy || eggOk ? `<div class="row" style="gap:6px;margin-top:8px;flex-wrap:wrap">
+      ${candy ? `<button class="btn sm" data-act="goto" data-to="team">${ic("seed")} Donner les bonbons</button>` : ""}
+      ${eggOk ? `<button class="btn sm" data-act="goto" data-to="eggs">${ic("box")} Voir l'œuf</button>` : ""}</div>` : ""}
   </div>`;
 }
 
@@ -647,66 +656,40 @@ SCREENS.expedition = {
       </div>`;
   },
 
+  /* Le camp : ce qu'on rapporte, le mode, et quatre règles en une ligne chacune.
+     Le reste (reliques, Bits, corruption, recrues) est dans le guide. */
   lobby(){
     const ok = moduleUnlocked("expedition");
+    const rule = (k, t) => `<div class="xl-r"><b>${k}</b><span>${t}</span></div>`;
+    const w = S.stats.expWins || 0, n = S.stats.expRuns || 0;
     return `
       <div class="h">${ic("map")} EXPÉDITION ${infoBtn("expedition")}</div>
-      <div class="sub">Une sonde profonde dans une couche non cartographiée.</div>
       ${expLastHtml()}
-      ${moduleGoal("Trois cartes, trois Champions. Vos Pokémon repartent de leur <b>forme de base, au niveau 5</b>, et grandissent en route : ce sont vos choix de chemin qui font leur niveau.",
-        "Des niveaux de combat permanents pour les survivants, des œufs, et des cartes de collection.")}
+      ${moduleGoal("Trois cartes, deux Champions, puis le noyau. Tes Pokémon repartent au niveau 5 et grandissent en route.",
+        "des <b>Bonbons d'équipe</b>, un œuf et une carte de collection.")}
 
-      <div class="h sm">COMMENT DESCENDRE</div>
+      <div class="h sm">MODE</div>
       <div class="modegrid c3">
         ${Object.entries(EXP_MODES).map(([k,md])=>`
           <div class="modecard ${(!md.go && expMode()===k)?"on":""} ${md.go?"dest":""}"
             data-act="expsetmode" data-m="${k}" style="--mc:${md.c}">
             <div class="mc-n">${esc(md.n)}</div>
             <div class="mc-d">${esc(md.d)}</div>
-            ${md.mult>1?`<div class="mc-x">récompenses ×${md.mult}</div>`:""}
+            ${md.mult>1?`<div class="mc-x">récompenses ×${String(md.mult).replace(".", ",")}</div>`:""}
             ${md.go?`<div class="mc-x" style="color:var(--violet)">record : étage ${(S.tower&&S.tower.best)||0}</div>`:""}
           </div>`).join("")}
       </div>
 
-      <div class="panel bracket">
-        <div class="map-flow"><span>DÉPART (haut)</span><i></i><span class="bad">CHAMPION (bas)</span></div>
-        <div class="tiny">Chaque carte a le même dessin : sept rangées de nœuds puis un Champion, dont le
-          type reste secret. Son badge ouvre la carte suivante ; au bout de la troisième attend le Noyau.
-          Touchez un nœud lointain pour voir ce qu'il cache et la route qui y mène.</div>
+      <div class="xl-rules">
+        <div class="xl-rh">En bref</div>
+        ${rule("Bonbons", "4 pour chacun de tes Pokémon qui revient du noyau, 2 par Champion battu, 5 au noyau.")}
+        ${rule("Niveaux", "Herbes +1, dresseurs et Élites +2, Champion +3. Ils ne valent que pour le parcours.")}
+        ${rule("Soins", "Les PV remontent peu entre deux combats. Le Centre Pokémon, avant le Champion, soigne tout.")}
+        ${rule("K.O.", "Un Pokémon K.O. reste toujours dans ton archive : rien n'est jamais supprimé.")}
+        <button class="xl-more" data-act="info" data-k="expedition">Toutes les règles</button>
       </div>
 
-      <div class="panel">
-        <div class="h sm">LA PROGRESSION</div>
-        <div class="tiny">· <b>Hautes herbes : +1 niveau</b> à toute l'équipe. <b>Dresseur ou Élite : +2</b>.
-          <b>Champion : +3</b>. Tout le reste (objets, recrues, événements, boutique) : +0.</div>
-        <div class="tiny">· Vos Pokémon <b>évoluent en route</b>, au niveau de leur évolution.</div>
-        <div class="tiny">· Un <b>échange</b> rend un Pokémon <b>quatre niveaux</b> au-dessus de celui que vous cédez.
-          Une recrue arrive au niveau de l'équipe.</div>
-        <div class="tiny">· Les adversaires montent avec la carte, pas avec vous : éviter les combats, c'est prendre du retard.</div>
-      </div>
-
-      <div class="panel">
-        <div class="h sm">CE QU'IL FAUT SAVOIR</div>
-        <div class="tiny">· Les <b>PV ne remontent qu'en partie</b> après un combat. Le Centre Pokémon, juste avant
-          le Champion, remet tout à neuf — mais il coûte la case d'à côté.</div>
-        <div class="tiny">· Les <b>Élites</b> garantissent une relique. Les reliques s'appliquent à
-          toute l'équipe pour le reste du run.</div>
-        <div class="tiny">· Les <b>Bits</b> ne servent qu'à l'intérieur du parcours et sont perdus à la fin.</div>
-        <div class="tiny">· La <b>corruption</b> améliore le butin et renforce les ennemis. Elle ne redescend pas.</div>
-        <div class="tiny">· Des entités sauvages peuvent rejoindre l'équipe en route (6 maximum).</div>
-      </div>
-
-      <div class="panel edge">
-        <div class="h sm">POURQUOI Y ALLER</div>
-        <div class="tiny">Les Pokémon qui <b>survivent</b> gagnent des <b class="cy">niveaux permanents</b>.
-          L'archive retient l'espèce que vous avez choisie, même si elle a évolué en route.</div>
-      </div>
-
-      <div class="tiles" style="margin-bottom:10px">
-        <div class="tile accent"><div class="k">Terminées</div><div class="v">${S.stats.expWins}</div></div>
-        <div class="tile"><div class="k">Tentatives</div><div class="v">${S.stats.expRuns}</div></div>
-      </div>
-
+      <div class="xl-stats">${w} réussie${w > 1 ? "s" : ""} · ${n} tentative${n > 1 ? "s" : ""}</div>
       <button class="btn pri wide" data-act="expstart" ${ok?"":"disabled"}>Composer l'équipe et partir</button>
       <button class="btn ghost wide" style="margin-top:7px" data-act="goto" data-to="modules">Retour aux modules</button>`;
   },
@@ -837,7 +820,7 @@ function expUnstick(run){
 /* ce qu'un noeud promet, dit simplement */
 function expNodeInfo(n, run){
   const t = NODE_TYPES[n.t] || NODE_TYPES.fight;
-  if(n.t === "champ") return {k:"CHAMPION", t:"Le Champion du secteur", d:"Son type reste secret jusqu'au combat. Trois Pokémon. Le vaincre donne un badge, trois niveaux à l'équipe et une relique à choisir.", c:"var(--amber)"};
+  if(n.t === "champ") return {k:"CHAMPION", t:"Le Champion du secteur", d:"Son type reste secret jusqu'au combat. Trois Pokémon. Le vaincre donne un badge, +3 niveaux à l'équipe, 2 Bonbons d'équipe et une relique à choisir.", c:"var(--amber)"};
   if(n.t === "trainer"){
     const tr = n.tr !== undefined && TRAINERS[n.tr] ? TRAINERS[n.tr] : null;
     if(tr) return {k:"DRESSEUR", t:`${esc(tr.n)} <span class="tt t${tr.t}">${TYPE_NAMES[tr.t]}</span>`,
@@ -848,7 +831,7 @@ function expNodeInfo(n, run){
     trainer:["DRESSEUR", "Dresseur", "Deux Pokémon d'un même type."],
     elite:["ÉLITE", "Signature élite", "Deux adversaires solides. Une relique garantie, parfois un objet tenu."],
     draft:["RECRUTEMENT", "Trois Poké Balls", "Trois candidats, un seul rejoint l'équipe."],
-    swap:["ÉCHANGE", "Terminal d'échange", "Céder un membre contre un Pokémon trois niveaux au-dessus."],
+    swap:["ÉCHANGE", "Terminal d'échange", "Céder un membre contre un Pokémon quatre niveaux au-dessus de lui."],
     event:["ÉVÉNEMENT", "Inconnu", "Porygon-Z raconte. Un choix, une conséquence."],
     shop:["BOUTIQUE", "Kecleon", "Soins, reliques et PV contre des Bits."],
     rest:["REPOS", "Feu de camp", "Se soigner, ou fouiller les cendres pour une relique."],
@@ -945,8 +928,8 @@ ACTIONS.exprevive = () => {
   const down = fallen(run);
   if(!run.revives || !down.length) return;
   sheet(`${sheetHead("Réindexer un membre")}
-    <div class="tiny muted" style="margin-bottom:9px">Une seule réindexation par parcours.
-      Le membre revient à la moitié de ses points de vie. Ce choix est définitif.</div>
+    <div class="tiny muted" style="margin-bottom:9px">Une seule par parcours : le Pokémon choisi revient
+      à la moitié de ses points de vie.</div>
     <div class="tp-sel">
       ${down.map(m=>{
         const i = run.team.indexOf(m);
@@ -954,7 +937,7 @@ ACTIONS.exprevive = () => {
           <span class="sprbox" style="width:38px;height:38px">${sprite(m.id, runShiny(m), "ghosted", {skin:true})}</span>
           <div class="grow"><div class="tiny">${esc(POKE[m.id].name)}
             <span class="dim">N.${m.level}</span></div>
-            <div class="tiny bad">désindexé</div></div>
+            <div class="tiny bad">K.O.</div></div>
           <button class="btn xs pri" data-act="exprevivedo" data-i="${i}">Réindexer</button>
         </div>`;}).join("")}
     </div>
@@ -1145,15 +1128,21 @@ function expFight(run, kind, spec){
                            : `Des entités hostiles bloquent le passage.`,
     onEnd: win => {
       run.pend = null;
-      const before = run.team.filter(m=>m.hp > 0).length;
+      const up = run.team.filter(m=>m.hp > 0);
       for(const f of allies) if(f.ref){ f.ref.hp = Math.max(0, f.hp); }
-      const lost = before - run.team.filter(m=>m.hp > 0).length;
-      if(lost > 0){
+      const fell = up.filter(m=>m.hp <= 0);
+      const lost = fell.length;
+      /* « désindexé — définitif » faisait croire que le Pokémon était effacé de l'archive :
+         il est K.O. pour ce parcours, et rien d'autre */
+      if(lost > 0 && win){
         run.lost = (run.lost || 0) + lost;
         buzz([50,40,80]);
-        toast(lost > 1 ? `${lost} membres désindexés — définitif` : "Un membre désindexé — définitif",
-              "bad", "cross");
-      }
+        const who = fell.map(m=>POKE[m.id] ? POKE[m.id].name : "").filter(Boolean).join(" et ") || "Un Pokémon";
+        toast(expMode() === "nuzlocke"
+          ? `${who} ${lost > 1 ? "sont" : "est"} K.O. jusqu'à la fin du parcours. Rien n'est supprimé de ton archive.`
+          : `${who} ${lost > 1 ? "sont" : "est"} K.O. : retour au prochain combat, à 25 % de ${lost > 1 ? "leurs" : "ses"} PV.`,
+          "bad", "cross");
+      } else if(lost > 0) run.lost = (run.lost || 0) + lost;
       /* la relique de réindexation : une fois par parcours, un allié se relève et le combat reste à livrer.
          Avant, la défaite comptait comme un passage : le nœud était franchi sans victoire, et un champion
          perdu au bout d'un secteur laissait la carte sans aucune issue. */
@@ -1175,6 +1164,9 @@ function expFight(run, kind, spec){
 }
 
 function afterFightRewards(run, kind, beaten){
+  /* les Champions et le noyau donnent leurs Bonbons d'équipe tout de suite ; la fin du parcours les recompte */
+  const candy = kind === "boss" ? 5 : (kind === "champ" || kind === "legend") ? 2 : 0;
+  if(candy && typeof teamCandyGain === "function"){ teamCandyGain(candy); run.candy = (run.candy || 0) + candy; }
   const heal = (run.maps ? 0.35 : 0.25) + relicVal(run, "post");
   const before = run.team.map(m=>m.hp);
   const back = classicRecover(run);
@@ -1198,7 +1190,7 @@ function afterFightRewards(run, kind, beaten){
     healTeam(run, 0.4);
     const avail = RELICS.filter(x => !run.relics.includes(x.id));
     const offer = shuffle(avail.slice()).slice(0, 3).map(x => x.id);
-    run.pend = {k:"badge", leader:L, bits, ups:lv.ups, evos:lv.evos, relics:offer};
+    run.pend = {k:"badge", leader:L, bits, ups:lv.ups, evos:lv.evos, relics:offer, candy};
     save();
     if(expHere()){ if(typeof closeSheet === "function") closeSheet(); expResume(run); }
     return;

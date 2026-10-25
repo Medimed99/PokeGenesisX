@@ -20,7 +20,7 @@ const REIDX_AT = 6;
 const REIDX_FRAG = 15;
 /* les écrans où une restauration en attente peut s'afficher d'elle-même */
 const REIDX_QUIET = ["capture", "cards", "profile", "journal", "dex", "modules", "today", "team", "bag", "pokebox",
-  "shop", "stats", "succes", "daily", "idle", "research", "eggs", "hall", "atelier", "faction", "social", "online", "settings",
+  "shop", "stats", "succes", "daily", "idle", "eggs", "hall", "atelier", "faction", "social", "online", "settings",
   "boss", "tower"];
 /* ce que chaque doublon a produit, dans l'ordre : la révélation l'accroche au bon exemplaire */
 let REIDX_TRACE = [];

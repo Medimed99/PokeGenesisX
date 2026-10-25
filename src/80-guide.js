@@ -56,17 +56,23 @@ const INFOS = {
   evolution:{n:"Faire évoluer", d:`
     <p>Depuis le Pokédex, ouvrez la fiche d'une espèce que vous possédez. Une évolution demande
     trois choses :</p>
-    <p>· un <b>niveau de combat</b> suffisant, qui monte en expédition ;<br>
+    <p>· un <b>niveau</b> suffisant (expérience, Tour, Bonbons d'équipe) ;<br>
     · plusieurs <b>exemplaires</b> de l'espèce, donc des doublons ;<br>
     · des PokéCoins, et parfois une <b>pierre</b> vendue en boutique.</p>
-    <p>L'espèce évoluée entre au Pokédex comme une entrée à part entière : c'est un des moyens
-    les plus rapides de compléter l'archive.</p>`},
+    <p>L'espèce évoluée entre au Pokédex comme une entrée à part entière, et l'évolution remplit
+    une tâche de sa fiche de recherche.</p>`},
 
   team:{n:"L'équipe", d:`
-    <p>Votre archive sert d'équipe de combat. Chaque espèce possède un <b>niveau de combat</b>
-    indépendant du nombre d'exemplaires.</p>
-    <p>Ce niveau monte en <b>expédition</b> : les survivants d'un run gagnent des niveaux
-    définitifs. C'est le lien principal entre l'expédition et les Data Guardians.</p>
+    <p>Chaque Pokémon de votre archive a un <b>niveau</b>, le même dans tous les combats. Il monte
+    de quatre façons :</p>
+    <p>· <b>l'expérience</b> : chaque point que vous gagnez, partout, en donne 60 % à chacun des six
+    de Mon équipe ;<br>
+    · <b>la Tour</b> : ceux qui y combattent gagnent en plus leur propre expérience ;<br>
+    · <b>les Bonbons d'équipe</b> : +1 niveau, à qui vous voulez, depuis Mon équipe. L'Expédition en
+    rapporte, comme le Forage, la Tour, les coffres de session et les légendaires de passage ;<br>
+    · <b>le compagnon</b> gagne des niveaux avec son affinité.</p>
+    <p>Les <b>étoiles</b> viennent des exemplaires obtenus (4, 10, 25, 60) : +6 % de statistiques en
+    combat par étoile.</p>
     <p>En combat, le tableau des types décide de presque tout : un ×2 vaut mieux que dix niveaux.</p>`},
 
   tower:{n:"La Tour", d:`
@@ -87,25 +93,31 @@ const INFOS = {
     <p>Au sommet des ailes 2, 4 et 6 se tiennent les <b>verrous légendaires</b> : ceux de Kanto en Normal,
     de Johto en Difficile, de Hoenn en Enfer.</p>`},
   expedition:{n:"L'expédition", d:`
-    <p>Trois cartes au même dessin, chacune gardée par un <b>Champion</b> dont le type reste secret.
-    Vous partez du <b>haut</b> et descendez vers lui ; son badge ouvre la carte suivante, et au bout
-    de la troisième attend le <b>noyau</b>.</p>
-    <p>On part de la <b>forme de base, au niveau 5</b>. Hautes herbes <b>+1</b>, dresseurs et élites
-    <b>+2</b>, champion <b>+3</b>, le reste <b>+0</b>. Les Pokémon évoluent en route. Un échange rend
-    un Pokémon quatre niveaux au-dessus.</p>
-    <p>Les points de vie ne remontent qu'en partie après un combat. Le Centre Pokémon, avant le
+    <p><b>Le parcours</b> — trois cartes au même dessin. Vous partez du <b>haut</b>. Les deux
+    premières finissent sur un <b>Champion</b> dont le type reste secret ; son badge ouvre la carte
+    suivante. Au bout de la troisième attend le <b>noyau</b>.</p>
+    <p><b>Ce que vous rapportez</b> — si le noyau est atteint, chacun de vos Pokémon qui en revient
+    rapporte 4 <b>Bonbons d'équipe</b> (les recrues sauvages ne comptent pas), en plus des 2 de chaque
+    Champion et des 5 du noyau. Vous les donnez à qui vous voulez, dans Mon équipe. Une expédition
+    réussie rapporte aussi un œuf, une carte de collection et 1 Noyau.</p>
+    <p><b>Les niveaux du parcours</b> — on part de la <b>forme de base, au niveau 5</b>. Hautes herbes
+    <b>+1</b>, dresseurs et élites <b>+2</b>, Champion <b>+3</b>, le reste <b>+0</b>. Les Pokémon
+    évoluent en route ; un échange rend un Pokémon quatre niveaux au-dessus de celui que vous cédez.
+    Ces niveaux ne valent que pour le parcours.</p>
+    <p><b>K.O.</b> — en Classique, un Pokémon K.O. revient au combat suivant à 25 % de ses PV. En
+    Nuzlocke, il ne revient plus de tout le parcours. Dans les deux cas, il reste dans votre archive :
+    rien n'est jamais supprimé.</p>
+    <p><b>Les soins</b> — les PV ne remontent qu'en partie après un combat. Le Centre Pokémon, avant le
     Champion, soigne tout.</p>
-    <p>Les <b>reliques</b> modifient toute l'équipe pour le reste du run. Les <b>Bits</b> ne
-    servent qu'à l'intérieur du parcours.</p>
-    <p>Les <b>objets</b> (coffres, boutique Kecleon) se portent : un par Pokémon, actif pendant ses combats.
-    Le bouton <b>Sac</b>, sous la carte, montre qui porte quoi ; on y garde un objet pour plus tard, on le
-    donne, on le reprend.</p>
-    <p>Le menu du bas met le parcours en pause : on le reprend depuis l'accueil, carte « L'Expédition ».</p>
-    <p>La <b>corruption</b> monte quand vous prenez des risques : meilleur butin, ennemis plus forts.
+    <p><b>Reliques, Bits, objets</b> — les reliques valent pour toute l'équipe jusqu'à la fin du parcours.
+    Les Bits ne servent qu'à l'intérieur. Les objets (coffres, boutique Kecleon) se portent, un par
+    Pokémon ; le bouton <b>Sac</b> montre qui porte quoi.</p>
+    <p><b>Pause</b> — le menu du bas met le parcours en pause : on le reprend depuis l'accueil.</p>
+    <p><b>Corruption</b> — elle monte quand vous prenez des risques : meilleur butin, ennemis plus forts.
     Elle ne redescend jamais.</p>
-    <p>Si tu possèdes des <b>cartes de légendaires</b>, un <b>Sanctuaire</b> doré peut se cacher dans le
-    deuxième secteur : un légendaire de ta collection t'y attend. Bats-le, il rejoint ton équipe.
-    Certaines cartes font aussi vendre à Kecleon un objet unique.</p>`},
+    <p><b>Sanctuaire</b> — si vous possédez des cartes de légendaires, un Sanctuaire doré peut se cacher
+    dans le deuxième secteur : un légendaire de votre collection vous y attend. Battu, il rejoint
+    l'équipe. Certaines cartes font aussi vendre à Kecleon un objet unique.</p>`},
 
   poker:{n:"Le Poké-Poker", d:`
     <p>Un deck de 52 cartes, mais les cartes sont des <b>Pokémon</b>. Il n'y a ni couleur ni rang :
@@ -213,12 +225,18 @@ const INFOS = {
     <p>On en trouve dans la PokéBox, les archives scellées, les trésors d'expédition, et en boutique.</p>`},
 
   research:{n:"La recherche", d:`
-    <p>Chaque espèce archivée porte quatre objectifs qui lui sont propres : en restaurer plusieurs,
-    en vaincre au combat, la faire évoluer, en croiser une chromatique.</p>
-    <p>Chaque tâche accomplie rapporte des Fragments et fait monter un compteur général qui débloque
-    sept paliers — jusqu'à une Master Ball et des cosmétiques.</p>
-    <p>C'est ce qui donne une valeur individuelle aux 386 espèces : sans elle, un Pokémon capturé ne
-    sert plus jamais à rien.</p>`},
+    <p><b>Chaque Pokémon a sa fiche de recherche</b>, dans le Pokédex : touchez-le pour la voir.
+    Elle compte jusqu'à quatre tâches :</p>
+    <p>· <b>★★</b> : en avoir obtenu quatre exemplaires (une étoile suffit pour un Altéré ou un
+    Légendaire) ;<br>
+    · <b>en vaincre au combat</b>, en Expédition, à la Tour ou dans la Brèche ;<br>
+    · <b>la faire évoluer</b>, si elle évolue ;<br>
+    · <b>en obtenir une chromatique</b>.</p>
+    <p><b>Ce que ça rapporte</b> — chaque tâche donne des Fragments, et les tâches de tout le
+    Pokédex s'additionnent : à 25, 60, 120… elles débloquent un palier (PokéCoins, Noyaux, Hyper
+    Balls, une Master Ball, des cosmétiques).</p>
+    <p>Le filtre <b>Recherche</b> du Pokédex montre les fiches à compléter, et ce qui est presque
+    rempli.</p>`},
 
   monde:{n:"Habitats, heure et météo", d:`
     <p><b>Habitats</b> — chaque secteur se découpe en six lieux, qui s'ouvrent au fil de vos captures.
@@ -403,7 +421,7 @@ const TUTOS = {
     {sel:"#map-scroll", t:"Tu pars de la porte, en haut, vers le Champion du secteur, en bas. Touche un nœud lointain : je te dis ce qu'il cache."},
     {sel:".team-strip", t:"Ton équipe repart au niveau 5. Hautes herbes +1, dresseurs +2, le reste rien. C'est ta route qui fait ta force."},
     {sel:'[data-act="expgear"]', t:"Les objets que tu trouves se portent : un par Pokémon. Le Sac montre qui porte quoi, et garde le reste pour plus tard."},
-    {sel:"#screen", t:"Deux badges, puis le noyau. Ce qui survit en revient renforcé pour de bon. Ramène-les-moi entiers, s'il te plaît. J'ai commencé à leur donner des surnoms."}
+    {sel:"#screen", t:"Deux badges, puis le noyau. Chacun de tes Pokémon qui en revient rapporte des Bonbons d'équipe. Ramène-les-moi entiers, s'il te plaît. J'ai commencé à leur donner des surnoms."}
   ]},
   tower:{steps:[
     {sel:".sw-world", t:"La Tour. L'archive y empile ce qu'elle n'arrive plus à ranger : six ailes de souvenirs corrompus, posées les unes sur les autres."},
@@ -544,7 +562,7 @@ const DIRECTIVES = [
   {id:"d11", n:"Faire évoluer un Pokémon",      chk:()=>S.stats.evolutions>=1, goal:()=>[S.stats.evolutions,1],
    rw:{coins:1200, stones:{fire:1}}, hint:"Pokédex, fiche d'une espèce que tu as en plusieurs exemplaires.", go:"dex"},
   {id:"d13", n:"Réussir une Expédition", chk:()=>S.stats.expWins>=1,  goal:()=>[S.stats.expWins,1],
-   rw:{shards:60}, hint:"Tes survivants gagneront des niveaux définitifs.", go:"expedition"},
+   rw:{shards:60}, hint:"Chacun de tes Pokémon qui revient du noyau rapporte des Bonbons d'équipe.", go:"expedition"},
   {id:"d13b", n:"Battre le boss de la Forêt de Jade", chk:()=>typeof sqStars === "function" && sqStars(0, SQ_STAGES - 1, 0) > 0,
    goal:()=>[typeof sqStars === "function" && sqStars(0, SQ_STAGES - 1, 0) > 0 ? 1 : 0, 1],
    rw:{coins:1500}, hint:"La Tour : quatre Pokémon de ton archive, à leur niveau. Le septième palier porte le boss.", go:"tower"},

@@ -132,7 +132,7 @@ SCREENS.bag = {
       d:"Rend 55% des points de vie d'un Pokémon, pendant un combat.",
       extra:`<div class="tiny dim">S'utilise depuis l'écran de combat.</div>`}));
     if(S.items.revive) list.push(bagRow({item:"revive", icon:"refresh", n:"Réindexation", q:S.items.revive,
-      d:"Remet en jeu un Pokémon désindexé, à la moitié de ses points de vie.",
+      d:"Remet en jeu un Pokémon K.O., à la moitié de ses points de vie.",
       extra:`<div class="tiny dim">S'utilise depuis l'écran de combat.</div>`}));
     if(S.items.radar) list.push(bagRow({item:"radar", icon:"boss", n:"Radar Légendaire", q:S.items.radar,
       d:"Force une rencontre légendaire dans le secteur actif.",

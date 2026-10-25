@@ -190,7 +190,7 @@ ACTIONS.nextstep = () => {
   go(n.go, n.arg);
 };
 /* le bandeau : seulement là où l'on choisit quoi faire, jamais en pleine partie */
-const NEXTSTEP_SCREENS = ["capture", "modules", "dex", "bag", "profile", "today", "world", "team", "cards", "research", "shop", "daily", "pokebox"];
+const NEXTSTEP_SCREENS = ["capture", "modules", "dex", "bag", "profile", "today", "world", "team", "cards", "shop", "daily", "pokebox"];
 function renderNextStep(){
   if(typeof document === "undefined" || !document.getElementById) return;
   const dock = document.getElementById("dock");

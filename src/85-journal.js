@@ -17,7 +17,7 @@ const STORY_TITLES = {
   cy_e_open:"Connexion suivante", cy_e_page:"La page de trop", cy_e_mid:"Trop tôt",
   cy_w_open:"Nouvelle partie", cy_w_prof:"Jusqu'au bout de la phrase",
   pz_box:"Un abus toléré", pz_shiny:"Mal encodée", pz_fail:"Ce n'est pas toi",
-  pz_egg:"Une ébauche", pz_treasure:"Un objet", pz_buddy:"Nulle part écrit",
+  pz_egg:"Une ébauche", pz_treasure:"Un trésor", pz_buddy:"Nulle part écrit",
   pz_region_full:"Le silence", pz_first_guardian_fail:"Pas au niveau"
 };
 const STORY_ACTS = [
