@@ -1,0 +1,19 @@
+{
+  "name": "pokemon-code-genesis-pc",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Version PC en 3D (première personne) de Pokémon Code Genesis : même partie que le jeu mobile.",
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs",
+    "dev": "node build.mjs --dev",
+    "sizes": "npm i --no-save @pkmn/sim && node gen-sizes.mjs src/data/sizes.js"
+  },
+  "devDependencies": {
+    "esbuild": "^0.24.0",
+    "n8ao": "^1.9.4",
+    "postprocessing": "^6.36.4",
+    "simplex-noise": "^4.0.3",
+    "three": "^0.170.0"
+  }
+}

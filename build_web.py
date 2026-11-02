@@ -148,6 +148,21 @@ if("serviceWorker" in navigator){
 </script>
 </body>""")
 open(os.path.join(OUT, "index.html"), "w", encoding="utf-8").write(tpl)
+
+# --- la version PC : le même jeu (règles, sauvegarde, compte), et le client 3D par-dessus.
+# Le client 3D est construit par pc/build.mjs (npm) et versionné dans web/pc/ : l'hébergement
+# n'a besoin ni de Node ni de npm pour servir cette page.
+pc_build = os.path.join(OUT, "pc", "build.json")
+if os.path.isfile(pc_build) and os.path.isfile(os.path.join("pc", "index.template.html")):
+    pc_js = json.load(open(pc_build, encoding="utf-8"))["js"]
+    pc_tpl = open(os.path.join("pc", "index.template.html"), encoding="utf-8").read()
+    pc_css = open(os.path.join("pc", "style.css"), encoding="utf-8").read()
+    pc_tpl = (pc_tpl.replace("/*__PCCSS__*/", pc_css).replace("/*__CSS__*/", css)
+              .replace("/*__PCJS__*/", pc_js).replace("/*__JS__*/", js))
+    open(os.path.join(OUT, "pc.html"), "w", encoding="utf-8").write(pc_tpl)
+    print(f"version PC : pc.html + {pc_js}")
+else:
+    print("version PC absente (lancez « cd pc && npm install && node build.mjs »)")
 open(os.path.join(OUT, "config.js"), "w", encoding="utf-8").write(config_js)
 # relu par le jeu (sans cache) : une empreinte differente = une version plus recente en ligne
 open(os.path.join(OUT, "version.json"), "w", encoding="utf-8").write(
@@ -247,6 +262,8 @@ vercel = {
     "cleanUrls": True,
     "headers": [
         {"source": "/assets/(.*)",
+         "headers": [{"key": "Cache-Control", "value": "public, max-age=31536000, immutable"}]},
+        {"source": "/pc/(.*)",
          "headers": [{"key": "Cache-Control", "value": "public, max-age=31536000, immutable"}]},
         {"source": "/sw.js",
          "headers": [{"key": "Cache-Control", "value": "public, max-age=0, must-revalidate"}]},

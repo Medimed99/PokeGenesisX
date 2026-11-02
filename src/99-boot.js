@@ -196,8 +196,38 @@ function boot(){
     save();
   };
 
+  /* la version PC : pas d'écran d'amorçage ni d'écran de capture mobile. Le jeu est
+     chargé, la partie aussi ; le client 3D prend la main (écran titre, puis le monde).
+     L'interface mobile reste vivante derrière : c'est le terminal de l'archiviste. */
+  if(typeof PC_MODE !== "undefined" && PC_MODE){
+    const b = document.getElementById("boot"); if(b) b.style.display = "none";
+    startLoops();
+    go("modules");
+    save();
+    window.PCG_BOOT = {fresh};
+    try { window.dispatchEvent(new CustomEvent("pcg:booted", {detail:{fresh}})); } catch(e){}
+    return;
+  }
   if(fresh) bootScreen(enter);
   else { document.getElementById("boot").style.display = "none"; enter(); }
+}
+/* le client PC, au moment où le joueur entre dans le monde */
+function pcIntro(done){
+  /* une partie neuve : la même ouverture que sur mobile, dans le terminal */
+  playCine(CINE_INTRO, ()=>{
+    if(!S.story.includes("intro")) S.story.push("intro");
+    save();
+    if(!S.flags.named) askNameSheet(false, done); else done();
+  });
+}
+function pcWelcomeBack(){
+  if(!S.flags.named && S.name && S.name !== "ARCHIVISTE") S.flags.named = true;
+  if(!S.flags.named && !S.flags.nameAsked && S.story.includes("intro")){ askNameSheet(true); return; }
+  if(!showOfflineReport()){ if(!showReport()){ if(!showLuckyDay()){ checkStoryTriggers(); } } }
+  checkAchievements();
+  guideTick();
+  pwaSessionStart();
+  save();
 }
 
 /* --- cycle de vie --- */

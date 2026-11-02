@@ -6296,7 +6296,7 @@ body.calm .resdone{animation:none}
 </div>
 <script>
 /* version du jeu (buildver.py) */
-const BUILD_V = "e5ec3442", BUILD_LABEL = "25 octobre 2026, 14 h 06";
+const BUILD_V = "c0c84de4", BUILD_LABEL = "2 novembre 2026, 18 h 12";
 /* Version hebergee : les images sont servies comme fichiers, pas encodees
    dans le HTML. Les noms portent une empreinte : on peut donc les mettre en
    cache indefiniment sans jamais servir une version perimee. */
@@ -19615,7 +19615,8 @@ ACTIONS.rivalgo = () => {
   try { Sfx.wobble(); buzz([20, 30, 80]); } catch(e){}
   rivalClose(()=>rivalBattle(rv), true);
 };
-function rivalBattle(rv){
+/* l'équipe adverse et la prime : partagées avec la version PC (le dresseur posé sur la Route 1) */
+function rivalSetup(rv){
   const allies = teamFighters(S.team);
   const avg = Math.round(allies.reduce((a, f)=>a + f.level, 0) / Math.max(1, allies.length));
   const lv = rivalLevel(rv, avg), prize = rivalPrize(rv, avg);
@@ -19630,21 +19631,29 @@ function rivalBattle(rv){
     const ace = i === 2 && POKE[rv.ace] && unlockedRegions().some(r=>rv.ace >= r.from && rv.ace <= r.to) ? rv.ace : null;
     foes.push(makeFighter(ace || (pool.length ? pick(pool) : randInt(1, 151)), clamp(lv + (ace ? 2 : 0), 5, 100), {boost:1.05}));
   }
+  return {allies, foes, lv, avg, prize};
+}
+/* l'issue : ce que le rival retient, ce qu'il paie */
+function rivalEnd(rv, win, prize){
+  const rec = rivalRec(rv.k);
+  S.stats.rivals = (S.stats.rivals || 0) + (win ? 1 : 0);
+  if(win){
+    rec.w++;
+    gain("coins", prize.coins); gain("shards", prize.shards);
+    if(prize.cores) gain("cores", prize.cores);
+    if(prize.first) unlockCosmetic("title_" + rv.k);
+  } else rec.l++;
+  save(); checkAchievements();
+}
+function rivalBattle(rv){
+  const R = rivalSetup(rv);
   try { Music.ctxOverride = null; } catch(e){}
-  createBattle(allies, foes, {
+  createBattle(R.allies, R.foes, {
     ai: true, speed: S.settings.battleSpeed || 1, title: rv.n.toUpperCase(), stage: "elite",
-    intro: `${rv.n} envoie ${foes[0].name} !`,
+    intro: `${rv.n} envoie ${R.foes[0].name} !`,
     onEnd: win => {
-      const rec = rivalRec(rv.k);
-      S.stats.rivals = (S.stats.rivals || 0) + (win ? 1 : 0);
-      if(win){
-        rec.w++;
-        gain("coins", prize.coins); gain("shards", prize.shards);
-        if(prize.cores) gain("cores", prize.cores);
-        if(prize.first) unlockCosmetic("title_" + rv.k);
-      } else rec.l++;
-      save(); checkAchievements();
-      setTimeout(()=>rivalVerdict(rv, win, prize), 450);
+      rivalEnd(rv, win, R.prize);
+      setTimeout(()=>rivalVerdict(rv, win, R.prize), 450);
     }
   });
   go("battle");
@@ -48630,7 +48639,8 @@ function versionRowHtml(){
     <div><div class="tiny">${esc(versionText())}</div>
       ${UPD.next ? `<div class="tiny gold-t">Une version plus récente est en ligne${UPD.label ? ` (${esc(UPD.label)})` : ""}.</div>` : ""}</div>
     ${btn}
-  </div>`;
+  </div>${pwaHosted() && !(typeof PC_MODE !== "undefined" && PC_MODE) ? `
+  <div class="tiny dim" style="margin-top:6px">Sur un ordinateur, la même partie se joue aussi en 3D, à la première personne : <a href="./pc" style="color:var(--cyan)">la version PC</a>.</div>` : ""}`;
 }
 
 /* ===== 96b-music.js ===== */
@@ -48804,6 +48814,35 @@ function musicSettingsHtml(){
     </div>
     ${S.settings.music ? `<div class="row" style="gap:6px;padding:0 0 6px">${[30, 50, 70, 100].map(v=>`<button class="chip ${S.settings.musicVol === v ? "on" : ""}" data-act="musicvol" data-v="${v}">${v} %</button>`).join("")}</div>` : ""}`;
 }
+
+/* ===== 98-pcbridge.js ===== */
+/* ============================================================
+   98 — LE PONT AVEC LA VERSION PC
+   La version PC (pc.html) charge ce même jeu — mêmes règles, même
+   sauvegarde, même compte en ligne — et pose un monde en 3D par-dessus.
+   Le client 3D (pc/src, bundle à part) ne voit pas les variables
+   déclarées ici avec let/const : ce pont les lui prête, en lecture et
+   en écriture. Sur mobile, il ne fait rien.
+   ============================================================ */
+const PC_MODE = typeof window !== "undefined" && !!window.PCG_PC;
+if(typeof window !== "undefined") window.PCG = {
+  pc: PC_MODE,
+  get S(){ return S; },
+  get ENC(){ return ENC; }, set ENC(v){ ENC = v; },
+  get busy(){ return busy; }, set busy(v){ busy = v; },
+  get FISHING(){ return FISHING; }, set FISHING(v){ FISHING = v; },
+  get POND(){ return POND; }, set POND(v){ POND = v; },
+  get BATTLE(){ return BATTLE; }, set BATTLE(v){ BATTLE = v; },
+  get RIVAL(){ return RIVAL; }, set RIVAL(v){ RIVAL = v; },
+  get CINE(){ return CINE; },
+  get currentScreen(){ return currentScreen; },
+  get DISCOVER(){ return DISCOVER; },
+  /* les tables du jeu */
+  POKE, BALLS, BERRIES, RARITY, TYPE_NAMES, RING_GRADES, RODS, HABITATS, WEATHER, REGIONS, RIVALS,
+  PMD_META, PMD_ANIM, TREASURES, ACTIONS, SCREENS,
+  /* n'importe quel nom du jeu, pour ce qui n'est pas listé ci-dessus */
+  ref(name){ try { return eval(name); } catch(e){ return undefined; } }
+};
 
 /* ===== 99-boot.js ===== */
 /* ============================================================
@@ -49004,8 +49043,38 @@ function boot(){
     save();
   };
 
+  /* la version PC : pas d'écran d'amorçage ni d'écran de capture mobile. Le jeu est
+     chargé, la partie aussi ; le client 3D prend la main (écran titre, puis le monde).
+     L'interface mobile reste vivante derrière : c'est le terminal de l'archiviste. */
+  if(typeof PC_MODE !== "undefined" && PC_MODE){
+    const b = document.getElementById("boot"); if(b) b.style.display = "none";
+    startLoops();
+    go("modules");
+    save();
+    window.PCG_BOOT = {fresh};
+    try { window.dispatchEvent(new CustomEvent("pcg:booted", {detail:{fresh}})); } catch(e){}
+    return;
+  }
   if(fresh) bootScreen(enter);
   else { document.getElementById("boot").style.display = "none"; enter(); }
+}
+/* le client PC, au moment où le joueur entre dans le monde */
+function pcIntro(done){
+  /* une partie neuve : la même ouverture que sur mobile, dans le terminal */
+  playCine(CINE_INTRO, ()=>{
+    if(!S.story.includes("intro")) S.story.push("intro");
+    save();
+    if(!S.flags.named) askNameSheet(false, done); else done();
+  });
+}
+function pcWelcomeBack(){
+  if(!S.flags.named && S.name && S.name !== "ARCHIVISTE") S.flags.named = true;
+  if(!S.flags.named && !S.flags.nameAsked && S.story.includes("intro")){ askNameSheet(true); return; }
+  if(!showOfflineReport()){ if(!showReport()){ if(!showLuckyDay()){ checkStoryTriggers(); } } }
+  checkAchievements();
+  guideTick();
+  pwaSessionStart();
+  save();
 }
 
 /* --- cycle de vie --- */

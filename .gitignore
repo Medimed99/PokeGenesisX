@@ -7,9 +7,11 @@
 # sorties intermediaires
 /build/
 /node_modules/
+/pc/node_modules/
 /.vercel/
 .DS_Store
 # donnees sources retelechargeables
 /data/
 /pmd/
 /__pycache__/
+/.cache/

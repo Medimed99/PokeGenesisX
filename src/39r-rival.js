@@ -162,7 +162,8 @@ ACTIONS.rivalgo = () => {
   try { Sfx.wobble(); buzz([20, 30, 80]); } catch(e){}
   rivalClose(()=>rivalBattle(rv), true);
 };
-function rivalBattle(rv){
+/* l'équipe adverse et la prime : partagées avec la version PC (le dresseur posé sur la Route 1) */
+function rivalSetup(rv){
   const allies = teamFighters(S.team);
   const avg = Math.round(allies.reduce((a, f)=>a + f.level, 0) / Math.max(1, allies.length));
   const lv = rivalLevel(rv, avg), prize = rivalPrize(rv, avg);
@@ -177,21 +178,29 @@ function rivalBattle(rv){
     const ace = i === 2 && POKE[rv.ace] && unlockedRegions().some(r=>rv.ace >= r.from && rv.ace <= r.to) ? rv.ace : null;
     foes.push(makeFighter(ace || (pool.length ? pick(pool) : randInt(1, 151)), clamp(lv + (ace ? 2 : 0), 5, 100), {boost:1.05}));
   }
+  return {allies, foes, lv, avg, prize};
+}
+/* l'issue : ce que le rival retient, ce qu'il paie */
+function rivalEnd(rv, win, prize){
+  const rec = rivalRec(rv.k);
+  S.stats.rivals = (S.stats.rivals || 0) + (win ? 1 : 0);
+  if(win){
+    rec.w++;
+    gain("coins", prize.coins); gain("shards", prize.shards);
+    if(prize.cores) gain("cores", prize.cores);
+    if(prize.first) unlockCosmetic("title_" + rv.k);
+  } else rec.l++;
+  save(); checkAchievements();
+}
+function rivalBattle(rv){
+  const R = rivalSetup(rv);
   try { Music.ctxOverride = null; } catch(e){}
-  createBattle(allies, foes, {
+  createBattle(R.allies, R.foes, {
     ai: true, speed: S.settings.battleSpeed || 1, title: rv.n.toUpperCase(), stage: "elite",
-    intro: `${rv.n} envoie ${foes[0].name} !`,
+    intro: `${rv.n} envoie ${R.foes[0].name} !`,
     onEnd: win => {
-      const rec = rivalRec(rv.k);
-      S.stats.rivals = (S.stats.rivals || 0) + (win ? 1 : 0);
-      if(win){
-        rec.w++;
-        gain("coins", prize.coins); gain("shards", prize.shards);
-        if(prize.cores) gain("cores", prize.cores);
-        if(prize.first) unlockCosmetic("title_" + rv.k);
-      } else rec.l++;
-      save(); checkAchievements();
-      setTimeout(()=>rivalVerdict(rv, win, prize), 450);
+      rivalEnd(rv, win, R.prize);
+      setTimeout(()=>rivalVerdict(rv, win, R.prize), 450);
     }
   });
   go("battle");

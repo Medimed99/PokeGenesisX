@@ -251,5 +251,6 @@ function versionRowHtml(){
     <div><div class="tiny">${esc(versionText())}</div>
       ${UPD.next ? `<div class="tiny gold-t">Une version plus récente est en ligne${UPD.label ? ` (${esc(UPD.label)})` : ""}.</div>` : ""}</div>
     ${btn}
-  </div>`;
+  </div>${pwaHosted() && !(typeof PC_MODE !== "undefined" && PC_MODE) ? `
+  <div class="tiny dim" style="margin-top:6px">Sur un ordinateur, la même partie se joue aussi en 3D, à la première personne : <a href="./pc" style="color:var(--cyan)">la version PC</a>.</div>` : ""}`;
 }

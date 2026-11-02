@@ -64,6 +64,37 @@ Les sources sont modulaires et concaténées dans cet ordre par `build.py` :
 
     python3 build.py          # -> dist/index.html
 
+## La version PC en 3D (`pc/`, page `/pc`)
+
+La Route 1 à la première personne, dans le navigateur d'un ordinateur : la même partie que le
+jeu mobile (même sauvegarde `pcg.save.v3`, même compte en ligne, même origine). La page
+`web/pc.html` embarque **tout** le jeu mobile (règles, sauvegarde, synchronisation) et, par-dessus,
+un client 3D (Three.js) construit depuis `pc/src`.
+
+    cd pc && npm install && node build.mjs   # -> web/pc/game.<empreinte>.js + web/pc/build.json
+    cd .. && python3 build_web.py            # -> web/pc.html (assemble le jeu mobile + le client 3D)
+
+`node build.mjs --dev` sort un fichier lisible (carte des sources incluse). Le client construit est
+versionné dans `web/pc/` : Vercel n'a besoin ni de Node ni de npm pour le servir.
+`npm run sizes` régénère `src/data/sizes.js` (taille réelle de chaque espèce, depuis `@pkmn/sim`).
+
+| Fichier | Rôle |
+|---|---|
+| `src/98-pcbridge.js` | Le pont : `window.PCG` expose l'état et les tables du jeu mobile au client 3D |
+| `pc/src/game.js` | Les modes (titre, promenade, pause, terminal, dialogue, combat), la boucle, les commandes |
+| `pc/src/world/*` | La route : terrain, chemin, corniches, herbe (instanciée, vent, pas), arbres, lac, ciel couvert à l'heure réelle, météo du jeu |
+| `pc/src/mon/model3d.js`, `pc/src/sentinels.js`, `pc/tools/models3d.mjs` | Essai des Pokémon en 3D animée : les espèces de la Route 1 et du lac, plus Mewtwo et Électhor en sentinelles (non capturables). Modèles de Pokémon X/Y du projet [06wj/pokemon](https://github.com/06wj/pokemon), avec leurs animations (attente, marche, course, attaque, joie, sommeil), allégés par `tools/models3d.mjs` (meshopt, WebP) dans `web/assets/m3d/`. La route ne fait apparaître que ces espèces (le jeu mobile tire la rareté, la route choisit l'espèce de même rareté). Chromatiques et autres espèces : le sprite, comme avant. Les modèles restent la propriété de Nintendo / The Pokémon Company / Game Freak |
+| `pc/src/world/corruption.js`, `pc/src/fx/corruptfx.js` | La marque de MissingNo : zones désindexées (sol en grille de données, voxels, cubes, blocs de bruit en L), poussières de données, et l'image abîmée (grain, décalage des couleurs, déchirures). Tout suit l'intégrité de l'archive : chaque zone guérit à son seuil, la faille du ciel se referme à 100 % ; « Effets réduits » (partagé avec le mobile) calme les déchirures |
+| `pc/src/mon/*` | Les Pokémon : planches PMD en panneaux 8 directions, taille réelle, comportements (cachés, curieux, fuyards) |
+| `pc/src/capture.js` | Viser (clic droit), lancer (clic gauche), secousses ; la règle de capture est celle du mobile (`throwBall`) |
+| `pc/src/fishing.js` | La pêche au lac : ombres, lancer, touches, ferrage (fenêtres de la canne), le Pokémon saute sur la rive |
+| `pc/src/trainer.js` | Le dresseur rémanent du jour : dialogue, combat d'équipe mis en scène (moteur mobile), une fois par jour |
+| `pc/src/ui/terminal.js` | Le jeu mobile entier dans un terminal (Tab) ; il s'ouvre seul pour les scènes du récit |
+| `pc/src/hud.js`, `ui/menus.js`, `audio.js` | Interface, titre, pause et options (qualité, champ de vision, souris, heure), sons spatialisés |
+
+Commandes : ZQSD/WASD, Maj pour courir, Espace pour sauter, clic droit viser, clic gauche lancer,
+1–5 et molette pour la Ball, 6–0 pour les baies, E parler, F la canne, Tab le terminal, Échap la pause.
+
 ## Tester
 
     node test.js              # logique pure (évaluateur de mains, capture, carte, migration)

@@ -144,7 +144,8 @@ python3 build_atlas.py     # seulement si les sprites changent
 python3 build_cardart.py   # seulement si les illustrations changent
 python3 build_chars.py     # seulement si assets/prof.png ou missingno.png changent
 python3 build.py           # dist/index.html — version autonome
-python3 build_web.py       # web/ — version hébergée
+(cd pc && npm install && node build.mjs)   # seulement si pc/src change : le client 3D
+python3 build_web.py       # web/ — version hébergée (dont web/pc.html)
 npm test                   # les vérifications
 git add -A && git commit -m "…" && git push
 ```
@@ -176,6 +177,7 @@ annoncée avec la livraison. Ensuite `git add -A`, `git commit`, `git push`.
 ### Vérifier la version en ligne
 
 - `https://<votre-site>/version.json` : la date et l'empreinte de la version publiée.
+- `https://<votre-site>/pc` : la version PC en 3D (même partie, même compte).
 - Dans le jeu, **Réglages**, tout en bas : « Version du … », et **Vérifier**.
 - Une application installée restée ouverte affiche d'elle-même un bandeau « Une mise
   à jour du jeu est disponible » ; **Mettre à jour** enregistre la partie et recharge.
