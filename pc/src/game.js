@@ -15,6 +15,8 @@ import { Audio } from "./audio.js";
 import { Fishing } from "./fishing.js";
 import { Trainer } from "./trainer.js";
 import { Sentinels } from "./sentinels.js";
+import { RouteMap } from "./ui/map.js";
+import { CZ } from "./world/corruption.js";
 
 const BERRY_KEYS = {Digit6:"framby", Digit7:"nanab", Digit8:"nigma", Digit9:"sitrus", Digit0:"micle"};
 const POS_KEY = "pcg.pc.pos";
@@ -61,6 +63,10 @@ export class Game {
     this.fishing = new Fishing(this);
     this.trainer = new Trainer(this);
     this.sentinels = new Sentinels(this);
+    this.map = new RouteMap(this);
+    /* la nuit, une lueur froide autour de soi (la lampe du terminal) : on voit où l'on marche.
+       Pas une lumière de plus dans toute la scène : le sol, l'herbe et les Pokémon 3D la calculent eux-mêmes. */
+    this.lamp = CZ.uLamp.value;
     this.terminal = new Terminal(this);
     this.menus = new Menus(this);
     this.player.onStep = (surf, run) => this.audio.step(surf, run);
@@ -98,7 +104,7 @@ export class Game {
       this.started = true;
       this.setMode("play");
       this.input.lock();
-      this.hud.hint(`<b>Clic droit</b> pour viser, <b>clic gauche</b> pour lancer · <b>Tab</b> : le terminal · <b>Échap</b> : la pause`, 7);
+      this.hud.hint(`<b>Clic droit</b> pour viser, <b>clic gauche</b> pour lancer · <b>M</b> : la carte · <b>Tab</b> : le terminal et les nouvelles · <b>Échap</b> : la pause`, 8);
     };
     if(this.boot && this.boot.fresh && this.S && !this.S.story.includes("intro")){
       /* une partie neuve : l'ouverture, dans le terminal, puis la route */
@@ -107,7 +113,9 @@ export class Game {
       return;
     }
     begin();
-    try { window.pcWelcomeBack(); } catch(e){ console.warn(e); }
+    /* rien ne s'ouvre à l'arrivée : les nouvelles attendent la première ouverture du terminal */
+    try { window.pcWelcomeBack("quiet"); } catch(e){ console.warn(e); }
+    this.pendingNews = true;
   }
   restore(){
     this.started = true;
@@ -128,7 +136,11 @@ export class Game {
     if(this.mode === "play" && !this.terminal.open && !this.hud.newOpen) this.menus.openPause("main");
   }
   onKey(e){
-    if(this.mode === "title") return;
+    if(this.mode === "title"){
+      /* Échap referme les réglages ouverts depuis l'écran titre */
+      if(e.code === "Escape" && this.menus.pauseOpen) this.menus.closeFromTitle();
+      return;
+    }
     if(e.code === "Tab" && (this.mode === "dialog" || this.mode === "battle")){ e.preventDefault(); return; }
     if(e.code === "Tab"){
       e.preventDefault();
@@ -144,6 +156,7 @@ export class Game {
   hour(){
     if(this.hourOverride !== null) return this.hourOverride;
     if(Settings.time === "jour") return 14.5;
+    if(Settings.time === "nuit") return 23.2;
     const d = new Date();
     return d.getHours() + d.getMinutes() / 60 + d.getSeconds() / 3600;
   }
@@ -199,6 +212,10 @@ export class Game {
     this.fishing.update(dt, this.t);
     this.trainer.update(dt, this.t);
     this.sentinels.update(dt, this.t);
+    this.map.update(dt);
+    const night = this.world.sky.state ? this.world.sky.state.night : 0;
+    const cp = this.engine.camera.position;
+    this.lamp.set(cp.x, cp.y + 0.4, cp.z, night * 1.15);
     this.hud.update(dt, this.t);
     this.audio.update(dt, this.t);
     this.prompts();
@@ -238,7 +255,7 @@ export class Game {
     const sky = this.world.sky, E = this.env;
     E.tint.copy(sky.sun.color).multiplyScalar(Math.min(1, sky.sun.intensity * 0.3)).add(sky.hemi.color.clone().multiplyScalar(sky.hemi.intensity * 0.55));
     /* le monde est éteint, pas les Pokémon : ils gardent assez de lumière pour se détacher */
-    const m = Math.max(E.tint.r, E.tint.g, E.tint.b), night = sky.state ? sky.state.night : 0, floor = 0.86 - 0.36 * night;
+    const m = Math.max(E.tint.r, E.tint.g, E.tint.b), night = sky.state ? sky.state.night : 0, floor = 0.86 - 0.22 * night;
     if(m < floor && m > 0) E.tint.multiplyScalar(floor / m);
     else if(m > 1.08) E.tint.multiplyScalar(1.08 / m);
     E.fog.copy(this.engine.scene.fog.color); E.fogDensity = this.engine.scene.fog.density;
@@ -261,6 +278,13 @@ export class Game {
       else if(!window.useBerry(k)) window.toast(this.G.BERRIES[k].name + " déjà active", "", "seed");
     }
     if(I.hit("KeyF")) this.fishing.toggle();
+    if(I.hit("KeyM")) this.map.toggle();
+    /* H : l'heure — réelle, toujours le jour, toujours la nuit */
+    if(I.hit("KeyH")){
+      const order = ["reel", "jour", "nuit"], i = order.indexOf(Settings.time);
+      Settings.time = order[(i + 1) % 3]; saveSettings();
+      this.hud.hint({reel:"Heure réelle : le ciel suit ton horloge", jour:"Toujours le jour", nuit:"Toujours la nuit"}[Settings.time] + " · <b>H</b> pour changer", 3);
+    }
     if(I.hit("KeyE")) this.trainer.interact() || this.fishing.interact();
   }
   prompts(){

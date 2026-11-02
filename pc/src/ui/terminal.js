@@ -44,10 +44,22 @@ export class Terminal {
     this.game.input.unlock();
     try { window.renderTopbar && window.renderTopbar(); window.renderDock && window.renderDock(); } catch(e){}
     try { window.refresh && window.refresh(); } catch(e){}
+    /* première ouverture choisie par le joueur : les nouvelles de l'archive (rapport d'absence, scène en attente) */
+    if(!auto && this.game.pendingNews){ this.game.pendingNews = false; setTimeout(()=>{ try { window.pcWelcomeBack("news"); } catch(e){ console.warn(e); } }, 250); }
   }
   close(){
     if(!this.open) return;
-    if(this.layerOn()){ this.auto = true; return; }            /* une scène en cours : elle se finit d'abord */
+    /* Tab ou Échap ressortent toujours : une fiche se referme, une cinématique se passe ;
+       seul un dialogue du récit demande d'être lu jusqu'au bout */
+    const L = this.layerOn();
+    if(L === "sheet-root" && window.closeSheet){ try { window.closeSheet(); } catch(e){} }
+    else if(L === "cine"){ try { const A = window.PCG && window.PCG.ACTIONS; if(A && A.cineskip) A.cineskip(); } catch(e){} }
+    if(this.layerOn()){
+      this.auto = true;
+      const h = document.querySelector("#terminal .term-head span");
+      if(h){ h.textContent = "Une scène du récit est en cours : clique pour la lire jusqu'au bout"; clearTimeout(this._ht); this._ht = setTimeout(()=>{ h.textContent = "Tab ou Échap pour revenir à la route"; }, 3500); }
+      return;
+    }
     this.el.classList.remove("on"); this.el.setAttribute("aria-hidden", "true");
     this.open = false; this.auto = false;
     const back = ["title", "dialog", "battle"].includes(this.prevMode) ? this.prevMode : "play";

@@ -208,7 +208,17 @@ void main(){
 
 /* les uniformes communs : le sol, l'herbe, les arbres et le décor les lisent dès leur construction */
 export const CZ = {uZones:{value:ZONES.map(z=>new THREE.Vector4(z.x, z.z, z.r, 1))}, uCTime:{value:0},
-  uFog:{value:new THREE.Color()}, uFogDensity:{value:0}};
+  uFog:{value:new THREE.Color()}, uFogDensity:{value:0},
+  /* la lampe de nuit : position (x, y, z) et force (w) ; le sol, l'herbe et les Pokémon 3D la lisent */
+  uLamp:{value:new THREE.Vector4(0, -999, 0, 0)}};
+export const LAMP_GLSL = `
+uniform vec4 uLamp;
+vec3 lampLight(vec3 wp, vec3 albedo){
+  if(uLamp.w <= 0.001) return vec3(0.0);
+  float d = distance(wp, uLamp.xyz);
+  float k = uLamp.w * pow(1.0 - smoothstep(0.0, 17.0, d), 1.7);
+  return albedo * vec3(0.7, 0.82, 1.0) * k;
+}`;
 
 export class Corruption {
   constructor(scene){

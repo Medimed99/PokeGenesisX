@@ -93,7 +93,11 @@ versionné dans `web/pc/` : Vercel n'a besoin ni de Node ni de npm pour le servi
 | `pc/src/hud.js`, `ui/menus.js`, `audio.js` | Interface, titre, pause et options (qualité, champ de vision, souris, heure), sons spatialisés |
 
 Commandes : ZQSD/WASD, Maj pour courir, Espace pour sauter, clic droit viser, clic gauche lancer,
-1–5 et molette pour la Ball, 6–0 pour les baies, E parler, F la canne, Tab le terminal, Échap la pause.
+1–5 et molette pour la Ball, 6–0 pour les baies, E parler, F la canne, M la carte, H l'heure (réelle,
+jour, nuit), Tab le terminal (les nouvelles d'arrivée y attendent la première ouverture), Échap la pause.
+La carte (`pc/src/ui/map.js`) : mini-carte en haut à gauche et grande carte sur M, peintes une fois depuis
+le relevé du terrain ; la nuit, une lueur froide autour du joueur (calculée par le sol, l'herbe et les
+modèles 3D, sans lumière de plus dans la scène).
 
 ## Tester
 

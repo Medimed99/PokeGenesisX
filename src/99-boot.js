@@ -220,10 +220,15 @@ function pcIntro(done){
     if(!S.flags.named) askNameSheet(false, done); else done();
   });
 }
-function pcWelcomeBack(){
+/* en deux temps : « quiet » à l'entrée dans le monde (rien ne s'ouvre), « news » à la première
+   ouverture du terminal (rapport d'absence, chance du jour, scène du récit en attente) */
+function pcWelcomeBack(part){
   if(!S.flags.named && S.name && S.name !== "ARCHIVISTE") S.flags.named = true;
-  if(!S.flags.named && !S.flags.nameAsked && S.story.includes("intro")){ askNameSheet(true); return; }
-  if(!showOfflineReport()){ if(!showReport()){ if(!showLuckyDay()){ checkStoryTriggers(); } } }
+  if(part !== "quiet"){
+    if(!S.flags.named && !S.flags.nameAsked && S.story.includes("intro")){ askNameSheet(true); return; }
+    if(!showOfflineReport()){ if(!showReport()){ if(!showLuckyDay()){ checkStoryTriggers(); } } }
+    if(part === "news"){ save(); return; }
+  }
   checkAchievements();
   guideTick();
   pwaSessionStart();

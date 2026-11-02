@@ -12,7 +12,7 @@ const KEYS = [
   ["Z Q S D · W A S D", "se déplacer"], ["Maj", "courir"], ["Espace", "sauter (on descend une corniche, on ne la remonte pas)"],
   ["Souris", "regarder"], ["Clic droit (maintenir)", "viser : le cercle se resserre"], ["Clic gauche", "lancer la Ball"],
   ["1 à 5 · molette", "choisir la Ball"], ["6 à 0", "utiliser une baie"], ["E", "parler, interagir"],
-  ["F", "sortir la canne (au bord du lac)"], ["Tab", "le terminal : Pokédex, équipe, sac, quêtes, modules"], ["Échap", "pause"]
+  ["F", "sortir la canne (au bord du lac)"], ["M", "la carte"], ["H", "l'heure : réelle, jour, nuit"], ["Tab", "le terminal : Pokédex, équipe, sac, quêtes, modules"], ["Échap", "pause"]
 ];
 
 export class Menus {
@@ -57,13 +57,17 @@ export class Menus {
     this.pause.classList.add("on");
     this.game.setMode(this.game.mode === "title" ? "title" : "pause");
   }
+  /* les réglages ouverts depuis l'écran titre : on y revient */
+  closeFromTitle(){ this.pause.classList.remove("on"); }
+  get pauseOpen(){ return this.pause.classList.contains("on"); }
   closePause(){
     this.pause.classList.remove("on");
     if(this.game.mode === "pause"){ this.game.setMode("play"); this.game.resume(); }
   }
   renderPause(){
     const inGame = this.game.mode !== "title" && this.game.started;
-    const tabs = [["main", inGame ? "Reprendre" : "Retour"], ["terminal", "Terminal"], ["options", "Options"], ["keys", "Commandes"]];
+    /* depuis l'écran titre, le terminal n'a pas de sens (la partie n'est pas encore ouverte) */
+    const tabs = [["main", inGame ? "Reprendre" : "Retour"], ...(inGame ? [["terminal", "Terminal"]] : []), ["options", "Options"], ["keys", "Commandes"]];
     const seg = (key, opts, cur) => `<div class="pp-seg">${opts.map(([v, l])=>`<button data-set="${key}" data-v="${v}" class="${String(cur) === String(v) ? "on" : ""}">${l}</button>`).join("")}</div>`;
     let body = "";
     if(this.tab === "options"){
@@ -72,7 +76,7 @@ export class Menus {
         <div class="pp-row"><label>Champ de vision<small>${Settings.fov}°</small></label><input type="range" min="60" max="100" step="1" value="${Settings.fov}" data-range="fov"></div>
         <div class="pp-row"><label>Sensibilité de la souris<small>×${Settings.sens.toFixed(2)}</small></label><input type="range" min="0.25" max="3" step="0.05" value="${Settings.sens}" data-range="sens"></div>
         <div class="pp-row"><label>Inverser l'axe vertical</label>${seg("invertY", [[false, "Non"], [true, "Oui"]], Settings.invertY)}</div>
-        <div class="pp-row"><label>Heure du jour<small>Réelle : le ciel suit ton horloge (nuit, aube, soir)</small></label>${seg("time", [["reel", "Réelle"], ["jour", "Toujours le jour"]], Settings.time)}</div>
+        <div class="pp-row"><label>Heure du jour<small>Réelle : le ciel suit ton horloge · touche H pour changer en jeu</small></label>${seg("time", [["reel", "Réelle"], ["jour", "Jour"], ["nuit", "Nuit"]], Settings.time)}</div>
         <div class="pp-row"><label>Effets réduits<small>Moins de déchirures de l'image et de flashs (réglage partagé avec le jeu mobile)</small></label>${seg("calm", [[false, "Non"], [true, "Oui"]], typeof window.calmFx === "function" && window.calmFx())}</div>
         <div class="pp-row"><label>Volume des sons<small>${Math.round(Settings.volume * 100)} %</small></label><input type="range" min="0" max="1" step="0.05" value="${Settings.volume}" data-range="volume"></div>`;
     } else if(this.tab === "keys"){
@@ -89,7 +93,7 @@ export class Menus {
       const t = e.target.closest("[data-tab]");
       if(t){
         const k = t.dataset.tab;
-        if(k === "main" && (this.tab === "main" || !inGame)){ if(inGame) this.closePause(); else { this.pause.classList.remove("on"); } return; }
+        if(k === "main" && (this.tab === "main" || !inGame)){ if(inGame) this.closePause(); else this.closeFromTitle(); return; }
         if(k === "main" && inGame){ this.closePause(); return; }
         if(k === "terminal"){ this.pause.classList.remove("on"); this.game.terminal.show(null, false); return; }
         this.tab = k; this.renderPause(); return;
@@ -106,7 +110,7 @@ export class Menus {
         if(s.dataset.set === "quality"){ Settings.qualityManual = true; saveSettings(); this.game.setQuality(v); }
         this.renderPause();
       }
-      if(e.target === this.pause && inGame) this.closePause();
+      if(e.target === this.pause){ if(inGame) this.closePause(); else this.closeFromTitle(); }
     };
     this.pause.oninput = e => {
       const r = e.target.closest("[data-range]"); if(!r) return;

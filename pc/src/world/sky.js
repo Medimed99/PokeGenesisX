@@ -8,16 +8,16 @@ import { clamp, lerp, smooth } from "../util.js";
 /* une archive sous un ciel couvert : la lumière est froide, la journée grise et basse, le soir malade,
    la nuit presque noire ; au nord, la faille de MissingNo fend le ciel */
 const KEYS = [
-  {h:0,    zen:"#020308", hor:"#0a0f16", sun:"#8696b4", si:0.42, hemi:"#24344f", gnd:"#0a0c10", hi:0.82, fog:"#0a0f16", cloud:"#10151d", exp:1.42},
-  {h:5.2,  zen:"#04070f", hor:"#141822", sun:"#8d98b6", si:0.42, hemi:"#26324a", gnd:"#0a0c10", hi:0.8,  fog:"#0e131a", cloud:"#181e28", exp:1.36},
+  {h:0,    zen:"#020308", hor:"#0a0f16", sun:"#93a3c2", si:0.62, hemi:"#2a3b58", gnd:"#0c0f14", hi:1.05, fog:"#0a0f16", cloud:"#10151d", exp:1.55},
+  {h:5.2,  zen:"#04070f", hor:"#141822", sun:"#93a3c2", si:0.6,  hemi:"#2a3852", gnd:"#0c0f14", hi:1.0,  fog:"#0e131a", cloud:"#181e28", exp:1.5},
   {h:6.4,  zen:"#1a2130", hor:"#5a4448", sun:"#c98a6e", si:1.15, hemi:"#525a68", gnd:"#26231f", hi:0.7,  fog:"#3e3a40", cloud:"#504a4e", exp:1.18},
   {h:8.5,  zen:"#1e2631", hor:"#59636a", sun:"#c7ccc8", si:2.0,  hemi:"#6c7682", gnd:"#2c3028", hi:1.0,  fog:"#48525a", cloud:"#646c72", exp:1.2},
   {h:13,   zen:"#202833", hor:"#5f696f", sun:"#d2d4cc", si:2.2,  hemi:"#717c88", gnd:"#2e3229", hi:1.05, fog:"#4c565d", cloud:"#6a7277", exp:1.2},
   {h:17.6, zen:"#1e2430", hor:"#635b54", sun:"#d0a67c", si:1.85, hemi:"#686e78", gnd:"#2e2c25", hi:0.98, fog:"#4c4946", cloud:"#67605b", exp:1.2},
   {h:19.3, zen:"#161827", hor:"#5a2a3a", sun:"#d8604e", si:1.2,  hemi:"#4a4460", gnd:"#211b1b", hi:0.7,  fog:"#352530", cloud:"#432c36", exp:1.2},
   {h:20.6, zen:"#090a16", hor:"#2a1828", sun:"#9a4460", si:0.5,  hemi:"#2c2c48", gnd:"#100e13", hi:0.58, fog:"#16101c", cloud:"#1e1622", exp:1.22},
-  {h:22,   zen:"#03040a", hor:"#0b1018", sun:"#8696b4", si:0.42, hemi:"#24344f", gnd:"#0a0c10", hi:0.82, fog:"#0b1017", cloud:"#10151d", exp:1.42},
-  {h:24,   zen:"#020308", hor:"#0a0f16", sun:"#8696b4", si:0.42, hemi:"#24344f", gnd:"#0a0c10", hi:0.82, fog:"#0a0f16", cloud:"#10151d", exp:1.42}
+  {h:22,   zen:"#03040a", hor:"#0b1018", sun:"#93a3c2", si:0.62, hemi:"#2a3b58", gnd:"#0c0f14", hi:1.05, fog:"#0b1017", cloud:"#10151d", exp:1.55},
+  {h:24,   zen:"#020308", hor:"#0a0f16", sun:"#93a3c2", si:0.62, hemi:"#2a3b58", gnd:"#0c0f14", hi:1.05, fog:"#0a0f16", cloud:"#10151d", exp:1.55}
 ];
 const C = s => new THREE.Color(s);
 function keyAt(h){

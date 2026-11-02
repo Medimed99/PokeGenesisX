@@ -13,6 +13,7 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { MeshoptDecoder } from "three/examples/jsm/libs/meshopt_decoder.module.js";
 import { clone as cloneSkinned } from "three/examples/jsm/utils/SkeletonUtils.js";
 import { M3D } from "../data/models3d.js";
+import { CZ, LAMP_GLSL } from "../world/corruption.js";
 import { MonSprite, realHeight, preload as preloadSprite } from "./sprites.js";
 
 export const has3D = (id, shiny) => !shiny && !!M3D[id];
@@ -45,9 +46,14 @@ function patchMaterial(src, U){
   const m = src.clone();
   m.onBeforeCompile = sh => {
     sh.uniforms.uFlash = U.uFlash; sh.uniforms.uRed = U.uRed; sh.uniforms.uAlpha = U.uAlpha; sh.uniforms.uGlitch = U.uGlitch; sh.uniforms.uTime = U.uTime;
+    sh.uniforms.uLamp = CZ.uLamp;
+    sh.vertexShader = sh.vertexShader.replace("#include <common>", "#include <common>\nvarying vec3 vM3WP;")
+      .replace("#include <project_vertex>", "#include <project_vertex>\n  vM3WP = (modelMatrix * vec4(transformed, 1.0)).xyz;");
     sh.fragmentShader = sh.fragmentShader
       .replace("#include <common>", `#include <common>
 uniform float uFlash, uRed, uAlpha, uGlitch, uTime;
+varying vec3 vM3WP;
+${LAMP_GLSL}
 float m3h(vec2 p){ p = fract(p * vec2(123.34, 456.21)); p += dot(p, p + 45.32); return fract(p.x * p.y); }`)
       .replace("#include <clipping_planes_fragment>", `#include <clipping_planes_fragment>
   /* fondu en trame : pas de tri de transparence, et l'image reste nette */
@@ -57,6 +63,8 @@ float m3h(vec2 p){ p = fract(p * vec2(123.34, 456.21)); p += dot(p, p + 45.32); 
     float band = floor(gl_FragCoord.y / 5.0);
     if(m3h(vec2(band, floor(uTime * 20.0))) < uGlitch * 0.85) discard;
   }`)
+      .replace("#include <emissivemap_fragment>", `#include <emissivemap_fragment>
+  totalEmissiveRadiance += lampLight(vM3WP, diffuseColor.rgb);`)
       .replace("#include <dithering_fragment>", `#include <dithering_fragment>
   if(uGlitch > 0.001){
     float side = step(0.5, m3h(vec2(floor(gl_FragCoord.y / 5.0), floor(uTime * 20.0) + 3.0)));

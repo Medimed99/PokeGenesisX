@@ -3,7 +3,7 @@
 import * as THREE from "three";
 import { GRID, W, D, HGT, DPATH, GRASS, LAKEM, WATER_Y, PATH_W, lakeShore } from "./layout.js";
 import { noiseFn, smooth, clamp, lerp } from "../util.js";
-import { CZ, ZONE_GLSL, ZONE_N } from "./corruption.js";
+import { CZ, ZONE_GLSL, ZONE_N, LAMP_GLSL } from "./corruption.js";
 
 const nC = noiseFn(91), nD = noiseFn(103);
 
@@ -63,7 +63,7 @@ export function buildTerrain(){
   const m = new THREE.MeshStandardMaterial({vertexColors:true, roughness:0.96, metalness:0});
   m.customProgramCacheKey = () => "terrain-cz";
   m.onBeforeCompile = sh => {
-    sh.uniforms.uZones = CZ.uZones; sh.uniforms.uCTime = CZ.uCTime;
+    sh.uniforms.uZones = CZ.uZones; sh.uniforms.uCTime = CZ.uCTime; sh.uniforms.uLamp = CZ.uLamp;
     sh.vertexShader = sh.vertexShader
       .replace("#include <common>", "#include <common>\nattribute vec2 aMat; varying vec2 vMat; varying vec3 vWP; varying float vZone;\n" + ZONE_GLSL)
       .replace("#include <begin_vertex>", `#include <begin_vertex>
@@ -75,6 +75,7 @@ export function buildTerrain(){
       .replace("#include <common>", `#include <common>
 varying vec2 vMat; varying vec3 vWP; varying float vZone;
 uniform vec4 uZones[${ZONE_N}]; uniform float uCTime;
+${LAMP_GLSL}
 float czH2(vec2 p){ p = fract(p * vec2(123.34, 456.21)); p += dot(p, p + 45.32); return fract(p.x * p.y); }
 float zoneHaloF(vec2 p){
   float m = 0.0;
@@ -105,6 +106,7 @@ float vnoise(vec2 p){ vec2 i = floor(p), f = fract(p); f = f*f*(3.0-2.0*f);
   vec3 tile = mix(vec3(0.012, 0.013, 0.02), vec3(0.045, 0.012, 0.04), step(0.55, ch) * mod(cell.x + cell.y, 2.0));
   diffuseColor.rgb = mix(diffuseColor.rgb, tile, zc);`)
       .replace("#include <emissivemap_fragment>", `#include <emissivemap_fragment>
+  totalEmissiveRadiance += lampLight(vWP, diffuseColor.rgb);
   if(vZone > 0.5){
     vec2 gq = abs(fract(vWP.xz * 0.5) - 0.5);
     float line = 1.0 - smoothstep(0.0, 0.025, min(gq.x, gq.y));

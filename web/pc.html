@@ -6340,7 +6340,7 @@ body.pc #moment{z-index:60}
 body.pc #levelup{position:fixed;z-index:58}
 
 /* ---------- la pause ---------- */
-#pc-pause{position:fixed;inset:0;z-index:38;display:none;background:rgba(3,6,12,.62);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);
+#pc-pause{position:fixed;inset:0;z-index:42;display:none;background:rgba(3,6,12,.62);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);
   align-items:center;justify-content:center}
 #pc-pause.on{display:flex}
 .pp-card{display:grid;grid-template-columns:260px minmax(0,420px);gap:34px;align-items:start;padding:34px 38px;border-radius:16px;
@@ -6492,6 +6492,29 @@ body[data-mode="play"] #h-cross{opacity:1}
 .bt-banner.lose{color:#ff3d7f;text-shadow:0 0 30px rgba(255,61,127,.6),0 6px 0 #000}
 body[data-mode="title"] #pchud{opacity:0}
 
+/* ---------- la carte ---------- */
+#pc-minimap{position:fixed;left:20px;top:100px;width:168px;height:168px;z-index:21;pointer-events:none;opacity:0;transition:opacity .3s;
+  filter:drop-shadow(0 6px 18px rgba(0,0,0,.55))}
+#pc-minimap.on{opacity:.94}
+#pc-map{position:fixed;inset:0;z-index:34;display:none;align-items:center;justify-content:center;pointer-events:none;
+  background:radial-gradient(80% 80% at 50% 50%,rgba(3,6,12,.72),rgba(3,6,12,.9))}
+#pc-map.on{display:flex}
+#pc-map .pm-in{display:flex;gap:28px;align-items:center;font-family:"Pixelify Sans",sans-serif;color:#e8f2fb}
+#pc-map canvas{border:1px solid rgba(53,240,214,.45);border-radius:10px;box-shadow:0 0 0 4px rgba(6,10,18,.8),0 20px 60px rgba(0,0,0,.6)}
+#pc-map .pm-side{width:min(320px,30vw)}
+#pc-map h3{font-family:"Unbounded",sans-serif;font-weight:800;font-size:26px;margin:0 0 6px}
+#pc-map p{margin:0 0 14px;color:#a9b6c2;line-height:1.5;font-size:15px}
+#pc-map p b{color:#35f0d6}
+#pc-map .pm-legend{list-style:none;margin:0 0 16px;padding:0;display:grid;gap:8px;font-size:15px;color:#cfe0ef}
+#pc-map .pm-legend i{display:inline-block;width:14px;height:14px;margin-right:10px;vertical-align:-2px;border-radius:3px}
+.lg-tall{background:#2e4a2e}.lg-water{background:#103644;border:1px solid #2b7f8f}
+.lg-zone{background:repeating-linear-gradient(90deg,#ff3d7f 0 4px,#0a0610 4px 8px,#35f0d6 8px 12px)}
+.lg-ledge{background:linear-gradient(180deg,transparent 45%,#c8be9f 45% 60%,transparent 60%)}
+.lg-leg{background:#ffd24a;clip-path:polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%)}
+.lg-npc{background:#ff8a3d;border-radius:50%!important}.lg-mon{background:#e9f4ff;border-radius:50%!important;transform:scale(.6)}
+#pc-map .pm-key{color:#7f93aa;font-size:14px}
+#pc-map kbd{font-family:"Press Start 2P",monospace;font-size:10px;padding:3px 6px;border:1px solid #3a4c62;border-radius:4px;color:#cfe0ef}
+
 </style>
 <script src="config.js"></script>
 </head>
@@ -6528,7 +6551,7 @@ body[data-mode="title"] #pchud{opacity:0}
 <script>window.PCG_PC = true;</script>
 <script>
 /* version du jeu (buildver.py) */
-const BUILD_V = "c0c84de4", BUILD_LABEL = "2 novembre 2026, 18 h 12";
+const BUILD_V = "a957a2c3", BUILD_LABEL = "2 novembre 2026, 19 h 19";
 /* Version hebergee : les images sont servies comme fichiers, pas encodees
    dans le HTML. Les noms portent une empreinte : on peut donc les mettre en
    cache indefiniment sans jamais servir une version perimee. */
@@ -49299,10 +49322,15 @@ function pcIntro(done){
     if(!S.flags.named) askNameSheet(false, done); else done();
   });
 }
-function pcWelcomeBack(){
+/* en deux temps : « quiet » à l'entrée dans le monde (rien ne s'ouvre), « news » à la première
+   ouverture du terminal (rapport d'absence, chance du jour, scène du récit en attente) */
+function pcWelcomeBack(part){
   if(!S.flags.named && S.name && S.name !== "ARCHIVISTE") S.flags.named = true;
-  if(!S.flags.named && !S.flags.nameAsked && S.story.includes("intro")){ askNameSheet(true); return; }
-  if(!showOfflineReport()){ if(!showReport()){ if(!showLuckyDay()){ checkStoryTriggers(); } } }
+  if(part !== "quiet"){
+    if(!S.flags.named && !S.flags.nameAsked && S.story.includes("intro")){ askNameSheet(true); return; }
+    if(!showOfflineReport()){ if(!showReport()){ if(!showLuckyDay()){ checkStoryTriggers(); } } }
+    if(part === "news"){ save(); return; }
+  }
   checkAchievements();
   guideTick();
   pwaSessionStart();
@@ -49338,6 +49366,6 @@ document.addEventListener("DOMContentLoaded", bootOnce);
 if(document.readyState !== "loading") bootOnce();
 
 </script>
-<script src="pc/game.1b42b2e8.js" defer></script>
+<script src="pc/game.4f8b7b05.js" defer></script>
 </body>
 </html>

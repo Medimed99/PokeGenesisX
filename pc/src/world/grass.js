@@ -4,7 +4,7 @@
 import * as THREE from "three";
 import { heightAt, pathDist, tallGrassAt, lakeAt, normalAt, PATH_W, BOUNDS, onBeach } from "./layout.js";
 import { mulberry32 } from "../util.js";
-import { CZ, ZONE_GLSL } from "./corruption.js";
+import { CZ, ZONE_GLSL, LAMP_GLSL } from "./corruption.js";
 
 const CHUNK = 12;
 export const RUSTLE_N = 6;
@@ -55,13 +55,13 @@ export class Grass {
     const m = new THREE.MeshLambertMaterial({side:THREE.DoubleSide});
     m.onBeforeCompile = sh => {
       Object.assign(sh.uniforms, this.uniforms);
-      sh.uniforms.uZones = CZ.uZones; sh.uniforms.uCTime = CZ.uCTime;
+      sh.uniforms.uZones = CZ.uZones; sh.uniforms.uCTime = CZ.uCTime; sh.uniforms.uLamp = CZ.uLamp;
       sh.uniforms.uFade = fade;
       sh.vertexShader = sh.vertexShader.replace("#include <common>", `#include <common>
 attribute vec4 iPos;      // x, y, z, angle
 attribute vec4 iShape;    // hauteur, largeur, teinte, haute herbe
 uniform float uTime, uWind; uniform vec3 uPlayer; uniform vec4 uRustle[${RUSTLE_N}]; uniform vec2 uFade;
-varying float vY; varying float vTint; varying float vTall; varying float vAO; varying float vDead;
+varying float vY; varying float vTint; varying float vTall; varying float vAO; varying float vDead; varying vec3 vGWP;
 float h1(float n){ return fract(sin(n) * 43758.5453); }
 ${ZONE_GLSL}`)
       .replace("#include <beginnormal_vertex>", `
@@ -102,10 +102,12 @@ ${ZONE_GLSL}`)
   p.xz += bend * t2 * H;
   p.y -= length(bend) * t2 * H * 0.28;
   vec3 transformed = p + iPos.xyz;
+  vGWP = (modelMatrix * vec4(transformed, 1.0)).xyz;
   vY = uv.y; vTint = iShape.z; vTall = iShape.w;
   vAO = mix(mix(0.72, 0.45, iShape.w), 1.0, smoothstep(0.0, 0.85, uv.y));`)
       sh.fragmentShader = sh.fragmentShader.replace("#include <common>", `#include <common>
-varying float vY; varying float vTint; varying float vTall; varying float vAO; varying float vDead;`)
+varying float vY; varying float vTint; varying float vTall; varying float vAO; varying float vDead; varying vec3 vGWP;
+${LAMP_GLSL}`)
       .replace("#include <normal_fragment_begin>", `float faceDirection = 1.0;
 vec3 normal = normalize( vNormal );
 vec3 nonPerturbedNormal = normal;`)
@@ -122,7 +124,8 @@ vec3 nonPerturbedNormal = normal;`)
   diffuseColor.rgb = mix(baseC, tipC, smoothstep(0.0, 1.0, vY)) * vAO;`)
       .replace("#include <emissivemap_fragment>", `#include <emissivemap_fragment>
   /* la lumière qui traverse le brin, à contre-jour */
-  totalEmissiveRadiance += diffuseColor.rgb * 0.08 * smoothstep(0.4, 1.0, vY);`);
+  totalEmissiveRadiance += diffuseColor.rgb * 0.08 * smoothstep(0.4, 1.0, vY);
+  totalEmissiveRadiance += lampLight(vGWP, diffuseColor.rgb);`);
     };
     m.customProgramCacheKey = () => "grass-" + key;
     return m;

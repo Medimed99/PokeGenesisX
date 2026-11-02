@@ -9,7 +9,9 @@
    ============================================================ */
 import * as THREE from "three";
 import { MonSprite, realHeight } from "./sprites.js";
-import { makeMon, preloadMon } from "./model3d.js";
+import { makeMon, preloadMon, has3D } from "./model3d.js";
+/* les modèles 3D dont l'attente et la marche sont un vol (papillons, guêpes, fantômes, Électhor) */
+const HOVER3D = [12, 15, 41, 42, 92, 93, 145, 146, 144, 151];
 import { ROUTE1, LAKE1 } from "../data/models3d.js";
 import { heightAt, tallGrassAt, inWater, lakeShore, WATER_Y, BOUNDS, GRASS_PATCHES, pathDist, PATH_W } from "../world/layout.js";
 import { RUSTLE_N } from "../world/grass.js";
@@ -103,7 +105,9 @@ export class Wild {
     const H = missing ? 1.8 : realHeight(id);
     const g = G();
     const types = missing ? [] : g.POKE[id].types;
-    const flyer = types.includes(3) && H < 2.2 && Math.random() < 0.55;
+    /* en l'air : en 3D, seulement ceux dont les animations volent (un oiseau qui « marche » en l'air
+       serait absurde) ; en sprite, les types Vol, une fois sur deux */
+    const flyer = has3D(id, spec.shiny) ? HOVER3D.includes(id) : (types.includes(3) && H < 2.2 && Math.random() < 0.55);
     const e = {spec, id, H, pos:new THREE.Vector3(x, heightAt(x, z), z), heading:Math.random() * Math.PI * 2,
       state:hidden ? "hidden" : "idle", timer:1 + Math.random() * 3, target:null, hidden, flyer, alt:flyer ? 0.7 + Math.random() * 1.2 : 0,
       born:this.game.t, appear:0, speed:clamp(0.7 + H * 0.7, 0.7, 2.6) * (flyer ? 1.4 : 1), noticed:false, rustle:-1, gone:0, tag:missing ? "missing" : ""};
