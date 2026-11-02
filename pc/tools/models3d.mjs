@@ -1,4 +1,4 @@
-/* Les modèles 3D animés de la version PC (essai : la Route 1, le lac, deux légendaires).
+/* Les modèles 3D animés de la version PC : les 151 Pokémon de Kanto.
    Source : les 151 modèles de Kanto du projet 06wj/pokemon (github.com/06wj/pokemon),
    tirés de Pokémon X/Y, au format glTF binaire, avec leurs animations (idle, walk, run,
    attack, happy, sleep). Les modèles restent la propriété de Nintendo / The Pokémon Company /
@@ -15,11 +15,11 @@ import { createHash } from "node:crypto";
 import { readFileSync, writeFileSync, mkdirSync, readdirSync, unlinkSync, existsSync } from "node:fs";
 import { join } from "node:path";
 
-/* la Route 1 (herbes et route), le lac, et deux légendaires en sentinelles */
+/* repères gardés pour la route (herbes, lac) et les deux sentinelles ; tous les modèles de Kanto sont produits */
 export const ROUTE1 = [10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 25, 29, 32, 43, 69, 83, 113, 133, 143];
 export const LAKE1 = [54, 60, 61, 72, 116, 117, 118, 119, 120, 121, 129, 130, 131];
 export const SENTINELS = [145, 150];
-const IDS = [...ROUTE1, ...LAKE1, ...SENTINELS];
+const IDS = Array.from({length:151}, (_, i)=>i + 1);
 
 const src = process.argv[2];
 if(!src || !existsSync(src)){ console.error("dossier des modèles source introuvable : node tools/models3d.mjs <…/public/models>"); process.exit(1); }
@@ -32,7 +32,7 @@ let total = 0;
 for(const id of IDS){
   const n = String(id).padStart(3, "0"), input = join(src, n, "model.glb"), tmp = join(TMP, n + ".glb");
   if(!existsSync(input)){ console.warn("absent :", n); continue; }
-  execFileSync("npx", ["--yes", "@gltf-transform/cli@4.5.1", "optimize", input, tmp, "--compress", "meshopt", "--texture-compress", "webp",
+  if(!existsSync(tmp)) execFileSync("npx", ["--yes", "@gltf-transform/cli@4.5.1", "optimize", input, tmp, "--compress", "meshopt", "--texture-compress", "webp",
     "--texture-size", "512", "--simplify", "false", "--join", "false", "--flatten", "false", "--instance", "false", "--palette", "false"], {stdio:"ignore"});
   const buf = readFileSync(tmp), hash = createHash("sha1").update(buf).digest("hex").slice(0, 8);
   const name = `${n}.${hash}.glb`;

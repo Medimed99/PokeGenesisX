@@ -16,6 +16,7 @@ import { Fishing } from "./fishing.js";
 import { Trainer } from "./trainer.js";
 import { Sentinels } from "./sentinels.js";
 import { RouteMap } from "./ui/map.js";
+import { Tower3D } from "./tower3d.js";
 import { CZ } from "./world/corruption.js";
 
 const BERRY_KEYS = {Digit6:"framby", Digit7:"nanab", Digit8:"nigma", Digit9:"sitrus", Digit0:"micle"};
@@ -64,6 +65,7 @@ export class Game {
     this.trainer = new Trainer(this);
     this.sentinels = new Sentinels(this);
     this.map = new RouteMap(this);
+    this.tower3d = new Tower3D(this);
     /* la nuit, une lueur froide autour de soi (la lampe du terminal) : on voit où l'on marche.
        Pas une lumière de plus dans toute la scène : le sol, l'herbe et les Pokémon 3D la calculent eux-mêmes. */
     this.lamp = CZ.uLamp.value;
@@ -142,6 +144,14 @@ export class Game {
       return;
     }
     if(e.code === "Tab" && (this.mode === "dialog" || this.mode === "battle")){ e.preventDefault(); return; }
+    /* pendant un combat de la Tour : Tab ou Échap ouvrent sa pause (ou referment la fiche ouverte) */
+    if(this.tower3d && this.tower3d.on && (e.code === "Tab" || e.code === "Escape")){
+      e.preventDefault();
+      const sr = document.getElementById("sheet-root");
+      if(sr && /\bon\b/.test(sr.className) && window.closeSheet) window.closeSheet();
+      else { const A = this.G && this.G.ACTIONS; if(A && A.sqquit) A.sqquit(); }
+      return;
+    }
     if(e.code === "Tab"){
       e.preventDefault();
       if(this.mode === "pause") this.menus.closePause();
@@ -198,7 +208,7 @@ export class Game {
     if(Settings.invertY) look.y = -look.y;
     this.player.frozen = !playing || this.hud.newOpen || (this.trainer && this.trainer.battling);
     if(this.mode === "title") this.titleCam(dt);
-    else this.player.update(dt, this.input, look);
+    else if(!(this.tower3d && this.tower3d.on)) this.player.update(dt, this.input, look);   /* pendant la Tour, la caméra est à elle */
     const S = this.S;
     if(S && this.world.weather.key !== S.weather) this.world.weather.set(S.weather);
     this.world.update(dt, this.t, this.hour(), this.player.pos, this.engine.camera);
@@ -213,6 +223,7 @@ export class Game {
     this.trainer.update(dt, this.t);
     this.sentinels.update(dt, this.t);
     this.map.update(dt);
+    this.tower3d.update(dt, this.t);
     const night = this.world.sky.state ? this.world.sky.state.night : 0;
     const cp = this.engine.camera.position;
     this.lamp.set(cp.x, cp.y + 0.4, cp.z, night * 1.15);

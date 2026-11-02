@@ -11,8 +11,7 @@ import * as THREE from "three";
 import { MonSprite, realHeight } from "./sprites.js";
 import { makeMon, preloadMon, has3D } from "./model3d.js";
 /* les modèles 3D dont l'attente et la marche sont un vol (papillons, guêpes, fantômes, Électhor) */
-const HOVER3D = [12, 15, 41, 42, 92, 93, 145, 146, 144, 151];
-import { ROUTE1, LAKE1 } from "../data/models3d.js";
+const HOVER3D = [12, 15, 41, 42, 49, 81, 82, 92, 93, 109, 110, 142, 144, 145, 146, 151];
 import { heightAt, tallGrassAt, inWater, lakeShore, WATER_Y, BOUNDS, GRASS_PATCHES, pathDist, PATH_W } from "../world/layout.js";
 import { RUSTLE_N } from "../world/grass.js";
 import { clamp } from "../util.js";
@@ -51,7 +50,8 @@ export class Wild {
       spec = window.newEncounter();
     } catch(e){ console.warn("apparition", e); }
     finally { g.ENC = keep.ENC; S.region = keep.region; S.habitat = keep.habitat; S.capMode = keep.capMode; }
-    return spec ? routeSpecies(Object.assign({}, spec), hab === "eaux" ? LAKE1 : ROUTE1) : null;
+    /* tout Kanto a son modèle 3D : la route reprend le tirage du jeu mobile tel quel */
+    return spec ? Object.assign({}, spec) : null;
   }
   spot(player, hidden){
     for(let k = 0; k < 40; k++){

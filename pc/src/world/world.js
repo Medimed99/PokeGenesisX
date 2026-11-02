@@ -37,7 +37,7 @@ export class World {
     const W = this.weather;
     this.sky.overcast = W.overcast; this.sky.tint = W.tint; this.sky.tintCol.copy(W.tintCol);
     this.sky.rift = this.corruption.level > 0.001 ? 0.3 + 0.7 * this.corruption.level : 0;   /* restaurée : la faille s'est refermée */
-    this.sky.update(hour, t, player);
+    this.sky.update(hour, t, this.focus || player);       /* l'ombre suit la scène regardée (la Tour, sinon toi) */
     this.lake.update(t, this.sky, this.scene);
     this.grass.uniforms.uWind.value = W.wind;
     this.grass.update(t, player);

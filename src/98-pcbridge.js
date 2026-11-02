@@ -15,6 +15,8 @@ if(typeof window !== "undefined") window.PCG = {
   get FISHING(){ return FISHING; }, set FISHING(v){ FISHING = v; },
   get POND(){ return POND; }, set POND(v){ POND = v; },
   get BATTLE(){ return BATTLE; }, set BATTLE(v){ BATTLE = v; },
+  /* la Tour : le combat en cours et ce que l'écran en montre (la version PC le met en scène en 3D) */
+  get SQB(){ return typeof SQB !== "undefined" ? SQB : null; }, get SQV(){ return typeof SQV !== "undefined" ? SQV : null; },
   get RIVAL(){ return RIVAL; }, set RIVAL(v){ RIVAL = v; },
   get CINE(){ return CINE; },
   get currentScreen(){ return currentScreen; },

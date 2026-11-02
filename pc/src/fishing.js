@@ -14,8 +14,6 @@ import { LAKE, WATER_Y, heightAt, lakeAt, inWater, lakeShore } from "./world/lay
 import { FISH_MAX } from "./world/water.js";
 import { MonSprite, realHeight } from "./mon/sprites.js";
 import { preloadMon } from "./mon/model3d.js";
-import { routeSpecies } from "./mon/wild.js";
-import { LAKE1 } from "./data/models3d.js";
 
 const G = () => window.PCG;
 const GRACE = 0.3;
@@ -88,7 +86,6 @@ export class Fishing {
     else {
       const S = g.S, keep = S.region; S.region = "kanto";
       try { spec = window.rollFishSpec(); } catch(e){ spec = null; } finally { S.region = keep; }
-      if(spec && spec.kind !== "treasure") spec = routeSpecies(spec, LAKE1);       /* le lac a ses habitants */
     }
     if(!spec) return;
     for(let k = 0; k < 30; k++){

@@ -6296,7 +6296,7 @@ body.calm .resdone{animation:none}
 </div>
 <script>
 /* version du jeu (buildver.py) */
-const BUILD_V = "a957a2c3", BUILD_LABEL = "2 novembre 2026, 19 h 19";
+const BUILD_V = "ae7bbd9d", BUILD_LABEL = "2 novembre 2026, 19 h 47";
 /* Version hebergee : les images sont servies comme fichiers, pas encodees
    dans le HTML. Les noms portent une empreinte : on peut donc les mettre en
    cache indefiniment sans jamais servir une version perimee. */
@@ -48833,6 +48833,8 @@ if(typeof window !== "undefined") window.PCG = {
   get FISHING(){ return FISHING; }, set FISHING(v){ FISHING = v; },
   get POND(){ return POND; }, set POND(v){ POND = v; },
   get BATTLE(){ return BATTLE; }, set BATTLE(v){ BATTLE = v; },
+  /* la Tour : le combat en cours et ce que l'écran en montre (la version PC le met en scène en 3D) */
+  get SQB(){ return typeof SQB !== "undefined" ? SQB : null; }, get SQV(){ return typeof SQV !== "undefined" ? SQV : null; },
   get RIVAL(){ return RIVAL; }, set RIVAL(v){ RIVAL = v; },
   get CINE(){ return CINE; },
   get currentScreen(){ return currentScreen; },
