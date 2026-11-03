@@ -1,4 +1,4 @@
-/* Les modèles 3D animés de la version PC : Kanto (151), Johto et Hoenn (152 à 386).
+/* Les modèles 3D animés de la version PC : Kanto (151), Johto et Hoenn (152 à 386), et Porygon-Z (474).
    Kanto — source : les 151 modèles de Kanto du projet 06wj/pokemon (github.com/06wj/pokemon),
    tirés de Pokémon X/Y, au format glTF binaire, avec leurs animations (idle, walk, run,
    attack, happy, sleep). Les modèles restent la propriété de Nintendo / The Pokémon Company /
@@ -26,7 +26,9 @@ import { join } from "node:path";
 export const ROUTE1 = [10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 25, 29, 32, 43, 69, 83, 113, 133, 143];
 export const LAKE1 = [54, 60, 61, 72, 116, 117, 118, 119, 120, 121, 129, 130, 131];
 export const SENTINELS = [145, 150];
-const IDS = Array.from({length:386}, (_, i)=>i + 1);
+/* au-delà de Hoenn : Porygon-Z (474), le guide, qui descend vous chercher au fond de la faille */
+export const EXTRA = [474];
+const IDS = Array.from({length:386}, (_, i)=>i + 1).concat(EXTRA);
 
 const src = process.argv[2], goSrc = process.argv[3];
 if(!src || !existsSync(src)){ console.error("dossier des modèles source introuvable : node tools/models3d.mjs <…/public/models> [<modèles GO convertis>]"); process.exit(1); }
@@ -65,7 +67,7 @@ for(const id of IDS){
 }
 writeFileSync(new URL("../src/data/models3d.js", import.meta.url).pathname,
 `/* Généré par tools/models3d.mjs : les modèles 3D animés disponibles (numéro → fichier).
-   Sources : 06wj/pokemon (Kanto, modèles de Pokémon X/Y) ; Pokémon GO (Johto, Hoenn), avec leurs animations.
+   Sources : 06wj/pokemon (Kanto, modèles de Pokémon X/Y) ; Pokémon GO (Johto, Hoenn, Porygon-Z), avec leurs animations.
    M3DS : les textures chromatiques de Pokémon GO (numéro → nom du matériau → image). */
 export const M3D = ${JSON.stringify(map)};
 export const M3DS = ${JSON.stringify(shiny)};

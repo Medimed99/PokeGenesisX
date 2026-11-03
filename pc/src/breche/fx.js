@@ -162,7 +162,7 @@ export class Fx {
     try {
       const dd = ref("brDrawDecals"); if(dd) dd(x, R, X, Y);
       const rift = ref("brDrawRift"); if(rift) rift(x, R, X, Y);
-      const anom = ref("brDrawAnom"); if(anom) anom(x, R, X, Y);
+      /* les anomalies de la faille profonde (mines, horde dorée, marque du chasseur…) : en volume, depth.js */
       /* les zones qui n'ont pas encore leur version en volume */
       const ze = ref("brDrawZoneExtra");
       const LD = ref("BR_LEG_DRAW") || {};
@@ -184,6 +184,7 @@ export class Fx {
     const t = c.t, dt = c.dt, G = this.glow, P = this.puff, B = this.rib, D = this.discs;
     G.begin(); P.begin(); B.begin(c.eye); D.begin(); Discs.t = t;
     if(this.leg) this.leg.begin();
+    if(this.depth) this.depth.begin();
     for(const k in this.inst) this.inst[k].begin();
     for(const p of [this.bands, this.funnels, this.beams, this.walls, this.arcs, this.quads, this.holes]) p.begin();
     this.paintGround(R, c.frame);
@@ -194,8 +195,10 @@ export class Fx {
     this.loot(R, t);
     this.team(R, t, c);
     this.boss(R, t, c);
+    if(this.depth) this.depth.render(R, t, dt, c);
     this.locals(dt);
     if(this.leg) this.leg.end();
+    if(this.depth) this.depth.end();
     G.end(); P.end(); B.end(); D.end();
     for(const k in this.inst) this.inst[k].end();
     for(const p of [this.bands, this.funnels, this.beams, this.walls, this.arcs, this.quads, this.holes]) p.end();
@@ -251,7 +254,14 @@ export class Fx {
     });
   }
   trail(s, x, y, z, C, a){ const k = 0.045 * S * 32; this.rib.seg(x - s.vx * S * 0.09, y, z - s.vy * S * 0.09, x, y, z, 0.02, C, a, 0.22 * a + 0.05); this.glow.add(x - s.vx * k * 0.03, y, z - s.vy * k * 0.03, 0.35, C, a * 0.6); }
-  core(x, y, z, a, len, w, k){ this.rib.seg(x, y, z, x + Math.cos(a) * len, y, z + Math.sin(a) * len, Math.max(0.04, w), "#ffffff", 0.8 * k, Math.max(0.04, w * 0.6)); }
+  core(x, y, z, a, len, w, k, p = 0){ const c = Math.cos(p); this.rib.seg(x, y, z, x + Math.cos(a) * len * c, y - Math.sin(p) * len, z + Math.sin(a) * len * c, Math.max(0.04, w), "#ffffff", 0.8 * k, Math.max(0.04, w * 0.6)); }
+  /* d'où part un rayon du gardien : Porygon-Z flotte, ses rayons plongent vers l'équipe */
+  beamFrom(R, hx, hy){
+    const b = R.boss, o = this._bo || (this._bo = {y:1.2, p:0});
+    if(b && b.pz && this.depth){ o.y = this.depth.pzY; const d = Math.max(2.5, Math.hypot(R.x - hx, R.y - hy) * S); o.p = Math.atan2(o.y - 0.95, d); }
+    else { o.y = 1.2; o.p = 0; }
+    return o;
+  }
   ember(x, y, z, c){ if(Math.random() < 0.4) this.local.push({x:x + (Math.random() - .5) * 0.2, y, z:z + (Math.random() - .5) * 0.2, vy:0.8 + Math.random(), vx:(Math.random() - .5) * 0.4, vz:(Math.random() - .5) * 0.4, life:0.5, max:0.5, s:0.16, c}); }
   shadow(x, z, r){ this.puff.add(x, 0.05, z, r * 2, "#000000", 0.35); }
   /* ---------- les zones ---------- */
@@ -264,7 +274,10 @@ export class Fx {
         case "warn": {
           if(z.delay > 0) return;
           D.add(x, zz, r, "#ff3d7f", {fill:0.12 + (1 - k) * 0.3, rim:1, prog:Math.max(0.02, k), pulse:1});
-          if(z.cube){ const fall = 1 - k, y = (1 - fall) * 9; I.cube.add(x, y + 0.35, zz, t * 2, t, 0, 0.55 + fall * 0.25, "#0a2a30"); G.add(x, y + 0.35, zz, 1.2, z.color || "#35f0d6", 0.6); this.shadow(x, zz, 0.3 + fall * 0.4); }
+          if(z.cube){
+            if(this.depth) this.depth.fall(x, zz, k, r, z.color || "#35f0d6", t, z);
+            else { const fall = 1 - k, y = (1 - fall) * 9; I.cube.add(x, y + 0.35, zz, t * 2, t, 0, 0.55 + fall * 0.25, "#0a2a30"); G.add(x, y + 0.35, zz, 1.2, z.color || "#35f0d6", 0.6); this.shadow(x, zz, 0.3 + fall * 0.4); }
+          }
           return; }
         case "ring": {
           const a = Math.min(1, k * 1.4);
@@ -355,7 +368,7 @@ export class Fx {
           B.seg(bx * S, 1.6, by * S, R.x * S, SHOT_Y, R.y * S, 0.07 + Math.sin(t * 30) * 0.03, C, 0.9); break; }
         case "warnline": {
           const q = this.quads.take(); q.position.set(f.x * S, 0.05, f.y * S); q.rotation.set(0, -f.a, 0); q.scale.set(f.len * S, 1, (f.w || 10) * S * 2);
-          q.material.opacity = 0.15 + (1 - k) * 0.35; q.material.color.set("#ff3d7f"); break; }
+          q.material.opacity = 0.15 + (1 - k) * 0.35; q.material.color.set(f.color || "#ff3d7f"); break; }
       }
     });
   }
@@ -415,7 +428,8 @@ export class Fx {
     const D = this.discs, G = this.glow, B = this.rib, A = R.arena;
     if(A){
       const x = A.x * S, z = A.y * S, r = A.r * S;
-      this.arenaWall.visible = true; this.arenaWall.position.set(x, 0, z); this.arenaWall.scale.set(r, 7, r); setBand(this.arenaWall, "#ff3d7f", 0.7, t, 3);
+      /* la faille qui se referme (anomalie) : un mur plus rose, qui brûle */
+      this.arenaWall.visible = true; this.arenaWall.position.set(x, 0, z); this.arenaWall.scale.set(r, A.anom ? 9 : 7, r); setBand(this.arenaWall, A.anom ? "#ff5a7a" : "#ff3d7f", A.anom ? 0.85 : 0.7, t, 3);
       this.arenaOut.visible = true; this.arenaOut.position.set(x, 0.06, z); this.arenaOut.scale.set(r, 1, r);
       D.add(x, z, r, "#ff3d7f", {fill:0, rim:1.2, inner:0.985, dash:true});
     } else { this.arenaWall.visible = false; this.arenaOut.visible = false; }
@@ -432,8 +446,14 @@ export class Fx {
     for(const h of (R.hazards || [])){
       if(h.k === "chill") D.add(h.x * S, h.y * S, h.r * S, h.green ? "#3a8a3a" : "#bff4ff", {fill:Math.min(0.3, h.life * 0.2), rim:0.5});
       else if(h.k === "wave"){ const w = this.walls.take(); w.position.set(h.x * S, 0, h.y * S); w.rotation.set(0, -h.a + Math.PI / 2, 0); w.scale.set(h.span * S, 2.2, 1); setBand(w, "#3a8bff", 0.9, t, 2); }
-      else if(h.k === "bigbeam"){ const k = Math.max(0, h.life) / h.max, bm = this.beams.take(); bm.position.set(h.x * S, 1.2, h.y * S); bm.rotation.set(0, -h.a, 0); bm.scale.set(h.len * S, h.w * S * (0.6 + k * 0.4), h.w * S * (0.6 + k * 0.4)); setBand(bm, "#ff3d7f", 1.4 * k, t, 4); this.core(h.x * S, 1.2, h.y * S, h.a, h.len * S, h.w * S * 0.5, k); }
-      else if(h.k === "laser" && h.cur !== undefined){ const bm = this.beams.take(); bm.position.set(h.x * S, 1.2, h.y * S); bm.rotation.set(0, -h.cur, 0); bm.scale.set(h.len * S, 0.28, 0.28); setBand(bm, h.col || "#c7d2e0", 1.2, t, 4); this.core(h.x * S, 1.2, h.y * S, h.cur, h.len * S, 0.16, 1); }
+      else if(h.k === "bigbeam"){ const k = Math.max(0, h.life) / h.max, bm = this.beams.take(), o = this.beamFrom(R, h.x, h.y);
+        bm.position.set(h.x * S, o.y, h.y * S); bm.rotation.set(0, -h.a, -o.p, "YZX"); bm.scale.set(h.len * S, h.w * S * (0.6 + k * 0.4), h.w * S * (0.6 + k * 0.4)); setBand(bm, "#ff3d7f", 1.4 * k, t, 4);
+        this.core(h.x * S, o.y, h.y * S, h.a, h.len * S, h.w * S * 0.5, k, o.p);
+        if(this.depth) this.depth.beamHit(h.x * S, o.y, h.y * S, h.a, o.p, h.len * S, "#ff3d7f", k * 1.6); }
+      else if(h.k === "laser" && h.cur !== undefined){ const bm = this.beams.take(), o = this.beamFrom(R, h.x, h.y);
+        bm.position.set(h.x * S, o.y, h.y * S); bm.rotation.set(0, -h.cur, -o.p, "YZX"); bm.scale.set(h.len * S, 0.28, 0.28); setBand(bm, h.col || "#c7d2e0", 1.2, t, 4);
+        this.core(h.x * S, o.y, h.y * S, h.cur, h.len * S, 0.16, 1, o.p);
+        if(this.depth) this.depth.beamHit(h.x * S, o.y, h.y * S, h.cur, o.p, h.len * S, h.col || "#c7d2e0", 0.8); }
     }
   }
   /* ---------- nos éclats à nous ---------- */

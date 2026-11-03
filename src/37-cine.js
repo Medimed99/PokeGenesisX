@@ -448,6 +448,8 @@ async function cineCode(c, b){
    doigt pour confirmer : une décision de cette taille ne se prend pas d'un
    toucher distrait. Rejouée depuis le journal, la scène reprend la réponse
    déjà donnée et la rejoue d'elle-même. */
+/* sur PC (le client 3D), on clique au lieu de toucher */
+function cineOnPC(){ return typeof window !== "undefined" && !!(window.PCST3D && window.PCST3D.on); }
 async function cineChoice(c, b){
   c.ff = false;                      /* « Passer » s'arrête ici : la question attend sa réponse */
   const stage = document.getElementById("cn-stage");
@@ -461,7 +463,8 @@ async function cineChoice(c, b){
       <span class="cch-fill"></span>
       <b>&gt; ${esc(o.cmd)}</b><small>${esc(pzFmt(o.sub || ""))}</small>
       ${o.isNew ? `<i class="cch-new">nouvelle ligne</i>` : ""}</button>`).join("")}
-    <div class="cch-h">${preset ? "Réponse déjà donnée" : b.quick ? "Touche une réponse" : "Maintiens ton doigt sur une ligne pour la valider"}</div>`;
+    <div class="cch-h">${preset ? "Réponse déjà donnée" : cineOnPC() ? (b.quick ? "Clique une réponse, ou tape son numéro" : "Maintiens le clic sur une ligne pour la valider")
+      : b.quick ? "Touche une réponse" : "Maintiens ton doigt sur une ligne pour la valider"}</div>`;
   box.onclick = e => e.stopPropagation();
   /* au-dessus de la boîte de dialogue (hors de la scène, qui a son propre empilement) */
   (document.getElementById("cine") || stage).appendChild(box);
@@ -597,7 +600,7 @@ async function cineCredits(c, b){
   const el = document.createElement("div");
   el.className = "cn-credits";
   const host = document.getElementById("cine"); if(host) host.classList.add("credits");
-  el.innerHTML = `<div class="ccr-roll">${typeof creditsRollHtml === "function" ? creditsRollHtml() : ""}</div><div class="ccr-hint">toucher pour accélérer</div>`;
+  el.innerHTML = `<div class="ccr-roll">${typeof creditsRollHtml === "function" ? creditsRollHtml() : ""}</div><div class="ccr-hint">${cineOnPC() ? "clic ou Espace pour accélérer" : "toucher pour accélérer"}</div>`;
   stage.appendChild(el);
   await cineSleep(c, 80);
   const roll = el.firstChild, vh = el.clientHeight || 640, H = roll.scrollHeight || 2400;

@@ -137,6 +137,9 @@ function momentWing(z, d){
           line:lock && !guardianBeaten(lock.r.key, lock.g.id) ? "Et au sommet de cette aile… quelque chose s'est réveillé. Tu l'as senti aussi ?" : ""});
 }
 function momentRelease(g, onDone){
+  /* sur PC, dans l'arène du verrou en 3D, le gardien cède sur place : la scène joue ce moment (pc/src/locks3d.js) */
+  const P = typeof window !== "undefined" && window.PCLOCK3D;
+  if(P && P.on && P.release(g, onDone)){ try { Sfx.shiny(); } catch(e){} return; }
   moment({kind:"release", kicker:"VERROU LEVÉ", title:g.name, sub:g.title, spr:g.id, c:"#ffd84a", quote:g.bye, then:onDone}, true);
 }
 function momentAwake(id){

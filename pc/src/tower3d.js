@@ -15,6 +15,8 @@ import * as THREE from "three";
 import { makeMon, preloadMon } from "./mon/model3d.js";
 import { realHeight } from "./mon/sprites.js";
 import { CZ } from "./world/corruption.js";
+import { ZeroVenue, MnVox } from "./finale3d.js";
+import { LockVenue } from "./locks3d.js";
 
 const G = () => window.PCG;
 const ARENA = new THREE.Vector3(0, 230, 0);
@@ -28,6 +30,10 @@ export class Tower3D {
   constructor(game){
     this.game = game; this.on = false; this.recs = new Map(); this.built = false;
     this.seen = new WeakSet(); this.camPos = new THREE.Vector3(); this.camLook = new THREE.Vector3();
+    /* le combat final se joue ailleurs : dans la Couche Zéro (finale3d.js) */
+    this.venue = new ZeroVenue(game); this.root = ARENA; this.final = false;
+    /* les verrous légendaires aussi : au sommet d'une aile, devant la porte qu'ils tiennent (locks3d.js) */
+    this.locks = new LockVenue(game); this.v = null;
     this.fx = document.createElement("canvas"); this.fx.id = "pc-tower-fx";
     document.body.appendChild(this.fx);
     /* viser : un clic n'importe où sur la scène (pas sur une commande) ; écouté sur la fenêtre,
@@ -121,15 +127,26 @@ export class Tower3D {
   /* ---------- entrer, sortir ---------- */
   enter(){
     if(!this.built) this.build();
-    this.on = true; this.t0 = this.game.t;
+    this.on = true; this.t0 = this.game.t; this.outT = 0;
     document.body.classList.add("tower3d");
-    const B = G().SQB; this.B = B; this.setZone(B);
-    this.group.visible = true;
-    this.game.world.focus = ARENA;
-    this.prevFov = this.game.engine.camera.fov;
-    this.game.engine.camera.fov = 52; this.game.engine.camera.updateProjectionMatrix();
-    this.camPos.copy(ARENA).add(new THREE.Vector3(-14, 7, 14)); this.camLook.copy(ARENA);
-    for(const u of [...B.allies, ...(G().SQV.foes || [])]) preloadMon(u.id, u.shiny);
+    const B = G().SQB; this.B = B; this.final = !!B.final;
+    /* un lieu à lui : la Couche Zéro (le combat final), le sommet d'une aile (un verrou) */
+    this.v = this.final ? this.venue : B.lock ? this.locks : null;
+    if(this.v){
+      this.v.enter(B);
+      this.root = this.v.root || (this.v.root = new THREE.Vector3(0, 0, 0));
+      this.cam = this.v.camera; this.sceneT = this.v.scene;
+      this.group.visible = false; this.v.scene.add(this.ring);
+    } else {
+      this.root = ARENA; this.cam = this.game.engine.camera; this.sceneT = this.game.engine.scene;
+      this.setZone(B);
+      this.group.visible = true; this.group.add(this.ring);
+      this.game.world.focus = ARENA;
+      this.prevFov = this.game.engine.camera.fov;
+      this.game.engine.camera.fov = 52; this.game.engine.camera.updateProjectionMatrix();
+    }
+    this.camPos.copy(this.root).add(new THREE.Vector3(-14, 7, 14)); this.camLook.copy(this.root);
+    for(const u of [...B.allies, ...(G().SQV.foes || [])]) if(!u.mn) preloadMon(u.id, u.shiny);
   }
   exit(){
     this.on = false;
@@ -137,9 +154,12 @@ export class Tower3D {
     for(const r of this.recs.values()) r.m.dispose();
     this.recs.clear();
     if(this.group) this.group.visible = false;
-    this.game.world.focus = null;
-    CZ.uLamp.value.w = 0;
-    const c = this.game.engine.camera; c.fov = this.prevFov || 72; c.updateProjectionMatrix();
+    if(this.v){ this.v.exit(); this.v = null; this.final = false; this.root = ARENA; }
+    else {
+      this.game.world.focus = null;
+      CZ.uLamp.value.w = 0;
+      const c = this.game.engine.camera; c.fov = this.prevFov || 72; c.updateProjectionMatrix();
+    }
     const x = this.fx.getContext("2d"); x.clearRect(0, 0, this.fx.width, this.fx.height);
     this.fx.classList.remove("on");
   }
@@ -159,21 +179,24 @@ export class Tower3D {
     let j = 0;
     foes.forEach((u, i)=>{
       let s;
-      if(boss){ s = u === boss ? SLOT_BOSS : (SLOT_FB[j++] || SLOT_FB[0]); }
+      if(boss){ const lk = this.v && this.v.bossSlot && boss.guardian ? this.v : null;
+        s = u === boss ? (lk ? lk.bossSlot : SLOT_BOSS) : lk && lk.addSlots ? (lk.addSlots[j++] || lk.addSlots[0]) : (SLOT_FB[j++] || SLOT_FB[0]); }
       else s = SLOT_F[i] || SLOT_F[0];
       out.push({u, x:s[0], z:s[1], side:"foe"});
     });
     return out;
   }
   dispHeight(u){
+    if(u.mn && this.final) return 4.4;                     /* dans la Couche Zéro, il domine la scène */
+    if(u.guardian && this.v === this.locks) return Math.max(3.6, Math.min(5.0, realHeight(u.id) * 2.3));   /* devant sa porte */
     const h = Math.max(0.75, Math.min(2.3, u.mn ? 1.8 : realHeight(u.id)));
     return h * (u.mn ? 1.5 : u.guardian ? 1.6 : u.boss ? 1.45 : 1);
   }
   rec(u){
     let r = this.recs.get(u);
     if(r) return r;
-    const scene = this.game.engine.scene, H = this.dispHeight(u);
-    const m = u.mn ? this.game.wild.missingSprite(scene) : makeMon(u.id, u.shiny, scene, {height:H});
+    const scene = this.sceneT || this.game.engine.scene, H = this.dispHeight(u);
+    const m = u.mn ? (this.final ? new MnVox(scene, u, {height:H}) : this.game.wild.missingSprite(scene)) : makeMon(u.id, u.shiny, scene, {height:H});
     r = {u, m, H, pos:new THREE.Vector3(), heading:0, lastHurt:0, lastGlow:0};
     this.recs.set(u, r);
     return r;
@@ -181,7 +204,7 @@ export class Tower3D {
   /* ---------- une image ---------- */
   frame(dt, t){
     const g = G(), B = g.SQB, V = g.SQV; if(!B || !V) return;
-    const T = V.t || 0, cam = this.game.engine.camera, env = this.game.env;
+    const T = V.t || 0, cam = this.cam || this.game.engine.camera, env = this.v ? this.v.env : this.game.env, R0 = this.root;
     const list = this.slots(), live = new Set();
     const center = {ally:new THREE.Vector3(), foe:new THREE.Vector3()}, cnt = {ally:0, foe:0};
     for(const s of list){ center[s.side].add(new THREE.Vector3(s.x, 0, s.z)); cnt[s.side]++; }
@@ -189,7 +212,7 @@ export class Tower3D {
     for(const s of list){
       const u = s.u, v = u._v || {}, r = this.rec(u), m = r.m;
       live.add(u);
-      const base = new THREE.Vector3(ARENA.x + s.x, ARENA.y, ARENA.z + s.z);
+      const base = new THREE.Vector3(R0.x + s.x, R0.y, R0.z + s.z);
       const pos = base.clone();
       const other = s.side === "ally" ? center.foe : center.ally;
       let heading = Math.atan2(other.x - s.x, other.z - s.z);
@@ -216,7 +239,7 @@ export class Tower3D {
         let to = null;
         if(v.lunge){ const L = v.lunge.to; const tg = [...this.recs.values()].find(x=>x.u._v && x.u._v.pos && Math.abs(x.u._v.pos.x - L.x) < 2 && Math.abs(x.u._v.pos.y - L.y) < 2); if(tg) to = tg.pos.clone(); }
         if(!to){ const o = (V.orbs || []).find(q=>q.from === u); const tg = o && this.recs.get(o.to); if(tg) to = tg.pos.clone(); }
-        if(!to) to = new THREE.Vector3(ARENA.x + other.x, ARENA.y, ARENA.z + other.z);
+        if(!to) to = new THREE.Vector3(R0.x + other.x, R0.y, R0.z + other.z);
         r.atk = {start:t, dur:Math.max(0.5, Math.min(1.6, len)), to, melee:!!v.lunge};
       }
       if(r.atk && t - r.atk.start < r.atk.dur){
@@ -238,13 +261,23 @@ export class Tower3D {
       /* K.O. : il se défait en pixels et s'enfonce */
       /* (s'il sait tomber, il tombe d'abord, puis se défait) */
       const fall = m.hasClip && m.hasClip("faint");
-      if(v.ko && fall && v.ko !== r.lastKo){ r.lastKo = v.ko; m.playOnce("faint", 1.4); }
-      if(v.ko){ const k = Math.min(1, (T - v.ko) / (fall ? 1100 : 620)), g = fall ? Math.max(0, (k - 0.45) / 0.55) : k; glitch = Math.max(glitch, g); pos.y -= g * 0.3; if(k >= 1) vis = false; anim = fall ? null : anim; }
+      /* MissingNo, vaincu, ne disparaît pas : il se tasse sur place, et demande à être lu */
+      if(u.mn && this.final) m.koK = v.ko ? Math.min(1, (T - v.ko) / 1600) : 0;
+      /* un gardien vaincu ne se défait pas : il chancelle, et il cède (locks3d.js le relâche dans la lumière) */
+      else if(u.guardian && this.v === this.locks){
+        if(v.ko && v.ko !== r.lastKo){ r.lastKo = v.ko; if(m.hasClip && m.hasClip("hurt")) r.hurtUntil = t + m.playOnce("hurt", 0.8); }
+      }
+      else {
+        if(v.ko && fall && v.ko !== r.lastKo){ r.lastKo = v.ko; m.playOnce("faint", 1.4); }
+        if(v.ko){ const k = Math.min(1, (T - v.ko) / (fall ? 1100 : 620)), g = fall ? Math.max(0, (k - 0.45) / 0.55) : k; glitch = Math.max(glitch, g); pos.y -= g * 0.3; if(k >= 1) vis = false; anim = fall ? null : anim; }
+      }
+      if(this.v && this.v.pose){ const o = {anim, glitch, vis, flash}; this.v.pose(u, r, pos, o, T, t); ({anim, glitch, vis, flash} = o); }
       if(anim) m.setAnim(anim);
       m.uniforms.uGlitch.value = glitch;
       m.uniforms.uFlash.value = flash;
+      if(u.echo && this.final) ZeroVenue.echoTint(m, t, u);
       m.group.visible = vis;
-      m.groundY = ARENA.y;
+      m.groundY = R0.y;
       r.pos.copy(pos); r.heading = heading; r.vis = vis;
       m.update(t, dt, pos, heading, cam.position, env);
     }
@@ -266,9 +299,16 @@ export class Tower3D {
     const act = V.active && this.recs.get(V.active);
     this.ring.visible = !!(act && act.vis && !B.over);
     if(this.ring.visible){
-      this.ring.position.set(act.pos.x - ARENA.x, 0.03, act.pos.z - ARENA.z);
+      this.ring.position.set(act.pos.x - R0.x, 0.03, act.pos.z - R0.z);
       const s = Math.max(0.8, act.H * 0.55) * (1 + Math.sin(t * 6) * 0.05); this.ring.scale.setScalar(s);
       this.ring.material.color.set(act.u.side === "ally" ? "#5cf0ff" : "#ff5c7a");
+    }
+    if(this.v){
+      /* la Couche Zéro : Porygon-Z, les bulles, EFFACER, l'image qui se déchire ; un verrou : le cadenas, la porte */
+      this.v.update(t, dt, T, B, V, this.recs, this);
+      this.camera(dt, t, T, V);
+      this.overlay(T, V, B);
+      return;
     }
     /* les débris tournent lentement */
     const m4 = new THREE.Matrix4(), q = new THREE.Quaternion();
@@ -284,9 +324,15 @@ export class Tower3D {
   }
   /* ---------- la caméra : derrière ton équipe ; elle suit l'ultime et l'entrée du boss ---------- */
   camera(dt, t, T, V){
-    const cam = this.game.engine.camera;
-    const wantPos = ARENA.clone().add(new THREE.Vector3(-8.8 + Math.sin(t * 0.08) * 0.18, 4.1, 9.1));
-    const wantLook = ARENA.clone().add(new THREE.Vector3(1.1, 0.9, -1.0));
+    const cam = this.cam || this.game.engine.camera;
+    const F = this.final;
+    const vo = this.v && this.v.camOff, vl = this.v && this.v.camLook;
+    const wantPos = this.root.clone().add(F ? new THREE.Vector3(-7.6 + Math.sin(t * 0.08) * 0.18, 3.6, 7.9) : vo ? new THREE.Vector3(vo[0] + Math.sin(t * 0.08) * 0.18, vo[1], vo[2]) : new THREE.Vector3(-8.8 + Math.sin(t * 0.08) * 0.18, 4.1, 9.1));
+    const wantLook = this.root.clone().add(F ? new THREE.Vector3(1.4, 1.35, -1.2) : vl ? new THREE.Vector3(vl[0], vl[1], vl[2]) : new THREE.Vector3(1.1, 0.9, -1.0));
+    /* le combat final a trois plans à lui : l'entrée de MissingNo, « Copie » et « Son nom », sa chute */
+    const f = this.final ? this.finalShot(T, V) : this.v && this.v.shot ? this.v.shot(T, V, this) : null;
+    /* (un plan rapproché passe au-dessus de l'équipe, pas au travers) */
+    if(f){ wantPos.lerp(f.pos, f.k); wantLook.lerp(f.look, f.k); if(f.arc) wantPos.y += Math.sin(Math.PI * f.k) * f.arc; }
     /* pas de zoom sur les attaques (même l'ultime) : la caméra reste posée, c'est plus lisible en ×2 ou ×3 */
     const k = Math.min(1, dt * (this.game.t - this.t0 < 1.2 ? 2.2 : 4));
     this.camPos.lerp(wantPos, k); this.camLook.lerp(wantLook, k);
@@ -295,10 +341,27 @@ export class Tower3D {
     const sh = calm ? 0 : Math.min(6, V.shake || 0) * 0.004;
     if(sh > 0.001) cam.position.add(new THREE.Vector3((Math.random() - 0.5) * sh, (Math.random() - 0.5) * sh, 0));
     cam.lookAt(this.camLook);
+    if(this.v) cam.updateMatrixWorld();
+  }
+  finalShot(T, V){
+    const B = G().SQB, mn = (V.foes || []).find(f=>f.mn), r = mn && this.recs.get(mn);
+    if(!r || !r.vis) return null;
+    const bump = q => q < 0 || q >= 1 ? 0 : q < 0.18 ? q / 0.18 : q > 0.82 ? (1 - q) / 0.18 : 1;
+    let k = 0;
+    const C = V.cut; if(C && C.kind === "boss" && C.u && C.u.mn) k = Math.max(k, bump((T - C.t0 + 250) / (C.dur + 600)));
+    const Bn = V.banner; if(Bn && Bn.big && (Bn.txt === "SON NOM" || Bn.txt === "COPIE")) k = Math.max(k, bump((T - Bn.t0) / 1900));
+    if(B && B.over && B.result) k = Math.max(k, 0.85);
+    if(k <= 0) return null;
+    /* de face, un peu à droite de l'équipe : on le voit en entier, sans un allié devant */
+    const d = new THREE.Vector3(-2.2, 0, 9).normalize();
+    const look = r.pos.clone().add(new THREE.Vector3(0, r.H * 0.48, 0));
+    const pos = r.pos.clone().addScaledVector(d, 7.6).add(new THREE.Vector3(0, r.H * 0.62, 0));
+    k = k * k * (3 - 2 * k);
+    return {pos, look, k};
   }
   /* ---------- par-dessus : les plaques de vie, les chiffres, la cible, les bannières ---------- */
   project(v){
-    const p = v.clone().project(this.game.engine.camera);
+    const p = v.clone().project(this.cam || this.game.engine.camera);
     return {x:(p.x * 0.5 + 0.5) * innerWidth, y:(-p.y * 0.5 + 0.5) * innerHeight, behind:p.z > 1};
   }
   overlay(T, V, B){
@@ -321,7 +384,10 @@ export class Tower3D {
       x.font = "12px 'Pixelify Sans', sans-serif"; x.textAlign = "center"; x.textBaseline = "alphabetic";
       x.lineWidth = 3; x.strokeStyle = "rgba(0,0,0,.8)";
       const label = `${u.name}  N.${u.level || ""}`;
-      x.strokeText(label, p.x, p.y - 6); x.fillStyle = ally ? "#d8f6ff" : "#ffd6de"; x.fillText(label, p.x, p.y - 6);
+      x.strokeText(label, p.x, p.y - 6);
+      /* MissingNo : son nom ne tient pas en place (puis c'est le tien) */
+      if(u.mn){ const j = (Math.random() - 0.5) * 2; x.fillStyle = "#ff3d7f"; x.fillText(label, p.x + 1.5 + j, p.y - 6); x.fillStyle = "#35f0d6"; x.fillText(label, p.x - 1.5 - j, p.y - 6); x.fillStyle = "#ffffff"; x.fillText(label, p.x, p.y - 6); }
+      else { x.fillStyle = ally ? "#d8f6ff" : "#ffd6de"; x.fillText(label, p.x, p.y - 6); }
       /* les effets en cours : une lettre colorée chacun */
       const F = window.SQ_FXCOL || G().ref("SQ_FXCOL"), L = G().ref("SQ_FXLET");
       if(u.fx && u.fx.length && F && L){
@@ -376,7 +442,9 @@ export class Tower3D {
     }
     /* l'ultime, la Synchro, le boss : une coupure */
     const C = V.cut && T >= V.cut.t0 && T - V.cut.t0 < V.cut.dur ? V.cut : null;
-    if(C){
+    if(C && C.kind === "boss" && C.u && C.u.mn) this.mnCut(x, C, T);
+    else if(C && C.kind === "boss" && C.u && C.u.guardian && this.v && this.v.cut) this.v.cut(x, C, T);
+    else if(C){
       const k = (T - C.t0) / C.dur, a = k < 0.15 ? k / 0.15 : k > 0.85 ? (1 - k) / 0.15 : 1;
       x.globalAlpha = a * 0.55; x.fillStyle = "#02040a"; x.fillRect(0, 0, innerWidth, 70); x.fillRect(0, innerHeight - 70, innerWidth, 70);
       x.globalAlpha = a;
@@ -385,6 +453,42 @@ export class Tower3D {
         x.strokeText(txt, 48, innerHeight - 110); x.fillStyle = C.c || "#fff"; x.fillText(txt, 48, innerHeight - 110); }
       x.globalAlpha = 1;
     }
+    /* un verrou levé : ses derniers mots */
+    if(this.v && this.v.overlay) this.v.overlay(x, T, V, B);
+    /* la victoire finale : l'arène se dissout vers la révélation (blanc, puis noir) */
+    const ar = this.final && document.getElementById("sqarena");
+    if(ar && ar.classList.contains("fn-out")){
+      if(!this.outT) this.outT = performance.now();
+      const k = Math.min(1, (performance.now() - this.outT) / 700);
+      x.globalAlpha = k < 0.4 ? k / 0.4 * 0.7 : 1; x.fillStyle = k < 0.4 ? "#ffffff" : `rgb(${Math.round(255 * (1 - (k - 0.4) / 0.6))},${Math.round(255 * (1 - (k - 0.4) / 0.6))},${Math.round(255 * (1 - (k - 0.4) / 0.6))})`;
+      x.fillRect(0, 0, innerWidth, innerHeight); x.globalAlpha = 1;
+    }
+  }
+  /* l'entrée de MissingNo : une bande qui traverse l'écran, son nom qui ne tient pas en place */
+  mnCut(x, C, T){
+    const W = innerWidth, H = innerHeight, k = (T - C.t0) / C.dur;
+    const inK = Math.min(1, k / 0.18), outK = k > 0.78 ? (k - 0.78) / 0.22 : 0;
+    const slide = (1 - Math.pow(1 - inK, 3)) - outK * outK, cy = H * 0.5, bh = Math.max(110, H * 0.15);
+    x.save();
+    x.globalAlpha = Math.max(0, Math.min(1, slide * 1.2));
+    x.translate(W * (1 - slide) * 0.6, 0);
+    x.beginPath(); x.moveTo(-40, cy - bh / 2 + 22); x.lineTo(W + 40, cy - bh / 2 - 22); x.lineTo(W + 40, cy + bh / 2 - 22); x.lineTo(-40, cy + bh / 2 + 22); x.closePath();
+    const g = x.createLinearGradient(0, cy - bh, W, cy + bh); g.addColorStop(0, "rgba(2,1,6,.94)"); g.addColorStop(0.55, "rgba(255,61,127,.38)"); g.addColorStop(1, "rgba(2,1,6,.94)");
+    x.fillStyle = g; x.fill(); x.strokeStyle = "#ff3d7f"; x.lineWidth = 2; x.stroke(); x.clip();
+    x.globalCompositeOperation = "lighter";
+    for(let i = 0; i < 22; i++){
+      const yy = cy - bh / 2 + ((i * 37 + Math.floor(T / 16) * 13) % bh), xx = ((i * 97 - T * 1.4) % (W + 300) + W + 300) % (W + 300) - 150;
+      x.fillStyle = i % 2 ? "rgba(53,240,214,.3)" : "rgba(255,61,127,.35)"; x.fillRect(xx, yy, 60 + (i * 53) % 140, 2);
+    }
+    x.globalCompositeOperation = "source-over";
+    const L = Math.max(48, W * 0.08);
+    x.textAlign = "left"; x.textBaseline = "middle";
+    x.font = '11px "Press Start 2P",monospace'; x.fillStyle = "#ffd2e0"; x.fillText("ENTRÉE 000 · AUCUN INDEX", L, cy - 30);
+    x.font = '34px "Press Start 2P",monospace'; x.lineWidth = 7; x.strokeStyle = "#000"; x.strokeText("MISSINGNO", L, cy + 6);
+    const j = (Math.random() - 0.5) * 3;
+    x.fillStyle = "#ff3d7f"; x.fillText("MISSINGNO", L + 3 + j, cy + 6); x.fillStyle = "#35f0d6"; x.fillText("MISSINGNO", L - 3 - j, cy + 6); x.fillStyle = "#ffffff"; x.fillText("MISSINGNO", L, cy + 6);
+    x.font = '11px "Press Start 2P",monospace'; x.fillStyle = "#c8d4e8"; x.fillText("NIVEAU " + (C.u.level || ""), L, cy + 40);
+    x.restore();
   }
   /* ---------- viser : un clic sur un adversaire lance la compétence choisie ---------- */
   pick(cx, cy){

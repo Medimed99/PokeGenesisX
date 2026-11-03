@@ -6537,6 +6537,12 @@ body.pc.tower3d .sq2-dock{position:fixed;left:50%;bottom:14px;transform:translat
 body.pc.tower3d .sq2-tip{position:fixed;left:50%;right:auto;bottom:210px;transform:translateX(-50%);width:min(560px,86vw);zoom:1.15}
 body.pc.tower3d .sq2-res{position:fixed;inset:0;background:rgba(3,6,12,.72);zoom:1.2}
 body.pc.tower3d .sq2-res.on{pointer-events:auto}
+/* un verrou levé : le gardien cède en 3D (locks3d.js) ; le bilan attend la fin de ses derniers mots, et ne les répète pas */
+body.pc.tower3d .sq2-res,body.pc.tower3d .sq2-dock,body.pc.tower3d .sq2-top,body.pc.tower3d .sq2-say,body.pc.tower3d .sq2-bossbar{transition:opacity .4s}
+body.pc.tower3d.lockrel .sq2-res,body.pc.tower3d.lockrel .sq2-dock,body.pc.tower3d.lockrel .sq2-top,body.pc.tower3d.lockrel .sq2-say,body.pc.tower3d.lockrel .sq2-order,
+body.pc.tower3d.lockrel .sq2-tip,body.pc.tower3d.lockrel .sq2-bossbar{opacity:0!important;pointer-events:none!important}
+body.pc.tower3d .sw-bye{display:none}
+body.pc.tower3d .sq2:has(.sq2-res.on) .sq2-order{opacity:0}
 body.pc.tower3d #sheet-root.on{pointer-events:auto;position:fixed;inset:0}
 body.pc.tower3d .sq2-bossbar{pointer-events:none}
 
@@ -6574,6 +6580,127 @@ body.pc.breche3d #br-modal.lvl .br-opt:nth-child(3)::after{content:"3"}
 body.pc.breche3d #br-modal.lvl .br-opt:nth-child(4)::after{content:"4"}
 body.pc.breche3d #toasts{z-index:45}
 
+/* ---------- le récit en 3D : la scène plein écran, la boîte de dialogue du jeu mobile par-dessus ---------- */
+body.pc.story3d #terminal{display:flex!important;background:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;animation:none!important;pointer-events:none}
+body.pc.story3d #terminal .term-head{display:none}
+body.pc.story3d #terminal #app{position:fixed!important;inset:0!important;width:auto!important;height:auto!important;max-width:none!important;max-height:none!important;
+  margin:0!important;border:0!important;border-radius:0!important;background:none!important;box-shadow:none!important;transform:none!important;overflow:visible!important;pointer-events:none}
+body.pc.story3d #pchud,body.pc.story3d #pc-minimap,body.pc.story3d #pc-map,body.pc.story3d #pc-br-ov,body.pc.story3d #topbar,body.pc.story3d #dock,body.pc.story3d #nextstep,body.pc.story3d #admfab,body.pc.story3d #screen,body.pc.story3d #pztalk{display:none!important}
+body.pc.story3d #cine.on,body.pc.story3d #cine.off{max-width:none;box-shadow:none;background:transparent;pointer-events:auto;z-index:420}
+body.pc.story3d .cn-stage{background:none!important}
+body.pc.story3d .cn-bg,body.pc.story3d .cn-world,body.pc.story3d .cn-grain,body.pc.story3d .cn-actors{display:none!important}
+body.pc.story3d .cn-over{opacity:1;image-rendering:pixelated}
+body.pc.story3d .cn-scan{opacity:.08!important}
+body.pc.story3d .cn-dialog{left:50%;right:auto;transform:translate(-50%,10px);width:min(940px,74vw);bottom:calc(8vh + 22px);padding:18px 26px 22px;min-height:118px}
+body.pc.story3d .cn-dialog.on{transform:translate(-50%,0)}
+body.pc.story3d .cn-text{font-size:18px;line-height:1.55}
+body.pc.story3d .cn-who{font-size:10px;margin-bottom:9px}
+body.pc.story3d .cn-stage.pl-on~.cn-dialog.w-none .cn-text{font-size:18px}
+body.pc.story3d .cn-skip{font-size:13px;padding:8px 14px}
+body.pc.story3d .cn-face{width:84px;height:84px}
+body.pc.story3d .cn-card .cc-t{font-size:22px;letter-spacing:5px}
+body.pc.story3d .cn-card .cc-s{font-size:12px}
+body.pc.story3d .wl{transform:translate(-50%,-50%) scale(1.22)}
+body.pc.story3d .wl.in{transform:translate(-50%,-50%) scale(1.3)}
+body.pc.story3d .wl.out{transform:translate(-50%,-62%) scale(1.3)}
+body.pc.story3d .cn-bar{transition:height .9s cubic-bezier(.4,0,.2,1)}
+body.pc.story3d #cine.bars .cn-bar{height:9vh}
+
+/* ---------- Porygon-Z sur la route : sa bulle, à côté de lui ---------- */
+#pc-pzsay{position:fixed;left:0;top:0;z-index:28;max-width:min(400px,34vw);padding:10px 14px 12px;border-radius:10px;pointer-events:auto;cursor:pointer;
+  background:rgba(4,12,22,.88);border:1px solid rgba(53,240,214,.55);box-shadow:0 0 22px rgba(53,240,214,.18),0 10px 30px rgba(0,0,0,.45);
+  color:#dffcf7;font-size:15px;line-height:1.5;opacity:0;transform:translateY(6px);transition:opacity .25s,transform .25s;visibility:hidden}
+#pc-pzsay.on{opacity:1;transform:none;visibility:visible}
+#pc-pzsay.on.off{opacity:0;visibility:hidden}
+#pc-pzsay small{display:block;font-family:"Press Start 2P",monospace;font-size:8px;letter-spacing:1px;color:#35f0d6;margin-bottom:6px}
+#pc-pzsay::after{content:"";position:absolute;left:18%;bottom:-8px;width:14px;height:14px;background:rgba(4,12,22,.92);
+  border-right:1px solid rgba(53,240,214,.55);border-bottom:1px solid rgba(53,240,214,.55);transform:rotate(45deg)}
+body.pc #pztalk.pc-pzw,body.pc #toasts .toast.pz.pc-pzw{display:none!important}
+body.pc[data-mode="terminal"] #pc-pzsay,body.pc.story3d #pc-pzsay,body.pc.breche3d #pc-pzsay,body.pc.tower3d #pc-pzsay{display:none}
+body.pc.story3d .cn-choice{left:50%;right:auto;transform:translateX(-50%);width:min(760px,70vw);bottom:calc(9vh + 24px)}
+body.pc.story3d .cch-o{font-size:16px}
+/* la fin, sur PC : ton nom lu octet par octet, plus grand ; l'entrée 387 ; le générique au-dessus du monde réparé */
+body.pc.story3d .cn-name{zoom:1.35;top:9%}
+body.pc.story3d .cn-name.aside{right:auto;left:2%;width:38%;top:6%}
+body.pc.story3d .cn-dex{zoom:1.3;top:38%}
+body.pc.story3d #cine.credits .cn-credits{background:linear-gradient(90deg,rgba(0,0,0,0) 18%,rgba(2,4,10,.62) 34%,rgba(2,4,10,.62) 66%,rgba(0,0,0,0) 82%)}
+body.pc.story3d #cine.credits .ccr-roll{zoom:1.3}
+body.pc.story3d #cine.credits .ccr-hint{font-size:12px}
+body.pc.story3d #cine.credits .cn-dialog{display:none}
+body.pc.st-fly .cn-over{opacity:0!important}
+/* le combat final : les répliques au-dessus de l'arène */
+body.pc.tower3d .fn-line{position:fixed;left:50%;right:auto;top:96px;transform:translate(-50%,-8px);width:min(640px,80vw);padding:12px 16px;font-size:16px;gap:14px;z-index:30}
+body.pc.tower3d .fn-line.on{transform:translate(-50%,0)}
+body.pc.tower3d .fn-line b{font-size:10px;margin-bottom:6px}
+body.pc.tower3d .fn-mn{width:48px;height:48px}
+body.pc.tower3d .fn-mn img,body.pc.tower3d .fn-mn .mnspr{width:46px;height:46px}
+/* ---------- l'Expédition en 3D : le secteur où l'on marche, le combat sur place ---------- */
+#pc-xp-fx{position:fixed;inset:0;width:100vw;height:100vh;z-index:29;display:none;pointer-events:none}
+#pc-xp-fx.on{display:block}
+body.pc.expe3d #terminal{display:flex!important;background:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;animation:none!important;pointer-events:none}
+body.pc.expe3d #terminal .term-head{display:none}
+body.pc.expe3d #terminal #app{position:fixed!important;inset:0!important;width:auto!important;height:auto!important;max-width:none!important;max-height:none!important;
+  margin:0!important;border:0!important;border-radius:0!important;background:none!important;box-shadow:none!important;transform:none!important;overflow:visible!important;pointer-events:none}
+body.pc.expe3d #topbar,body.pc.expe3d #dock,body.pc.expe3d #nextstep,body.pc.expe3d #admfab,body.pc.expe3d #pchud,body.pc.expe3d #pc-minimap,body.pc.expe3d #pc-pzsay{display:none!important}
+body.pc.expe3d #screen{background:none!important;overflow:visible!important;padding:0!important;height:auto!important;pointer-events:none}
+body.pc.expe3d #sheet-root.on{pointer-events:auto;position:fixed;inset:0}
+/* la marche : la carte s'efface (on y est), l'en-tête en haut, l'équipe et ses boutons en bas à gauche */
+body.pc.expe3d.xw .xmapwrap,body.pc.expe3d.xw #screen>.row.between{display:none!important}
+body.pc.expe3d.xw #screen>.xhead{position:fixed;top:14px;left:50%;transform:translateX(-50%);width:min(620px,70vw);margin:0;padding:9px 16px;border-radius:12px;
+  background:rgba(5,9,18,.76);border:1px solid rgba(80,120,170,.35);pointer-events:auto;zoom:1.15}
+body.pc.expe3d.xw #screen>.team-strip{position:fixed;left:14px;bottom:70px;width:min(440px,36vw);margin:0;padding:8px;border-radius:12px;
+  background:rgba(5,9,18,.7);border:1px solid rgba(80,120,170,.3);pointer-events:auto;zoom:1.1}
+body.pc.expe3d.xw #screen>.btn-grid{position:fixed;left:14px;bottom:14px;width:min(440px,36vw);margin:0!important;pointer-events:auto;zoom:1.1}
+/* les scènes des nœuds : la 3D joue l'image ; il reste le pupitre (à droite) et ce qu'on choisit (les cartes, en bas) */
+body.pc.expe3d .xsc{left:0;right:0;width:auto;max-width:none;transform:none;background:none!important;pointer-events:none}
+body.pc.expe3d .xsc>.xs-stage{position:fixed;inset:0;background:none!important;overflow:visible;pointer-events:none}
+body.pc.expe3d .xsc>.xs-stage>*{display:none!important}
+body.pc.expe3d .xsc>.xs-stage>.xs-cards,body.pc.expe3d .xsc>.xs-stage>.xs-relic,body.pc.expe3d .xsc>.xs-stage>.xs-gain,
+body.pc.expe3d .xsc>.xs-stage>.xs-sectit,body.pc.expe3d .xsc>.xs-stage>.xs-evos,body.pc.expe3d .xsc>.xs-stage>.xo{display:flex!important}
+body.pc.expe3d .xsc>.xs-stage>.xo{display:block!important}
+body.pc.expe3d .xsc>.xs-stage>.xo>*:not(.xo-big):not(.xo-item){display:none!important}
+body.pc.expe3d .xsc .xs-cards{position:fixed;left:24px;right:auto;top:auto;bottom:24px;transform:none;width:calc(100vw - min(400px,32vw) * 1.12 - 72px);max-width:720px;justify-content:center;gap:14px;pointer-events:auto}
+body.pc.expe3d .xsc .xs-cards .xs-card{width:30%;max-width:150px;min-width:110px}
+body.pc.expe3d .xsc .xs-relic{position:fixed;top:8%;left:calc((100vw - min(400px,32vw) * 1.12) / 2 / 1.3 - 100px);right:auto;margin:0;zoom:1.3}
+body.pc.expe3d .xsc .xs-gain{position:fixed;top:10%;left:calc((100vw - min(400px,32vw) * 1.12) / 2 / 1.35 - 120px);right:auto;margin:0;zoom:1.35}
+body.pc.expe3d .xsc .xs-sectit{position:fixed;top:9%;left:0;right:auto;width:calc((100vw - min(400px,32vw) * 1.12 - 48px) / 2.2);zoom:2.2}
+body.pc.expe3d .xsc .xs-evos{position:fixed;top:10%;left:0;right:auto;width:calc((100vw - min(400px,32vw) * 1.12 - 48px) / 1.3);zoom:1.3}
+body.pc.expe3d .xsc .xo-big{position:fixed;top:14%;left:0;right:auto;width:calc((100vw - min(400px,32vw) * 1.12 - 48px) / 1.6);zoom:1.6}
+body.pc.expe3d .xsc>.xs-panel{position:fixed;right:24px;top:50%;transform:translateY(-50%);width:min(400px,32vw);max-height:84vh;border:1px solid var(--xc);border-top:3px solid var(--xc);
+  border-radius:14px;background:rgba(6,11,22,.9);box-shadow:0 12px 40px rgba(0,0,0,.45);pointer-events:auto;zoom:1.12;animation:none}
+/* le combat : le titre et la vitesse en haut, les fiches de vie aux coins, le journal en bas */
+body.pc.expe3d.xb #screen>.row.between{position:fixed;top:14px;left:50%;transform:translateX(-50%);width:min(640px,70vw);margin:0!important;padding:9px 16px;border-radius:12px;
+  background:rgba(5,9,18,.76);border:1px solid rgba(80,120,170,.35);pointer-events:auto;zoom:1.15}
+body.pc.expe3d.xb #arena{position:fixed!important;inset:0!important;height:auto!important;background:none!important;border:0!important;box-shadow:none!important;pointer-events:none;overflow:visible}
+body.pc.expe3d.xb #arena canvas.arcv{visibility:hidden}
+body.pc.expe3d.xb #arena .arplate.foe{position:fixed;top:118px;right:24px;left:auto;width:300px;zoom:1.2;pointer-events:none}
+body.pc.expe3d.xb #arena .arplate.ally{position:fixed;bottom:150px;left:24px;right:auto;top:auto;width:300px;zoom:1.2;pointer-events:none}
+body.pc.expe3d.xb #arena .turnflag{display:none}
+body.pc.expe3d.xb #arena .arhint{display:none}
+body.pc.expe3d.xb #moves:empty{display:none}
+body.pc.expe3d.xb #battle-team{position:fixed;left:14px;bottom:14px;width:min(440px,36vw);margin:0!important;padding:8px;border-radius:12px;background:rgba(5,9,18,.7);pointer-events:auto;zoom:1.05}
+body.pc.expe3d.xb #log{position:fixed;right:14px;bottom:14px;width:min(420px,34vw);max-height:22vh;overflow:auto;margin:0;padding:8px 12px;border-radius:12px;
+  background:rgba(5,9,18,.66);pointer-events:auto;font-size:13px}
+body.pc.expe3d.xb #screen>.btn.pri.wide{position:fixed;left:50%;bottom:80px;transform:translateX(-50%);width:min(380px,60vw);pointer-events:auto;zoom:1.2}
+/* la carte du nœud devant soi, et les touches */
+#pc-xp-card{position:fixed;right:24px;top:96px;transform:translate(10px,0);width:min(400px,34vw);padding:12px 16px 13px;border-radius:12px;
+  background:rgba(5,9,18,.86);border:1px solid var(--nc,#35f0d6);box-shadow:0 0 22px rgba(0,0,0,.4);color:#e8f0ff;font-size:14px;line-height:1.5;
+  opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:31}
+#pc-xp-card.on{opacity:1;transform:none}
+#pc-xp-card.done,#pc-xp-card.far{opacity:.82}
+#pc-xp-card .xc-k{font-family:"Press Start 2P",monospace;font-size:10px;letter-spacing:1px;margin-bottom:6px}
+#pc-xp-card .xc-t{font-weight:700;font-size:15px;margin-bottom:3px}
+#pc-xp-card .xc-d{color:#b8c4d8;font-size:13px}
+#pc-xp-card .xc-go{margin-top:9px;font-size:14px;color:#fff}
+#pc-xp-card .xc-s{margin-top:8px;font-size:12px;color:#9fb0c8}
+#pc-xp-card .xc-s.bad{color:#ff9ab4}
+#pc-xp-card kbd,#pc-xp-keys b{display:inline-block;min-width:20px;padding:1px 6px;border-radius:5px;background:#1c2638;border:1px solid #3a4a66;color:#fff;font:600 12px ui-monospace,monospace;text-align:center}
+#pc-xp-keys{position:fixed;right:14px;bottom:18px;padding:7px 14px;border-radius:10px;background:rgba(5,9,18,.6);color:#c8d4e8;font-size:13px;
+  opacity:0;pointer-events:none;transition:opacity .3s;z-index:31;white-space:nowrap}
+#pc-xp-keys.on{opacity:1}
+body.pc.expe3d.xb #pc-xp-keys{bottom:auto;top:76px;right:auto;left:50%;transform:translateX(-50%);font-size:12px;padding:5px 12px}
+body.pc.expe3d.xn #screen>*{visibility:hidden!important;pointer-events:none!important}
+
 </style>
 <script src="config.js"></script>
 </head>
@@ -6610,7 +6737,7 @@ body.pc.breche3d #toasts{z-index:45}
 <script>window.PCG_PC = true;</script>
 <script>
 /* version du jeu (buildver.py) */
-const BUILD_V = "33541b1a", BUILD_LABEL = "3 novembre 2026, 2 h 02";
+const BUILD_V = "341df17c", BUILD_LABEL = "3 novembre 2026, 17 h 47";
 /* Version hebergee : les images sont servies comme fichiers, pas encodees
    dans le HTML. Les noms portent une empreinte : on peut donc les mettre en
    cache indefiniment sans jamais servir une version perimee. */
@@ -13375,6 +13502,8 @@ async function cineCode(c, b){
    doigt pour confirmer : une décision de cette taille ne se prend pas d'un
    toucher distrait. Rejouée depuis le journal, la scène reprend la réponse
    déjà donnée et la rejoue d'elle-même. */
+/* sur PC (le client 3D), on clique au lieu de toucher */
+function cineOnPC(){ return typeof window !== "undefined" && !!(window.PCST3D && window.PCST3D.on); }
 async function cineChoice(c, b){
   c.ff = false;                      /* « Passer » s'arrête ici : la question attend sa réponse */
   const stage = document.getElementById("cn-stage");
@@ -13388,7 +13517,8 @@ async function cineChoice(c, b){
       <span class="cch-fill"></span>
       <b>&gt; ${esc(o.cmd)}</b><small>${esc(pzFmt(o.sub || ""))}</small>
       ${o.isNew ? `<i class="cch-new">nouvelle ligne</i>` : ""}</button>`).join("")}
-    <div class="cch-h">${preset ? "Réponse déjà donnée" : b.quick ? "Touche une réponse" : "Maintiens ton doigt sur une ligne pour la valider"}</div>`;
+    <div class="cch-h">${preset ? "Réponse déjà donnée" : cineOnPC() ? (b.quick ? "Clique une réponse, ou tape son numéro" : "Maintiens le clic sur une ligne pour la valider")
+      : b.quick ? "Touche une réponse" : "Maintiens ton doigt sur une ligne pour la valider"}</div>`;
   box.onclick = e => e.stopPropagation();
   /* au-dessus de la boîte de dialogue (hors de la scène, qui a son propre empilement) */
   (document.getElementById("cine") || stage).appendChild(box);
@@ -13524,7 +13654,7 @@ async function cineCredits(c, b){
   const el = document.createElement("div");
   el.className = "cn-credits";
   const host = document.getElementById("cine"); if(host) host.classList.add("credits");
-  el.innerHTML = `<div class="ccr-roll">${typeof creditsRollHtml === "function" ? creditsRollHtml() : ""}</div><div class="ccr-hint">toucher pour accélérer</div>`;
+  el.innerHTML = `<div class="ccr-roll">${typeof creditsRollHtml === "function" ? creditsRollHtml() : ""}</div><div class="ccr-hint">${cineOnPC() ? "clic ou Espace pour accélérer" : "toucher pour accélérer"}</div>`;
   stage.appendChild(el);
   await cineSleep(c, 80);
   const roll = el.firstChild, vh = el.clientHeight || 640, H = roll.scrollHeight || 2400;
@@ -14072,6 +14202,9 @@ function momentWing(z, d){
           line:lock && !guardianBeaten(lock.r.key, lock.g.id) ? "Et au sommet de cette aile… quelque chose s'est réveillé. Tu l'as senti aussi ?" : ""});
 }
 function momentRelease(g, onDone){
+  /* sur PC, dans l'arène du verrou en 3D, le gardien cède sur place : la scène joue ce moment (pc/src/locks3d.js) */
+  const P = typeof window !== "undefined" && window.PCLOCK3D;
+  if(P && P.on && P.release(g, onDone)){ try { Sfx.shiny(); } catch(e){} return; }
   moment({kind:"release", kicker:"VERROU LEVÉ", title:g.name, sub:g.title, spr:g.id, c:"#ffd84a", quote:g.bye, then:onDone}, true);
 }
 function momentAwake(id){
@@ -17058,6 +17191,47 @@ function directStory(sc){
   const left = [...on.keys()];
   if(left.length) track(left.map(id=>({t:"gone", id, how:"fade", wait:false})).concat([{t:"wait", ms:520}]));
   return {id:sc.id, title, shots:[{beats}]};
+}
+
+/* ===== 37x-plateau-pc.js ===== */
+/* ============================================================
+   37x — LE PLATEAU · VERSION PC (3D)
+   Sur ordinateur, les scènes du récit se jouent en volume
+   (pc/src/story/) : le plateau (37d) reste le seul maître du temps —
+   qui entre, qui bouge, la caméra, la lumière, les fenêtres du système,
+   la défragmentation — et la 3D lit son état à chaque image.
+   Ce fichier n'ajoute que ce que la version PC demande ; sur
+   téléphone, rien ne change :
+     · plFit   — le plateau garde les mesures d'un téléphone (390 × 844) :
+                 les distances, les vitesses et les temps des scènes
+                 restent ceux qui ont été réglés ; la toile du dessus
+                 (cn-over) prend la taille de l'écran ;
+     · plDraw  — plus de dessin à plat : la 3D peint le décor, les
+                 acteurs et la lumière, et place les textes du monde.
+   ============================================================ */
+const PL_PC_VIEW = {w:390, h:844};
+function plPc3D(){ return typeof window !== "undefined" && !!(window.PCST3D && window.PCST3D.on); }
+if(typeof plFit === "function"){
+  const _plFitPC = plFit;
+  plFit = function(c){
+    if(!plPc3D()) return _plFitPC.apply(this, arguments);
+    const P = c.pl; if(!P || !P.cvW) return;
+    const w = PL_PC_VIEW.w, h = PL_PC_VIEW.h, s = Math.max(2, Math.round(w / 210));
+    const ow = Math.max(320, Math.round(window.innerWidth || 1280)), oh = Math.max(240, Math.round(window.innerHeight || 720));
+    if(P.cw === w && P.ch === h && P.pcW === ow && P.pcH === oh) return;
+    P.cw = w; P.ch = h; P.s = s; P.W = Math.ceil(w / s); P.H = Math.ceil(h / s);
+    P.pcW = ow; P.pcH = oh;
+    if(P.cvO){ P.cvO.width = ow; P.cvO.height = oh; }
+    if(P.cvW){ P.cvW.width = 4; P.cvW.height = 4; }
+    if(P.set) plPaint(c, P.set);
+  };
+}
+if(typeof plDraw === "function"){
+  const _plDrawPC = plDraw;
+  plDraw = function(c){
+    if(!plPc3D()) return _plDrawPC.apply(this, arguments);
+    /* la 3D dessine à son rythme (pc/src/story) : ici, rien */
+  };
 }
 
 /* ===== 38-forage.js ===== */
@@ -33034,6 +33208,9 @@ function brSummonPorygon(R){
     ]});
   else f.shield = false;
 }
+/* là où il veut flotter : au-dessus de vous, dans le cadre
+   (le haut de l'écran est sous l'interface : il reste dans la moitié visible ; la version PC, 59x, le place devant la caméra) */
+function brPzAnchor(R){ return [R.x + Math.sin(R.t * 0.55) * (R.W || 390) * 0.28, R.y - 105 + Math.cos(R.t * 0.9) * 30]; }
 /* l'IA : un jeu d'attaques à lui, qui s'accélère quand il faiblit */
 const BR_PZ_KIT = ["tri", "rain", "blink", "ultra", "conv", "tri", "rain", "blink"];
 function brPzAI(R, b, dt){
@@ -33041,8 +33218,7 @@ function brPzAI(R, b, dt){
   if(b.flash > 0) b.flash -= dt;
   /* il flotte au-dessus de vous, toujours dans le cadre : on doit le voir */
   const dx = R.x - b.x, dy = R.y - b.y, d = Math.hypot(dx, dy) || 1;
-  /* (le haut de l'écran est sous l'interface : il reste dans la moitié visible) */
-  const tx = R.x + Math.sin(R.t * 0.55) * (R.W || 390) * 0.28, ty = R.y - 105 + Math.cos(R.t * 0.9) * 30;
+  const [tx, ty] = brPzAnchor(R);
   if(!b.lock){
     const ex = tx - b.x, ey = ty - b.y, e = Math.hypot(ex, ey) || 1, v = Math.min(e * 2.5, 260);
     b.x += ex / e * v * dt; b.y += ey / e * v * dt;
@@ -36156,9 +36332,13 @@ if(typeof brDrawOver === "function"){
                    devant) au lieu de viser l'ennemi le plus proche ;
      · brDodge   — l'esquive (Espace) : un bond court, invulnérable,
                    avec un temps de recharge ;
+     · R.pcFwd   — vers où regarde la caméra : Porygon-Z flotte devant
+                   elle, à bonne distance (sur téléphone : au-dessus de
+                   vous, dans le cadre) ;
      · le rendu  — tant que la 3D dessine, la toile mobile ne dessine
                    plus : seules avancent les mises en scène qui
-                   vivent au rendu (entrées de boss, chutes).
+                   vivent au rendu (entrées de boss, chutes, la trace
+                   de la téléportation de Porygon-Z).
    ============================================================ */
 const BR_DODGE = {dur:0.22, cd:1.4, inv:0.34};
 
@@ -36201,6 +36381,17 @@ if(typeof brFire === "function"){
   };
 }
 
+/* Porygon-Z, sur PC : devant la caméra, à sept ou huit mètres, et il se balance de côté */
+if(typeof brPzAnchor === "function"){
+  const _brPzAnchorPC = brPzAnchor;
+  brPzAnchor = function(R){
+    const F = R.pcFwd;
+    if(!R.pc || !F) return _brPzAnchorPC(R);
+    const d = 245 + Math.cos(R.t * 0.9) * 30, sw = Math.sin(R.t * 0.55) * 190;
+    return [R.x + F[0] * d - F[1] * sw, R.y + F[1] * d + F[0] * sw];
+  };
+}
+
 /* la 3D dessine : la toile mobile se tait, les mises en scène continuent d'avancer */
 function brPc3D(){ return typeof window !== "undefined" && window.PCBR3D && window.PCBR3D.on; }
 if(typeof brRender === "function"){
@@ -36211,6 +36402,7 @@ if(typeof brRender === "function"){
     if(!R.paused && typeof brMiniTick === "function"){ brMiniTick(R, rdt); brFinaleTick(R, rdt); }
     /* (ce que le dessin mobile faisait avancer au passage) */
     R.P.foes.each(f=>{ if(f.pose){ f.pose.t += rdt; if(f.pose.t >= 0.8) f.pose = null; } });
+    const pz = R.boss; if(pz && pz.pz && pz.ghost && !R.paused){ pz.ghost.t -= rdt; if(pz.ghost.t <= 0) pz.ghost = null; }
     if(R.boss) R.bossHpPct = Math.max(0, R.boss.hp / R.boss.max);
     R.movedOnce = true;
   };
@@ -49510,6 +49702,6 @@ document.addEventListener("DOMContentLoaded", bootOnce);
 if(document.readyState !== "loading") bootOnce();
 
 </script>
-<script src="pc/game.830bf8ec.js" defer></script>
+<script src="pc/game.48d7c358.js" defer></script>
 </body>
 </html>

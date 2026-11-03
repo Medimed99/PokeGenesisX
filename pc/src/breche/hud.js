@@ -49,6 +49,7 @@ export class BrHud {
       x.fillStyle = g; x.fillRect(0, 0, W, H);
     }
     if(R.ult){ x.fillStyle = `rgba(255,30,70,${0.08 + (1 - R.ult.t / R.ult.max) * 0.18 + Math.sin(t * 18) * 0.04})`; x.fillRect(0, 0, W, H); }
+    if(c.dp) this.depth(R, c, c.dp);
     this.numbers(R, c);
     this.bars(R, c);
     this.edges(R, c);
@@ -83,7 +84,46 @@ export class BrHud {
     x.lineWidth = 3;
     if(cd > 0){ x.strokeStyle = "rgba(143,236,255,.35)"; x.beginPath(); x.arc(cx, cy, 24, 0, Math.PI * 2); x.stroke();
       x.strokeStyle = "#8fecff"; x.beginPath(); x.arc(cx, cy, 24, -Math.PI / 2, -Math.PI / 2 + (1 - cd / max) * Math.PI * 2); x.stroke(); }
+    /* marqué par le chasseur : une mire rouge tourne autour du réticule */
+    if(c.dp && c.dp.marked){
+      x.strokeStyle = "rgba(255,61,79,.85)"; x.lineWidth = 2; x.setLineDash([6, 7]); x.lineDashOffset = -c.t * 30;
+      x.beginPath(); x.arc(cx, cy, 33, 0, Math.PI * 2); x.stroke(); x.setLineDash([]);
+    }
     x.restore();
+  }
+  /* ---------- la faille profonde : le palier franchi, la frénésie, le chasseur ---------- */
+  depth(R, c, dp){
+    const x = this.x, W = this.W, H = this.H, t = c.t;
+    /* un palier : l'image saute, en bandes cyan et magenta */
+    if(dp.flash > 0){
+      x.save(); x.globalCompositeOperation = "lighter";
+      const n = 7 + Math.floor(dp.flash * 8);
+      for(let i = 0; i < n; i++){
+        const y = ((Math.sin(i * 91.7 + Math.floor(t * 24) * 13.1) * 0.5 + 0.5)) * H, h = 3 + ((i * 37) % 23) * dp.flash;
+        x.fillStyle = i % 2 ? `rgba(53,240,214,${0.22 * dp.flash})` : `rgba(255,61,127,${0.22 * dp.flash})`;
+        x.fillRect(0, y, W, h);
+      }
+      x.restore();
+      x.fillStyle = `rgba(4,0,10,${Math.max(0, dp.flash - 0.6) * 1.2})`; x.fillRect(0, 0, W, H);
+    }
+    /* Frénésie : des traits de vitesse aux bords */
+    if(dp.frenzy > 0.02){
+      x.save(); x.strokeStyle = `rgba(255,228,94,${0.28 * dp.frenzy})`; x.lineWidth = 2;
+      const cx = W / 2, cy = H / 2, R0 = Math.min(W, H) * 0.42, k = Math.floor(t * 30);
+      for(let i = 0; i < 26; i++){
+        const r = Math.sin(i * 12.9898 + k * 78.233) * 43758.5453, u = r - Math.floor(r); if(u < 0.35) continue;
+        const a = i / 26 * Math.PI * 2 + u * 0.2, r0 = R0 * (1.05 + u * 0.25), r1 = r0 + 40 + u * 90;
+        x.beginPath(); x.moveTo(cx + Math.cos(a) * r0 * W / H * 0.75, cy + Math.sin(a) * r0); x.lineTo(cx + Math.cos(a) * r1 * W / H * 0.75, cy + Math.sin(a) * r1); x.stroke();
+      }
+      x.restore();
+    }
+    /* le chasseur : son nom au-dessus de lui */
+    const f = dp.hunter;
+    if(f && f.on && f.hp > 0){
+      const p = this.proj(c.cam, f.x * S, c.heightOf(f) * 1.35 + 1.0, f.y * S);
+      if(p.ok){ x.save(); x.textAlign = "center"; x.font = "700 14px 'Pixelify Sans',ui-monospace,monospace";
+        x.fillStyle = "#000"; x.fillText("◎ CHASSEUR", p.x + 1, p.y + 1); x.fillStyle = "#ff3d4f"; x.fillText("◎ CHASSEUR", p.x, p.y); x.restore(); }
+    }
   }
   /* ---------- les chiffres ---------- */
   numbers(R, c){
@@ -170,9 +210,12 @@ export class BrHud {
     if(R.arena){ const [ax, ay] = P(R.arena.x, R.arena.y); x.strokeStyle = "#ff3d7f"; x.lineWidth = 2; x.beginPath(); x.arc(ax, ay, R.arena.r * S * scale, 0, Math.PI * 2); x.stroke(); }
     const PO = ref("BR_POI") || {};
     for(const p of R.map.near.pois){ if(p.used && p.k !== "arbre") continue; const [px, py] = P(p.x, p.y); x.fillStyle = (PO[p.k] || {}).c || "#fff"; x.fillRect(px - 3, py - 3, 6, 6); }
+    if(R.mines){ x.fillStyle = "#ff3d7f"; for(const m of R.mines){ if(m.gone) continue; const [px, py] = P(m.x, m.y); x.fillRect(px - 1.5, py - 1.5, 3, 3); } }
     R.P.foes.each(f=>{
       if(f.hp <= 0) return; const [px, py] = P(f.x, f.y);
-      if(f.boss){ x.fillStyle = "#ff3d7f"; x.beginPath(); x.arc(px, py, 5, 0, Math.PI * 2); x.fill(); }
+      if(f.gold){ x.fillStyle = "#ffd24a"; x.beginPath(); x.arc(px, py, 3.2, 0, Math.PI * 2); x.fill(); }
+      else if(f.hunter){ x.fillStyle = "#ff3d4f"; x.beginPath(); x.arc(px, py, 4, 0, Math.PI * 2); x.fill(); }
+      else if(f.boss){ x.fillStyle = "#ff3d7f"; x.beginPath(); x.arc(px, py, 5, 0, Math.PI * 2); x.fill(); }
       else if(f.elite || f.big){ x.fillStyle = "#ffb35c"; x.fillRect(px - 2.5, py - 2.5, 5, 5); }
       else { x.fillStyle = "rgba(255,90,140,.85)"; x.fillRect(px - 1, py - 1, 2.2, 2.2); }
     });

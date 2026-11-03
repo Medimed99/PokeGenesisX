@@ -198,7 +198,8 @@ export class Capture {
     this.handBall.rotation.set(0.2 + Math.sin(this.handT * 1.3) * 0.05, -1.7 + this.aimK * 0.4, 0.15);
     if(!this.handBall.visible && this.cool <= 0 && !this.seq) this.handBall.visible = this.game.mode === "play" && this.count(this.sel) > 0 && !this.game.fishing.active;
     const m = this.game.mode;
-    if(this.game.fishing.active || m === "dialog" || m === "battle" || m === "title") this.handBall.visible = false;
+    /* (pendant un combat de la Tour, la caméra est dans l'arène : pas de Ball tenue en bas de l'écran) */
+    if(this.game.fishing.active || m === "dialog" || m === "battle" || m === "title" || (this.game.tower3d && this.game.tower3d.on)) this.handBall.visible = false;
     /* les Balls en vol */
     for(const f of this.flights.slice()) this.fly(f, dt, t);
     if(this.seq) this.runSeq(dt, t);

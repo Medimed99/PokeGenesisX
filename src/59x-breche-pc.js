@@ -9,9 +9,13 @@
                    devant) au lieu de viser l'ennemi le plus proche ;
      · brDodge   — l'esquive (Espace) : un bond court, invulnérable,
                    avec un temps de recharge ;
+     · R.pcFwd   — vers où regarde la caméra : Porygon-Z flotte devant
+                   elle, à bonne distance (sur téléphone : au-dessus de
+                   vous, dans le cadre) ;
      · le rendu  — tant que la 3D dessine, la toile mobile ne dessine
                    plus : seules avancent les mises en scène qui
-                   vivent au rendu (entrées de boss, chutes).
+                   vivent au rendu (entrées de boss, chutes, la trace
+                   de la téléportation de Porygon-Z).
    ============================================================ */
 const BR_DODGE = {dur:0.22, cd:1.4, inv:0.34};
 
@@ -54,6 +58,17 @@ if(typeof brFire === "function"){
   };
 }
 
+/* Porygon-Z, sur PC : devant la caméra, à sept ou huit mètres, et il se balance de côté */
+if(typeof brPzAnchor === "function"){
+  const _brPzAnchorPC = brPzAnchor;
+  brPzAnchor = function(R){
+    const F = R.pcFwd;
+    if(!R.pc || !F) return _brPzAnchorPC(R);
+    const d = 245 + Math.cos(R.t * 0.9) * 30, sw = Math.sin(R.t * 0.55) * 190;
+    return [R.x + F[0] * d - F[1] * sw, R.y + F[1] * d + F[0] * sw];
+  };
+}
+
 /* la 3D dessine : la toile mobile se tait, les mises en scène continuent d'avancer */
 function brPc3D(){ return typeof window !== "undefined" && window.PCBR3D && window.PCBR3D.on; }
 if(typeof brRender === "function"){
@@ -64,6 +79,7 @@ if(typeof brRender === "function"){
     if(!R.paused && typeof brMiniTick === "function"){ brMiniTick(R, rdt); brFinaleTick(R, rdt); }
     /* (ce que le dessin mobile faisait avancer au passage) */
     R.P.foes.each(f=>{ if(f.pose){ f.pose.t += rdt; if(f.pose.t >= 0.8) f.pose = null; } });
+    const pz = R.boss; if(pz && pz.pz && pz.ghost && !R.paused){ pz.ghost.t -= rdt; if(pz.ghost.t <= 0) pz.ghost = null; }
     if(R.boss) R.bossHpPct = Math.max(0, R.boss.hp / R.boss.max);
     R.movedOnce = true;
   };

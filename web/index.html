@@ -6296,7 +6296,7 @@ body.calm .resdone{animation:none}
 </div>
 <script>
 /* version du jeu (buildver.py) */
-const BUILD_V = "33541b1a", BUILD_LABEL = "3 novembre 2026, 2 h 02";
+const BUILD_V = "341df17c", BUILD_LABEL = "3 novembre 2026, 17 h 47";
 /* Version hebergee : les images sont servies comme fichiers, pas encodees
    dans le HTML. Les noms portent une empreinte : on peut donc les mettre en
    cache indefiniment sans jamais servir une version perimee. */
@@ -13061,6 +13061,8 @@ async function cineCode(c, b){
    doigt pour confirmer : une décision de cette taille ne se prend pas d'un
    toucher distrait. Rejouée depuis le journal, la scène reprend la réponse
    déjà donnée et la rejoue d'elle-même. */
+/* sur PC (le client 3D), on clique au lieu de toucher */
+function cineOnPC(){ return typeof window !== "undefined" && !!(window.PCST3D && window.PCST3D.on); }
 async function cineChoice(c, b){
   c.ff = false;                      /* « Passer » s'arrête ici : la question attend sa réponse */
   const stage = document.getElementById("cn-stage");
@@ -13074,7 +13076,8 @@ async function cineChoice(c, b){
       <span class="cch-fill"></span>
       <b>&gt; ${esc(o.cmd)}</b><small>${esc(pzFmt(o.sub || ""))}</small>
       ${o.isNew ? `<i class="cch-new">nouvelle ligne</i>` : ""}</button>`).join("")}
-    <div class="cch-h">${preset ? "Réponse déjà donnée" : b.quick ? "Touche une réponse" : "Maintiens ton doigt sur une ligne pour la valider"}</div>`;
+    <div class="cch-h">${preset ? "Réponse déjà donnée" : cineOnPC() ? (b.quick ? "Clique une réponse, ou tape son numéro" : "Maintiens le clic sur une ligne pour la valider")
+      : b.quick ? "Touche une réponse" : "Maintiens ton doigt sur une ligne pour la valider"}</div>`;
   box.onclick = e => e.stopPropagation();
   /* au-dessus de la boîte de dialogue (hors de la scène, qui a son propre empilement) */
   (document.getElementById("cine") || stage).appendChild(box);
@@ -13210,7 +13213,7 @@ async function cineCredits(c, b){
   const el = document.createElement("div");
   el.className = "cn-credits";
   const host = document.getElementById("cine"); if(host) host.classList.add("credits");
-  el.innerHTML = `<div class="ccr-roll">${typeof creditsRollHtml === "function" ? creditsRollHtml() : ""}</div><div class="ccr-hint">toucher pour accélérer</div>`;
+  el.innerHTML = `<div class="ccr-roll">${typeof creditsRollHtml === "function" ? creditsRollHtml() : ""}</div><div class="ccr-hint">${cineOnPC() ? "clic ou Espace pour accélérer" : "toucher pour accélérer"}</div>`;
   stage.appendChild(el);
   await cineSleep(c, 80);
   const roll = el.firstChild, vh = el.clientHeight || 640, H = roll.scrollHeight || 2400;
@@ -13758,6 +13761,9 @@ function momentWing(z, d){
           line:lock && !guardianBeaten(lock.r.key, lock.g.id) ? "Et au sommet de cette aile… quelque chose s'est réveillé. Tu l'as senti aussi ?" : ""});
 }
 function momentRelease(g, onDone){
+  /* sur PC, dans l'arène du verrou en 3D, le gardien cède sur place : la scène joue ce moment (pc/src/locks3d.js) */
+  const P = typeof window !== "undefined" && window.PCLOCK3D;
+  if(P && P.on && P.release(g, onDone)){ try { Sfx.shiny(); } catch(e){} return; }
   moment({kind:"release", kicker:"VERROU LEVÉ", title:g.name, sub:g.title, spr:g.id, c:"#ffd84a", quote:g.bye, then:onDone}, true);
 }
 function momentAwake(id){
@@ -16744,6 +16750,47 @@ function directStory(sc){
   const left = [...on.keys()];
   if(left.length) track(left.map(id=>({t:"gone", id, how:"fade", wait:false})).concat([{t:"wait", ms:520}]));
   return {id:sc.id, title, shots:[{beats}]};
+}
+
+/* ===== 37x-plateau-pc.js ===== */
+/* ============================================================
+   37x — LE PLATEAU · VERSION PC (3D)
+   Sur ordinateur, les scènes du récit se jouent en volume
+   (pc/src/story/) : le plateau (37d) reste le seul maître du temps —
+   qui entre, qui bouge, la caméra, la lumière, les fenêtres du système,
+   la défragmentation — et la 3D lit son état à chaque image.
+   Ce fichier n'ajoute que ce que la version PC demande ; sur
+   téléphone, rien ne change :
+     · plFit   — le plateau garde les mesures d'un téléphone (390 × 844) :
+                 les distances, les vitesses et les temps des scènes
+                 restent ceux qui ont été réglés ; la toile du dessus
+                 (cn-over) prend la taille de l'écran ;
+     · plDraw  — plus de dessin à plat : la 3D peint le décor, les
+                 acteurs et la lumière, et place les textes du monde.
+   ============================================================ */
+const PL_PC_VIEW = {w:390, h:844};
+function plPc3D(){ return typeof window !== "undefined" && !!(window.PCST3D && window.PCST3D.on); }
+if(typeof plFit === "function"){
+  const _plFitPC = plFit;
+  plFit = function(c){
+    if(!plPc3D()) return _plFitPC.apply(this, arguments);
+    const P = c.pl; if(!P || !P.cvW) return;
+    const w = PL_PC_VIEW.w, h = PL_PC_VIEW.h, s = Math.max(2, Math.round(w / 210));
+    const ow = Math.max(320, Math.round(window.innerWidth || 1280)), oh = Math.max(240, Math.round(window.innerHeight || 720));
+    if(P.cw === w && P.ch === h && P.pcW === ow && P.pcH === oh) return;
+    P.cw = w; P.ch = h; P.s = s; P.W = Math.ceil(w / s); P.H = Math.ceil(h / s);
+    P.pcW = ow; P.pcH = oh;
+    if(P.cvO){ P.cvO.width = ow; P.cvO.height = oh; }
+    if(P.cvW){ P.cvW.width = 4; P.cvW.height = 4; }
+    if(P.set) plPaint(c, P.set);
+  };
+}
+if(typeof plDraw === "function"){
+  const _plDrawPC = plDraw;
+  plDraw = function(c){
+    if(!plPc3D()) return _plDrawPC.apply(this, arguments);
+    /* la 3D dessine à son rythme (pc/src/story) : ici, rien */
+  };
 }
 
 /* ===== 38-forage.js ===== */
@@ -32720,6 +32767,9 @@ function brSummonPorygon(R){
     ]});
   else f.shield = false;
 }
+/* là où il veut flotter : au-dessus de vous, dans le cadre
+   (le haut de l'écran est sous l'interface : il reste dans la moitié visible ; la version PC, 59x, le place devant la caméra) */
+function brPzAnchor(R){ return [R.x + Math.sin(R.t * 0.55) * (R.W || 390) * 0.28, R.y - 105 + Math.cos(R.t * 0.9) * 30]; }
 /* l'IA : un jeu d'attaques à lui, qui s'accélère quand il faiblit */
 const BR_PZ_KIT = ["tri", "rain", "blink", "ultra", "conv", "tri", "rain", "blink"];
 function brPzAI(R, b, dt){
@@ -32727,8 +32777,7 @@ function brPzAI(R, b, dt){
   if(b.flash > 0) b.flash -= dt;
   /* il flotte au-dessus de vous, toujours dans le cadre : on doit le voir */
   const dx = R.x - b.x, dy = R.y - b.y, d = Math.hypot(dx, dy) || 1;
-  /* (le haut de l'écran est sous l'interface : il reste dans la moitié visible) */
-  const tx = R.x + Math.sin(R.t * 0.55) * (R.W || 390) * 0.28, ty = R.y - 105 + Math.cos(R.t * 0.9) * 30;
+  const [tx, ty] = brPzAnchor(R);
   if(!b.lock){
     const ex = tx - b.x, ey = ty - b.y, e = Math.hypot(ex, ey) || 1, v = Math.min(e * 2.5, 260);
     b.x += ex / e * v * dt; b.y += ey / e * v * dt;
@@ -35842,9 +35891,13 @@ if(typeof brDrawOver === "function"){
                    devant) au lieu de viser l'ennemi le plus proche ;
      · brDodge   — l'esquive (Espace) : un bond court, invulnérable,
                    avec un temps de recharge ;
+     · R.pcFwd   — vers où regarde la caméra : Porygon-Z flotte devant
+                   elle, à bonne distance (sur téléphone : au-dessus de
+                   vous, dans le cadre) ;
      · le rendu  — tant que la 3D dessine, la toile mobile ne dessine
                    plus : seules avancent les mises en scène qui
-                   vivent au rendu (entrées de boss, chutes).
+                   vivent au rendu (entrées de boss, chutes, la trace
+                   de la téléportation de Porygon-Z).
    ============================================================ */
 const BR_DODGE = {dur:0.22, cd:1.4, inv:0.34};
 
@@ -35887,6 +35940,17 @@ if(typeof brFire === "function"){
   };
 }
 
+/* Porygon-Z, sur PC : devant la caméra, à sept ou huit mètres, et il se balance de côté */
+if(typeof brPzAnchor === "function"){
+  const _brPzAnchorPC = brPzAnchor;
+  brPzAnchor = function(R){
+    const F = R.pcFwd;
+    if(!R.pc || !F) return _brPzAnchorPC(R);
+    const d = 245 + Math.cos(R.t * 0.9) * 30, sw = Math.sin(R.t * 0.55) * 190;
+    return [R.x + F[0] * d - F[1] * sw, R.y + F[1] * d + F[0] * sw];
+  };
+}
+
 /* la 3D dessine : la toile mobile se tait, les mises en scène continuent d'avancer */
 function brPc3D(){ return typeof window !== "undefined" && window.PCBR3D && window.PCBR3D.on; }
 if(typeof brRender === "function"){
@@ -35897,6 +35961,7 @@ if(typeof brRender === "function"){
     if(!R.paused && typeof brMiniTick === "function"){ brMiniTick(R, rdt); brFinaleTick(R, rdt); }
     /* (ce que le dessin mobile faisait avancer au passage) */
     R.P.foes.each(f=>{ if(f.pose){ f.pose.t += rdt; if(f.pose.t >= 0.8) f.pose = null; } });
+    const pz = R.boss; if(pz && pz.pz && pz.ghost && !R.paused){ pz.ghost.t -= rdt; if(pz.ghost.t <= 0) pz.ghost = null; }
     if(R.boss) R.bossHpPct = Math.max(0, R.boss.hp / R.boss.max);
     R.movedOnce = true;
   };

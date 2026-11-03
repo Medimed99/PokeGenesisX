@@ -231,6 +231,9 @@ function brSummonPorygon(R){
     ]});
   else f.shield = false;
 }
+/* là où il veut flotter : au-dessus de vous, dans le cadre
+   (le haut de l'écran est sous l'interface : il reste dans la moitié visible ; la version PC, 59x, le place devant la caméra) */
+function brPzAnchor(R){ return [R.x + Math.sin(R.t * 0.55) * (R.W || 390) * 0.28, R.y - 105 + Math.cos(R.t * 0.9) * 30]; }
 /* l'IA : un jeu d'attaques à lui, qui s'accélère quand il faiblit */
 const BR_PZ_KIT = ["tri", "rain", "blink", "ultra", "conv", "tri", "rain", "blink"];
 function brPzAI(R, b, dt){
@@ -238,8 +241,7 @@ function brPzAI(R, b, dt){
   if(b.flash > 0) b.flash -= dt;
   /* il flotte au-dessus de vous, toujours dans le cadre : on doit le voir */
   const dx = R.x - b.x, dy = R.y - b.y, d = Math.hypot(dx, dy) || 1;
-  /* (le haut de l'écran est sous l'interface : il reste dans la moitié visible) */
-  const tx = R.x + Math.sin(R.t * 0.55) * (R.W || 390) * 0.28, ty = R.y - 105 + Math.cos(R.t * 0.9) * 30;
+  const [tx, ty] = brPzAnchor(R);
   if(!b.lock){
     const ex = tx - b.x, ey = ty - b.y, e = Math.hypot(ex, ey) || 1, v = Math.min(e * 2.5, 260);
     b.x += ex / e * v * dt; b.y += ey / e * v * dt;

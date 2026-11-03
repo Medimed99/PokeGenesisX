@@ -16,6 +16,10 @@ import { S, ref, col } from "./lib.js";
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const V = new THREE.Vector3();
 
+/* Porygon-Z flotte : sa taille et sa hauteur de vol (la visée et ses rayons en dépendent) */
+export const PZ_H = 3.4;
+export function pzLift(t){ return 1.05 + Math.sin(t * 1.7) * 0.2; }
+
 export function teamHeight(id, lead){ return clamp(realHeight(id) * (lead ? 1.15 : 1), lead ? 0.95 : 0.7, lead ? 2.1 : 1.75); }
 
 export class Team {
@@ -82,25 +86,46 @@ export class Specials {
   /* f : l'ennemi du jeu mobile (un objet recyclé : on refait le modèle si l'espèce change) */
   show(f, R, dt, t, cam, env, yaw, h){
     let r = this.recs.get(f);
-    const shiny = !!f.shiny, key = f.id + "|" + shiny + "|" + (f.pz ? 1 : 0);
+    const shiny = !!f.shiny, key = f.id + "|" + shiny + "|" + (f.pz ? 1 : 0) + (f.echo ? 1 : 0);
     if(r && r.key !== key){ r.m.dispose(); r = null; }
     if(!r){
-      const m = makeMon(f.id, shiny, this.scene, {height:h, corrupt:!f.pz && !shiny, occ:true});
-      r = {key, m, pose:null, busy:0};
+      /* Porygon-Z et les échos des légendaires gardent leurs couleurs : ce ne sont pas des corrompus */
+      const m = makeMon(f.id, shiny, this.scene, {height:h, corrupt:!f.pz && !f.echo && !shiny, occ:true});
+      r = {key, m, pose:null, busy:0, t0:t};
       this.recs.set(f, r);
     }
     this.seen.add(f);
     const m = r.m, U = m.uniforms;
     if(f.pose && f.pose !== r.pose){ r.pose = f.pose; if(m.playOnce){ const len = m.playOnce(f.pose.anim === "shoot" && m.hasClip("attack2") ? "attack2" : "attack", 1.1); r.busy = t + Math.min(1.2, len); } }
-    if(t >= r.busy) m.setAnim(f.stun > 0 || f.frz > 0 || f.tstop > 0 ? "idle" : "walk");
+    if(t >= r.busy) m.setAnim(f.stun > 0 || f.frz > 0 || f.tstop > 0 ? "idle" : f.pz ? "idle" : "walk");
     m.frozen = f.frz > 0 || f.tstop > 0;
     U.uFlash.value = f.flash > 0 ? 0.85 : 0;
     U.uAlpha.value = f.rise > 0 ? Math.max(0.08, 1 - f.rise) : 1;
-    U.uGlitch.value = f.rise > 0 ? Math.min(1, f.rise * 1.4) : 0;
-    if(U.uTintC) U.uTintC.value.set(0.7, 0.95, 1.1, f.frz > 0 ? 0.45 : f.tstop > 0 ? 0.25 : 0);
-    if(f.tstop > 0 && U.uTintC) U.uTintC.value.set(0.62, 0.88, 0.48, 0.3);
+    let gl = f.rise > 0 ? Math.min(1, f.rise * 1.4) : 0;
+    /* l'apparition : Porygon-Z se projette dans la faille, l'écho se reconstitue */
+    const age = t - r.t0;
+    if((f.pz || f.echo) && age < 2.4) gl = Math.max(gl, 1 - age / 2.4);
+    if(f.pz){
+      if(f.ghost) gl = Math.max(gl, Math.min(0.8, f.ghost.t * 1.6));                  /* il vient de se téléporter */
+      if(Math.sin(t * 3.1) + Math.sin(t * 5.3 + 1) > 1.82) gl = Math.max(gl, 0.35);  /* des sautes d'image, de temps en temps */
+    }
+    if(f.echo && Math.sin(t * 2.3 + f.x) + Math.sin(t * 3.7) > 1.9) gl = Math.max(gl, 0.25);
+    if(f.copy && Math.sin(t * 4.1 + f.x * 0.1) > 0.94) gl = Math.max(gl, 0.4);
+    U.uGlitch.value = gl;
+    if(U.uTintC){
+      const T = U.uTintC.value;
+      if(f.frz > 0) T.set(0.7, 0.95, 1.1, 0.45);
+      else if(f.tstop > 0) T.set(0.62, 0.88, 0.48, 0.3);
+      else if(f.pz && f.p25) T.set(1.0, 0.22, 0.42, 0.22 + Math.sin(t * 9) * 0.08);   /* la surchauffe */
+      else if(f.pz && f.conv){ const c = col(ref("brTypeCol") ? ref("brTypeCol")(f.conv) : "#35f0d6"); T.set(c.r, c.g, c.b, 0.22); }
+      else if(f.copy) T.set(0.78, 0.47, 1.0, 0.38);                                    /* votre équipe, recrachée */
+      else if(f.hunter) T.set(1.0, 0.18, 0.25, 0.18 + Math.max(0, Math.sin(t * 6)) * 0.22);
+      else if(f.echo) T.set(1.0, 0.86, 0.45, 0.16);
+      else T.set(0, 0, 0, 0);
+    }
     m.groundY = 0;
     const sink = f.rise > 0 ? -f.rise * h * 0.9 : 0;
+    m.lift = f.pz ? pzLift(t) : 0;
     m.update(t, dt, V.set(f.x * S, sink, f.y * S), yaw, cam, env);
     r.h = h;
     return r;

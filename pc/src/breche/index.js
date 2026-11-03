@@ -20,9 +20,10 @@ import { S, G, ref, Discs } from "./lib.js";
 import { World } from "./world.js";
 import { OCC } from "../mon/occ.js";
 import { Horde } from "./horde.js";
-import { Team, Specials, Props, teamHeight } from "./units.js";
+import { Team, Specials, Props, teamHeight, PZ_H, pzLift } from "./units.js";
 import { Fx } from "./fx.js";
 import { Legends } from "./legends.js";
+import { Depth } from "./depth.js";
 import { BrHud } from "./hud.js";
 import { Settings } from "../settings.js";
 import { realHeight } from "../mon/sprites.js";
@@ -63,6 +64,7 @@ export class Breche3D {
     this.props = new Props(this.scene);
     this.fx = new Fx(this.scene);
     this.fx.leg = new Legends(this.fx);
+    this.fx.depth = new Depth(this.fx, this.world);
     this.hud = new BrHud();
     this.aimDiscs = new Discs(this.scene);
   }
@@ -92,7 +94,7 @@ export class Breche3D {
     this.team.dispose(); this.specials.dispose();
     this.horde.dispose(); this.horde = new Horde(this.scene);
     this.world.clear(); this.world.hab = null;
-    const R = this.R; if(R){ R.pcMove = null; R.aim = null; }
+    const R = this.R; if(R){ R.pcMove = null; R.aim = null; R.pcFwd = null; }
     this.R = null;
   }
   relock(){
@@ -149,6 +151,7 @@ export class Breche3D {
     let wx = -mz * fx + mx * rx, wz = -mz * fz + mx * rz; const L = Math.hypot(wx, wz);
     if(L > 1){ wx /= L; wz /= L; }
     R.pcMove = L > 0 ? [wx, wz] : [0, 0];
+    R.pcFwd = [fx, fz];
     if(I.locked && I.hit("Space")) ref("brDodge")(R);
     if(this.tipT > 0 && (L > 0 || this.tipT < 8)) this.tipT -= dt;
     /* la visée */
@@ -171,13 +174,15 @@ export class Breche3D {
     this.aimDiscs.begin();
     if(I.locked && active) this.aimDiscs.add(this.aim.x, this.aim.z, this.aimFoe ? 0.7 : 0.45, this.aimFoe ? "#ff5c8a" : "#8fecff", {fill:0.05, rim:0.9, inner:0.8, a:0.8});
     this.aimDiscs.end();
-    this.hud.draw(R, {cam:this.camera, t, yaw:this.yaw, aimFoe:!!this.aimFoe, cine:!!(R.cine || R.mini), tipT:this.tipT, heightOf:f=>this.heightOf(f)});
+    this.hud.draw(R, {cam:this.camera, t, yaw:this.yaw, aimFoe:!!this.aimFoe, cine:!!(R.cine || R.mini), tipT:this.tipT, heightOf:f=>this.heightOf(f), dp:this.fx.depth.hud});
     /* l'image abîmée : discrète, un peu plus quand on est touché ou face au gardien */
     const E = this.game.engine, calm = typeof window.calmFx === "function" && window.calmFx();
-    if(E.corrupt) E.corrupt.set(0.25 + (R.boss ? 0.25 : 0) + (R.hurt > 0 ? 0.5 : 0), R.hurt > 0 ? 0.25 : 0, t, calm);
+    const dp = this.fx.depth.hud;
+    if(E.corrupt) E.corrupt.set(0.25 + (R.boss ? 0.25 : 0) + (R.hurt > 0 ? 0.5 : 0) + dp.flash * 0.9 + (R.boss && R.boss.pz ? 0.15 : 0), (R.hurt > 0 ? 0.25 : 0) + dp.flash * 0.5, t, calm);
     E.setExposure(this.world.H && this.world.H.dark ? 1.25 : 1.1);
   }
   heightOf(f){
+    if(f.pz) return PZ_H;
     if(f.boss) return Math.max(2.4, Math.min(6, (f.size || 100) * S * 1.05));
     return Math.max(0.55, Math.min(4.5, (f.size || 40) * S * (f.elite || f.big ? 1.05 : 0.95)));
   }
@@ -186,6 +191,8 @@ export class Breche3D {
     const H = this.horde, SP = this.specials, PR = this.props, FX = this.fx;
     H.begin(); SP.begin(); PR.begin();
     const lx = R.x, ly = R.y;
+    /* Miroir : la faille copie votre équipe — ses copies ont un éclat de verre violet */
+    const mirror = R.anom && R.anom.k === "miroir" ? new Set(R.team.map(w=>ref("brShownId")(w))) : null;
     R.P.foes.each(f=>{
       if(f.hp <= 0 && !f.boss) return;
       const h = this.heightOf(f), yaw = Math.atan2(lx - f.x, ly - f.y);
@@ -201,11 +208,11 @@ export class Breche3D {
       if(f._vt === undefined || f._vid !== f.id){ f._vt = Math.random() * 16; f._vid = f.id; }
       if(!still) f._vt += dt * 16 / 0.9 * (f.slow > 0 ? 0.55 : 1);
       const ok = H.add(f.id, {x:f.x * S, y:f.rise > 0 ? -f.rise * h * 0.9 : 0, z:f.y * S, yaw, h, frame:f._vt, flash:f.flash > 0 ? 0.85 : 0,
-        frozen:f.frz > 0 ? 1 : 0, alpha:f.rise > 0 ? Math.max(0.1, 1 - f.rise) : 1, corrupt:f.shiny ? 0 : 1, gold:f.shiny ? 0.9 : 0,
-        tint:f.tstop > 0 ? [0.62, 0.88, 0.48] : f.psn > 0 ? [0.7, 0.4, 0.9] : f.burn > 0 ? [1, 0.5, 0.2] : null,
-        tintA:f.tstop > 0 ? 0.35 : f.psn > 0 ? 0.2 : f.burn > 0 ? 0.25 : 0});
+        frozen:f.frz > 0 ? 1 : 0, alpha:f.rise > 0 ? Math.max(0.1, 1 - f.rise) : 1, corrupt:f.shiny || f.gold ? 0 : mirror && mirror.has(f.id) ? 0.45 : 1, gold:f.gold ? 1 : f.shiny ? 0.9 : 0,
+        tint:f.tstop > 0 ? [0.62, 0.88, 0.48] : f.psn > 0 ? [0.7, 0.4, 0.9] : f.burn > 0 ? [1, 0.5, 0.2] : f.gold ? [1, 0.74, 0.16] : mirror && mirror.has(f.id) ? [0.8, 0.62, 1] : null,
+        tintA:f.tstop > 0 ? 0.35 : f.psn > 0 ? 0.2 : f.burn > 0 ? 0.25 : f.gold ? 0.6 : mirror && mirror.has(f.id) ? 0.3 : 0});
       /* pas encore prêt : une silhouette de lumière, le temps du chargement */
-      if(!ok) FX.glow.add(f.x * S, h * 0.5, f.y * S, h * 1.4, f.shiny ? "#ffe9a8" : "#ff3d7f", 0.55);
+      if(!ok) FX.glow.add(f.x * S, h * 0.5, f.y * S, h * 1.4, f.shiny || f.gold ? "#ffe9a8" : "#ff3d7f", 0.55);
     });
     H.end(); SP.end(); PR.end();
   }
@@ -218,7 +225,7 @@ export class Breche3D {
     let best = null, bt = 1e9;
     R.P.foes.each(f=>{
       if(f.hp <= 0 || f.under > 0) return;
-      const h = this.heightOf(f), cx = f.x * S - o.x, cy = h * 0.55 - o.y, cz = f.y * S - o.z, rr = Math.max(0.6, h * 0.55);
+      const h = this.heightOf(f), cx = f.x * S - o.x, cy = (f.pz ? pzLift(this.game.t || 0) : 0) + h * 0.55 - o.y, cz = f.y * S - o.z, rr = Math.max(0.6, h * 0.55);
       const tt = cx * d.x + cy * d.y + cz * d.z; if(tt < 0 || tt > 60) return;
       const px = cx - d.x * tt, py = cy - d.y * tt, pz = cz - d.z * tt;
       if(px * px + py * py + pz * pz < rr * rr && tt < bt){ bt = tt; best = f; }

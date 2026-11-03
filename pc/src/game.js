@@ -17,7 +17,10 @@ import { Trainer } from "./trainer.js";
 import { Sentinels } from "./sentinels.js";
 import { RouteMap } from "./ui/map.js";
 import { Tower3D } from "./tower3d.js";
+import { Expe3D } from "./expe/index.js";
 import { Breche3D } from "./breche/index.js";
+import { Story3D } from "./story/index.js";
+import { Companion } from "./story/companion.js";
 import { CZ } from "./world/corruption.js";
 
 const BERRY_KEYS = {Digit6:"framby", Digit7:"nanab", Digit8:"nigma", Digit9:"sitrus", Digit0:"micle"};
@@ -68,6 +71,9 @@ export class Game {
     this.map = new RouteMap(this);
     this.tower3d = new Tower3D(this);
     this.breche3d = new Breche3D(this);
+    this.story3d = new Story3D(this);
+    this.expe3d = new Expe3D(this);
+    this.companion = new Companion(this);
     /* la nuit, une lueur froide autour de soi (la lampe du terminal) : on voit où l'on marche.
        Pas une lumière de plus dans toute la scène : le sol, l'herbe et les Pokémon 3D la calculent eux-mêmes. */
     this.lamp = CZ.uLamp.value;
@@ -77,7 +83,9 @@ export class Game {
     this.player.onLand = v => this.audio.land(v);
     this.input.onLockChange = locked => this.onLock(locked);
     this.canvas.addEventListener("click", ()=>{
+      if(this.story3d && this.story3d.on) return;
       if(this.breche3d.on){ this.breche3d.relock(); return; }
+      if(this.expe3d && this.expe3d.on){ this.expe3d.relock(); return; }
       if(this.mode === "play" && !this.input.locked) this.input.lock();
     });
     this.restorePos();
@@ -138,6 +146,10 @@ export class Game {
     setTimeout(()=>{ if(this.mode === "play" && !this.input.locked) this.hud.prompt(`<b>Clic</b> pour reprendre`); }, 300);
   }
   onLock(locked){
+    /* une scène du récit rend la souris : ce n'est pas une pause */
+    if(this.story3d && this.story3d.on) return;
+    /* l'Expédition : rendre la souris, c'est seulement reprendre la main sur ses boutons */
+    if(this.expe3d && this.expe3d.on) return;
     /* la Brèche : rendre la souris, c'est mettre en pause (sauf si une fenêtre l'a demandé) */
     if(this.breche3d && this.breche3d.on){
       const R = this.G && this.G.ref("BR");
@@ -157,7 +169,9 @@ export class Game {
       return;
     }
     if(e.code === "Tab" && (this.mode === "dialog" || this.mode === "battle")){ e.preventDefault(); return; }
+    if(this.story3d && this.story3d.on){ this.story3d.key(e); return; }
     if(this.breche3d && this.breche3d.on){ this.breche3d.key(e); return; }
+    if(this.expe3d && this.expe3d.on){ this.expe3d.key(e); return; }
     /* pendant un combat de la Tour : Tab ou Échap ouvrent sa pause (ou referment la fiche ouverte) */
     if(this.tower3d && this.tower3d.on && (e.code === "Tab" || e.code === "Escape")){
       e.preventDefault();
@@ -217,10 +231,36 @@ export class Game {
     }
   }
   update(dt){
+    /* une scène du récit : elle se joue en volume, dans son lieu ; le reste attend */
+    this.story3d.update(dt, this.t);
+    if(this.story3d.on){
+      /* une scène commence pendant un combat de la Tour (la victoire finale ouvre la révélation) : l'arène s'efface */
+      if(this.tower3d && this.tower3d.on) this.tower3d.exit();
+      /* le générique : le monde réparé vit sous la caméra (le ciel, l'eau, l'herbe, les Pokémon) */
+      if(this.story3d.flying){
+        const F = this.story3d.flyFocus || this.player.pos;
+        this.world.update(dt, this.t, this.story3d.flyHour || 8, F, this.engine.camera);
+        const st = this.world.sky.state; this.engine.setExposure(st ? st.exp : 1);
+        this.computeEnv();
+        if(this.engine.corrupt) this.engine.corrupt.set(0, 0, this.t, true);
+        try { this.wild.update(dt, this.t, F, this.engine.camera, this.env); } catch(e){}
+        this.capture.sparks.update(dt);
+      }
+      this.hud.update(dt, this.t);
+      this.audio.update(dt, this.t);
+      return;
+    }
     /* la Brèche en 3D : un autre monde, une autre caméra ; la route attend */
     this.breche3d.update(dt, this.t);
     if(this.breche3d.on){
       this.tower3d.update(dt, this.t);
+      this.hud.update(dt, this.t);
+      this.audio.update(dt, this.t);
+      return;
+    }
+    /* l'Expédition en 3D : un secteur à elle, une caméra à elle ; la route attend */
+    this.expe3d.update(dt, this.t);
+    if(this.expe3d.on){
       this.hud.update(dt, this.t);
       this.audio.update(dt, this.t);
       return;
@@ -240,6 +280,7 @@ export class Game {
     this.glitchTick(dt);
     if(playing) this.handleInput(dt);
     this.wild.update(dt, this.t, this.player.pos, this.engine.camera, this.env);
+    this.companion.update(dt, this.t);
     this.capture.update(dt, this.t, this.input);
     this.fishing.update(dt, this.t);
     this.trainer.update(dt, this.t);
@@ -318,7 +359,7 @@ export class Game {
       Settings.time = order[(i + 1) % 3]; saveSettings();
       this.hud.hint({reel:"Heure réelle : le ciel suit ton horloge", jour:"Toujours le jour", nuit:"Toujours la nuit"}[Settings.time] + " · <b>H</b> pour changer", 3);
     }
-    if(I.hit("KeyE") || I.char("e")) this.trainer.interact() || this.fishing.interact();
+    if(I.hit("KeyE") || I.char("e")) this.trainer.interact() || this.fishing.interact() || this.companion.poke();
   }
   prompts(){
     if(this.mode !== "play"){ return; }
