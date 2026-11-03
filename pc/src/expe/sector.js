@@ -158,7 +158,12 @@ export class Sector {
     this.g.traverse(o=>{ if(o.geometry) o.geometry.dispose(); const M = o.material; if(M) (Array.isArray(M) ? M : [M]).forEach(m=>{ if(m.map && m.map !== (ATLAS && ATLAS.tex)) m.map.dispose(); m.dispose(); }); });
     this.g = null; this.nodes = []; this.links = [];
   }
-  heightAt(x, z){ return groundH(x, z, this.L || 100); }
+  /* le sol, et ce qu'on y a posé et où l'on monte (l'estrade du Champion) */
+  heightAt(x, z){
+    let h = groundH(x, z, this.L || 100);
+    for(const P of this.pads || []){ const d = Math.hypot(x - P.x, z - P.z); if(d < P.r + 0.25) h += P.h * Math.min(1, (P.r + 0.25 - d) / 0.25); }
+    return h;
+  }
   build(run){
     this.dispose();
     this.key = (run.seed || 0) + ":" + (run.mapIdx || 0) + ":" + run.biome;
@@ -166,6 +171,7 @@ export class Sector {
     const B = this.B = XB3[run.biome] || XB3.prairie, R = rng((run.seed || 1) + (run.mapIdx || 0) * 977);
     const g = this.g = new THREE.Group(); this.scene.add(g);
     const L = this.L = sectorLen(run);
+    this.pads = [];
     const z0 = START_Z + 20, z1 = -L - 22, X0 = -40, X1 = 40;
     this.bounds = {x0:-19, x1:19, z0:START_Z + 4, z1:-L - 6};
     /* ---------- le sol : la peinture du jeu mobile, en grands pixels ---------- */
@@ -351,6 +357,8 @@ export class Sector {
     } else if(T === "champ"){
       /* l'arène du Champion : une estrade, quatre piliers, sa silhouette (son type reste secret) */
       add(new THREE.CylinderGeometry(5.2, 5.6, 0.4, 24), std(B.wall[2]), 0, 0.2, -1);
+      /* on monte dessus : l'équipe et le combat s'y tiennent debout, pas à moitié dedans */
+      this.pads.push({x:pos.x, z:pos.z - 1, r:5.2, h:0.4});
       const rim = new THREE.Mesh(new THREE.TorusGeometry(5.2, 0.09, 6, 48).rotateX(Math.PI / 2), new THREE.MeshBasicMaterial({color:"#ffc857", toneMapped:false})); rim.position.set(0, 0.42, -1); ng.add(rim);
       for(let k = 0; k < 4; k++){ const a = Math.PI * 0.2 + k / 3 * Math.PI * 0.6 + Math.PI; const p = add(new THREE.BoxGeometry(0.7, 5, 0.7), std(B.wall[1]), Math.cos(a) * 5.6, 2.5, -1 + Math.sin(a) * 5.6);
         add(new THREE.BoxGeometry(0.75, 0.25, 0.75), new THREE.MeshBasicMaterial({color:"#ffc857", toneMapped:false}), p.position.x, 4.6, p.position.z); }

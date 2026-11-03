@@ -20,6 +20,8 @@ import { Sector, nodePos, START_Z } from "./sector.js";
 import { XTeam } from "./team.js";
 import { XArena } from "./arena.js";
 import { XScenes } from "./scenes.js";
+import { XStage } from "./stage.js";
+import { XTrail, routeTo } from "./trail.js";
 import { Settings } from "../settings.js";
 import { OCC } from "../mon/occ.js";
 
@@ -80,6 +82,27 @@ export class Expe3D {
     this.team = new XTeam(s);
     this.arena = new XArena(s, this.game);
     this.scenes = new XScenes(s, this.game);
+    this.stage = new XStage();
+    this.trail = new XTrail(s);
+    /* la carte (M) : un clic sur un nœud trace la route (au lieu d'y aller tout de suite) */
+    this.mapBar = document.createElement("div"); this.mapBar.id = "pc-xp-map";
+    this.mapBar.innerHTML = `<b>LA CARTE DU SECTEUR</b><span>Clique un nœud : sa route se trace au sol · <kbd>M</kbd> ou <kbd>Échap</kbd> pour revenir</span><button data-x="1">Fermer</button>`;
+    document.body.appendChild(this.mapBar);
+    this.mapBar.querySelector("button").addEventListener("click", ()=>this.toggleMap(false));
+    addEventListener("click", e=>{
+      if(!this.on || !this.mapOpen) return;
+      const n = e.target.closest && e.target.closest(".xmapwrap .pn[data-y]");
+      if(!n) return;
+      e.preventDefault(); e.stopPropagation();
+      const A = G().ACTIONS; if(A && A.exppeek) A.exppeek({y:n.dataset.y, i:n.dataset.i});
+    }, true);
+    /* dans un choix, un clic sur un candidat (ou un objet) en 3D vaut un clic sur sa carte */
+    addEventListener("pointermove", e=>{ if(this.on && this.mode === "scene") this.pick3 = this.slotUnder(e.clientX, e.clientY); }, true);
+    addEventListener("click", e=>{
+      if(!this.on || this.mode !== "scene" || (e.target.closest && e.target.closest("button, a, input, #pc-xs .pcx-card, #sheet-root"))) return;
+      const i = this.slotUnder(e.clientX, e.clientY), c = i >= 0 && this.stage.anch[i];
+      if(c && !c.disabled) c.click();
+    }, true);
     this.team.sparks = this.game.capture && this.game.capture.sparks;
     /* par-dessus : les chiffres du combat, les noms des coups */
     this.fx = document.createElement("canvas"); this.fx.id = "pc-xp-fx"; document.body.appendChild(this.fx);
@@ -99,8 +122,9 @@ export class Expe3D {
   }
   exit(){
     this.on = false; window.PCXP3D.on = false;
-    document.body.classList.remove("expe3d", "xw", "xb", "xn");
-    this.arena.end(); this.scenes.end();
+    document.body.classList.remove("expe3d", "xw", "xb", "xn", "xm"); this.mapOpen = false;
+    if(this.trail) this.trail.clear();
+    this.arena.end(); this.scenes.end(); if(this.stage) this.stage.hide();
     const sp = this.game.capture && this.game.capture.sparks; if(sp) this.game.engine.scene.add(sp.points);
     const g = this.game;
     if(!(g.story3d && g.story3d.on)){
@@ -116,7 +140,7 @@ export class Expe3D {
   /* une fenêtre du jeu mobile est ouverte (une scène de nœud, une fiche) : la souris lui revient */
   overlayOpen(){
     const xs = document.getElementById("xscene"), sr = document.getElementById("sheet-root");
-    return !!((xs && xs.dataset && xs.dataset.kind !== undefined) || (sr && /\bon\b/.test(sr.className)) || ref("EXP_END"));
+    return !!(this.mapOpen || (xs && xs.dataset && xs.dataset.kind !== undefined) || (sr && /\bon\b/.test(sr.className)) || ref("EXP_END"));
   }
   relock(){ if(this.on && this.mode === "walk" && !this.overlayOpen() && !this.game.input.locked) this.game.input.lock(); }
   /* ---------- les touches ---------- */
@@ -124,18 +148,17 @@ export class Expe3D {
     if(!this.on) return false;
     const I = this.game.input;
     if(e.code === "Tab"){ e.preventDefault(); if(I.locked) I.unlock(); else this.relock(); return true; }
-    if(e.code === "Escape"){ if(!I.locked){ this.game.terminal.escape(); } return true; }
+    if(e.code === "Escape"){ if(this.mapOpen){ this.toggleMap(false); return true; } if(!I.locked){ this.game.terminal.escape(); } return true; }
+    if(e.code === "KeyM" && this.mode === "walk"){ e.preventDefault(); this.toggleMap(); return true; }
     /* une scène : 1 à 6 choisissent (cartes, reliques, membres, articles, réponses), Entrée valide */
     if(this.mode === "scene"){
       const d = /^(Digit|Numpad)([1-6])$/.exec(e.code);
       if(d){
-        const list = [...document.querySelectorAll("#xscene .xs-pick .xs-pm, #xscene .xs-relics .xs-rc")];
-        const pool = list.length ? list : [...document.querySelectorAll("#xscene .xs-cards .xs-card, #xscene .xs-shelf .xs-ware, #xscene .xs-panel .btn-grid .btn")];
-        const el = pool[+d[2] - 1]; if(el && !el.disabled){ e.preventDefault(); el.click(); }
+        const el = this.stage.choices()[+d[2] - 1]; if(el && !el.disabled){ e.preventDefault(); el.click(); }
         return true;
       }
       if(e.code === "Enter" || e.code === "NumpadEnter" || e.code === "Space" || e.code === "KeyE"){
-        const el = [...document.querySelectorAll("#xscene .xs-panel .btn.pri")].find(b=>!b.disabled && b.offsetParent !== null);
+        const el = this.stage.primary();
         if(el){ e.preventDefault(); el.click(); }
         return true;
       }
@@ -144,6 +167,27 @@ export class Expe3D {
       e.preventDefault(); this.interact(); return true;
     }
     return false;
+  }
+  /* la carte complète du secteur, par-dessus la vallée */
+  toggleMap(on){
+    on = on === undefined ? !this.mapOpen : on;
+    if(on === !!this.mapOpen) return;
+    const sr = document.getElementById("sheet-root"), xs = document.getElementById("xscene");
+    if(on && ((xs && xs.dataset && xs.dataset.kind !== undefined) || (sr && /\bon\b/.test(sr.className)))) return;
+    this.mapOpen = on;
+    document.body.classList.toggle("xm", on);
+    const I = this.game.input;
+    if(on){
+      if(I.locked) I.unlock();
+      /* le fond de la carte se peint à sa vraie taille, et on la fait défiler jusqu'à l'équipe */
+      requestAnimationFrame(()=>{
+        const run = this.run(); if(!run) return;
+        try { ref("xmapPaint")(document.getElementById("xterr"), run); } catch(e){}
+        const sc = document.getElementById("map-scroll"), geo = ref("xmapGeom");
+        if(sc && geo){ const y = run.row < 0 ? 0 : geo(run).Y(run.row); sc.scrollTop = Math.max(0, y - sc.clientHeight * 0.3); }
+        const pw = ref("pmdWake"); if(pw) pw();
+      });
+    } else this.relock();
   }
   interact(){
     const N = this.near, run = this.run(), A = G() && G().ACTIONS;
@@ -191,8 +235,9 @@ export class Expe3D {
       const was = this.mode; this.mode = mode;
       document.body.classList.toggle("xw", mode === "walk"); document.body.classList.toggle("xb", mode === "battle"); document.body.classList.toggle("xn", mode === "scene");
       if(was === "battle") this.arena.end();
+      if(mode !== "walk"){ this.trail.clear(); this.trailSig = ""; this.toggleMap(false); }
       if(mode === "walk") this.expBattle = null;
-      if(was === "scene" && mode !== "scene") this.scenes.end();
+      if(was === "scene" && mode !== "scene"){ this.scenes.end(); this.stage.hide(); }
       if(mode === "battle"){
         const c = this.nodeC(run);
         this.arena.begin(c, (x, z)=>this.sector.heightAt(x, z), this.nodeF);
@@ -242,7 +287,25 @@ export class Expe3D {
     const E = this.game.engine, calm = typeof window.calmFx === "function" && window.calmFx();
     if(E.corrupt) E.corrupt.set(run.biome === "faille" ? 0.4 : 0.1, 0, t, calm);
     E.setExposure(this.sector.B ? this.sector.B.exp : 1);
+    this.bagLayout();
     this.overlay(t);
+  }
+  /* le sac d'expédition, sur PC : l'équipe à gauche (qui tient quoi), le sac à droite, en tuiles */
+  bagLayout(){
+    const sh = document.querySelector("#sheet-root.on .sheet");
+    if(!sh || sh.classList.contains("xbag")) return;
+    const h = sh.querySelector(".sheet-h"); if(!h || !/Sac d'expédition/.test(h.textContent)) return;
+    const hs = [...sh.querySelectorAll(":scope > .h.sm")]; if(hs.length < 2) return;
+    sh.classList.add("xbag");
+    const cols = document.createElement("div"); cols.className = "xbag-cols";
+    hs.forEach((hh, k)=>{
+      const col = document.createElement("div"); col.className = k ? "xbag-bag" : "xbag-team";
+      const list = hh.nextElementSibling;
+      col.appendChild(hh); if(list && !list.classList.contains("h")) col.appendChild(list);
+      cols.appendChild(col);
+    });
+    const note = sh.querySelector(":scope > .tiny");
+    if(note) note.after(cols); else h.after(cols);
   }
   nodeC(run){ const c = run.row >= 0 ? nodePos(run, run.row, run.col) : new THREE.Vector3(0, 0, START_Z - 6); c.y = this.sector.heightAt(c.x, c.z); return c; }
   /* ---------- une scène de nœud : l'équipe rassemblée, la caméra qui cadre ---------- */
@@ -255,13 +318,28 @@ export class Expe3D {
     sc.update(t, dt, this.camera, this.env, S0);
     if(this.snap){ this.camPos.copy(this.camera.position); this.camLook.copy(sc.C); this.snap = false; }
     sc.camera(this.camera, dt, this.camPos, this.camLook, ground);
+    this.camera.updateMatrixWorld();
+    this.stage.update(document.getElementById("xscene"), run, sc, this.camera);
+    if(this.pick3 !== undefined && this.stage.hover < 0 && this.pick3 >= 0) sc.hover = this.pick3;
     const C = sc.C; this.sun.position.set(C.x + 14, C.y + 30, C.z + 10); this.sun.target.position.copy(C);
     /* la marche reprendra d'ici */
     this.pos.copy(C).addScaledVector(sc.F, -2.6); this.pos.y = ground(this.pos.x, this.pos.z);
     this.card.className = "";
-    const k = `<b>1</b> <b>2</b> <b>3</b> choisir · <b>Entrée</b> valider`;
+    const n = this.stage.choices().length, pri = this.stage.primary();
+    const k = n ? `<b>Clic</b> ou <b>1</b>${n > 1 ? `…<b>${n}</b>` : ""} choisir${pri ? ` · <b>Entrée</b> ${esc(pri.textContent.trim().split(" ·")[0].toLowerCase())}` : ""}` : pri ? `<b>Entrée</b> ${esc(pri.textContent.trim().split(" ·")[0].toLowerCase())}` : "";
     if(this.keysHtml !== k){ this.keys.innerHTML = k; this.keysHtml = k; }
-    this.keys.className = document.querySelector("#xscene .xs-card, #xscene .xs-rc, #xscene .xs-pm, #xscene .xs-ware, #xscene .xs-panel .btn-grid .btn") ? "on" : "";
+    this.keys.className = k ? "on" : "";
+  }
+  /* le socle (et ce qu'il porte) sous la souris, à l'écran */
+  slotUnder(cx, cy){
+    const sc = this.scenes; if(!sc || !sc.slots) return -1;
+    let best = -1, bd = 95;
+    sc.slots.forEach((ped, i)=>{
+      const q = T1.copy(ped.position).add(T2.set(0, 1.25, 0)).project(this.camera); if(q.z > 1) return;
+      const d = Math.hypot((q.x * 0.5 + 0.5) * innerWidth - cx, (-q.y * 0.5 + 0.5) * innerHeight - cy);
+      if(d < bd){ bd = d; best = i; }
+    });
+    return best;
   }
   walk(run, dt, t){
     const I = this.game.input, S0 = this.sector;
@@ -311,10 +389,26 @@ export class Expe3D {
     cam.rotation.set(-p * 0.82 + 0.06, this.yaw, 0, "YXZ");
     /* le soleil suit l'équipe (ses ombres restent nettes) */
     this.sun.position.set(this.pos.x + 14, this.pos.y + 30, this.pos.z + 10); this.sun.target.position.copy(this.pos);
+    this.updTrail(run, t, dt);
     this.walkHud(run, open);
+  }
+  /* le tracé : de l'équipe au nœud choisi sur la carte, par les nœuds du chemin */
+  updTrail(run, t, dt){
+    const pk = ref("EXP_PEEK"), calm = typeof window.calmFx === "function" && window.calmFx();
+    const route = pk ? routeTo(run, pk) : null;
+    if(!route){ if(this.trail.dots.length || this.trail.goal.visible) this.trail.clear(); this.trailSig = ""; return; }
+    const sig = run.mapIdx + ":" + run.row + ":" + route.map(r=>r.y + "," + r.i).join(";");
+    if(sig !== this.trailSig || this.pos.distanceTo(this.trailFrom || this.pos) > 0.6){
+      this.trailSig = sig; this.trailFrom = this.pos.clone();
+      const pts = [this.pos.clone()].concat(route.map(r=>nodePos(run, r.y, r.i)));
+      this.trail.set(pts, (x, z)=>this.sector.heightAt(x, z));
+    }
+    this.trail.update(t, dt, calm);
   }
   battle(run, dt, t){
     const I = this.game.input, B = ref("BATTLE");
+    /* chaque combat démarre à ×1 (Maj maintenu l'accélère, le temps qu'on le tient) */
+    if(B && B !== this.spB){ this.spB = B; B.speed = 1; }
     if(B && B.ai) B.turbo = I.down("ShiftLeft") || I.down("ShiftRight");
     I.consumeLook(); I.consumeWheel();
     const ok = this.arena.update(t, dt, this.camera, this.env);
@@ -340,7 +434,7 @@ export class Expe3D {
       this.card.style.setProperty("--nc", N.c);
     } else this.card.className = "";
     const k = !I.locked ? (open ? "" : `<b>Clic</b> dans la scène pour marcher · <b>Échap</b> : quitter le terminal (le parcours attend)`)
-      : `<b>ZQSD</b> marcher · <b>Maj</b> courir · <b>E</b> entrer · <b>Tab</b> la souris (équipe, sac, soins)`;
+      : `<b>ZQSD</b> marcher · <b>Maj</b> courir · <b>E</b> entrer · <b>M</b> la carte · <b>Tab</b> la souris (équipe, sac, soins)`;
     if(this.keysHtml !== k){ this.keys.innerHTML = k; this.keysHtml = k; }
     this.keys.className = k ? "on" : "";
   }

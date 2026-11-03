@@ -47,7 +47,7 @@ function ppPool(){
 function ppMount(host, cfg){
   if(!host) return;
   PP = Object.assign({q:"", sort:"power", type:0, armed:null, drag:null, show:120}, PP && PP.keep ? {q:PP.q, sort:PP.sort, type:PP.type} : {}, cfg);
-  PP.sel = (cfg.sel || []).filter(id=>S.dex[id]).slice(0, cfg.max);
+  PP.sel = (cfg.sel || []).filter(id=>S.dex[id] && (!cfg.filter || cfg.filter(id))).slice(0, cfg.max);
   PP.host = host;
   host.innerHTML = `<div class="pp">
     <div class="pp-top" id="pp-top">

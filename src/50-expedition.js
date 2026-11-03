@@ -856,11 +856,12 @@ ACTIONS.exppeek = d => {
 };
 ACTIONS.expstart = () => {
   if(!moduleUnlocked("expedition")) return;
+  /* les légendaires ne partent pas en Expédition : on ne les propose pas */
   teamPicker("Équipe de départ (3) — forme de base, niveau 5", 3, ids=>{
     ids = ids.filter(id=>!POKE[id].leg);
     if(!ids.length){ toast("Les légendaires ne partent pas en Expédition", "bad", "cross"); return; }
     startExpedition(ids);
-  });
+  }, null, {filter:id=>!POKE[id].leg});
 };
 ACTIONS.expabandon = () => {
   sheet(`${sheetHead("Abandonner l'expédition ?")}
