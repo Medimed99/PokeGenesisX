@@ -17,6 +17,7 @@ import { Trainer } from "./trainer.js";
 import { Sentinels } from "./sentinels.js";
 import { RouteMap } from "./ui/map.js";
 import { Tower3D } from "./tower3d.js";
+import { Breche3D } from "./breche/index.js";
 import { CZ } from "./world/corruption.js";
 
 const BERRY_KEYS = {Digit6:"framby", Digit7:"nanab", Digit8:"nigma", Digit9:"sitrus", Digit0:"micle"};
@@ -66,6 +67,7 @@ export class Game {
     this.sentinels = new Sentinels(this);
     this.map = new RouteMap(this);
     this.tower3d = new Tower3D(this);
+    this.breche3d = new Breche3D(this);
     /* la nuit, une lueur froide autour de soi (la lampe du terminal) : on voit où l'on marche.
        Pas une lumière de plus dans toute la scène : le sol, l'herbe et les Pokémon 3D la calculent eux-mêmes. */
     this.lamp = CZ.uLamp.value;
@@ -74,7 +76,10 @@ export class Game {
     this.player.onStep = (surf, run) => this.audio.step(surf, run);
     this.player.onLand = v => this.audio.land(v);
     this.input.onLockChange = locked => this.onLock(locked);
-    this.canvas.addEventListener("click", ()=>{ if(this.mode === "play" && !this.input.locked) this.input.lock(); });
+    this.canvas.addEventListener("click", ()=>{
+      if(this.breche3d.on){ this.breche3d.relock(); return; }
+      if(this.mode === "play" && !this.input.locked) this.input.lock();
+    });
     this.restorePos();
     this.world.grass.prime(this.player.pos);
     this.progress("Prêt", 1);
@@ -133,6 +138,14 @@ export class Game {
     setTimeout(()=>{ if(this.mode === "play" && !this.input.locked) this.hud.prompt(`<b>Clic</b> pour reprendre`); }, 300);
   }
   onLock(locked){
+    /* la Brèche : rendre la souris, c'est mettre en pause (sauf si une fenêtre l'a demandé) */
+    if(this.breche3d && this.breche3d.on){
+      const R = this.G && this.G.ref("BR");
+      if(locked){ this.breche3d.hadLock = true; return; }
+      /* (seulement une souris que la Brèche avait prise : pas l'écho de l'ouverture du terminal) */
+      if(this.breche3d.hadLock && R && !R.paused && !R.modal && !R.over) this.G.ref("brPause")(true);
+      return;
+    }
     if(locked){ this.hud.prompt(""); return; }
     /* Échap pendant la promenade : la pause */
     if(this.mode === "play" && !this.terminal.open && !this.hud.newOpen) this.menus.openPause("main");
@@ -144,6 +157,7 @@ export class Game {
       return;
     }
     if(e.code === "Tab" && (this.mode === "dialog" || this.mode === "battle")){ e.preventDefault(); return; }
+    if(this.breche3d && this.breche3d.on){ this.breche3d.key(e); return; }
     /* pendant un combat de la Tour : Tab ou Échap ouvrent sa pause (ou referment la fiche ouverte) */
     if(this.tower3d && this.tower3d.on && (e.code === "Tab" || e.code === "Escape")){
       e.preventDefault();
@@ -203,6 +217,14 @@ export class Game {
     }
   }
   update(dt){
+    /* la Brèche en 3D : un autre monde, une autre caméra ; la route attend */
+    this.breche3d.update(dt, this.t);
+    if(this.breche3d.on){
+      this.tower3d.update(dt, this.t);
+      this.hud.update(dt, this.t);
+      this.audio.update(dt, this.t);
+      return;
+    }
     const playing = this.mode === "play";
     const look = this.input.locked && playing ? this.input.consumeLook() : (this.input.consumeLook(), {x:0, y:0});
     if(Settings.invertY) look.y = -look.y;
@@ -288,15 +310,15 @@ export class Game {
       if((S.berries[k] || 0) <= 0) window.toast("Plus de " + this.G.BERRIES[k].name, "bad", "cross");
       else if(!window.useBerry(k)) window.toast(this.G.BERRIES[k].name + " déjà active", "", "seed");
     }
-    if(I.hit("KeyF")) this.fishing.toggle();
-    if(I.hit("KeyM")) this.map.toggle();
+    if(I.hit("KeyF") || I.char("f")) this.fishing.toggle();
+    if(I.hit("KeyM") || I.char("m")) this.map.toggle();
     /* H : l'heure — réelle, toujours le jour, toujours la nuit */
-    if(I.hit("KeyH")){
+    if(I.hit("KeyH") || I.char("h")){
       const order = ["reel", "jour", "nuit"], i = order.indexOf(Settings.time);
       Settings.time = order[(i + 1) % 3]; saveSettings();
       this.hud.hint({reel:"Heure réelle : le ciel suit ton horloge", jour:"Toujours le jour", nuit:"Toujours la nuit"}[Settings.time] + " · <b>H</b> pour changer", 3);
     }
-    if(I.hit("KeyE")) this.trainer.interact() || this.fishing.interact();
+    if(I.hit("KeyE") || I.char("e")) this.trainer.interact() || this.fishing.interact();
   }
   prompts(){
     if(this.mode !== "play"){ return; }

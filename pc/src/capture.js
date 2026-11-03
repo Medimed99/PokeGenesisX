@@ -210,7 +210,7 @@ export class Capture {
     f.t += dt;
     const prev = b.position.clone();
     /* un peu d'aimant vers la cible verrouillée : on vise juste, la Ball suit */
-    if(!f.landed && f.target && f.target.state !== "fled" && f.target.state !== "gone"){
+    if(!f.landed && !f.bounces && f.target && f.target.state !== "fled" && f.target.state !== "gone"){
       const e = f.target, c = new THREE.Vector3(e.pos.x, e.pos.y + (e.sprite.drawH || e.H) * 0.5, e.pos.z);
       const to = c.sub(b.position), dist = to.length();
       const lateral = to.clone().sub(f.v.clone().normalize().multiplyScalar(to.dot(f.v.clone().normalize()))).length();
@@ -229,10 +229,11 @@ export class Capture {
     const gy = heightAt(b.position.x, b.position.z) + R;
     if(b.position.y < gy){
       b.position.y = gy;
-      if(Math.abs(f.v.y) > 1.2){ f.v.y = -f.v.y * 0.35; f.v.x *= 0.6; f.v.z *= 0.6; if(this.game.audio) this.game.audio.bounce(b.position); }
-      else { f.v.set(0, 0, 0); }
-      if(!f.landed){ f.landed = true; this.missed(f); }
+      /* un rebond peut encore toucher : la Ball n'est ratée qu'une fois retombée pour de bon */
+      if(Math.abs(f.v.y) > 1.2 && (f.bounces || 0) < 3){ f.v.y = -f.v.y * 0.42; f.v.x *= 0.7; f.v.z *= 0.7; f.bounces = (f.bounces || 0) + 1; if(this.game.audio) this.game.audio.bounce(b.position); }
+      else { f.v.set(0, 0, 0); if(!f.landed){ f.landed = true; this.missed(f); } }
     }
+    if(!f.landed && f.bounces && f.v.lengthSq() < 0.5){ f.landed = true; this.missed(f); }
     if(f.landed && f.v.lengthSq() < 0.01){ f.rest += dt; if(f.rest > 1.4) f.done = true; }
     if(f.t > 6) f.done = true;
   }

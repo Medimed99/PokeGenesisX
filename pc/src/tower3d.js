@@ -204,24 +204,43 @@ export class Tower3D {
           heading = Math.atan2(-from.x, -from.z);
         }
       }
-      /* l'élan vers la cible */
-      if(v.lunge && T >= v.lunge.t0 && T - v.lunge.t0 < 380){
-        /* la cible est donnée par sa place à l'écran mobile : on retrouve qui s'y tient */
-        const to = v.lunge.to, tg = [...this.recs.values()].find(x=>x.u._v && x.u._v.pos && Math.abs(x.u._v.pos.x - to.x) < 2 && Math.abs(x.u._v.pos.y - to.y) < 2);
-        if(tg){ const q = Math.sin((T - v.lunge.t0) / 380 * Math.PI) * 0.6; pos.lerp(tg.pos, q * 0.85); }
-      }
-      /* la pose : attaque, tir, charge */
+      /* l'attaque : dès qu'une pose commence, l'animation d'attaque joue en entier (accélérée avec le combat),
+         avec un élan vers la cible et un petit bond — même en ×3, on la voit */
       const pose = v.pose && T >= v.pose.t0 && T - v.pose.t0 < v.pose.len ? v.pose : v.pose2 && T >= v.pose2.t0 && T - v.pose2.t0 < v.pose2.len ? v.pose2 : null;
-      if(pose) anim = "attack";
+      if(pose && pose.t0 !== r.lastPose){
+        r.lastPose = pose.t0;
+        const sp = Math.max(1, (G().ref("sqState")() || {}).speed || 1);
+        /* au contact : l'attaque physique ; à distance : l'attaque spéciale, si le modèle en a une */
+        const clip = !v.lunge && m.hasClip && m.hasClip("attack2") ? "attack2" : "attack";
+        const len = m.playOnce ? m.playOnce(clip, Math.min(2.2, 0.9 + sp * 0.45)) : (m.setAnim("attack"), 0.6);
+        let to = null;
+        if(v.lunge){ const L = v.lunge.to; const tg = [...this.recs.values()].find(x=>x.u._v && x.u._v.pos && Math.abs(x.u._v.pos.x - L.x) < 2 && Math.abs(x.u._v.pos.y - L.y) < 2); if(tg) to = tg.pos.clone(); }
+        if(!to){ const o = (V.orbs || []).find(q=>q.from === u); const tg = o && this.recs.get(o.to); if(tg) to = tg.pos.clone(); }
+        if(!to) to = new THREE.Vector3(ARENA.x + other.x, ARENA.y, ARENA.z + other.z);
+        r.atk = {start:t, dur:Math.max(0.5, Math.min(1.6, len)), to, melee:!!v.lunge};
+      }
+      if(r.atk && t - r.atk.start < r.atk.dur){
+        const k = (t - r.atk.start) / r.atk.dur, arc = Math.sin(Math.PI * Math.min(1, k * 1.15));
+        const dir = r.atk.to.clone().sub(base); const dist = dir.length(); dir.y = 0; dir.normalize();
+        pos.addScaledVector(dir, (r.atk.melee ? Math.max(0, dist - 1.2) : Math.min(1.1, dist * 0.2)) * arc);
+        pos.y += arc * (r.atk.melee ? 0.25 : 0.4);
+        heading = Math.atan2(dir.x, dir.z);
+        anim = null;                                   /* l'animation d'attaque est déjà lancée */
+      } else r.atk = null;
       /* touché : un recul, un éclair blanc, des éclats */
       if(v.hurt && T - v.hurt < 220){ const k = 1 - (T - v.hurt) / 220; pos.addScaledVector(new THREE.Vector3(Math.sin(heading), 0, Math.cos(heading)), -0.35 * k); }
       if(v.flash && T - v.flash < 110) flash = 0.85;
+      if(v.hurt && v.hurt !== r.lastHurt && !r.atk && !v.ko && m.hasClip && m.hasClip("hurt")) r.hurtUntil = t + m.playOnce("hurt", 1.6);
+      if(r.hurtUntil && t < r.hurtUntil && !r.atk) anim = null;
       if(v.hurt && v.hurt !== r.lastHurt){ r.lastHurt = v.hurt; this.game.capture.sparks.burst(pos.clone().add(new THREE.Vector3(0, r.H * 0.55, 0)), 16, ["#ffffff", "#ffd84a", "#ff9a5c"], 3, 0.5); }
       if(v.glow && v.glow.t0 !== r.lastGlow && T - v.glow.t0 < 500){ r.lastGlow = v.glow.t0; this.game.capture.sparks.burst(pos.clone().add(new THREE.Vector3(0, r.H * 0.4, 0)), 14, [v.glow.c], 1.6, 0.7, 1.5); }
       if(v.glow && T - v.glow.t0 < 300) flash = Math.max(flash, 0.3 * (1 - (T - v.glow.t0) / 300));
       /* K.O. : il se défait en pixels et s'enfonce */
-      if(v.ko){ const k = Math.min(1, (T - v.ko) / 620); glitch = Math.max(glitch, k); pos.y -= k * 0.3; if(k >= 1) vis = false; }
-      m.setAnim(anim);
+      /* (s'il sait tomber, il tombe d'abord, puis se défait) */
+      const fall = m.hasClip && m.hasClip("faint");
+      if(v.ko && fall && v.ko !== r.lastKo){ r.lastKo = v.ko; m.playOnce("faint", 1.4); }
+      if(v.ko){ const k = Math.min(1, (T - v.ko) / (fall ? 1100 : 620)), g = fall ? Math.max(0, (k - 0.45) / 0.55) : k; glitch = Math.max(glitch, g); pos.y -= g * 0.3; if(k >= 1) vis = false; anim = fall ? null : anim; }
+      if(anim) m.setAnim(anim);
       m.uniforms.uGlitch.value = glitch;
       m.uniforms.uFlash.value = flash;
       m.group.visible = vis;
@@ -266,24 +285,14 @@ export class Tower3D {
   /* ---------- la caméra : derrière ton équipe ; elle suit l'ultime et l'entrée du boss ---------- */
   camera(dt, t, T, V){
     const cam = this.game.engine.camera;
-    const wantPos = ARENA.clone().add(new THREE.Vector3(-8.6 + Math.sin(t * 0.13) * 0.5, 3.9 + Math.sin(t * 0.21) * 0.15, 8.9));
+    const wantPos = ARENA.clone().add(new THREE.Vector3(-8.8 + Math.sin(t * 0.08) * 0.18, 4.1, 9.1));
     const wantLook = ARENA.clone().add(new THREE.Vector3(1.1, 0.9, -1.0));
-    const C = V.cut && T >= V.cut.t0 && T - V.cut.t0 < V.cut.dur ? V.cut : null;
-    if(C && C.u && this.recs.get(C.u)){
-      const r = this.recs.get(C.u), k = (T - C.t0) / C.dur, a = k < 0.2 ? k / 0.2 : k > 0.8 ? (1 - k) / 0.2 : 1;
-      const front = new THREE.Vector3(Math.sin(r.heading), 0, Math.cos(r.heading));
-      const side = new THREE.Vector3(front.z, 0, -front.x);
-      const close = r.pos.clone().addScaledVector(front, 2.4 + r.H * 1.2).addScaledVector(side, 1.2).add(new THREE.Vector3(0, r.H * 0.7 + 0.4, 0));
-      wantPos.lerp(close, a * 0.85);
-      wantLook.lerp(r.pos.clone().add(new THREE.Vector3(0, r.H * 0.55, 0)), a);
-    } else if(C && C.kind === "sync"){
-      wantPos.add(new THREE.Vector3(1.5, 0.8, -1.2));
-    }
+    /* pas de zoom sur les attaques (même l'ultime) : la caméra reste posée, c'est plus lisible en ×2 ou ×3 */
     const k = Math.min(1, dt * (this.game.t - this.t0 < 1.2 ? 2.2 : 4));
     this.camPos.lerp(wantPos, k); this.camLook.lerp(wantLook, k);
     cam.position.copy(this.camPos);
     const calm = typeof window.calmFx === "function" && window.calmFx();
-    const sh = calm ? 0 : Math.min(12, V.shake || 0) * 0.012;
+    const sh = calm ? 0 : Math.min(6, V.shake || 0) * 0.004;
     if(sh > 0.001) cam.position.add(new THREE.Vector3((Math.random() - 0.5) * sh, (Math.random() - 0.5) * sh, 0));
     cam.lookAt(this.camLook);
   }

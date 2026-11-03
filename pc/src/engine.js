@@ -35,7 +35,7 @@ export class Engine {
     if(this.composer){ this.composer.dispose(); }
     const w = this.width, h = this.height;
     this.composer = new EffectComposer(r, {frameBufferType:THREE.HalfFloatType, multisampling:0});
-    this.composer.addPass(new RenderPass(this.scene, this.camera));
+    this.composer.addPass(new RenderPass(this.active ? this.active.scene : this.scene, this.active ? this.active.camera : this.camera));
     this.ao = null;
     if(q.ao){
       try {
@@ -56,11 +56,12 @@ export class Engine {
     this.vignette = new VignetteEffect({offset:0.24, darkness:0.62});
     effects.push(this.hue, this.bc, this.tone, this.vignette);
     if(q.smaa) effects.push(new SMAAEffect({preset:SMAAPreset.HIGH}));
-    this.composer.addPass(new EffectPass(this.camera, ...effects));
+    this.composer.addPass(new EffectPass(this.active ? this.active.camera : this.camera, ...effects));
     /* l'image abîmée : à part, car elle relit l'image voisine (décalage des couleurs) */
     this.corrupt = new CorruptEffect();
-    this.composer.addPass(new EffectPass(this.camera, this.corrupt));
+    this.composer.addPass(new EffectPass(this.active ? this.active.camera : this.camera, this.corrupt));
     this.composer.setSize(w, h);
+    if(this.ao && this.active) this.ao.enabled = false;
   }
   setQuality(key){
     this.qualityKey = QUALITY[key] ? key : "haute";
@@ -78,13 +79,23 @@ export class Engine {
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2) * q.scale);
     this.renderer.setSize(w, h, false);
     this.camera.aspect = w / h; this.camera.updateProjectionMatrix();
+    if(this.active){ this.active.camera.aspect = w / h; this.active.camera.updateProjectionMatrix(); }
     if(this.composer) this.composer.setSize(w, h);
     if(this.ao) this.ao.setSize(w, h);
+  }
+  /* une autre scène (la Brèche) : même rendu, même chaîne d'effets, autre monde et autre caméra.
+     Sans argument : retour au monde de la route. */
+  useScene(scene, camera){
+    this.active = scene ? {scene, camera} : null;
+    const sc = scene || this.scene, cam = camera || this.camera;
+    if(camera){ camera.aspect = this.width / this.height; camera.updateProjectionMatrix(); }
+    if(this.composer){ this.composer.setMainScene(sc); this.composer.setMainCamera(cam); }
+    if(this.ao) this.ao.enabled = !scene;
   }
   /* l'exposition : lue par la tonalité filmique (uniforme toneMappingExposure de three) */
   setExposure(e){ this.renderer.toneMappingExposure = e; }
   render(dt){
     if(this.composer) this.composer.render(dt);
-    else this.renderer.render(this.scene, this.camera);
+    else this.renderer.render(this.active ? this.active.scene : this.scene, this.active ? this.active.camera : this.camera);
   }
 }

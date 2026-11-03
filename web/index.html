@@ -6296,7 +6296,7 @@ body.calm .resdone{animation:none}
 </div>
 <script>
 /* version du jeu (buildver.py) */
-const BUILD_V = "ae7bbd9d", BUILD_LABEL = "2 novembre 2026, 19 h 47";
+const BUILD_V = "33541b1a", BUILD_LABEL = "3 novembre 2026, 2 h 02";
 /* Version hebergee : les images sont servies comme fichiers, pas encodees
    dans le HTML. Les noms portent une empreinte : on peut donc les mettre en
    cache indefiniment sans jamais servir une version perimee. */
@@ -28364,6 +28364,9 @@ function brInput(R, cv){
   window.addEventListener("keyup", R.onKey);
 }
 function brDir(R){
+  /* version PC : l'esquive, puis le déplacement relatif à la caméra (59x) */
+  if(R.dodgeT > 0) return [R.dodgeX, R.dodgeY];
+  if(R.pcMove) return R.pcMove;
   let dx = 0, dy = 0;
   const K = R.keys;
   if(K.arrowleft || K.q || K.a) dx -= 1;
@@ -28374,6 +28377,12 @@ function brDir(R){
   const m = Math.hypot(dx, dy);
   if(m > 1){ dx /= m; dy /= m; }
   return [dx, dy];
+}
+
+/* sans cible : droit devant (vers la visée, sur PC) */
+function brFaceAng(R, pos){
+  if(R.aim){ const p = pos || R; return Math.atan2(R.aim.y - p.y, R.aim.x - p.x); }
+  return R.face > 0 ? 0 : Math.PI;
 }
 
 /* ============================================================
@@ -28389,7 +28398,9 @@ function brUpdate(R, dt){
   brMapPre(R, dt);
   const [dx, dy] = brDir(R);
   if(R.chilled > 0) R.chilled -= dt;
-  const spd = 118 * R.mods.speed * (R.turbo > 0 ? 3 : 1) * (R.terrainMul || 1) * (R.chilled > 0 && R.turbo <= 0 ? 0.55 : 1);
+  const spd = 118 * R.mods.speed * (R.turbo > 0 ? 3 : 1) * (R.terrainMul || 1) * (R.chilled > 0 && R.turbo <= 0 ? 0.55 : 1) * (R.dodgeT > 0 ? 3.6 : 1);
+  if(R.dodgeT > 0) R.dodgeT -= dt;
+  if(R.dodgeCd > 0) R.dodgeCd -= dt;
   R.vx = dx * spd; R.vy = dy * spd;
   R.x += R.vx * dt; R.y += R.vy * dt;
   if(dx) R.face = dx < 0 ? -1 : 1;
@@ -28609,7 +28620,7 @@ function brShot(R, x, y, vx, vy, o){
 }
 function brFire(R, w, st, pos){
   const tgt = brNearest(R, pos.x, pos.y, 380);
-  const ang = tgt ? Math.atan2(tgt.y - pos.y, tgt.x - pos.x) : (R.face > 0 ? 0 : Math.PI);
+  const ang = tgt ? Math.atan2(tgt.y - pos.y, tgt.x - pos.x) : brFaceAng(R, pos);
   w.lastAng = ang;
   const W = R.curW, C = st.color;
   switch(st.k){
@@ -32995,7 +33006,7 @@ brFire = function(R, w, st, pos){
 /* la ruée : une ligne droite à travers la horde, et retour */
 function brFireDash(R, w, st, pos){
   const t = brNearest(R, pos.x, pos.y, 360);
-  const ang = t ? Math.atan2(t.y - pos.y, t.x - pos.x) : (R.face > 0 ? 0 : Math.PI);
+  const ang = t ? Math.atan2(t.y - pos.y, t.x - pos.x) : brFaceAng(R, pos);
   w.lastAng = ang;
   const L = (150 + 22 * Math.min(4, st.count)) * Math.min(1.5, st.area), dur = 0.36;
   const z = brZone(R, {k:"dash", x:pos.x, y:pos.y, a:ang, len:L, bw:22 * Math.min(1.6, st.area), life:dur, max:dur, delay:0,
@@ -35816,6 +35827,78 @@ if(typeof brDrawOver === "function"){
       lgReset(x);
     } catch(e){}
     return r;
+  };
+}
+
+/* ===== 59x-breche-pc.js ===== */
+/* ============================================================
+   59x — LA BRÈCHE · VERSION PC (3D)
+   Sur ordinateur, la même partie se joue à la troisième personne,
+   en 3D (pc/src/breche/). Ce fichier n'ajoute que ce que la version
+   PC demande à la simulation ; sur téléphone, rien ne change :
+     · R.pcMove  — le déplacement, déjà tourné selon la caméra ;
+     · R.aim     — le point visé à la souris : l'équipe tire vers lui
+                   (la cible la plus proche du réticule, sinon droit
+                   devant) au lieu de viser l'ennemi le plus proche ;
+     · brDodge   — l'esquive (Espace) : un bond court, invulnérable,
+                   avec un temps de recharge ;
+     · le rendu  — tant que la 3D dessine, la toile mobile ne dessine
+                   plus : seules avancent les mises en scène qui
+                   vivent au rendu (entrées de boss, chutes).
+   ============================================================ */
+const BR_DODGE = {dur:0.22, cd:1.4, inv:0.34};
+
+/* l'esquive : vers où l'on se déplace, sinon vers la visée */
+function brDodge(R){
+  if(!R || R.over || R.paused || R.modal || (R.dodgeCd || 0) > 0 || (R.cine && R.cine.freeze)) return false;
+  let dx = 0, dy = 0;
+  if(R.pcMove && (R.pcMove[0] || R.pcMove[1])){ dx = R.pcMove[0]; dy = R.pcMove[1]; }
+  else if(R.aim){ dx = R.aim.x - R.x; dy = R.aim.y - R.y; }
+  else dx = R.face || 1;
+  const d = Math.hypot(dx, dy) || 1;
+  R.dodgeX = dx / d; R.dodgeY = dy / d;
+  R.dodgeT = BR_DODGE.dur; R.dodgeCd = BR_DODGE.cd;
+  R.inv = Math.max(R.inv, BR_DODGE.inv);
+  R.dodges = (R.dodges || 0) + 1;
+  try { Sfx.wobble && Sfx.wobble(); } catch(e){}
+  return true;
+}
+
+/* viser à la souris : pendant un tir, « le plus proche » se cherche autour du réticule */
+const BR_AIM_REACH = 540;
+function brAimShift(R, pos){
+  let ax = R.aim.x - pos.x, ay = R.aim.y - pos.y;
+  const d = Math.hypot(ax, ay);
+  if(d > BR_AIM_REACH){ ax *= BR_AIM_REACH / d; ay *= BR_AIM_REACH / d; }
+  return [ax, ay];
+}
+if(typeof brFire === "function"){
+  const _brFirePC = brFire;
+  brFire = function(R, w, st, pos){
+    if(!R.aim || R._aimIn) return _brFirePC.apply(this, arguments);
+    const near0 = brNearest, [ax, ay] = brAimShift(R, pos);
+    R._aimIn = true;
+    brNearest = function(R2, x, y, maxd){
+      /* la même recherche, décalée jusqu'au réticule, dans un rayon serré autour de lui */
+      return near0(R2, x + ax, y + ay, Math.max(150, Math.min(maxd, 240)));
+    };
+    try { return _brFirePC.apply(this, arguments); }
+    finally { brNearest = near0; R._aimIn = false; }
+  };
+}
+
+/* la 3D dessine : la toile mobile se tait, les mises en scène continuent d'avancer */
+function brPc3D(){ return typeof window !== "undefined" && window.PCBR3D && window.PCBR3D.on; }
+if(typeof brRender === "function"){
+  const _brRenderPC = brRender;
+  brRender = function(R, cv){
+    if(!brPc3D()) return _brRenderPC.apply(this, arguments);
+    const nowR = performance.now(), rdt = Math.min(0.05, (nowR - (R.rLast || nowR)) / 1000); R.rLast = nowR;
+    if(!R.paused && typeof brMiniTick === "function"){ brMiniTick(R, rdt); brFinaleTick(R, rdt); }
+    /* (ce que le dessin mobile faisait avancer au passage) */
+    R.P.foes.each(f=>{ if(f.pose){ f.pose.t += rdt; if(f.pose.t >= 0.8) f.pose = null; } });
+    if(R.boss) R.bossHpPct = Math.max(0, R.boss.hp / R.boss.max);
+    R.movedOnce = true;
   };
 }
 

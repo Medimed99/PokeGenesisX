@@ -8,7 +8,11 @@ export class Input {
     addEventListener("keydown", e => {
       if(!this.enabled) return;
       if(e.code === "Tab" || (this.locked && (e.code === "Space" || e.code.startsWith("Arrow")))) e.preventDefault();
-      if(!this.keys.has(e.code)) this.pressed.add(e.code);
+      if(!this.keys.has(e.code)){
+        this.pressed.add(e.code);
+        /* les touches d'action suivent la lettre imprimée (M est à une autre place en AZERTY) */
+        if(e.key && e.key.length === 1) this.pressed.add("Char:" + e.key.toLowerCase());
+      }
       this.keys.add(e.code);
     });
     addEventListener("keyup", e => { this.keys.delete(e.code); });
@@ -41,4 +45,6 @@ export class Input {
   consumeWheel(){ const w = this.mouse.wheel; this.mouse.wheel = 0; return w; }
   consumeClicks(){ const c = this.clicks; this.clicks = []; return c; }
   endFrame(){ this.pressed.clear(); }
+  /* la lettre tapée, quelle que soit la disposition du clavier */
+  char(c){ return this.pressed.has("Char:" + c); }
 }

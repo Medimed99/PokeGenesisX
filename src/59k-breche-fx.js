@@ -68,7 +68,7 @@ brFire = function(R, w, st, pos){
 /* la ruée : une ligne droite à travers la horde, et retour */
 function brFireDash(R, w, st, pos){
   const t = brNearest(R, pos.x, pos.y, 360);
-  const ang = t ? Math.atan2(t.y - pos.y, t.x - pos.x) : (R.face > 0 ? 0 : Math.PI);
+  const ang = t ? Math.atan2(t.y - pos.y, t.x - pos.x) : brFaceAng(R, pos);
   w.lastAng = ang;
   const L = (150 + 22 * Math.min(4, st.count)) * Math.min(1.5, st.area), dur = 0.36;
   const z = brZone(R, {k:"dash", x:pos.x, y:pos.y, a:ang, len:L, bw:22 * Math.min(1.6, st.area), life:dur, max:dur, delay:0,

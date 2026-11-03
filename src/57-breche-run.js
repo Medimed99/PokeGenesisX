@@ -153,6 +153,9 @@ function brInput(R, cv){
   window.addEventListener("keyup", R.onKey);
 }
 function brDir(R){
+  /* version PC : l'esquive, puis le déplacement relatif à la caméra (59x) */
+  if(R.dodgeT > 0) return [R.dodgeX, R.dodgeY];
+  if(R.pcMove) return R.pcMove;
   let dx = 0, dy = 0;
   const K = R.keys;
   if(K.arrowleft || K.q || K.a) dx -= 1;
@@ -163,6 +166,12 @@ function brDir(R){
   const m = Math.hypot(dx, dy);
   if(m > 1){ dx /= m; dy /= m; }
   return [dx, dy];
+}
+
+/* sans cible : droit devant (vers la visée, sur PC) */
+function brFaceAng(R, pos){
+  if(R.aim){ const p = pos || R; return Math.atan2(R.aim.y - p.y, R.aim.x - p.x); }
+  return R.face > 0 ? 0 : Math.PI;
 }
 
 /* ============================================================
@@ -178,7 +187,9 @@ function brUpdate(R, dt){
   brMapPre(R, dt);
   const [dx, dy] = brDir(R);
   if(R.chilled > 0) R.chilled -= dt;
-  const spd = 118 * R.mods.speed * (R.turbo > 0 ? 3 : 1) * (R.terrainMul || 1) * (R.chilled > 0 && R.turbo <= 0 ? 0.55 : 1);
+  const spd = 118 * R.mods.speed * (R.turbo > 0 ? 3 : 1) * (R.terrainMul || 1) * (R.chilled > 0 && R.turbo <= 0 ? 0.55 : 1) * (R.dodgeT > 0 ? 3.6 : 1);
+  if(R.dodgeT > 0) R.dodgeT -= dt;
+  if(R.dodgeCd > 0) R.dodgeCd -= dt;
   R.vx = dx * spd; R.vy = dy * spd;
   R.x += R.vx * dt; R.y += R.vy * dt;
   if(dx) R.face = dx < 0 ? -1 : 1;
@@ -398,7 +409,7 @@ function brShot(R, x, y, vx, vy, o){
 }
 function brFire(R, w, st, pos){
   const tgt = brNearest(R, pos.x, pos.y, 380);
-  const ang = tgt ? Math.atan2(tgt.y - pos.y, tgt.x - pos.x) : (R.face > 0 ? 0 : Math.PI);
+  const ang = tgt ? Math.atan2(tgt.y - pos.y, tgt.x - pos.x) : brFaceAng(R, pos);
   w.lastAng = ang;
   const W = R.curW, C = st.color;
   switch(st.k){

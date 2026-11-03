@@ -272,3 +272,37 @@ body.pc.tower3d .sq2-res{position:fixed;inset:0;background:rgba(3,6,12,.72);zoom
 body.pc.tower3d .sq2-res.on{pointer-events:auto}
 body.pc.tower3d #sheet-root.on{pointer-events:auto;position:fixed;inset:0}
 body.pc.tower3d .sq2-bossbar{pointer-events:none}
+
+/* ---------- la Brèche en 3D : la scène plein écran, l'interface du jeu mobile par-dessus ---------- */
+#pc-br-ov{position:fixed;inset:0;width:100vw;height:100vh;z-index:29;display:none;pointer-events:none}
+#pc-br-ov.on{display:block}
+body.pc.breche3d #terminal{display:flex!important;background:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;animation:none!important;pointer-events:none}
+body.pc.breche3d #terminal .term-head{display:none}
+body.pc.breche3d #terminal #app{position:fixed!important;inset:0!important;width:auto!important;height:auto!important;max-width:none!important;max-height:none!important;
+  margin:0!important;border:0!important;border-radius:0!important;background:none!important;box-shadow:none!important;transform:none!important;overflow:visible!important;pointer-events:none}
+body.pc.breche3d #topbar,body.pc.breche3d #dock,body.pc.breche3d #nextstep,body.pc.breche3d #admfab,body.pc.breche3d #screen{display:none!important}
+body.pc.breche3d #breche.on{position:fixed;inset:0;background:none;pointer-events:none;z-index:31}
+body.pc.breche3d #br-cv,body.pc.breche3d #br-stick,body.pc.breche3d #br-rotate{display:none!important}
+body.pc.breche3d .br-hud{position:fixed;left:0;right:0;top:10px;margin:0 auto;width:min(600px,46vw);padding:7px 10px 5px;border-radius:10px;transform:none;
+  background:linear-gradient(180deg,rgba(6,3,14,.62),rgba(6,3,14,.26));border:1px solid rgba(255,61,127,.16);zoom:1.1;pointer-events:none}
+body.pc.breche3d .br-kit{position:fixed;left:14px;bottom:14px;width:290px;margin:0;padding:7px;border-radius:10px;background:rgba(6,3,14,.55);border:1px solid rgba(53,240,214,.16);pointer-events:auto}
+body.pc.breche3d .br-slot{height:36px}
+body.pc.breche3d .br-items .br-islot.vide{display:none}
+body.pc.breche3d .br-items:not(:has(.br-islot:not(.vide))){display:none}
+body.pc.breche3d .br-ticker{position:fixed;left:0;right:0;margin:0 auto;bottom:112px;width:min(520px,44vw)}
+body.pc.breche3d .br-misintro{position:fixed;left:14px;top:96px;width:290px;margin:0}
+body.pc.breche3d .br-turbo{margin-top:5px}
+body.pc.breche3d .br-say{zoom:1.35;bottom:13%}
+body.pc.breche3d .br-say.cine{bottom:3%}
+body.pc.breche3d #br-modal.on{position:fixed;inset:0;z-index:40;pointer-events:auto;background:rgba(3,2,10,.55)}
+body.pc.breche3d #br-modal.on > *{zoom:1.32}
+body.pc.breche3d #br-modal.lvl{align-items:center;padding-bottom:0}
+body.pc.breche3d #br-modal.lvl .br-lvup{max-width:520px}
+body.pc.breche3d #br-modal.lvl .br-opt{position:relative}
+body.pc.breche3d #br-modal.lvl .br-opt::after{position:absolute;right:10px;top:8px;font:700 11px ui-monospace,monospace;color:rgba(255,255,255,.55);
+  border:1px solid rgba(255,255,255,.3);border-radius:4px;padding:1px 5px}
+body.pc.breche3d #br-modal.lvl .br-opt:nth-child(1)::after{content:"1"}
+body.pc.breche3d #br-modal.lvl .br-opt:nth-child(2)::after{content:"2"}
+body.pc.breche3d #br-modal.lvl .br-opt:nth-child(3)::after{content:"3"}
+body.pc.breche3d #br-modal.lvl .br-opt:nth-child(4)::after{content:"4"}
+body.pc.breche3d #toasts{z-index:45}

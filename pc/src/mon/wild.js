@@ -11,7 +11,9 @@ import * as THREE from "three";
 import { MonSprite, realHeight } from "./sprites.js";
 import { makeMon, preloadMon, has3D } from "./model3d.js";
 /* les modèles 3D dont l'attente et la marche sont un vol (papillons, guêpes, fantômes, Électhor) */
-const HOVER3D = [12, 15, 41, 42, 49, 81, 82, 92, 93, 109, 110, 142, 144, 145, 146, 151];
+const HOVER3D = [12, 15, 41, 42, 49, 81, 82, 92, 93, 109, 110, 142, 144, 145, 146, 151,
+  /* Johto */ 163, 164, 165, 166, 169, 176, 187, 188, 189, 193, 198, 200, 201, 207, 227, 249, 250, 251,
+  /* Hoenn */ 267, 269, 276, 277, 278, 279, 284, 291, 292, 329, 330, 333, 334, 337, 338, 343, 344, 353, 355, 358, 374, 375, 380, 381, 384, 385];
 import { heightAt, tallGrassAt, inWater, lakeShore, WATER_Y, BOUNDS, GRASS_PATCHES, pathDist, PATH_W } from "../world/layout.js";
 import { RUSTLE_N } from "../world/grass.js";
 import { clamp } from "../util.js";
@@ -199,6 +201,9 @@ export class Wild {
       const tgt = this.game.capture && this.game.capture.target === e;
       e.sprite.xray = (tgt || (d < 26 && (e.state === "alert" || e.state === "idle" || e.state === "walk" || e.state === "flee"))) ? (tgt ? 1 : 0.7) : 0;
       if(e.state !== "caught") e.sprite.update(t, dt, e.pos, e.heading, cam.position, env);
+      /* un chromatique scintille, de loin en loin */
+      if(e.spec.shiny && e.state !== "hidden" && e.state !== "held" && d < 35 && Math.random() < dt * 1.2)
+        this.game.capture.sparks.burst(new THREE.Vector3(e.pos.x, e.pos.y + (e.sprite.drawH || e.H) * 0.8, e.pos.z), 6, ["#fff6c2", "#ffffff", "#ffd84a"], 1.1, 0.7, 1.4);
       /* l'herbe frémit au-dessus d'un Pokémon caché */
       if(e.rustle >= 0) this.game.world.grass.setRustle(e.rustle, e.pos.x, gy, e.pos.z, e.state === "hidden" ? 0.9 + 0.35 * Math.sin(t * 3) : 0.7);
     }
