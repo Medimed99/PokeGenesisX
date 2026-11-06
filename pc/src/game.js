@@ -22,6 +22,7 @@ import { Breche3D } from "./breche/index.js";
 import { Story3D } from "./story/index.js";
 import { Companion } from "./story/companion.js";
 import { CZ } from "./world/corruption.js";
+import { Intro } from "./ui/intro.js";
 
 const BERRY_KEYS = {Digit6:"framby", Digit7:"nanab", Digit8:"nigma", Digit9:"sitrus", Digit0:"micle"};
 const POS_KEY = "pcg.pc.pos";
@@ -74,6 +75,8 @@ export class Game {
     this.story3d = new Story3D(this);
     this.expe3d = new Expe3D(this);
     this.companion = new Companion(this);
+    /* l'entrée dans chaque module : une cinématique, le but, le check des commandes */
+    this.intro = new Intro(this);
     /* la nuit, une lueur froide autour de soi (la lampe du terminal) : on voit où l'on marche.
        Pas une lumière de plus dans toute la scène : le sol, l'herbe et les Pokémon 3D la calculent eux-mêmes. */
     this.lamp = CZ.uLamp.value;
@@ -83,6 +86,7 @@ export class Game {
     this.player.onLand = v => this.audio.land(v);
     this.input.onLockChange = locked => this.onLock(locked);
     this.canvas.addEventListener("click", ()=>{
+      if(this.intro.active){ this.intro.skip(); return; }
       if(this.story3d && this.story3d.on) return;
       if(this.breche3d.on){ this.breche3d.relock(); return; }
       if(this.expe3d && this.expe3d.on){ this.expe3d.relock(); return; }
@@ -119,7 +123,8 @@ export class Game {
       this.started = true;
       this.setMode("play");
       this.input.lock();
-      this.hud.hint(`<b>Clic droit</b> pour viser, <b>clic gauche</b> pour lancer · <b>M</b> : la carte · <b>Tab</b> : le terminal et les nouvelles · <b>Échap</b> : la pause`, 8);
+      this.routeIntro();
+      if(!this.intro.checking("route")) this.hud.hint(`<b>Tab</b> : le terminal et les nouvelles · <b>Échap</b> : la pause`, 6);
     };
     if(this.boot && this.boot.fresh && this.S && !this.S.story.includes("intro")){
       /* une partie neuve : l'ouverture, dans le terminal, puis la route */
@@ -131,6 +136,26 @@ export class Game {
     /* rien ne s'ouvre à l'arrivée : les nouvelles attendent la première ouverture du terminal */
     try { window.pcWelcomeBack("quiet"); } catch(e){ console.warn(e); }
     this.pendingNews = true;
+  }
+  /* l'arrivée sur la route : la caméra descend du ciel jusqu'aux yeux du joueur */
+  routeIntro(){
+    const P = this.player.pos, yaw = this.player.yaw;
+    const f = new THREE.Vector3(-Math.sin(yaw), 0, -Math.cos(yaw)), r = new THREE.Vector3(Math.cos(yaw), 0, -Math.sin(yaw));
+    const at = (back, up, side) => P.clone().addScaledVector(f, -back).addScaledVector(r, side).add(new THREE.Vector3(0, up, 0));
+    const S = this.S, integ = S ? Math.floor(S.integrity || 0) : 0;
+    this.intro.play({id:"route", camera:this.engine.camera, dur:4.6, color:"#5ce07a",
+      kicker:`KANTO · INTÉGRITÉ ${integ} %`, title:"Route 1",
+      goal:"Capture les Pokémon sauvages : chaque nouvelle entrée au Pokédex répare un peu le monde.",
+      shots:[{p:at(34, 26, 14), l:at(-18, 0, -2)}, {p:at(17, 11, 6), l:at(-12, 0.6, 0)}, {p:at(5, 3.2, 1.2), l:at(-9, 1.3, 0)}],
+      controls:[
+        {k:["Z", "Q", "S", "D"], t:"marcher", on:{keys:["KeyW", "KeyA", "KeyS", "KeyD", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"]}},
+        {k:["souris"], t:"regarder", on:{move:true}},
+        {k:["clic droit"], t:"viser un Pokémon", on:{btn:2}},
+        {k:["clic"], t:"lancer la Ball", on:{btn:0}},
+        {k:["M"], t:"la carte", on:{chars:["m"]}},
+        {k:["Tab"], t:"le terminal", on:{keys:["Tab"]}}],
+      alive:()=>this.started && !this.story3d.on && !this.tower3d.on && !this.breche3d.on && !this.expe3d.on,
+      visible:()=>this.mode === "play" && this.input.locked && !this.hud.newOpen});
   }
   restore(){
     this.started = true;
@@ -146,6 +171,8 @@ export class Game {
     setTimeout(()=>{ if(this.mode === "play" && !this.input.locked) this.hud.prompt(`<b>Clic</b> pour reprendre`); }, 300);
   }
   onLock(locked){
+    /* Échap pendant une cinématique d'entrée : on la passe */
+    if(!locked && this.intro.active) this.intro.skip();
     /* une scène du récit rend la souris : ce n'est pas une pause */
     if(this.story3d && this.story3d.on) return;
     /* l'Expédition : rendre la souris, c'est seulement reprendre la main sur ses boutons */
@@ -168,10 +195,12 @@ export class Game {
       if(e.code === "Escape" && this.menus.pauseOpen) this.menus.closeFromTitle();
       return;
     }
+    if(this.intro.active && this.intro.key(e)) return;
     if(e.code === "Tab" && (this.mode === "dialog" || this.mode === "battle")){ e.preventDefault(); return; }
     if(this.story3d && this.story3d.on){ this.story3d.key(e); return; }
     if(this.breche3d && this.breche3d.on){ this.breche3d.key(e); return; }
     if(this.expe3d && this.expe3d.on){ this.expe3d.key(e); return; }
+    if(this.tower3d && this.tower3d.on && this.tower3d.key(e)) return;
     /* pendant un combat de la Tour : Tab ou Échap ouvrent sa pause (ou referment la fiche ouverte) */
     if(this.tower3d && this.tower3d.on && (e.code === "Tab" || e.code === "Escape")){
       e.preventDefault();
@@ -248,6 +277,7 @@ export class Game {
       }
       this.hud.update(dt, this.t);
       this.audio.update(dt, this.t);
+      this.intro.update(dt, this.t);
       return;
     }
     /* la Brèche en 3D : un autre monde, une autre caméra ; la route attend */
@@ -256,6 +286,7 @@ export class Game {
       this.tower3d.update(dt, this.t);
       this.hud.update(dt, this.t);
       this.audio.update(dt, this.t);
+      this.intro.update(dt, this.t);
       return;
     }
     /* l'Expédition en 3D : un secteur à elle, une caméra à elle ; la route attend */
@@ -263,12 +294,13 @@ export class Game {
     if(this.expe3d.on){
       this.hud.update(dt, this.t);
       this.audio.update(dt, this.t);
+      this.intro.update(dt, this.t);
       return;
     }
     const playing = this.mode === "play";
     const look = this.input.locked && playing ? this.input.consumeLook() : (this.input.consumeLook(), {x:0, y:0});
     if(Settings.invertY) look.y = -look.y;
-    this.player.frozen = !playing || this.hud.newOpen || (this.trainer && this.trainer.battling);
+    this.player.frozen = !playing || this.hud.newOpen || (this.trainer && this.trainer.battling) || this.intro.active;
     if(this.mode === "title") this.titleCam(dt);
     else if(!(this.tower3d && this.tower3d.on)) this.player.update(dt, this.input, look);   /* pendant la Tour, la caméra est à elle */
     const S = this.S;
@@ -292,6 +324,8 @@ export class Game {
     this.lamp.set(cp.x, cp.y + 0.4, cp.z, night * 1.15);
     this.hud.update(dt, this.t);
     this.audio.update(dt, this.t);
+    /* (après tout le reste : la cinématique d'entrée reprend la caméra que le module vient de poser) */
+    this.intro.update(dt, this.t);
     this.prompts();
     if(playing && Math.floor(this.t) % 10 === 0 && Math.floor(this.t - dt) % 10 !== 0) this.savePos();
   }

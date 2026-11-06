@@ -197,6 +197,7 @@ export class Fx {
     this.boss(R, t, c);
     if(this.depth) this.depth.render(R, t, dt, c);
     this.locals(dt);
+    if(this.extra) this.extra(R, t, dt, c);
     if(this.leg) this.leg.end();
     if(this.depth) this.depth.end();
     G.end(); P.end(); B.end(); D.end();

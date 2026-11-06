@@ -12,7 +12,12 @@
      · chaque type frappe à sa manière : un rayon, un jet, un tir en
        cloche, une onde au sol, la foudre d'en haut, des anneaux
        psychiques, des feuilles, des éclats, des étoiles, des flammèches ;
-     · les chiffres, les noms des capacités, la carte d'un gardien.
+     · les chiffres, les noms des capacités, la carte d'un gardien ;
+     · le noyau de la couche (le dernier combat) : la couche s'assombrit,
+       des éclats de cristal tournent autour de l'arène, un sceau magenta
+       sous le gardien ; chaque signature liée entre par une colonne de
+       lumière ; la caméra tourne autour de lui à son entrée ; vaincu,
+       tout éclate en lumière.
    ============================================================ */
 import * as THREE from "three";
 import { makeMon, preloadMon } from "../mon/model3d.js";
@@ -37,16 +42,76 @@ export class XArena {
     this.shardGeo = new THREE.OctahedronGeometry(1, 0);
   }
   sparks(){ return this.game.capture && this.game.capture.sparks; }
+  /* ---------- le noyau : éclats qui tournent, sceau, colonnes de lumière ---------- */
+  coreBuild(){
+    if(!this.coreG){
+      const g = this.coreG = new THREE.Group(); this.scene.add(g);
+      const N = 40;
+      this.shardM = new THREE.InstancedMesh(new THREE.OctahedronGeometry(0.28, 0).scale(1, 1.7, 1), new THREE.MeshStandardMaterial({color:"#ff3d7f", emissive:"#ff3d7f", emissiveIntensity:0.9, flatShading:true, transparent:true, opacity:0.92}), N);
+      this.shardM.instanceMatrix.setUsage(THREE.DynamicDrawUsage); this.shardM.frustumCulled = false; g.add(this.shardM);
+      this.shards = []; for(let i = 0; i < N; i++) this.shards.push({a:Math.random() * Math.PI * 2, r:4.6 + Math.random() * 3, y:0.6 + Math.random() * 3.4, s:0.5 + Math.random() * 1.1, sp:(Math.random() < 0.5 ? -1 : 1) * (0.12 + Math.random() * 0.25), ph:Math.random() * 6, v:new THREE.Vector3(), p:new THREE.Vector3()});
+      this.sigil = new THREE.Mesh(new THREE.RingGeometry(1.1, 1.35, 6, 1).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({color:"#ff3d7f", transparent:true, opacity:0.7, blending:THREE.AdditiveBlending, depthWrite:false, toneMapped:false}));
+      const inner = new THREE.Mesh(new THREE.RingGeometry(0.7, 0.78, 6, 1).rotateX(-Math.PI / 2).rotateY(Math.PI / 6), this.sigil.material); this.sigil.add(inner);
+      g.add(this.sigil);
+      this.coreLight = new THREE.PointLight("#ff3d7f", 6, 14, 1.4); g.add(this.coreLight);
+      this.colGeo = new THREE.CylinderGeometry(0.55, 0.9, 9, 18, 1, true).translate(0, 4.5, 0);
+      this.cM = new THREE.Matrix4(); this.cQ = new THREE.Quaternion(); this.cE = new THREE.Euler(); this.cS = new THREE.Vector3();
+    }
+    this.coreG.visible = true;
+    for(const q of this.shards) q.fall = false;
+  }
+  coreUpdate(t, dt, T){
+    const AR = this.AR, calm = calmFx(), s = this.sparks(), C = this.C;
+    const ff = [...AR.act.values()].find(a=>a.side === "foe" && a.role === "front"), fr = ff && this.recs.get(ff.f);
+    /* la victoire : tout éclate en lumière */
+    if(AR.win && AR.win.v && !this.coreWin){
+      this.coreWin = t;
+      if(s) s.burst(fr ? this.chest(fr).clone() : C.clone().add(V1.set(0, 1.5, 0)), 80, ["#ffffff", "#ffe9a8", "#ff9ac0", "#35f0d6"], 6, 1.2, 0.8);
+      for(const q of this.shards){ q.fall = true; q.v.set((Math.random() - 0.5) * 4, 2 + Math.random() * 3, (Math.random() - 0.5) * 4); }
+    }
+    const M = this.cM, Q = this.cQ, E = this.cE, S1 = this.cS;
+    const won = this.coreWin ? t - this.coreWin : 0;
+    this.shards.forEach((q, i)=>{
+      if(q.fall){ q.v.y -= 6 * dt; q.p.addScaledVector(q.v, dt); }
+      else { q.a += q.sp * dt * (calm ? 0.4 : 1); q.p.set(C.x + Math.cos(q.a) * q.r, this.ground(C.x, C.z) + q.y + (calm ? 0 : Math.sin(t * 1.3 + q.ph) * 0.25), C.z + Math.sin(q.a) * q.r); }
+      const sc = q.s * (q.fall ? Math.max(0, 1 - won / 1.6) : 1);
+      M.compose(q.p, Q.setFromEuler(E.set(t * 0.7 + q.ph, t * 0.5 + i, 0)), S1.setScalar(Math.max(0.001, sc))); this.shardM.setMatrixAt(i, M);
+    });
+    this.shardM.instanceMatrix.needsUpdate = true;
+    /* le sceau, sous le gardien en jeu */
+    this.sigil.visible = !!fr && !this.coreWin;
+    if(fr){ this.sigil.position.set(fr.pos.x, this.ground(fr.pos.x, fr.pos.z) + 0.05, fr.pos.z); this.sigil.rotation.y = t * 0.6; this.sigil.scale.setScalar(Math.max(1, fr.h * 0.8) * (calm ? 1 : 1 + 0.04 * Math.sin(t * 4))); }
+    this.coreLight.position.copy(C).add(V1.set(0, 3, 0)); this.coreLight.intensity = this.coreWin ? Math.max(0, 14 * (1 - won / 1.2)) : 5 + (calm ? 0 : Math.sin(t * 3) * 1.5);
+    this.coreLight.color.set(this.coreWin ? "#ffffff" : "#ff3d7f");
+    /* chaque signature liée entre par une colonne de lumière ; elle sort en éclats */
+    for(const a of AR.act.values()){
+      if(a.side !== "foe") continue;
+      if(a.enter && !this.coreSeen.has(a)){
+        this.coreSeen.add(a); const at = this.home(a, new THREE.Vector3());
+        const m = new THREE.Mesh(this.colGeo, new THREE.MeshBasicMaterial({color:"#ff3d7f", transparent:true, opacity:0, blending:THREE.AdditiveBlending, depthWrite:false, side:THREE.DoubleSide, toneMapped:false}));
+        m.position.set(at.x, this.ground(at.x, at.z), at.z); this.scene.add(m); this.cols.push({m, T0:a.enter.t0});
+      }
+      if(a.koT && !this.coreKo.has(a)){ this.coreKo.add(a); const r = this.recs.get(a.f); if(r && s) s.burst(this.chest(r).clone(), 50, ["#ff3d7f", "#ffffff", "#b48cff"], 4.5, 0.9, 0.6); }
+    }
+    for(let i = this.cols.length - 1; i >= 0; i--){
+      const c = this.cols[i], k = (T - c.T0) / 1100;
+      if(k > 1){ this.scene.remove(c.m); c.m.material.dispose(); this.cols.splice(i, 1); continue; }
+      c.m.material.opacity = k < 0 ? 0 : Math.sin(Math.PI * k) * 0.55; c.m.scale.set(1 - k * 0.4, 1, 1 - k * 0.4);
+    }
+  }
   /* le cadre du combat : le centre du nœud, et vers où l'on regarde (le nord) */
   /* fwd : d'où vient l'équipe (le sentier) vers le nœud ; la caméra se place sur le sentier, là où rien ne pousse */
-  begin(center, ground, fwd){
+  begin(center, ground, fwd, core){
     this.C.copy(center); this.ground = ground; this.on = true; this.B = null; this.lastCur = null;
+    this.core = !!core; this.coreWin = 0; this.coreSeen = new WeakSet(); this.coreKo = new WeakSet(); this.cols = [];
+    if(this.core) this.coreBuild();
     if(fwd && fwd.lengthSq() > 0.01) this.F.copy(fwd).setY(0).normalize(); else this.F.set(0, 0, -1);
     this.R.set(-this.F.z, 0, this.F.x);
     this.camPos = null;
   }
   end(){
     this.on = false;
+    if(this.coreG){ this.coreG.visible = false; for(const c of this.cols || []){ this.scene.remove(c.m); c.m.material.dispose(); } this.cols = []; }
     for(const r of this.recs.values()) r.m.dispose();
     this.recs.clear();
     for(const f of this.fx) this.killFx(f);
@@ -140,6 +205,7 @@ export class XArena {
     }
     for(const [f, r] of this.recs) if(!live.has(f)){ r.m.dispose(); this.recs.delete(f); }
     this.attacks(T, dt);
+    if(this.core && this.coreG) this.coreUpdate(t, dt, T);
     return true;
   }
   /* ---------- les coups : chaque type a sa manière ---------- */
@@ -232,8 +298,21 @@ export class XArena {
     const g0 = this.ground(C.x, C.z);
     const want = V1.copy(C).addScaledVector(this.R, -1.2 - H * 0.3).addScaledVector(this.F, -(3.6 + H * 1.9)); want.y = Math.max(this.ground(want.x, want.z) + 1.0, g0 + 1.5 + H * 0.95);
     const look = V2.copy(C).addScaledVector(this.R, 0.2).addScaledVector(this.F, 0.5); look.y = g0 + 0.35 + H * 0.45;
+    /* le noyau : à son entrée, la caméra tourne lentement autour du gardien, depuis le bas */
+    if(this.core && AR){
+      const k = Math.max(0, Math.min(1, AR.t / 3200));
+      if(k < 1){
+        const ff = [...AR.act.values()].find(a=>a.side === "foe" && a.role === "front"), fr = ff && this.recs.get(ff.f);
+        const fc = fr ? fr.pos.clone() : C.clone().addScaledVector(this.F, 2);
+        const ang = (1 - ease(k)) * 1.4, d = 5.2 + H * 0.6;
+        const dirx = -this.F.x * Math.cos(ang) + this.R.x * Math.sin(ang), dirz = -this.F.z * Math.cos(ang) + this.R.z * Math.sin(ang);
+        const orb = new THREE.Vector3(fc.x + dirx * d, g0 + 0.9 + H * 0.4, fc.z + dirz * d);
+        const w = 1 - ease(Math.max(0, (k - 0.6) / 0.4));
+        want.lerp(orb, w); look.lerp(new THREE.Vector3(fc.x, g0 + H * 0.75 + 0.5, fc.z), w);
+      }
+    }
     /* un critique, un coup super efficace : on se resserre sur la cible */
-    if(AR && AR.zoom > 0.05 && AR.cur){ const D = this.recs.get(AR.cur.def); if(D){ want.lerp(V3.copy(D.pos).add(V1.set(-2.2, 1.6, 3.2)), Math.min(0.35, AR.zoom * 0.35)); } }
+    if(AR && AR.zoom > 0.05 && AR.cur){ const D = this.recs.get(AR.cur.def); if(D){ want.lerp(V3.copy(D.pos).add(new THREE.Vector3(-2.2, 1.6, 3.2)), Math.min(0.35, AR.zoom * 0.35)); } }
     const k = Math.min(1, dt * 2.6);
     camPos.lerp(want, k); camLook.lerp(look, k);
     cam.position.copy(camPos);

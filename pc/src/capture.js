@@ -199,7 +199,7 @@ export class Capture {
     if(!this.handBall.visible && this.cool <= 0 && !this.seq) this.handBall.visible = this.game.mode === "play" && this.count(this.sel) > 0 && !this.game.fishing.active;
     const m = this.game.mode;
     /* (pendant un combat de la Tour, la caméra est dans l'arène : pas de Ball tenue en bas de l'écran) */
-    if(this.game.fishing.active || m === "dialog" || m === "battle" || m === "title" || (this.game.tower3d && this.game.tower3d.on)) this.handBall.visible = false;
+    if(this.game.fishing.active || m === "dialog" || m === "battle" || m === "title" || (this.game.tower3d && this.game.tower3d.on) || (this.game.intro && this.game.intro.active)) this.handBall.visible = false;
     /* les Balls en vol */
     for(const f of this.flights.slice()) this.fly(f, dt, t);
     if(this.seq) this.runSeq(dt, t);

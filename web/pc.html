@@ -6351,7 +6351,7 @@ body.pc #levelup{position:fixed;z-index:58}
 .pp-nav button{font:inherit;font-size:19px;text-align:left;background:none;border:0;color:#b8cbe0;padding:7px 10px;border-radius:8px;cursor:pointer}
 .pp-nav button:hover,.pp-nav button.on{background:#14223a;color:#fff}
 .pp-nav button.main{color:#35f0d6}
-.pp-body{min-height:300px;color:#cfe0ef;font-size:15px}
+.pp-body{min-height:300px;max-height:78vh;overflow-y:auto;padding-right:6px;color:#cfe0ef;font-size:15px}
 .pp-body h3{font-family:"Press Start 2P",monospace;font-size:10px;letter-spacing:2px;color:#7f93ad;margin:0 0 14px}
 .pp-row{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:9px 0;border-bottom:1px solid #16243a}
 .pp-row label{color:#cfe0ef}
@@ -6535,6 +6535,16 @@ body.pc.tower3d .sq2-say{position:fixed;left:50%;bottom:148px;transform:translat
 body.pc.tower3d .sq2-dock{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);width:min(700px,90vw);padding:10px 14px;border-radius:16px;
   background:rgba(5,9,18,.66);border:1px solid rgba(80,120,170,.3);pointer-events:auto;zoom:1.2}
 body.pc.tower3d .sq2-tip{position:fixed;left:50%;right:auto;bottom:210px;transform:translateX(-50%);width:min(560px,86vw);zoom:1.15}
+/* au clavier : 1, 2, 3 sur les compétences, Espace sur la Synchro, A sur l'auto */
+body.pc.tower3d .sq2-skills{counter-reset:sk}
+body.pc.tower3d .sq2-skb{counter-increment:sk}
+body.pc.tower3d .sq2-skb::before{content:counter(sk);position:absolute;left:2px;top:-6px;z-index:2;min-width:17px;height:17px;padding:0 4px;border-radius:4px;background:#0c1220;
+  border:1px solid #3a4a66;color:#fff;font:600 11px/15px ui-monospace,monospace;text-align:center;box-sizing:border-box}
+body.pc.tower3d .sq2-sync::before,body.pc.tower3d .sq2-auto::before{position:absolute;top:-8px;left:50%;transform:translateX(-50%);z-index:2;padding:0 4px;height:15px;border-radius:4px;
+  background:#0c1220;border:1px solid #3a4a66;color:#cfd9e8;font:600 9px/13px ui-monospace,monospace;white-space:nowrap}
+body.pc.tower3d .sq2-sync::before{content:"Espace"}
+body.pc.tower3d .sq2-auto{position:relative}
+body.pc.tower3d .sq2-auto::before{content:"A"}
 body.pc.tower3d .sq2-res{position:fixed;inset:0;background:rgba(3,6,12,.72);zoom:1.2}
 body.pc.tower3d .sq2-res.on{pointer-events:auto}
 /* un verrou levé : le gardien cède en 3D (locks3d.js) ; le bilan attend la fin de ses derniers mots, et ne les répète pas */
@@ -6712,6 +6722,17 @@ body.pc.expe3d .xsc .xo-big{position:fixed;top:26%;left:0;right:0;width:auto;tex
 #pc-xs .pcx-head .xs-say{font-size:16px;line-height:1.45;color:#ccd8ec;max-width:640px;margin:0 auto}
 #pc-xs .pcx-head .xs-gains,#pc-xs .pcx-head .xs-candy,#pc-xs .pcx-head .xs-held{justify-content:center;margin:12px auto 0}
 #pc-xs .pcx-head .xs-gains{display:flex;gap:12px}
+#pc-xs{transition:opacity .45s}
+#pc-xs.hold{opacity:0;pointer-events:none}
+#pc-xs.hold *{pointer-events:none!important}
+#pc-xs .pcx-head .xs-candy{display:inline-flex;gap:10px;align-items:center;padding:8px 14px;border-radius:12px;background:rgba(5,9,18,.72);text-align:left}
+#pc-xs .pcx-head .xs-candy.none{display:none}
+#pc-xs .pcx-head .xs-split{display:flex;justify-content:center;gap:16px;font-size:13px;color:#ccd8ec;margin-top:8px}
+#pc-xs .pcx-head .xs-endtiles{display:flex;justify-content:center;gap:10px;margin:12px auto 0}
+#pc-xs .pcx-head .xs-endtiles span{min-width:110px;padding:8px 12px;border-radius:10px;background:rgba(5,9,18,.72);border:1px solid color-mix(in srgb,var(--xc) 35%,transparent);display:flex;flex-direction:column;gap:2px}
+#pc-xs .pcx-head .xs-endtiles small{font-size:11px;color:#9fb0c8;text-shadow:none}
+#pc-xs .pcx-head .xs-endtiles b{font-size:18px;color:#fff}
+#pc-xs .pcx-head .xs-ko{font-size:13px;color:#ff9ab4;margin-top:8px}
 #pc-xs .pcx-head .xs-gains>div{flex:0 0 auto;min-width:130px;padding:10px 14px;border-radius:12px;background:rgba(5,9,18,.72);border:1px solid color-mix(in srgb,var(--xc) 40%,transparent)}
 #pc-xs .pcx-head .xs-gains b{font-size:20px;color:var(--xc)}
 #pc-xs .pcx-head .xs-gains small{font-size:12px;color:#b8c4d8;text-shadow:none}
@@ -6789,6 +6810,68 @@ body.pc.expe3d.xb #screen>.btn.pri.wide{position:fixed;left:50%;bottom:80px;tran
 body.pc.expe3d.xb #pc-xp-keys{bottom:auto;top:76px;right:auto;left:50%;transform:translateX(-50%);font-size:12px;padding:5px 12px}
 body.pc.expe3d.xn #screen>*{visibility:hidden!important;pointer-events:none!important}
 
+/* ---------- l'entrée dans un module : la cinématique, le but (ui/intro.js) ---------- */
+#pc-intro{position:fixed;inset:0;z-index:38;pointer-events:none;--ia:#35f0d6;font-family:"Pixelify Sans",sans-serif;color:#eef6ff}
+#pc-intro .pi-bar{position:absolute;left:0;right:0;height:11vh;background:#000;transition:transform .6s cubic-bezier(.2,.8,.2,1)}
+#pc-intro .pi-bar.top{top:0;transform:translateY(-101%)}
+#pc-intro .pi-bar.bot{bottom:0;transform:translateY(101%)}
+#pc-intro.on .pi-bar{transform:none}
+/* un voile sombre dans le coin du titre : il se lit sur un ciel clair aussi */
+#pc-intro::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse 62% 58% at 0% 100%,rgba(0,0,0,.6),rgba(0,0,0,.25) 45%,transparent 72%);opacity:0;transition:opacity .6s}
+#pc-intro.on::before{opacity:1}
+#pc-intro.short .pi-bar{height:7vh}
+#pc-intro .pi-prog{position:absolute;left:0;top:0;height:2px;width:0;background:var(--ia);box-shadow:0 0 10px var(--ia);opacity:.85}
+#pc-intro .pi-skip{position:absolute;right:30px;top:50%;transform:translateY(-50%);font-size:14px;color:#7d8aa0;letter-spacing:.02em}
+#pc-intro .pi-skip kbd{display:inline-block;margin-right:7px;padding:2px 8px;border-radius:5px;border:1px solid #33405a;border-bottom-width:2px;background:#0c1220;color:#cfd9e8;font:600 12px ui-monospace,monospace}
+#pc-intro .pi-card{position:absolute;left:6.5vw;bottom:calc(11vh + 5vh);max-width:min(640px,62vw);padding:4px 0 4px 20px;border-left:3px solid var(--ia);
+  opacity:0;transform:translateX(-14px);transition:opacity .5s ease,transform .7s cubic-bezier(.2,.8,.2,1)}
+#pc-intro.short .pi-card{bottom:calc(7vh + 4vh)}
+#pc-intro .pi-card.on{opacity:1;transform:none}
+#pc-intro .pi-k{font-family:"Press Start 2P",monospace;font-size:10px;letter-spacing:2px;line-height:1.6;color:var(--ia);margin-bottom:12px;text-shadow:0 1px 8px rgba(0,0,0,.7)}
+#pc-intro .pi-t{font-family:"Unbounded",sans-serif;font-weight:800;font-size:clamp(36px,5.4vw,72px);line-height:1;letter-spacing:-.01em;color:#fff;min-height:1em;
+  text-shadow:-3px 0 0 rgba(255,61,127,.75),3px 0 0 rgba(53,240,214,.75),0 4px 26px rgba(0,0,0,.65)}
+#pc-intro .pi-t.set{animation:piSet .5s ease-out forwards}
+@keyframes piSet{to{text-shadow:0 0 0 rgba(255,61,127,0),0 0 0 rgba(53,240,214,0),0 4px 26px rgba(0,0,0,.65)}}
+#pc-intro .pi-g{margin-top:16px;font-size:clamp(17px,1.5vw,21px);line-height:1.4;max-width:32em;color:#dfe8f5;text-shadow:0 2px 10px rgba(0,0,0,.8)}
+#pc-intro.short .pi-t{font-size:clamp(28px,3.6vw,48px)}
+/* pendant la cinématique, le reste s'efface (et rien ne se clique) */
+body.pcintro #pchud,body.pcintro #pc-minimap,body.pcintro #pc-br-ov,body.pcintro #pc-tower-fx,body.pcintro #pc-xp-fx,body.pcintro #pc-xp-card,body.pcintro #pc-xp-keys,body.pcintro #pc-pzsay,
+body.pcintro .br-hud,body.pcintro .br-kit,body.pcintro .br-ticker,body.pcintro .br-say,
+body.pcintro.expe3d #screen,body.pcintro.breche3d #screen,
+body.pcintro.tower3d .sq2-top,body.pcintro.tower3d .sq2-dock,body.pcintro.tower3d .sq2-say,body.pcintro.tower3d .sq2-order,body.pcintro.tower3d .sq2-tip,body.pcintro.tower3d .sq2-bossbar{
+  opacity:0!important;pointer-events:none!important;transition:opacity .3s}
+/* (les missions de la Brèche attendent la fin de la cinématique pour s'afficher) */
+body.pcintro .br-misintro{opacity:0!important;animation-play-state:paused!important}
+
+/* ---------- le check des commandes ---------- */
+#pc-check{position:fixed;left:24px;top:calc(50% + 40px);transform:translate(-16px,-50%);width:310px;padding:13px 15px 11px;border-radius:12px;z-index:36;pointer-events:none;--ia:#35f0d6;
+  background:linear-gradient(180deg,rgba(6,11,22,.86),rgba(6,11,22,.72));border:1px solid rgba(120,150,190,.18);border-left:3px solid var(--ia);
+  box-shadow:0 10px 30px rgba(0,0,0,.35);font-family:"Pixelify Sans",sans-serif;color:#c8d4e8;opacity:0;transition:opacity .35s,transform .45s cubic-bezier(.2,.8,.2,1)}
+#pc-check.on{opacity:1;transform:translate(0,-50%)}
+#pc-check .pk-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:10px}
+#pc-check .pk-h b{font-family:"Press Start 2P",monospace;font-size:9px;letter-spacing:1px;line-height:1.5;color:var(--ia)}
+#pc-check .pk-n{font-size:13px;color:#7d8aa0;white-space:nowrap}
+#pc-check ul{list-style:none;margin:0;padding:0;display:grid;gap:7px}
+#pc-check li{display:grid;grid-template-columns:auto 1fr 14px;align-items:center;gap:10px;font-size:15px;line-height:1.2;transition:color .25s}
+#pc-check .pk-k{display:flex;gap:3px;align-items:center;min-width:42px}
+#pc-check kbd{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;padding:0 6px;border-radius:5px;background:#18223a;
+  border:1px solid #34446a;border-bottom-width:2px;color:#fff;font:600 12px ui-monospace,monospace;transition:background .2s,border-color .2s,color .2s}
+#pc-check .pk-m{display:inline-flex;align-items:center;gap:4px;height:22px;padding:0 6px 0 4px;border-radius:5px;background:#18223a;border:1px solid #34446a;border-bottom-width:2px;color:#fff;
+  transition:background .2s,border-color .2s,color .2s}
+#pc-check .pk-m small{font:600 11px ui-monospace,monospace}
+#pc-check .pk-ms{width:12px;height:17px;display:block}
+#pc-check .pk-ok{width:14px;height:14px;border-radius:50%;border:1.5px solid #34446a;position:relative;transition:background .2s,border-color .2s}
+#pc-check li.ok{color:#fff}
+#pc-check li.ok kbd,#pc-check li.ok .pk-m{background:var(--ia);border-color:var(--ia);color:#04060b}
+#pc-check li.ok .pk-ok{background:var(--ia);border-color:var(--ia)}
+#pc-check li.ok .pk-ok::after{content:"";position:absolute;left:3.5px;top:1px;width:4px;height:7px;border:solid #04060b;border-width:0 2px 2px 0;transform:rotate(45deg)}
+#pc-check li.pop .pk-k{animation:pkPop .38s cubic-bezier(.3,1.6,.5,1)}
+@keyframes pkPop{0%{transform:scale(1)}40%{transform:scale(1.18)}100%{transform:scale(1)}}
+#pc-check .pk-f{margin-top:10px;font-size:12px;color:#7d8aa0}
+#pc-check.done .pk-h b{color:#fff}
+#pc-check.done .pk-f{visibility:hidden}
+@media (prefers-reduced-motion:reduce){#pc-intro .pi-bar,#pc-intro .pi-card,#pc-check{transition:opacity .2s}#pc-check li.pop .pk-k{animation:none}}
+
 </style>
 <script src="config.js"></script>
 </head>
@@ -6825,7 +6908,7 @@ body.pc.expe3d.xn #screen>*{visibility:hidden!important;pointer-events:none!impo
 <script>window.PCG_PC = true;</script>
 <script>
 /* version du jeu (buildver.py) */
-const BUILD_V = "bd7cd966", BUILD_LABEL = "3 novembre 2026, 21 h 37";
+const BUILD_V = "c24e8f9e", BUILD_LABEL = "6 novembre 2026, 16 h 03";
 /* Version hebergee : les images sont servies comme fichiers, pas encodees
    dans le HTML. Les noms portent une empreinte : on peut donc les mettre en
    cache indefiniment sans jamais servir une version perimee. */
@@ -27094,6 +27177,8 @@ function sqVInit(u, t0, side){
    2. LE DÉROULÉ — le moteur décide, l'écran raconte
    ============================================================ */
 const sqSp = () => (sqState().speed || 1);
+/* la version PC joue une courte cinématique à l'entrée du combat : le temps qu'elle dure, tout attend */
+const sqHeld = () => typeof window !== "undefined" && !!window.PCHOLD;
 function sqLoop(){
   const B = SQB; if(!B || !SQV) return;
   if(B.over){ sqEnd(); return; }
@@ -27152,6 +27237,7 @@ function sqPlay(ev, done){
   let i = 0;
   const next = () => {
     if(!SQB || !SQV) return;
+    if(sqHeld()){ setTimeout(next, 100); return; }
     if(i >= ev.length){ done && done(); return; }
     const e = ev[i++];
     let d = sqShow(e, ev);
@@ -27164,7 +27250,8 @@ function sqSay(t){ const el = document.getElementById("sqsay"); if(el) el.innerH
 function sqSayPick(){
   const u = SQV && SQV.wait; if(!u) return;
   const s = u.skills[SQV.pick];
-  sqSay(`<b>${esc(u.name)}</b> · <b style="color:${sqCol(s.t)}">${esc(s.n)}</b> — ${esc(sqDescribe(s))}<br><span class="dim">${s.kind === "atk" ? "Touchez la cible." : "Touchez à nouveau la compétence pour la lancer."}</span>`);
+  sqSay(`<b>${esc(u.name)}</b> · <b style="color:${sqCol(s.t)}">${esc(s.n)}</b> — ${esc(sqDescribe(s))}<br><span class="dim">${typeof window !== "undefined" && window.PCG_PC ? (s.kind === "atk" ? "Clique sur la cible, ou Entrée pour la cible fléchée." : "Appuie de nouveau sur sa touche pour la lancer.")
+    : s.kind === "atk" ? "Touchez la cible." : "Touchez à nouveau la compétence pour la lancer."}</span>`);
 }
 
 /* chaque événement du moteur devient une image ; la valeur rendue est sa durée */
@@ -27417,7 +27504,7 @@ function sqFrame(now){
   const real = Math.min(100, now - (SQV.last || now)); SQV.last = now;
   /* un coup qui porte fige l'image un instant */
   const frozen = SQV.hitstop && SQV.t < SQV.hitstop;
-  const dt = real * sqSp() * (frozen ? 0.15 : 1); SQV.t += dt;
+  const dt = sqHeld() ? 0 : real * sqSp() * (frozen ? 0.15 : 1); SQV.t += dt;
   const x = SQV.cv.getContext("2d"), W = SQV.W, H = SQV.H, t = SQV.t;
   x.setTransform(SQV.d, 0, 0, SQV.d, 0, 0);
   x.imageSmoothingEnabled = false;
@@ -36433,7 +36520,7 @@ const BR_DODGE = {dur:0.22, cd:1.4, inv:0.34};
 
 /* l'esquive : vers où l'on se déplace, sinon vers la visée */
 function brDodge(R){
-  if(!R || R.over || R.paused || R.modal || (R.dodgeCd || 0) > 0 || (R.cine && R.cine.freeze)) return false;
+  if(!R || R.over || R.paused || R.modal || (R.dodgeCd || 0) > 0 || (R.cine && R.cine.freeze) || brHeld()) return false;
   let dx = 0, dy = 0;
   if(R.pcMove && (R.pcMove[0] || R.pcMove[1])){ dx = R.pcMove[0]; dy = R.pcMove[1]; }
   else if(R.aim){ dx = R.aim.x - R.x; dy = R.aim.y - R.y; }
@@ -36483,6 +36570,12 @@ if(typeof brPzAnchor === "function"){
 
 /* la 3D dessine : la toile mobile se tait, les mises en scène continuent d'avancer */
 function brPc3D(){ return typeof window !== "undefined" && window.PCBR3D && window.PCBR3D.on; }
+/* l'entrée en 3D (la cinématique d'ouverture) : la partie attend qu'elle soit jouée */
+function brHeld(){ return brPc3D() && !!window.PCHOLD; }
+if(typeof brUpdate === "function"){
+  const _brUpdatePC = brUpdate;
+  brUpdate = function(R, dt){ if(brHeld()) return; return _brUpdatePC.apply(this, arguments); };
+}
 if(typeof brRender === "function"){
   const _brRenderPC = brRender;
   brRender = function(R, cv){
@@ -49791,6 +49884,6 @@ document.addEventListener("DOMContentLoaded", bootOnce);
 if(document.readyState !== "loading") bootOnce();
 
 </script>
-<script src="pc/game.5c8fcf76.js" defer></script>
+<script src="pc/game.b1169459.js" defer></script>
 </body>
 </html>

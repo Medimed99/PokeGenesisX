@@ -2396,6 +2396,21 @@ t("Un verrou levé sur PC se joue dans l'arène 3D (le gardien cède sur place) 
   if(was) global.window.PCLOCK3D = was;
   return pc && !called && off && mob;
 })());
+t("Sur PC, la cinématique d'entrée (PCHOLD) fige la Brèche et l'esquive le temps qu'elle dure ; sur mobile, rien ne change", (()=>{
+  A.setS(A.newState()); for(let i = 1; i <= 151; i++) A.addToDex(i, 20, false);
+  const R = A.brNewRun({region:"kanto", hab:"route", starter:4, seed:5}); R.W = 390; R.H = 700; R.dpr = 1; R.keys = {}; R.joy = {dx:0, dy:0};
+  const w0 = global.window.PCBR3D, h0 = global.window.PCHOLD;
+  global.window.PCBR3D = {on:true}; global.window.PCHOLD = true;
+  for(let k = 0; k < 30; k++) A.brUpdate(R, 1/30);
+  const held = R.t === 0 && !A.brDodge(R);
+  global.window.PCHOLD = false;
+  for(let k = 0; k < 30; k++) A.brUpdate(R, 1/30);
+  const runs = R.t > 0.9;
+  global.window.PCBR3D = {on:false}; global.window.PCHOLD = true;
+  const t1 = R.t; A.brUpdate(R, 1/30); const mob = R.t > t1;
+  global.window.PCBR3D = w0; global.window.PCHOLD = h0;
+  return held && runs && mob;
+})());
 t("une minute de Brèche simulée reste saine (aucun NaN, aucune fuite)", (()=>{
   A.setS(A.newState()); for(let i = 1; i <= 151; i++) A.addToDex(i, 20, false);
   const R = A.brNewRun({region:"kanto", hab:"route", starter:4, seed:3});

@@ -147,6 +147,65 @@ export class Tower3D {
     }
     this.camPos.copy(this.root).add(new THREE.Vector3(-14, 7, 14)); this.camLook.copy(this.root);
     for(const u of [...B.allies, ...(G().SQV.foes || [])]) if(!u.mn) preloadMon(u.id, u.shiny);
+    this.playIntro(B);
+  }
+  /* ---------- l'entrée : une cinématique, le but, les commandes (pas pour le combat final : le récit s'en charge) ---------- */
+  playIntro(B){
+    const I = this.game.intro; if(!I || this.final || B.pcIntro) return;
+    B.pcIntro = true;
+    const g = G(), R0 = this.root, at = (x, y, z) => R0.clone().add(new THREE.Vector3(x, y, z));
+    const controls = [
+      {k:["clic"], t:"attaquer un adversaire", on:{btn:0}},
+      {k:["1", "2", "3"], t:"choisir une compétence", on:{keys:["Digit1", "Digit2", "Digit3", "Digit4", "Numpad1", "Numpad2", "Numpad3", "Numpad4"]}},
+      {k:["Entrée"], t:"frapper la cible fléchée", on:{keys:["Enter", "NumpadEnter"]}},
+      {k:["Espace"], t:"Synchro (une fois pleine)", on:{keys:["Space"]}},
+      {k:["A"], t:"jeu automatique", on:{chars:["a"]}},
+      {k:["Tab"], t:"pause", on:{keys:["Tab"]}}];
+    const base = {camera:this.cam, hold:true, controls, ver:1, checkTitle:"Les commandes du combat",
+      alive:()=>this.on && G().SQB === B, visible:()=>this.on && !B.over && !this.game.story3d.on};
+    if(B.lock){
+      /* un verrou : on part du cadenas, on recule le long de la passerelle jusqu'à l'équipe */
+      let name = "le gardien", region = "";
+      try { const r = g.ref("regionDef")(B.lock.r), gd = r.guardians[B.lock.i]; name = g.POKE[gd.id].name; region = r.name; } catch(e){}
+      const pad = this.locks.pad.group.getWorldPosition(new THREE.Vector3()), d = pad.clone().sub(R0).setY(0).normalize(), side = new THREE.Vector3(-d.z, 0, d.x);
+      const near = pad.clone().addScaledVector(d, -8.5).addScaledVector(side, 1.6), padL = pad.clone();
+      I.play(Object.assign(base, {id:"lock", dur:4.6, color:"#ff3d7f", blend:0.6,
+        kicker:`VERROU · ${region.toUpperCase()}`, title:name, goal:`Bats ses escortes, puis ${name} : le cadenas cède et la porte s'ouvre.`,
+        shots:[{p:near, l:padL}, {p:pad.clone().addScaledVector(d, -12.5).addScaledVector(side, -2.2).setY(pad.y + 1.8), l:padL.clone().setY(pad.y - 0.4)},
+          {p:at(-12, 8.5, 12.5), l:at(1.6, 1.2, -1.6)}, {p:at(-9.4, 5.2, 9.8), l:at(2.4, 2.4, -2.4)}]}));
+      return;
+    }
+    /* un combat de la Tour : on monte depuis le dessous de l'arène, qui flotte au-dessus de l'archive */
+    let zone = "La Tour", diff = "", col = "#35f0d6", stage = "";
+    try { const Z = g.ref("SQ_ZONES")[B.z], D = g.ref("SQ_DIFFS")[B.d || 0], N = g.ref("SQ_STAGES");
+      zone = Z.n; col = Z.c || col; diff = D.n; stage = B.s === N - 1 ? "LE GARDIEN DE L'AILE" : "PALIER " + (B.s + 1); } catch(e){}
+    const waves = (B.waves && B.waves.length) || 3, boss = /GARDIEN/.test(stage);
+    const first = I.first("tour");
+    I.play(Object.assign(base, {id:"tour", dur:first ? 3.6 : 2.0, color:col, blend:first ? 0.62 : 0.5, titleAt:first ? 0.3 : 0.1,
+      kicker:`LA TOUR · ${stage}${diff ? " · " + diff.toUpperCase() : ""}`, title:zone,
+      goal:first ? (boss ? `${waves} vagues, et le gardien de l'aile à la dernière. Mets tout le monde K.O.` : `${waves} vague${waves > 1 ? "s" : ""} d'adversaires : mets-les tous K.O. Chacun joue à son tour.`) : "",
+      shots:first ? [{p:at(-11, -15, 11), l:at(0, -6, 0)}, {p:at(-14, -2, 14), l:at(0, -0.5, 0)}, {p:at(-11.5, 6.5, 11.5), l:at(0.6, 0.6, -0.6)}, {p:at(-8.8, 4.1, 9.1), l:at(1.1, 0.9, -1)}]
+        : [{p:at(-13, 1, 13), l:at(0, 0, 0)}, {p:at(-10.5, 5.2, 10.8), l:at(0.8, 0.8, -0.8)}, {p:at(-8.8, 4.1, 9.1), l:at(1.1, 0.9, -1)}]}));
+  }
+  /* ---------- au clavier : 1 à 4 les compétences, Entrée la cible fléchée, Espace la Synchro, A le jeu auto ---------- */
+  key(e){
+    if(!this.on) return false;
+    const g = G(), B = g.SQB, V = g.SQV, A = g.ACTIONS;
+    if(!B || !V || B.over) return false;
+    const sr = document.getElementById("sheet-root"); if(sr && /\bon\b/.test(sr.className)) return false;
+    const d = /^(Digit|Numpad)([1-4])$/.exec(e.code);
+    if(d){ const f = g.ref("sqPickSkill"); if(f && V.wait){ e.preventDefault(); f(+d[2] - 1); } return true; }
+    if(e.code === "Enter" || e.code === "NumpadEnter"){
+      e.preventDefault();
+      const u = V.wait, sk = u && u.skills[V.pick]; if(!sk || u.cds[V.pick]) return true;
+      if(sk.kind !== "atk"){ window.sqDoAct(u, {si:V.pick, ti:0}); return true; }
+      const tg = V.target && V.target.hp > 0 ? V.target : (B.foes || []).find(f=>f.hp > 0);
+      const ti = tg ? B.foes.indexOf(tg) : -1; if(ti >= 0) window.sqDoAct(u, {si:V.pick, ti});
+      return true;
+    }
+    if(e.code === "Space"){ e.preventDefault(); if(A.sqsync) A.sqsync(); return true; }
+    if(e.key && e.key.toLowerCase() === "a" && !e.ctrlKey && !e.metaKey){ if(A.sqauto) A.sqauto(); return true; }
+    return false;
   }
   exit(){
     this.on = false;

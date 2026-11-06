@@ -32,6 +32,8 @@ const SKY_VS = `varying vec3 vD; void main(){ vD = normalize(position); vec4 p =
 const SKY_FS = `varying vec3 vD; uniform vec3 uTop, uBot; void main(){ float y = vD.y; gl_FragColor = vec4(mix(uBot, uTop, smoothstep(-0.05, 0.5, y)), 1.0); }`;
 const T1 = new THREE.Vector3(), T2 = new THREE.Vector3();
 const NIGHT = [new THREE.Color("#0a0c1e"), new THREE.Color("#2a1a2e"), new THREE.Color("#141020")];
+/* autour du noyau : le ciel de la faille */
+const CORE = [new THREE.Color("#12041c"), new THREE.Color("#4a0c34"), new THREE.Color("#260a24"), new THREE.Color("#ff7ab0")];
 
 export class Expe3D {
   constructor(game){
@@ -47,11 +49,18 @@ export class Expe3D {
       if(el) setTimeout(()=>this.relock(), 60);
     }, true);
   }
-  run(){ const g = G(); return g && g.S && g.S.expedition; }
+  /* le parcours en cours ; à la fin (la scène de fin est ouverte), celui qui vient de s'achever */
+  run(){
+    const g = G(), r = g && g.S && g.S.expedition; if(r) return r;
+    const E = ref("EXP_END"), xs = document.getElementById("xscene");
+    return this.on && E && E.run && xs && xs.dataset && xs.dataset.kind === "end" ? E.run : null;
+  }
   /* un parcours est-il ouvert dans le terminal (la carte, ou un de ses combats) ? */
   wanted(){
     const g = G(); if(!g || !this.game.terminal || !this.game.terminal.open) return false;
-    const run = this.run(); if(!run || run.ended || !run.map) return false;
+    const run = this.run(); if(!run || !run.map) return false;
+    /* le parcours est fini : on reste le temps de la scène de fin (l'équipe, la couche réparée) */
+    if(run.ended){ const xs = document.getElementById("xscene"); return !!(this.on && xs && xs.dataset && xs.dataset.kind === "end"); }
     const cs = ref("currentScreen");
     if(cs === "expedition") return true;
     if(cs === "battle"){
@@ -142,7 +151,7 @@ export class Expe3D {
     const xs = document.getElementById("xscene"), sr = document.getElementById("sheet-root");
     return !!(this.mapOpen || (xs && xs.dataset && xs.dataset.kind !== undefined) || (sr && /\bon\b/.test(sr.className)) || ref("EXP_END"));
   }
-  relock(){ if(this.on && this.mode === "walk" && !this.overlayOpen() && !this.game.input.locked) this.game.input.lock(); }
+  relock(){ if(this.on && this.mode === "walk" && !this.overlayOpen() && !this.game.input.locked && !this.game.intro.active) this.game.input.lock(); }
   /* ---------- les touches ---------- */
   key(e){
     if(!this.on) return false;
@@ -204,6 +213,31 @@ export class Expe3D {
     this.env.fog.copy(this.scene.fog.color); this.env.fogDensity = this.scene.fog.density;
     this.env.tint.set(1, 1, 1).lerp(new THREE.Color(B.hemi[0]), 0.25);
   }
+  /* ---------- l'entrée : du Champion, au bout de la vallée, jusqu'à l'équipe à la porte ---------- */
+  playIntro(run){
+    const I = this.game.intro; if(!I) return;
+    const last = run.map.length - 1, row = run.map[last] || [];
+    const boss = nodePos(run, last, Math.floor(row.length / 2) || 0); boss.y = this.sector.heightAt(boss.x, boss.z);
+    const P = this.pos.clone(), mid = (boss.z + P.z) / 2, V = (x, y, z) => new THREE.Vector3(x, y, z);
+    const names = {prairie:"Prairie", foret:"Forêt", grotte:"Grotte", plage:"Plage", neige:"Glacier", volcan:"Volcan", faille:"La Faille"};
+    I.play({id:"expe", camera:this.camera, dur:5.6, color:"#ffc857", ver:1, blend:0.66, titleAt:0.6,
+      kicker:`SECTEUR 1 / ${run.maps || 1} · ${(names[run.biome] || "").toUpperCase()}`, title:"Expédition",
+      goal:`Va de nœud en nœud jusqu'au Champion du secteur. Au bout du dernier secteur, le noyau.`,
+      shots:[{p:V(boss.x + 3.5, boss.y + 3.2, boss.z + 9), l:V(boss.x, boss.y + 2.2, boss.z)},
+        {p:V(boss.x + 5, boss.y + 16, boss.z + 26), l:V(boss.x, boss.y, boss.z + 4)},
+        {p:V(3, P.y + 22, mid + 18), l:V(0, P.y, mid - 6)},
+        {p:V(P.x + 1.5, P.y + 8, P.z + 11), l:V(P.x, P.y + 1, P.z - 6)},
+        {p:V(P.x + 0.6, P.y + 4.7, P.z + 5.8), l:V(P.x, P.y + 1.6, P.z - 4)}],
+      controls:[
+        {k:["Z", "Q", "S", "D"], t:"marcher", on:{keys:["KeyW", "KeyA", "KeyS", "KeyD", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"]}},
+        {k:["souris"], t:"tourner la caméra", on:{move:true}},
+        {k:["Maj"], t:"courir", on:{keys:["ShiftLeft", "ShiftRight"]}},
+        {k:["E"], t:"entrer dans un nœud allumé", on:{chars:["e"]}},
+        {k:["M"], t:"la carte : choisir sa route", on:{chars:["m"]}},
+        {k:["Tab"], t:"la souris : équipe, sac, soins", on:{keys:["Tab"]}}],
+      alive:()=>this.on && !!this.run() && this.run().seed === run.seed,
+      visible:()=>this.on && this.mode === "walk" && !this.overlayOpen() && this.game.input.locked});
+  }
   /* où se tient l'équipe : au nœud courant (un peu en retrait, pour ne pas y rentrer de nouveau), sinon à la porte */
   placeTeam(run){
     if(run.row >= 0){ nodePos(run, run.row, run.col, this.pos); this.pos.z += 3.2; }
@@ -224,6 +258,8 @@ export class Expe3D {
     /* un nouveau secteur (ou un nouveau parcours) : on le bâtit */
     const key = (run.seed || 0) + ":" + (run.mapIdx || 0) + ":" + run.biome;
     if(this.sector.key !== key){ this.sector.build(run); this.applyEnv(this.sector.B); this.placeTeam(run); }
+    /* un parcours qui commence : la vallée se montre d'un bout à l'autre, puis la main revient à l'équipe */
+    if(run.row < 0 && !(run.mapIdx || 0) && !run.ended && this.introSeed !== run.seed && !document.getElementById("xscene")){ this.introSeed = run.seed; this.playIntro(run); }
     /* trois façons d'être là : marcher, voir une scène de nœud (le jeu mobile l'a ouverte), combattre */
     const cs = ref("currentScreen"), xs = document.getElementById("xscene");
     const xk = xs && xs.dataset && xs.dataset.kind !== undefined ? xs.dataset.kind : null;
@@ -240,7 +276,8 @@ export class Expe3D {
       if(was === "scene" && mode !== "scene"){ this.scenes.end(); this.stage.hide(); }
       if(mode === "battle"){
         const c = this.nodeC(run);
-        this.arena.begin(c, (x, z)=>this.sector.heightAt(x, z), this.nodeF);
+        const nd = run.row >= 0 && run.map[run.row] && run.map[run.row][run.col];
+        this.arena.begin(c, (x, z)=>this.sector.heightAt(x, z), this.nodeF, !!(nd && nd.t === "boss"));
         this.team.show(false);
         if(I.locked) I.unlock();
         if(!was) this.snap = true;
@@ -282,11 +319,23 @@ export class Expe3D {
     if(this.sector.B){ const B = this.sector.B, n = this.nightK, k = 1 - n * 0.62; this.hemi.intensity = B.hemi[2] * k; this.sun.intensity = B.sun[1] * (1 - n * 0.85);
       const U = this.sky.material.uniforms; U.uTop.value.set(B.sky[0]).lerp(NIGHT[0], n * 0.85); U.uBot.value.set(B.sky[1]).lerp(NIGHT[1], n * 0.8);
       this.scene.fog.color.set(B.fog[0]).lerp(NIGHT[2], n * 0.8); this.env.fog.copy(this.scene.fog.color); }
+    /* le noyau : la couche s'assombrit autour de lui ; vaincu, elle se répare dans un éclat de lumière */
+    const coreOn = (mode === "battle" && this.arena.core && !this.arena.coreWin) || (mode === "scene" && this.scenes.dark);
+    if(mode === "battle" && this.arena.coreWin && !this.cleanT) this.cleanT = t;
+    if(!(mode === "battle" && this.arena.core) && !(mode === "scene" && this.scenes.kind === "end")) this.cleanT = 0;
+    this.darkK = (this.darkK || 0) + ((coreOn ? 1 : 0) - (this.darkK || 0)) * Math.min(1, dt * (coreOn ? 1.2 : 2.5));
+    const clean = this.cleanT ? Math.max(0, 1 - (t - this.cleanT) / 2.2) : 0;
+    if(this.sector.B && this.darkK > 0.001){
+      const n = this.darkK, U = this.sky.material.uniforms;
+      U.uTop.value.lerp(CORE[0], n * 0.85); U.uBot.value.lerp(CORE[1], n * 0.8);
+      this.scene.fog.color.lerp(CORE[2], n * 0.8); this.env.fog.copy(this.scene.fog.color);
+      this.hemi.color.set(this.sector.B.hemi[0]).lerp(CORE[3], n * 0.6); this.hemi.intensity *= 1 - n * 0.3; this.sun.intensity *= 1 - n * 0.55;
+    } else if(this.sector.B) this.hemi.color.set(this.sector.B.hemi[0]);
     const sp = this.game.capture && this.game.capture.sparks; if(sp) sp.update(dt);
-    /* l'image : propre en pleine nature, abîmée dans la faille */
+    /* l'image : propre en pleine nature, abîmée dans la faille, et autour du noyau */
     const E = this.game.engine, calm = typeof window.calmFx === "function" && window.calmFx();
-    if(E.corrupt) E.corrupt.set(run.biome === "faille" ? 0.4 : 0.1, 0, t, calm);
-    E.setExposure(this.sector.B ? this.sector.B.exp : 1);
+    if(E.corrupt) E.corrupt.set((run.biome === "faille" ? 0.4 : 0.1) + this.darkK * 0.32, calm ? 0 : this.darkK * 0.08, t, calm);
+    E.setExposure((this.sector.B ? this.sector.B.exp : 1) * (1 + (calm ? 0.25 : 0.7) * clean * clean));
     this.bagLayout();
     this.overlay(t);
   }
@@ -320,6 +369,7 @@ export class Expe3D {
     sc.camera(this.camera, dt, this.camPos, this.camLook, ground);
     this.camera.updateMatrixWorld();
     this.stage.update(document.getElementById("xscene"), run, sc, this.camera);
+    this.stage.el.classList.toggle("hold", (sc.holdUI || 0) > (this.game.t - sc.t0));
     if(this.pick3 !== undefined && this.stage.hover < 0 && this.pick3 >= 0) sc.hover = this.pick3;
     const C = sc.C; this.sun.position.set(C.x + 14, C.y + 30, C.z + 10); this.sun.target.position.copy(C);
     /* la marche reprendra d'ici */
@@ -351,7 +401,7 @@ export class Expe3D {
     this.yaw -= look.x * sens; this.pitch = Math.max(0.05, Math.min(1.1, this.pitch + look.y * sens));
     const wh = I.consumeWheel(); if(wh) this.dist = Math.max(3.8, Math.min(12, this.dist + wh * 0.6));
     let mx = 0, mz = 0;
-    if(I.locked && !open){
+    if(I.locked && !open && !this.game.intro.active){
       if(I.down("KeyW") || I.down("ArrowUp")) mz -= 1;
       if(I.down("KeyS") || I.down("ArrowDown")) mz += 1;
       if(I.down("KeyA") || I.down("ArrowLeft")) mx -= 1;

@@ -14,6 +14,12 @@ const KEYS = [
   ["1 à 5 · molette", "choisir la Ball"], ["6 à 0", "utiliser une baie"], ["E", "parler, interagir"],
   ["F", "sortir la canne (au bord du lac)"], ["M", "la carte"], ["H", "l'heure : réelle, jour, nuit"], ["Tab", "le terminal : Pokédex, équipe, sac, quêtes, modules"], ["Échap", "pause"]
 ];
+/* les modules en 3D (chacun les rappelle aussi à son entrée) */
+const MODULE_KEYS = [
+  ["LA TOUR ET LES VERROUS", [["Clic", "attaquer un adversaire"], ["1 · 2 · 3", "choisir une compétence"], ["Entrée", "frapper la cible fléchée"], ["Espace", "la Synchro, une fois pleine"], ["A", "jeu automatique"], ["Tab", "pause"]]],
+  ["LA BRÈCHE", [["Z Q S D", "se déplacer"], ["Souris", "viser : l'équipe tire seule vers le réticule"], ["Espace", "esquiver"], ["Molette", "rapprocher la caméra"], ["1 à 4 · R", "choisir · relancer les choix"], ["Tab", "pause"]]],
+  ["L'EXPÉDITION", [["Z Q S D · Maj", "marcher · courir"], ["E", "entrer dans un nœud allumé"], ["M", "la carte : un clic trace la route"], ["1 à 6 · Entrée", "choisir · valider"], ["Maj (combat)", "accélérer, le temps qu'on le tient"], ["Tab", "la souris : équipe, sac, soins"]]]
+];
 
 export class Menus {
   constructor(game){
@@ -80,7 +86,8 @@ export class Menus {
         <div class="pp-row"><label>Effets réduits<small>Moins de déchirures de l'image et de flashs (réglage partagé avec le jeu mobile)</small></label>${seg("calm", [[false, "Non"], [true, "Oui"]], typeof window.calmFx === "function" && window.calmFx())}</div>
         <div class="pp-row"><label>Volume des sons<small>${Math.round(Settings.volume * 100)} %</small></label><input type="range" min="0" max="1" step="0.05" value="${Settings.volume}" data-range="volume"></div>`;
     } else if(this.tab === "keys"){
-      body = `<h3>COMMANDES</h3><div class="pp-keys">${KEYS.map(([k, d])=>`<kbd>${esc(k)}</kbd><span>${esc(d)}</span>`).join("")}</div>`;
+      const grid = L => `<div class="pp-keys">${L.map(([k, d])=>`<kbd>${esc(k)}</kbd><span>${esc(d)}</span>`).join("")}</div>`;
+      body = `<h3>COMMANDES · LA ROUTE</h3>${grid(KEYS)}${MODULE_KEYS.map(([h, L])=>`<h3 style="margin-top:22px">${esc(h)}</h3>${grid(L)}`).join("")}`;
     } else {
       body = `<h3>LA ROUTE 1</h3><p style="margin:0 0 10px;line-height:1.6">Les Pokémon se cachent dans les hautes herbes (elles frémissent) ou flânent sur la route.
         Approche, vise, lance. Au bord du lac, sors la canne. Un dresseur rémanent attend quelque part sur la route.</p>

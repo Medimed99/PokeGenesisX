@@ -21,7 +21,7 @@ const BR_DODGE = {dur:0.22, cd:1.4, inv:0.34};
 
 /* l'esquive : vers où l'on se déplace, sinon vers la visée */
 function brDodge(R){
-  if(!R || R.over || R.paused || R.modal || (R.dodgeCd || 0) > 0 || (R.cine && R.cine.freeze)) return false;
+  if(!R || R.over || R.paused || R.modal || (R.dodgeCd || 0) > 0 || (R.cine && R.cine.freeze) || brHeld()) return false;
   let dx = 0, dy = 0;
   if(R.pcMove && (R.pcMove[0] || R.pcMove[1])){ dx = R.pcMove[0]; dy = R.pcMove[1]; }
   else if(R.aim){ dx = R.aim.x - R.x; dy = R.aim.y - R.y; }
@@ -71,6 +71,12 @@ if(typeof brPzAnchor === "function"){
 
 /* la 3D dessine : la toile mobile se tait, les mises en scène continuent d'avancer */
 function brPc3D(){ return typeof window !== "undefined" && window.PCBR3D && window.PCBR3D.on; }
+/* l'entrée en 3D (la cinématique d'ouverture) : la partie attend qu'elle soit jouée */
+function brHeld(){ return brPc3D() && !!window.PCHOLD; }
+if(typeof brUpdate === "function"){
+  const _brUpdatePC = brUpdate;
+  brUpdate = function(R, dt){ if(brHeld()) return; return _brUpdatePC.apply(this, arguments); };
+}
 if(typeof brRender === "function"){
   const _brRenderPC = brRender;
   brRender = function(R, cv){

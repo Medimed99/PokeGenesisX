@@ -17,6 +17,7 @@
    ============================================================ */
 import * as THREE from "three";
 import { S, G, ref, Discs } from "./lib.js";
+import { setBand } from "./fx.js";
 import { World } from "./world.js";
 import { OCC } from "../mon/occ.js";
 import { Horde } from "./horde.js";
@@ -67,6 +68,8 @@ export class Breche3D {
     this.fx.depth = new Depth(this.fx, this.world);
     this.hud = new BrHud();
     this.aimDiscs = new Discs(this.scene);
+    /* l'arrivée de l'équipe (la cinématique d'entrée) se dessine avec les effets */
+    this.fx.extra = (R, t, dt) => this.arriveFx(R, t, dt);
   }
   enter(){
     if(!this.built) this.build();
@@ -85,6 +88,64 @@ export class Breche3D {
     this.pooled = false;
     this.yaw = 0; this.pitch = 0.45;
     this.relock();
+    this.playIntro(R);
+    if(this.game.intro && this.game.intro.checking("breche")) this.tipT = 0;
+  }
+  /* ---------- l'entrée : la faille dépose l'équipe, la caméra plonge derrière elle ---------- */
+  playIntro(R){
+    const I = this.game.intro; if(!I || R.pcIntro) return;
+    R.pcIntro = true;
+    const H = (ref("HABITATS") || {})[R.hab] || {}, col = H.c || "#ff3d7f";
+    const L = new THREE.Vector3(R.x * S, 0, R.y * S), at = (x, y, z) => L.clone().add(new THREE.Vector3(x, y, z));
+    const min = Math.max(1, Math.round((R.bossAt || 480) / 60));
+    this.arrive = {t0:this.game.t, burst:false};
+    I.play({id:"breche", camera:this.camera, dur:4.8, hold:true, color:col, ver:1, blend:0.6, titleAt:1.1,
+      kicker:`${(H.n || "La faille").toUpperCase()}${R.daily ? " · BRÈCHE DU JOUR" : ""}`, title:"La Brèche",
+      goal:`Tiens ${min} minutes face à la horde, puis abats le gardien qui sort de la faille.`,
+      shots:[{p:at(2, 40, 9), l:at(0, 0, 0)}, {p:at(9, 22, 12), l:at(0, 0.4, -0.5)}, {p:at(7, 8, 9), l:at(0, 1, -2)}, {p:at(0.75, 5.1, 6.3), l:at(0, 1.5, -3)}],
+      controls:[
+        {k:["Z", "Q", "S", "D"], t:"se déplacer", on:{keys:["KeyW", "KeyA", "KeyS", "KeyD", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"]}},
+        {k:["souris"], t:"viser : l'équipe tire seule vers le réticule", on:{move:true}},
+        {k:["Espace"], t:"esquiver", on:{keys:["Space"]}},
+        {k:["molette"], t:"rapprocher la caméra", on:{wheel:true}},
+        {k:["Tab"], t:"la pause", on:{keys:["Tab"]}}],
+      onEnd:()=>{ const A = this.arrive; if(A && this.game.t - A.t0 < 0.9) A.t0 = this.game.t - 0.9; },
+      alive:()=>this.on && this.R === R,
+      visible:()=>this.on && !R.paused && !R.modal && !R.over && this.game.input.locked});
+  }
+  /* l'équipe n'est pas là avant que la faille la dépose : elle apparaît dans l'éclair */
+  arriveTeam(){
+    const A = this.arrive; if(!A) return;
+    const T = this.game.t - A.t0 - 0.9;
+    for(const r of this.team.recs){ const U = r.m.uniforms; if(!U) continue;
+      if(U.uAlpha) U.uAlpha.value = T < 0 ? 0 : Math.min(1, T * 3);
+      if(U.uFlash) U.uFlash.value = T < 0 ? 0 : Math.max(U.uFlash.value, 1 - T * 1.3); }
+  }
+  arriveFx(R, t, dt){
+    const A = this.arrive; if(!A) return;
+    const F = this.fx, x = R.x * S, z = R.y * S, e = this.game.t - A.t0, T = e - 0.9;
+    if(T < 0){
+      /* la faille s'ouvre au sol */
+      const k = e / 0.9;
+      F.discs.add(x, z, 0.4 + k * 1.8, "#ff3d7f", {fill:0.25 * k, rim:1.4, inner:0.6, a:0.9});
+      F.glow.add(x, 0.3, z, 1 + k * 2.5, "#ff3d7f", 0.5 * k);
+    } else if(T < 1.7){
+      const k = T / 1.7;
+      /* la colonne : elle frappe, puis se resserre et s'éteint */
+      const b = F.bands.take(); b.position.set(x, 0, z); b.scale.set(1.5 * (1 - k * 0.7), 46, 1.5 * (1 - k * 0.7)); setBand(b, "#ff3d7f", 1.2 * (1 - k), t, 4);
+      const c = F.bands.take(); c.position.set(x, 0, z); c.scale.set(0.7 * (1 - k * 0.6), 46, 0.7 * (1 - k * 0.6)); setBand(c, "#8fecff", 1.4 * (1 - k), t, 4);
+      /* l'onde au sol */
+      const r = 0.6 + Math.pow(k, 0.6) * 15;
+      F.discs.add(x, z, r, "#35f0d6", {fill:0, rim:2 * (1 - k), inner:0.93});
+      const w = F.bands.take(); w.position.set(x, 0, z); w.scale.set(r, 1.8 * (1 - k) + 0.2, r); setBand(w, "#35f0d6", 0.8 * (1 - k), t, 0);
+    }
+    if(T >= 0 && !A.burst){
+      A.burst = true;
+      for(let i = 0; i < 44; i++){ const a = Math.random() * Math.PI * 2, sp = 3 + Math.random() * 6;
+        F.local.push({x:x + Math.cos(a) * 0.8, y:0.3, z:z + Math.sin(a) * 0.8, vx:Math.cos(a) * sp, vy:3 + Math.random() * 7, vz:Math.sin(a) * sp, g:9, life:1.5, max:1.5, s:0.1 + Math.random() * 0.14, c:i % 3 ? "#35f0d6" : "#ff3d7f"}); }
+    }
+    A.flash = T >= 0 && T < 0.6 ? 1 - T / 0.6 : 0;
+    if(T > 2.4) this.arrive = null;
   }
   exit(){
     this.on = false; window.PCBR3D.on = false;
@@ -95,7 +156,7 @@ export class Breche3D {
     this.horde.dispose(); this.horde = new Horde(this.scene);
     this.world.clear(); this.world.hab = null;
     const R = this.R; if(R){ R.pcMove = null; R.aim = null; R.pcFwd = null; }
-    this.R = null;
+    this.R = null; this.arrive = null;
   }
   relock(){
     const R = ref("BR");
@@ -167,6 +228,7 @@ export class Breche3D {
     this.world.ambient(dt, t, this.camera.position);
     const env = this.game.env;
     this.team.update(R, dt, t, this.camera, {aimYaw:this.aimYaw, env});
+    if(this.arrive) this.arriveTeam();
     this.foes(R, dt, t, env);
     this.horde.pump(t);
     this.fx.render(R, {t, dt, eye:this.camera.position, frame:this.frame, team:this.team.recs});
@@ -178,7 +240,8 @@ export class Breche3D {
     /* l'image abîmée : discrète, un peu plus quand on est touché ou face au gardien */
     const E = this.game.engine, calm = typeof window.calmFx === "function" && window.calmFx();
     const dp = this.fx.depth.hud;
-    if(E.corrupt) E.corrupt.set(0.25 + (R.boss ? 0.25 : 0) + (R.hurt > 0 ? 0.5 : 0) + dp.flash * 0.9 + (R.boss && R.boss.pz ? 0.15 : 0), (R.hurt > 0 ? 0.25 : 0) + dp.flash * 0.5, t, calm);
+    const af = this.arrive ? this.arrive.flash || 0 : 0;
+    if(E.corrupt) E.corrupt.set(0.25 + (R.boss ? 0.25 : 0) + (R.hurt > 0 ? 0.5 : 0) + dp.flash * 0.9 + (R.boss && R.boss.pz ? 0.15 : 0) + af * 0.9, (R.hurt > 0 ? 0.25 : 0) + dp.flash * 0.5 + af * 0.6, t, calm);
     E.setExposure(this.world.H && this.world.H.dark ? 1.25 : 1.1);
   }
   heightOf(f){

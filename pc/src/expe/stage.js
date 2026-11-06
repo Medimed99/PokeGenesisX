@@ -93,6 +93,14 @@ export class XStage {
     head.querySelectorAll(LISTS + ", button, .btn").forEach(n=>n.remove());
     head.querySelectorAll("[id]").forEach(n=>{ if(n.id === "xs-type") n.classList.add("pcx-type"); n.removeAttribute("id"); });
     head.className = "pcx-head";
+    /* (sur PC, on clique) */
+    const tw = document.createTreeWalker(head, NodeFilter.SHOW_TEXT);
+    for(let n = tw.nextNode(); n; n = tw.nextNode()) if(/\bTouchez\b/.test(n.nodeValue)) n.nodeValue = n.nodeValue.replace(/\bTouchez\b/g, "Cliquez sur");
+    /* la fin du parcours : sa phrase (« Le noyau est atteint ») devient le titre */
+    if(kind === "end"){
+      const eh = stage && stage.querySelector(".xs-endhead b");
+      if(eh && !head.querySelector(".xs-title")){ const tt = document.createElement("div"); tt.className = "xs-title"; tt.textContent = eh.textContent; const kk = head.querySelector(".xs-kicker"); if(kk) kk.after(tt); else head.prepend(tt); }
+    }
     el.appendChild(head);
     /* ---- les choix posés en 3D : candidats, offres, objets ---- */
     const cards = stage ? [...stage.querySelectorAll(".xs-cards .xs-card")] : [];

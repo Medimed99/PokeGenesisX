@@ -135,13 +135,17 @@ export class XScenes {
     if(this.pz){ this.pz.dispose(); this.pz = null; }
     this.objs = []; this.mons = []; this.kind = null; this.p = null; this.night = 0;
     if(this.hidNode){ this.hidNode.g.visible = true; this.hidNode = null; }
+    if(this.coreN){ this.coreN.bob.visible = true; this.coreN.bob.scale.setScalar(1); this.coreN = null; }
+    this.dark = false; this.holdUI = 0; this.boss = null; this.links = null; this.bits = null; this.bolt = null; this.win = false; this.shattered = false;
     if(this.flat){ for(const f of this.flat) f.m.scale.y = f.y; this.flat = null; }
     this.slots = null; this.plates = null; this.balls = null; this.cands = null; this.chest = null; this.fire = null; this.badge = null; this.burst = false; this.hover = -1;
   }
   /* une scène s'ouvre : on pose ce qu'il faut, au milieu du nœud */
   begin(kind, run, p, C, F, node, ground){
     this.end();
-    this.kind = kind; this.p = p; this.run = run; this.node = node; this.ground = ground; this.t0 = this.t || 0;
+    /* (l'heure du jeu, pas celle de la dernière scène : la toute première scène d'un parcours se jouait déjà finie) */
+    this.t = (this.game && this.game.t) || this.t || 0;
+    this.kind = kind; this.p = p; this.run = run; this.node = node; this.ground = ground; this.t0 = this.t;
     this.C.copy(C); this.F.copy(F).setY(0).normalize(); if(this.F.lengthSq() < 0.01) this.F.set(0, 0, -1); this.R.set(-this.F.z, 0, this.F.x);
     const at = (f, r, y = 0) => V1.copy(C).addScaledVector(this.F, f).addScaledVector(this.R, r).setY(ground(C.x + this.F.x * f + this.R.x * r, C.z + this.F.z * f + this.R.z * r) + y).clone();
     const face = pos => Math.atan2(-this.F.x, -this.F.z);         /* tourné vers l'équipe */
@@ -153,7 +157,21 @@ export class XScenes {
         if(node && node.sway){ this.flat = node.sway.map(m=>({m, y:m.scale.y})); }
         foes.forEach((f, i)=>{ const r = this.mon(f.id); r.pos.copy(at(2.3, (i - (foes.length - 1) / 2) * 1.8)); r.yaw = face(); r.leap = true; r.delay = 0.35 + i * 0.25; });
       } else if(p.kind === "boss"){
-        const f = foes[0]; if(f){ const r = this.mon(f.id, Math.min(3.2, monH(f.id) * 1.4)); r.pos.copy(at(2.8, 0)); r.yaw = face(); r.glitchIn = true; }
+        /* le noyau : le cristal s'emballe, la foudre tombe, il éclate ; le gardien se lève de ses éclats,
+           les autres signatures liées apparaissent derrière lui, reliées à lui par des fils de lumière */
+        this.dark = true; this.holdUI = 2.6;
+        this.coreN = node && node.bob ? node : null;
+        const f = foes[0];
+        if(f){ const r = this.mon(f.id, Math.min(3.2, monH(f.id) * 1.4)); r.pos.copy(at(2.8, 0)); r.yaw = face(); r.coreIn = true; r.delay = 1.75; this.boss = r; }
+        this.links = foes.slice(1).map((g, i, L)=>{
+          const r = this.mon(g.id, Math.min(2.0, monH(g.id))); r.pos.copy(at(4.8, (i - (L.length - 1) / 2) * 2.8 + (L.length === 1 ? 2.4 : 0), 0.35)); r.yaw = face(); r.linked = true; r.delay = 2.3 + i * 0.3;
+          const beam = this.add(new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 1, 6, 1, true).translate(0, 0.5, 0), new THREE.MeshBasicMaterial({color:"#ff3d7f", transparent:true, opacity:0, blending:THREE.AdditiveBlending, depthWrite:false, toneMapped:false})));
+          return {r, beam};
+        });
+        this.bits = this.add(new THREE.InstancedMesh(new THREE.OctahedronGeometry(0.22, 0).scale(1, 1.6, 1), new THREE.MeshStandardMaterial({color:"#ff3d7f", emissive:"#ff3d7f", emissiveIntensity:1, flatShading:true}), 30));
+        this.bits.frustumCulled = false; this.bits.visible = false; this.bitP = [];
+        const bg = new THREE.BufferGeometry(); bg.setAttribute("position", new THREE.BufferAttribute(new Float32Array(12 * 3), 3));
+        this.bolt = this.add(new THREE.Line(bg, new THREE.LineBasicMaterial({color:"#ffd0e6", transparent:true, opacity:0, toneMapped:false}))); this.bolt.frustumCulled = false;
       } else {
         /* le dresseur pose ses Poké Balls devant lui */
         this.balls = foes.map((f, i)=>{ const b = this.add(ballProp(0.16)); b.position.copy(at(2.6, (i - (foes.length - 1) / 2) * 0.5, 0.16)); b.rotation.y = face(); return b; });
@@ -189,6 +207,9 @@ export class XScenes {
     } else if(kind === "event"){
       this.pzA = {kind:"pz", mon:474, dir:0, anim:"idle", a0:0, loop:true, alpha:1, holo:true, born:0.7, hop:0, sink:0, talk:true, trem:0, yaw:face()};
       this.pz = new MonActor(this.scene, this.pzA); this.pzPos = at(1.8, 1.2, 0.4);
+    } else if(kind === "end"){
+      /* la fin du parcours : l'équipe se retourne vers toi ; réussi, la couche se répare autour */
+      const E = ref("EXP_END"); this.win = !!(E && E.win);
     } else if(kind === "legend" || kind === "sanctdone"){
       this.wake = kind === "legend";
     } else if(kind === "badge"){
@@ -215,7 +236,7 @@ export class XScenes {
     const back = kind === "enc" && this.p && this.p.kind === "fight" ? 1.9 : 0.7;
     out.copy(C).addScaledVector(F, -back - Math.abs(k - (n - 1) / 2) * 0.25).addScaledVector(R, (k - (n - 1) / 2) * 1.25);
     /* la victoire, le badge, une recrue : on se tourne vers la caméra pour fêter ça */
-    const cheer = kind === "loot" || kind === "badge" || kind === "sanctdone" || kind === "sector";
+    const cheer = kind === "loot" || kind === "badge" || kind === "sanctdone" || kind === "sector" || (kind === "end" && this.win);
     return {yaw:cheer ? Math.atan2(-F.x, -F.z) : Math.atan2(F.x, F.z), cheer};
   }
   /* ---------- à chaque image ---------- */
@@ -230,6 +251,10 @@ export class XScenes {
       if(r.fromBall){ if(k < 0) vis = false; else { const q = ease(k / 0.5); r.m.scale = Math.max(0.02, q); glitch = (1 - q) * 0.6; pos = V1.copy(r.pos); pos.y += 0.35 * (1 - q); if(!r.popped){ r.popped = true; if(s) s.burst(r.pos.clone().add(V2.set(0, 0.5, 0)), 24, ["#ffffff", "#ffe9a8", "#5ce07a"], 2.4, 0.6, 1.2); } } }
       if(r.holo){ if(k < 0) vis = false; if(U.uTintC) U.uTintC.value.set(0.55, 0.9, 1.0, 0.45); if(U.uAlpha) U.uAlpha.value = 0.85; glitch = Math.max(glitch, k < 0.5 ? 1 - k * 2 : (!calm && Math.sin(t * 7 + r.id) > 0.97 ? 0.3 : 0)); pos = V1.copy(r.pos); pos.y += Math.sin(t * 1.6 + r.id) * 0.06; }
       if(r.glitchIn){ glitch = Math.max(glitch, Math.max(0, 1 - e / 1.4)); if(U.uTintC) U.uTintC.value.set(1, 0.24, 0.5, 0.25); }
+      /* le gardien du noyau se lève des éclats : il monte du sol, se reconstitue, la faille le teinte encore */
+      if(r.coreIn){ if(k < 0) vis = false; else { const q = ease(k / 0.9); pos = V1.copy(r.pos); pos.y -= (1 - q) * r.h * 0.9; glitch = Math.max(glitch, (1 - q) * 0.9); if(U.uTintC) U.uTintC.value.set(1, 0.24, 0.5, 0.5 * (1 - q) + 0.15); r.m.scale = 0.6 + 0.4 * q; } }
+      /* les signatures liées : des hologrammes magenta, derrière lui */
+      if(r.linked){ if(k < 0) vis = false; if(U.uTintC) U.uTintC.value.set(1, 0.3, 0.6, 0.55); if(U.uAlpha) U.uAlpha.value = 0.7; glitch = Math.max(glitch, k < 0.4 ? 1 - k / 0.4 : (!calm && Math.sin(t * 6 + r.id) > 0.96 ? 0.35 : 0)); pos = V1.copy(r.pos); pos.y += Math.sin(t * 1.4 + r.id) * 0.08; }
       if(r.lift) pos = V1.copy(pos), pos.y += r.lift;
       U.uGlitch.value = glitch;
       r.m.group.visible = vis;
@@ -268,6 +293,10 @@ export class XScenes {
       U.glow.material.opacity = on ? 0.45 : 0.18;
       if(k >= 1 && !U.landed){ U.landed = true; if(s) s.burst(U.to.clone(), 14, [U.col, "#ffffff"], 1.4, 0.5, 1); }
     });
+    /* le noyau : le cristal s'emballe (0 → 1,6 s), la foudre tombe, il éclate ; puis les fils qui lient les signatures */
+    if(this.coreN || this.boss) this.coreScene(e, t, dt, s, calm);
+    /* la fin, réussie : des étincelles dorées montent autour de l'équipe */
+    if(kind === "end" && this.win && s && !calm && Math.random() < dt * 10) s.burst(this.C.clone().add(new THREE.Vector3((Math.random() - 0.5) * 5, 0.2, (Math.random() - 0.5) * 3)), 3, ["#ffe9a8", "#ffffff", "#35f0d6"], 0.8, 1.4, 3);
     if(this.fire){
       const U = this.fire.userData; const fl = calm ? 1 : 0.85 + 0.15 * Math.sin(t * 13) * Math.sin(t * 7.3);
       U.flames.forEach((f, i)=>{ f.scale.set(1, fl * (1 + i * 0.05) + (calm ? 0 : Math.sin(t * 17 + i) * 0.08), 1); f.rotation.y = t * (1 + i); });
@@ -338,6 +367,43 @@ export class XScenes {
     const k = Math.min(1, dt * 2.4);
     camPos.lerp(want, k); camLook.lerp(look, k);
     cam.position.copy(camPos); cam.lookAt(camLook);
+  }
+  coreScene(e, t, dt, s, calm){
+    const N = this.coreN, bob = N && N.bob, B0 = this.boss;
+    const crystal = bob ? bob.getWorldPosition(new THREE.Vector3()) : (B0 ? B0.pos.clone().add(new THREE.Vector3(0, 2.6, 0)) : this.C.clone());
+    if(bob && !this.shattered){
+      bob.rotation.y += dt * (1.2 + e * 7); bob.scale.setScalar(1 + (calm ? 0 : Math.sin(e * 24) * 0.06 * e) + e * 0.15);
+      if(e >= 1.6){
+        this.shattered = true; bob.visible = false;
+        if(s) s.burst(crystal.clone(), 70, ["#ff3d7f", "#ffffff", "#b48cff"], 5, 1.0, 0.6);
+        this.bits.visible = true;
+        for(let i = 0; i < 30; i++){ const a = Math.random() * TAU, u = Math.random() * 2 - 1, sp = 3 + Math.random() * 5, h = Math.sqrt(1 - u * u);
+          this.bitP.push({p:crystal.clone(), v:new THREE.Vector3(Math.cos(a) * h * sp, u * sp * 0.7 + 2, Math.sin(a) * h * sp), r:Math.random() * 6}); }
+      }
+    }
+    /* la foudre, du cristal au sol où le gardien va se lever */
+    if(this.bolt){
+      const on = !calm && e > 0.5 && e < 1.75 && Math.sin(e * 37) > 0.2;
+      this.bolt.material.opacity = on ? 0.95 : 0;
+      if(on && B0){ const P = this.bolt.geometry.attributes.position, a = crystal, b = B0.pos;
+        for(let i = 0; i < 12; i++){ const f = i / 11, j = i && i < 11 ? 0.6 : 0; P.setXYZ(i, a.x + (b.x - a.x) * f + (Math.random() - 0.5) * j, a.y + (b.y - a.y) * f, a.z + (b.z - a.z) * f + (Math.random() - 0.5) * j); }
+        P.needsUpdate = true; }
+    }
+    if(this.bits && this.bits.visible){
+      const M = new THREE.Matrix4(), Q = new THREE.Quaternion(), Eu = new THREE.Euler(), S = new THREE.Vector3();
+      this.bitP.forEach((q, i)=>{
+        q.v.y -= 7 * dt; q.p.addScaledVector(q.v, dt);
+        const g = this.ground(q.p.x, q.p.z); if(q.p.y < g + 0.1){ q.p.y = g + 0.1; q.v.multiplyScalar(0.3); q.v.y = Math.abs(q.v.y) * 0.4; }
+        M.compose(q.p, Q.setFromEuler(Eu.set(q.r + e * 3, q.r, 0)), S.setScalar(Math.max(0.001, 1 - (e - 1.6) / 3.2))); this.bits.setMatrixAt(i, M);
+      });
+      this.bits.instanceMatrix.needsUpdate = true;
+    }
+    if(this.links && B0) this.links.forEach(L=>{
+      const on = e - (L.r.delay || 0) > 0.2;
+      L.beam.material.opacity = on ? (calm ? 0.5 : 0.35 + 0.25 * Math.sin(t * 9 + L.r.id)) : 0;
+      if(on){ const a = L.r.pos.clone().add(new THREE.Vector3(0, L.r.h * 0.55, 0)), b = B0.pos.clone().add(new THREE.Vector3(0, B0.h * 0.6, 0)), d = b.clone().sub(a);
+        L.beam.position.copy(a); L.beam.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), d.clone().normalize()); L.beam.scale.set(1, d.length(), 1); }
+    });
   }
   /* le pied d'un socle (sa carte se pose juste dessous, à l'écran) */
   slotBase(i){ const ped = this.slots && this.slots[i]; return ped ? V2.copy(ped.position) : null; }

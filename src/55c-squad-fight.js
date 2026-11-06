@@ -95,6 +95,8 @@ function sqVInit(u, t0, side){
    2. LE DÉROULÉ — le moteur décide, l'écran raconte
    ============================================================ */
 const sqSp = () => (sqState().speed || 1);
+/* la version PC joue une courte cinématique à l'entrée du combat : le temps qu'elle dure, tout attend */
+const sqHeld = () => typeof window !== "undefined" && !!window.PCHOLD;
 function sqLoop(){
   const B = SQB; if(!B || !SQV) return;
   if(B.over){ sqEnd(); return; }
@@ -153,6 +155,7 @@ function sqPlay(ev, done){
   let i = 0;
   const next = () => {
     if(!SQB || !SQV) return;
+    if(sqHeld()){ setTimeout(next, 100); return; }
     if(i >= ev.length){ done && done(); return; }
     const e = ev[i++];
     let d = sqShow(e, ev);
@@ -165,7 +168,8 @@ function sqSay(t){ const el = document.getElementById("sqsay"); if(el) el.innerH
 function sqSayPick(){
   const u = SQV && SQV.wait; if(!u) return;
   const s = u.skills[SQV.pick];
-  sqSay(`<b>${esc(u.name)}</b> · <b style="color:${sqCol(s.t)}">${esc(s.n)}</b> — ${esc(sqDescribe(s))}<br><span class="dim">${s.kind === "atk" ? "Touchez la cible." : "Touchez à nouveau la compétence pour la lancer."}</span>`);
+  sqSay(`<b>${esc(u.name)}</b> · <b style="color:${sqCol(s.t)}">${esc(s.n)}</b> — ${esc(sqDescribe(s))}<br><span class="dim">${typeof window !== "undefined" && window.PCG_PC ? (s.kind === "atk" ? "Clique sur la cible, ou Entrée pour la cible fléchée." : "Appuie de nouveau sur sa touche pour la lancer.")
+    : s.kind === "atk" ? "Touchez la cible." : "Touchez à nouveau la compétence pour la lancer."}</span>`);
 }
 
 /* chaque événement du moteur devient une image ; la valeur rendue est sa durée */
@@ -418,7 +422,7 @@ function sqFrame(now){
   const real = Math.min(100, now - (SQV.last || now)); SQV.last = now;
   /* un coup qui porte fige l'image un instant */
   const frozen = SQV.hitstop && SQV.t < SQV.hitstop;
-  const dt = real * sqSp() * (frozen ? 0.15 : 1); SQV.t += dt;
+  const dt = sqHeld() ? 0 : real * sqSp() * (frozen ? 0.15 : 1); SQV.t += dt;
   const x = SQV.cv.getContext("2d"), W = SQV.W, H = SQV.H, t = SQV.t;
   x.setTransform(SQV.d, 0, 0, SQV.d, 0, 0);
   x.imageSmoothingEnabled = false;
