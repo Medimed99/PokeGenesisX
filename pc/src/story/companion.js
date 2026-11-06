@@ -41,7 +41,7 @@ export class Companion {
   wanted(){
     const S = this.game.S, g = this.game;
     if(!S || !S.story || !S.story.includes("intro")) return false;
-    if(g.mode === "title" || (g.story3d && g.story3d.on) || (g.breche3d && g.breche3d.on) || (g.tower3d && g.tower3d.on)) return false;
+    if(g.mode === "title" || (g.story3d && g.story3d.on) || (g.breche3d && g.breche3d.on) || (g.tower3d && g.tower3d.on) || (g.raid3d && g.raid3d.on)) return false;
     return true;
   }
   real(){ try { const S = this.game.S; return !!(S && S.saga && S.saga.end === "write"); } catch(e){ return false; } }

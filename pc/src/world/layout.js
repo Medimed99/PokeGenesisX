@@ -155,7 +155,7 @@ export const SITES = [
   {k:"breche", mod:"breche",     screen:"breche",     n:"La Brèche",    x:-31, z:26,  r:4.2, pr:6.5,  col:"#ff3d7f", d:"La horde, et le gardien qui sort de la faille"},
   {k:"expe",   mod:"expedition", screen:"expedition", n:"L'Expédition", x:-25, z:137, r:5.5, pr:7.5,  col:"#ffc857", d:"Un parcours à embranchements, jusqu'au noyau"},
   {k:"forage", mod:"idle",       screen:"idle",       n:"Le Forage",    x:36,  z:116, r:5,   pr:7.5,  col:"#e0a85a", d:"Creuser les strates de l'archive"},
-  {k:"raid",   mod:null,         screen:"social",     n:"Le raid",      x:-30, z:-68, r:4.5, pr:6,    col:"#ff6a3d", d:"Le boss de la semaine, avec les autres archivistes"},
+  {k:"raid",   mod:null,         screen:"social",     n:"Le raid",      x:-26, z:-120, r:4.5, pr:10,  col:"#ff6a3d", d:"Le boss de la semaine, avec les autres archivistes"},
   {k:"poker",  mod:"poker",      screen:"poker",      n:"Poké-Poker",   x:34,  z:6,   r:3.6, pr:5.2,  col:"#b06bff", d:"Des mains de cartes, des programmes empilés"}
 ];
 export const siteClear = (x, z, m = 4) => SITES.some(s=>Math.hypot(x - s.x, z - s.z) < s.pr + m);
@@ -270,7 +270,8 @@ function worldHeight(x, z, dp, cache){
   if(Math.abs(x) < 60 && Math.abs(z) < 215) for(const s of SITES){
     if(s.h0 === undefined) continue;
     const d = Math.hypot(x - s.x, z - s.z);
-    if(d < s.pr + 5) h = lerp(h, s.h0, smooth(s.pr + 5, s.pr + 0.6, d));
+    /* (jamais sur une corniche : on ne la remonte pas) */
+    if(d < s.pr + 5) h = lerp(h, s.h0, smooth(s.pr + 5, s.pr + 0.6, d) * LEDGES.reduce((k, L)=>k * smooth(2.5, 5, Math.abs(z - L.z)), 1));
   }
   if(cache){ cache.bi = bi; cache.bw = bw; }
   return h;

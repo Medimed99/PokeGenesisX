@@ -10,6 +10,7 @@
 import * as THREE from "three";
 import { MonSprite, realHeight } from "./sprites.js";
 import { makeMon, preloadMon, has3D } from "./model3d.js";
+import { ShinyAura } from "./shinyfx.js";
 /* les modèles 3D dont l'attente et la marche sont un vol (papillons, guêpes, fantômes, Électhor) */
 const HOVER3D = [12, 15, 41, 42, 49, 81, 82, 92, 93, 109, 110, 142, 144, 145, 146, 151,
   /* Johto */ 163, 164, 165, 166, 169, 176, 187, 188, 189, 193, 198, 200, 201, 207, 227, 249, 250, 251,
@@ -119,6 +120,8 @@ export class Wild {
       born:this.game.t, appear:0, speed:clamp(0.7 + H * 0.7, 0.7, 2.6) * (flyer ? 1.4 : 1), noticed:false, rustle:-1, gone:0, tag:missing ? "missing" : ""};
     e.sprite = missing ? this.missingSprite(scene) : makeMon(id, spec.shiny, scene, {height:H});
     e.sprite.uniforms.uGlitch.value = 1;
+    /* un chromatique : sa splendeur (shinyfx.js) */
+    if(spec.shiny && !missing) e.aura = new ShinyAura(scene, this.game.world.biomes && this.game.world.biomes.lights);
     if(missing) this.game.glitchKick = 1;                  /* MissingNo arrive : l'image se déchire */
     this.list.push(e);
     if(hidden) this.claimRustle(e);
@@ -155,6 +158,7 @@ export class Wild {
   emote(e, kind){ this.emotes.push({e, kind, t:this.game.t}); }
   remove(e){
     this.releaseRustle(e);
+    if(e.aura){ e.aura.dispose(); e.aura = null; }
     e.sprite.dispose();
     this.list = this.list.filter(x=>x !== e);
     if(this.game.capture && this.game.capture.target === e) this.game.capture.target = null;
@@ -205,9 +209,20 @@ export class Wild {
       const tgt = this.game.capture && this.game.capture.target === e;
       e.sprite.xray = (tgt || (d < 26 && (e.state === "alert" || e.state === "idle" || e.state === "walk" || e.state === "flee"))) ? (tgt ? 1 : 0.7) : 0;
       if(e.state !== "caught") e.sprite.update(t, dt, e.pos, e.heading, cam.position, env);
-      /* un chromatique scintille, de loin en loin */
-      if(e.spec.shiny && e.state !== "hidden" && e.state !== "held" && d < 35 && Math.random() < dt * 1.2)
-        this.game.capture.sparks.burst(new THREE.Vector3(e.pos.x, e.pos.y + (e.sprite.drawH || e.H) * 0.8, e.pos.z), 6, ["#fff6c2", "#ffffff", "#ffd84a"], 1.1, 0.7, 1.4);
+      /* un chromatique rayonne ; la première fois qu'on le voit, l'éclat des jeux d'origine */
+      if(e.aura){
+        const st = e.state, off = st === "held" || st === "caught" || st === "fled" || st === "gone";
+        const mode = off ? "off" : st === "hidden" ? "hidden" : "full";
+        if(mode === "full" && !e.shinySeen && d < 30 && e.appear > 0.8){
+          e.shinySeen = true; e.aura.flare(t);
+          const P = G() && G().POKE[e.id];
+          if(this.game.hud) this.game.hud.hint(`✦ <b>${P ? P.name : "Un Pokémon"} chromatique</b> ✦`, 4);
+        }
+        const h = e.sprite.drawH || e.H;
+        e.aura.update(t, dt, e.pos, h, e.sprite.width || h * 0.8, mode, gy);
+        const SU = e.sprite.uniforms;
+        if(SU.uShine){ SU.uShine.value = e.aura.k; SU.uShineY.value = e.pos.y; SU.uShineH.value = h; }
+      }
       /* l'herbe frémit au-dessus d'un Pokémon caché */
       if(e.rustle >= 0) this.game.world.grass.setRustle(e.rustle, e.pos.x, gy, e.pos.z, e.state === "hidden" ? 0.9 + 0.35 * Math.sin(t * 3) : 0.7);
     }

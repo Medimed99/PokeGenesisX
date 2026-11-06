@@ -15,6 +15,7 @@
      # Zarbi : pm201.funown_a…, Spinda : pm327.f00…), convertis un par un :
      #   python3 -I tools/go2glb.py <paquet> ../.cache/go/NNN.glb ../.cache/go/s/NNN [<paquet _shared>]
      node tools/models3d.mjs ../.cache/06wj/public/models ../.cache/go
+     # ne refaire que quelques espèces (le reste ne bouge pas) : ONLY=218,219 node tools/models3d.mjs - ../.cache/go
    Chaque modèle est allégé (géométrie compressée meshopt, textures WebP 512 px, animations
    rééchantillonnées), nommé par son empreinte, et listé dans src/data/models3d.js. */
 import { execFileSync } from "node:child_process";
@@ -28,17 +29,22 @@ export const LAKE1 = [54, 60, 61, 72, 116, 117, 118, 119, 120, 121, 129, 130, 13
 export const SENTINELS = [145, 150];
 /* au-delà de Hoenn : Porygon-Z (474), le guide, qui descend vous chercher au fond de la faille */
 export const EXTRA = [474];
-const IDS = Array.from({length:386}, (_, i)=>i + 1).concat(EXTRA);
+/* ONLY=218,219 : ne refaire que ces espèces (les autres fichiers et entrées restent) */
+const ONLY = (process.env.ONLY || "").split(",").map(Number).filter(Boolean);
+const IDS = ONLY.length ? ONLY : Array.from({length:386}, (_, i)=>i + 1).concat(EXTRA);
 
 const src = process.argv[2], goSrc = process.argv[3];
-if(!src || !existsSync(src)){ console.error("dossier des modèles source introuvable : node tools/models3d.mjs <…/public/models> [<modèles GO convertis>]"); process.exit(1); }
+if(!src || (!existsSync(src) && !process.env.ONLY)){ console.error("dossier des modèles source introuvable : node tools/models3d.mjs <…/public/models> [<modèles GO convertis>]"); process.exit(1); }
 const OUT = new URL("../../web/assets/m3d/", import.meta.url).pathname;
 const TMP = new URL("../../.cache/m3d-tmp/", import.meta.url).pathname;
 mkdirSync(OUT, {recursive:true}); mkdirSync(TMP, {recursive:true});
-for(const f of readdirSync(OUT)) if(f.endsWith(".glb")) unlinkSync(join(OUT, f));
 mkdirSync(join(OUT, "s"), {recursive:true});
-for(const f of readdirSync(join(OUT, "s"))) if(f.endsWith(".webp")) unlinkSync(join(OUT, "s", f));
-const map = {}, shiny = {};
+const mine = f => !ONLY.length || ONLY.includes(parseInt(f, 10));
+for(const f of readdirSync(OUT)) if(f.endsWith(".glb") && mine(f)) unlinkSync(join(OUT, f));
+for(const f of readdirSync(join(OUT, "s"))) if(f.endsWith(".webp") && mine(f)) unlinkSync(join(OUT, "s", f));
+const prev = ONLY.length ? await import(new URL("../src/data/models3d.js", import.meta.url).href) : null;
+const map = prev ? Object.fromEntries(Object.entries(prev.M3D).filter(([k])=>!ONLY.includes(+k))) : {};
+const shiny = prev ? Object.fromEntries(Object.entries(prev.M3DS).filter(([k])=>!ONLY.includes(+k))) : {};
 let total = 0;
 for(const id of IDS){
   const n = String(id).padStart(3, "0"), go = id > 151;

@@ -18,6 +18,8 @@ import { Sentinels } from "./sentinels.js";
 import { RouteMap } from "./ui/map.js";
 import { Tower3D } from "./tower3d.js";
 import { Expe3D } from "./expe/index.js";
+import { Raid3D } from "./raid3d.js";
+import { popupOpen } from "./ui/popups.js";
 import { Breche3D } from "./breche/index.js";
 import { Story3D } from "./story/index.js";
 import { Companion } from "./story/companion.js";
@@ -74,6 +76,7 @@ export class Game {
     this.breche3d = new Breche3D(this);
     this.story3d = new Story3D(this);
     this.expe3d = new Expe3D(this);
+    this.raid3d = new Raid3D(this);
     this.companion = new Companion(this);
     /* l'entrée dans chaque module : une cinématique, le but, le check des commandes */
     this.intro = new Intro(this);
@@ -87,6 +90,7 @@ export class Game {
     this.input.onLockChange = locked => this.onLock(locked);
     this.canvas.addEventListener("click", ()=>{
       if(this.intro.active){ this.intro.skip(); return; }
+      if(this.popupNow) return;                  /* une fenêtre attend son clic : la caméra attend */
       if(this.story3d && this.story3d.on) return;
       if(this.breche3d.on){ this.breche3d.relock(); return; }
       if(this.expe3d && this.expe3d.on){ this.expe3d.relock(); return; }
@@ -164,7 +168,7 @@ export class Game {
         {k:["clic"], t:"lancer la Ball", on:{btn:0}},
         {k:["M"], t:"la carte", on:{chars:["m"]}},
         {k:["Tab"], t:"le terminal", on:{keys:["Tab"]}}],
-      alive:()=>this.started && !this.story3d.on && !this.tower3d.on && !this.breche3d.on && !this.expe3d.on,
+      alive:()=>this.started && !this.story3d.on && !this.tower3d.on && !this.breche3d.on && !this.expe3d.on && !(this.raid3d && (this.raid3d.on || this.raid3d.pending)),
       visible:()=>this.mode === "play" && this.input.locked && !this.hud.newOpen});
   }
   restore(){
@@ -183,6 +187,8 @@ export class Game {
   onLock(locked){
     /* Échap pendant une cinématique d'entrée : on la passe */
     if(!locked && this.intro.active) this.intro.skip();
+    /* la souris rendue pour une fenêtre qui attend un clic : ni pause, ni rien d'autre */
+    if(!locked && this.popupFreed) return;
     /* une scène du récit rend la souris : ce n'est pas une pause */
     if(this.story3d && this.story3d.on) return;
     /* l'Expédition : rendre la souris, c'est seulement reprendre la main sur ses boutons */
@@ -206,11 +212,15 @@ export class Game {
       return;
     }
     if(this.intro.active && this.intro.key(e)) return;
+    /* Tab rend toujours la souris quand une fenêtre attend un clic (une page, une carte, un bilan) */
+    if(e.code === "Tab" && this.input.locked && popupOpen()){ e.preventDefault(); this.popupFreed = true; this.input.unlock(); return; }
     if(e.code === "Tab" && (this.mode === "dialog" || this.mode === "battle")){ e.preventDefault(); return; }
     if(this.story3d && this.story3d.on){ this.story3d.key(e); return; }
     if(this.breche3d && this.breche3d.on){ this.breche3d.key(e); return; }
     if(this.expe3d && this.expe3d.on){ this.expe3d.key(e); return; }
     if(this.tower3d && this.tower3d.on && this.tower3d.key(e)) return;
+    /* pendant le raid : Tab et Échap n'interrompent rien */
+    if(this.raid3d && this.raid3d.on && this.raid3d.key(e)) return;
     /* pendant un combat de la Tour : Tab ou Échap ouvrent sa pause (ou referment la fiche ouverte) */
     if(this.tower3d && this.tower3d.on && (e.code === "Tab" || e.code === "Escape")){
       e.preventDefault();
@@ -269,7 +279,18 @@ export class Game {
       this.hud.hint(`Qualité réglée sur <b>${QUALITY[order[i + 1]].label}</b> pour garder le jeu fluide · Échap, Options pour la changer`, 6);
     }
   }
+  /* une fenêtre qui attend un clic s'ouvre : la souris est rendue ; refermée, un clic reprend la caméra */
+  popupGuard(){
+    const now = performance.now(); if(now - (this._pgT || 0) < 150) return; this._pgT = now;
+    const open = !!popupOpen();
+    if(open && this.input.locked){ this.popupFreed = true; this.input.unlock(); }
+    if(!open && this.popupNow && this.popupFreed){
+      this.popupFreed = false;
+    }
+    this.popupNow = open;
+  }
   update(dt){
+    if(this.started) this.popupGuard();
     /* une scène du récit : elle se joue en volume, dans son lieu ; le reste attend */
     this.story3d.update(dt, this.t);
     if(this.story3d.on){
@@ -312,7 +333,7 @@ export class Game {
     if(Settings.invertY) look.y = -look.y;
     this.player.frozen = !playing || this.hud.newOpen || (this.trainer && this.trainer.battling) || this.intro.active;
     if(this.mode === "title") this.titleCam(dt);
-    else if(!(this.tower3d && this.tower3d.on)) this.player.update(dt, this.input, look);   /* pendant la Tour, la caméra est à elle */
+    else if(!(this.tower3d && this.tower3d.on) && !(this.raid3d && this.raid3d.on)) this.player.update(dt, this.input, look);   /* pendant la Tour, le raid, la caméra est à eux */
     const S = this.S;
     if(S && this.world.weather.key !== S.weather) this.world.weather.set(S.weather);
     this.world.update(dt, this.t, this.hour(), this.player.pos, this.engine.camera);
@@ -321,7 +342,7 @@ export class Game {
     this.computeEnv();
     this.glitchTick(dt);
     if(playing) this.handleInput(dt);
-    this.wild.update(dt, this.t, this.player.pos, this.engine.camera, this.env);
+    if(!(this.raid3d && this.raid3d.on)) this.wild.update(dt, this.t, this.player.pos, this.engine.camera, this.env);   /* (le raid : les sauvages se sont écartés) */
     this.companion.update(dt, this.t);
     this.capture.update(dt, this.t, this.input);
     this.fishing.update(dt, this.t);
@@ -329,6 +350,7 @@ export class Game {
     this.sentinels.update(dt, this.t);
     this.map.update(dt);
     this.tower3d.update(dt, this.t);
+    if(this.raid3d) this.raid3d.update(dt, this.t);
     const night = this.world.sky.state ? this.world.sky.state.night : 0;
     const cp = this.engine.camera.position;
     this.lamp.set(cp.x, cp.y + 0.4, cp.z, Math.max(night * 1.15, this.world.lampBoost || 0));
@@ -411,9 +433,11 @@ export class Game {
     if(this.hud.newOpen) p = "";
     else if(this.trainer.prompt()) p = this.trainer.prompt();
     else if(this.fishing.prompt()) p = this.fishing.prompt();
-    else if(this.world.sites && this.world.sites.prompt()) p = this.world.sites.prompt();
+    else if(this.world.sites && this.world.sites.prompt(this)) p = this.world.sites.prompt(this);
     else if(this.capture.target && !this.capture.aiming) p = `<b>Clic droit</b> viser · <b>clic gauche</b> lancer`;
-    if(this.input.locked || !p) this.hud.prompt(p);
+    /* la souris est libre (une fenêtre vient de se refermer) : un clic reprend la caméra */
+    if(!this.input.locked) p = !this.popupNow && !this.hud.newOpen && !this.intro.active && !this.terminal.open ? `<b>Clic</b> pour reprendre` : "";
+    this.hud.prompt(p);
   }
   /* la caméra de l'écran titre : elle flâne au-dessus de la route */
   titleCam(dt){

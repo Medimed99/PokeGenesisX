@@ -16,6 +16,10 @@ Ce que fait le script :
   - les yeux de Pokémon GO vivent dans une planche à part (_FaceTex) : les triangles des
     yeux (v > 1) deviennent une primitive à part, texturée par cette planche ;
   - renomme les clips : idle, walk, run, attack, attack2, hurt, faint, happy, land.
+  - un matériau sans texture lisible (lave, flammes, lueurs, gemmes : des shaders à couleurs) prend
+    les couleurs de ses propriétés (couleur, émission, opacité ; « extras.pcg = add » pour une lueur
+    additive) ; la distorsion de chaleur et les reflets blancs dont le masque manque sont retirés
+    (sinon : un voile blanc, comme sur Limagma et Volcaropod).
   - écrit à côté, si demandé, les textures du chromatique (une par matériau, même nom).
 """
 import io, json, math, struct, sys, zlib
@@ -183,6 +187,51 @@ def main(src, dst, shiny_dir=None, extra=()):
     def floats(mt):
         return dict(mt["m_SavedProperties"]["m_Floats"])
 
+    def fx_style(mt):
+        """Un matériau sans texture lisible : les effets de Pokémon GO (lave, flammes, lueurs, gemmes) ont
+        leurs couleurs dans leurs propriétés. On en tire une couleur de base, une émission, une opacité ;
+        « drop » pour la distorsion de chaleur, qu'un glTF ne sait pas rendre (sinon : un voile blanc)."""
+        C = {k: [c for c in v.values()] for k, v in mt["m_SavedProperties"]["m_Colors"]}
+        F = floats(mt)
+        tex = {k for k, v in mt["m_SavedProperties"]["m_TexEnvs"] if v["m_Texture"]["m_PathID"]}
+        blend = F.get("_useTexAlpha", 0) > 0 or F.get("_Mode", 0) >= 2 or F.get("_DstBlend", 0) > 0
+        white = lambda c: c is not None and min(c[:3]) > 0.92
+        mix = lambda a, b, t: [a[i] + (b[i] - a[i]) * t for i in range(3)]
+        name = mt["m_Name"].upper()
+        if "_NoiseA" in tex and "_MaskColor" in C:
+            return "drop"
+        if "_texOpacityMask" in tex and white(C.get("_Color")):
+            return "drop"                                   # un reflet blanc dont le masque manque
+        st = {"blend": blend, "e": 0.0}
+        if "_MainCol" in C:
+            st.update(c=C["_MainCol"][:3], e=1.0)
+        elif "_Color1" in C and "_Color2" in C:
+            st.update(c=mix(C["_Color1"], C["_Color2"], 0.45), e=1.0)
+            if blend:
+                st.update(add=True, a=max(0.3, min(0.9, C.get("_Color", [1, 1, 1, 1])[3] * F.get("_Intensity", 1) * 1.6)))
+        elif "_TintColor" in C:
+            c = C.get("_Color")
+            st.update(c=(C["_TintColor"] if c is None or white(c) else c)[:3], e=0.8 if blend else 0.25)
+            if blend:
+                st["a"] = max(0.55, F.get("_Alpha", 1))
+        elif "_cAmbn" in C and tex & {"_MatCap2D", "_Ramp2D"}:
+            c = C["_cAmbn"][:3]
+            if max(c) < 0.05:
+                c = [0.8, 0.1, 0.15] if "RED" in name else [0.18, 0.18, 0.2]
+            k = 0.8 / max(c)
+            st.update(c=[x * k for x in c], e=0.15, rough=0.3)
+        else:
+            c = C.get("_Color", [1, 1, 1, 1])
+            st.update(c=c[:3], e=0.5)
+            if blend:
+                st["a"] = max(0.35, c[3])
+        em = C.get("_EmissionColor")
+        if em and max(em[:3]) > 0.05 and not white(em):
+            st["e"] = max(st["e"], 0.6)
+        return st
+
+    matinfo = {}
+    dropped = []
     mat_cache = {}
     shiny_tex = {}  # nom du matériau du jeu → texture du chromatique
 
@@ -197,6 +246,11 @@ def main(src, dst, shiny_dir=None, extra=()):
         tpid = tex_of(mt, "_FaceTex" if kind == "eye" else "_MainTex")
         name = f"{kind}{len(materials)}"
         m = {"name": name, "pbrMetallicRoughness": {"metallicFactor": 0.0, "roughnessFactor": 0.85}}
+        if not tpid:  # sans texture lisible : ses couleurs, pour que le jeu l'habille (src/data/m3dfix.js)
+            matinfo[name] = {"unity": mt["m_Name"], "shader": mt["m_Shader"]["m_PathID"],
+                             "colors": {k: [round(c, 3) for c in v.values()] for k, v in mt["m_SavedProperties"]["m_Colors"]},
+                             "floats": {k: round(v, 3) for k, v in f.items()},
+                             "tex": [k for k, v in mt["m_SavedProperties"]["m_TexEnvs"] if v["m_Texture"]["m_PathID"]]}
         if tpid and kind == "eye":
             box, skin_uv = eye
             eye_recipes[name] = (tpid, tex_of(mt, "_MainTex"), box, skin_uv)
@@ -204,6 +258,20 @@ def main(src, dst, shiny_dir=None, extra=()):
         elif tpid:
             m["pbrMetallicRoughness"]["baseColorTexture"] = {"index": texture(tpid)}
         transparent = kind == "eye" or f.get("_useTexAlpha", 0) > 0 or f.get("_Mode", 0) >= 2 or f.get("_DstBlend", 0) > 0
+        fx = fx_style(mt) if not tpid and kind == "body" else None
+        if isinstance(fx, dict):
+            lin = lambda c: [round(min(1.0, max(0.0, x)) ** 2.2, 4) for x in c]   # couleurs d'Unity (sRGB) → glTF (linéaire)
+            pbr = m["pbrMetallicRoughness"]
+            pbr["baseColorFactor"] = lin(fx["c"]) + [round(fx.get("a", 1.0), 3)]
+            if fx.get("rough"):
+                pbr["roughnessFactor"] = fx["rough"]
+            if fx["e"] > 0:
+                m["emissiveFactor"] = [round(x * fx["e"], 4) for x in lin(fx["c"])]
+            if fx.get("add"):
+                m["extras"] = {"pcg": "add"}
+            transparent_fx = fx["blend"] or fx.get("a", 1.0) < 1.0
+        if isinstance(fx, dict):
+            transparent = transparent_fx
         if kind == "eye":
             pass  # yeux opaques : la planche est posée sur la peau
         elif transparent:
@@ -295,9 +363,14 @@ def main(src, dst, shiny_dir=None, extra=()):
                     continue
                 if kind == "eye" and (eye_info is None or not tex_of(T[mpid], "_FaceTex") or not tex_of(T[mpid], "_MainTex")):
                     kind = "body"
+                if kind == "body" and not tex_of(T[mpid], "_MainTex") and fx_style(T[mpid]) == "drop":
+                    dropped.append(T[mpid]["m_Name"])
+                    continue
                 mi = material(mpid, kind, eye_info if kind == "eye" else None)
                 ai = add(part.reshape(-1).astype(np.uint32 if len(V) > 65535 else np.uint16), 5125 if len(V) > 65535 else 5123, "SCALAR", 34963)
                 prims.append({"attributes": attrs, "indices": ai, "material": mi})
+        if not prims:  # tout le rendu était un effet qu'on ne sait pas rendre
+            continue
         meshes.append({"name": mesh.m_Name, "primitives": prims})
 
         bones = [b["m_PathID"] for b in st["m_Bones"]]
@@ -425,7 +498,7 @@ def main(src, dst, shiny_dir=None, extra=()):
     out += struct.pack("<II", len(bin_), 0x004E4942) + bytes(bin_)
     with open(dst, "wb") as fh:
         fh.write(out)
-    return {"nodes": len(nodes), "meshes": len(meshes), "anims": [a["name"] for a in animations], "shiny": shiny_tex, "hidden": hidden_log}
+    return {"nodes": len(nodes), "meshes": len(meshes), "anims": [a["name"] for a in animations], "shiny": shiny_tex, "hidden": hidden_log, "untextured": matinfo, "dropped": dropped}
 
 
 def ancestors(i, parent):

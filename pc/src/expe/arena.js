@@ -32,6 +32,8 @@ const calmFx = () => typeof window.calmFx === "function" && window.calmFx();
 export class XArena {
   constructor(scene, game){
     this.scene = scene; this.game = game; this.recs = new Map(); this.fx = []; this.popSeen = new WeakSet(); this.pops = [];
+    /* la mise en place (le raid les change : un boss immense, plus loin) */
+    this.o = {allyD:2.0, foeD:2.0, side:1.05, bossH:null};
     this.C = new THREE.Vector3(); this.F = new THREE.Vector3(0, 0, -1); this.R = new THREE.Vector3(1, 0, 0);
     /* les volumes des effets, prêts d'avance */
     this.beamGeo = new THREE.CylinderGeometry(1, 1, 1, 10, 1, true).rotateX(Math.PI / 2);
@@ -120,7 +122,7 @@ export class XArena {
   /* les places : champion au centre de son côté, réserves derrière */
   home(a, out){
     const AR = this.AR, side = a.side === "ally" ? -1 : 1;
-    if(a.role === "front") return out.copy(this.C).addScaledVector(this.R, 1.05 * side).addScaledVector(this.F, 2.0 * side);
+    if(a.role === "front") return out.copy(this.C).addScaledVector(this.R, this.o.side * side).addScaledVector(this.F, (side > 0 ? this.o.foeD : this.o.allyD) * side);
     let k = 0; for(const o of AR.act.values()){ if(o === a) break; if(o.side === a.side && o.role === "bench") k++; }
     return out.copy(this.C).addScaledVector(this.R, (3.4 + k * 1.0) * side).addScaledVector(this.F, (1.4 + k * 0.5) * side);
   }
@@ -129,7 +131,7 @@ export class XArena {
     let r = this.recs.get(a.f);
     if(r) return r;
     const B = this.B, boss = a.side === "foe" && B && B.stage === "boss";
-    const h = monH(a.f.id) * (boss ? 1.35 : 1);
+    const h = boss && this.o.bossH ? this.o.bossH(a.f.id) : monH(a.f.id) * (boss ? 1.35 : 1);
     preloadMon(a.f.id, a.f.shiny);
     r = {a, m:makeMon(a.f.id, a.f.shiny, this.scene, {height:h, corrupt:false}), h, pos:new THREE.Vector3(), yaw:0, lastPose:-1, lastGlow:-1, mvRef:null, mvFrom:new THREE.Vector3(), placed:false};
     this.recs.set(a.f, r);

@@ -94,6 +94,7 @@ async function bake(id){
 /* ---------- le matériau : la marche lue dans la texture, la palette de la faille ---------- */
 function hordeMaterial(src, tex){
   const m = new THREE.MeshStandardMaterial({map:src.map || null, color:src.color ? src.color.clone() : new THREE.Color(1, 1, 1),
+    emissive:src.emissive ? src.emissive.clone() : new THREE.Color(0, 0, 0),
     roughness:0.75, metalness:0, transparent:false, alphaTest:src.alphaTest || (src.transparent ? 0.35 : 0), side:src.side});
   m.onBeforeCompile = sh => {
     sh.uniforms.uEye = OCC.uEye; sh.uniforms.uFocus = OCC.uFocus;

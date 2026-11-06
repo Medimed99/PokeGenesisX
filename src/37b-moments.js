@@ -21,6 +21,9 @@ function momentBusy(){
   if(typeof CINE !== "undefined" && CINE && !CINE.dead) return true;
   const d = document.getElementById("discover");
   if(d && /\bon\b/.test(d.className || "")) return true;
+  /* une page de journal qu'on lit : rien ne passe par-dessus */
+  const fr = document.getElementById("fragread");
+  if(fr && /\bon\b/.test(fr.className || "")) return true;
   if(typeof xsOpenNow === "function" && xsOpenNow()) return true;
   const b = document.getElementById("boot");
   if(b && b.style && b.style.display === "flex") return true;
@@ -50,7 +53,9 @@ function momentShow(m){
   const rays = (m.kind === "release" || m.kind === "door" || m.kind === "wing") ? `<div class="mo-rays"></div>` : "";
   const page = m.kind === "page" ? `<div class="mo-paper"><i></i><i></i><i></i><i></i><i></i></div>` : "";
   const zz = m.kind === "awake" ? `<div class="mo-zz"><i>z</i><i>z</i><i>Z</i></div>` : "";
-  box.className = "on k-" + m.kind;
+  /* sur PC, un moment qui propose quelque chose (lire une page) attend le clic : la souris est rendue, rien ne s'efface tout seul */
+  const PCM = typeof window !== "undefined" && !!window.PCG_PC, waits = PCM && !!m.onTap;
+  box.className = "on k-" + m.kind + (m.onTap ? " tap" : "");
   box.style.setProperty("--mc", c);
   box.innerHTML = `${band}${rays}<div class="mo-glow"></div>${door}
     <div class="mo-in">
@@ -62,13 +67,13 @@ function momentShow(m){
       ${m.line ? `<div class="mo-line">${typeof pzFace === "function" ? pzFace(m.lineMood || "Happy", 26) : ""}<span>${esc(typeof pzFmt === "function" ? pzFmt(m.line) : m.line)}</span></div>` : ""}
       ${m.quote && !m.quoteFirst ? `<div class="mo-quote">« ${esc(m.quote)} »</div>` : ""}
     </div>
-    <div class="mo-skip">${esc(m.tapText || "toucher pour continuer")}</div>`;
+    <div class="mo-skip">${esc(PCM ? (m.tapText || "toucher pour continuer").replace(/^toucher/, "clic") : (m.tapText || "toucher pour continuer"))}</div>`;
   try { ({door:()=>Sfx.win(), depth:()=>Sfx.win(), wing:()=>Sfx.win(), release:()=>Sfx.shiny(), awake:()=>Sfx.coin(), page:()=>Sfx.wobble(), onze:()=>Sfx.wobble()})[m.kind](); } catch(e){}
   if(typeof buzz === "function") buzz(m.kind === "release" ? [30, 60, 30, 60, 120] : [20, 40, 60]);
   const t0 = Date.now();
   box.onclick = () => { if(Date.now() - t0 > 700) momentEnd(true); };
   clearTimeout(momentShow._t);
-  momentShow._t = setTimeout(momentEnd, m.dur || (m.quote ? 6500 : m.line ? 4200 : 2800));
+  if(!waits) momentShow._t = setTimeout(momentEnd, m.dur || (m.quote ? 6500 : m.line ? 4200 : 2800));
 }
 function momentEnd(tapped){
   const box = document.getElementById("moment");

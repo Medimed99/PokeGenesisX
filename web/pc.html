@@ -6658,13 +6658,13 @@ body.pc.tower3d .fn-mn img,body.pc.tower3d .fn-mn .mnspr{width:46px;height:46px}
 /* ---------- l'Expédition en 3D : le secteur où l'on marche, le combat sur place ---------- */
 #pc-xp-fx{position:fixed;inset:0;width:100vw;height:100vh;z-index:29;display:none;pointer-events:none}
 #pc-xp-fx.on{display:block}
-body.pc.expe3d #terminal{display:flex!important;background:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;animation:none!important;pointer-events:none}
-body.pc.expe3d #terminal .term-head{display:none}
-body.pc.expe3d #terminal #app{position:fixed!important;inset:0!important;width:auto!important;height:auto!important;max-width:none!important;max-height:none!important;
+body.pc:is(.expe3d,.raid3d) #terminal{display:flex!important;background:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;animation:none!important;pointer-events:none}
+body.pc:is(.expe3d,.raid3d) #terminal .term-head{display:none}
+body.pc:is(.expe3d,.raid3d) #terminal #app{position:fixed!important;inset:0!important;width:auto!important;height:auto!important;max-width:none!important;max-height:none!important;
   margin:0!important;border:0!important;border-radius:0!important;background:none!important;box-shadow:none!important;transform:none!important;overflow:visible!important;pointer-events:none}
-body.pc.expe3d #topbar,body.pc.expe3d #dock,body.pc.expe3d #nextstep,body.pc.expe3d #admfab,body.pc.expe3d #pchud,body.pc.expe3d #pc-minimap,body.pc.expe3d #pc-pzsay{display:none!important}
-body.pc.expe3d #screen{background:none!important;overflow:visible!important;padding:0!important;height:auto!important;pointer-events:none}
-body.pc.expe3d #sheet-root.on{pointer-events:auto;position:fixed;inset:0}
+body.pc:is(.expe3d,.raid3d) #topbar,body.pc:is(.expe3d,.raid3d) #dock,body.pc:is(.expe3d,.raid3d) #nextstep,body.pc:is(.expe3d,.raid3d) #admfab,body.pc:is(.expe3d,.raid3d) #pchud,body.pc:is(.expe3d,.raid3d) #pc-minimap,body.pc:is(.expe3d,.raid3d) #pc-pzsay{display:none!important}
+body.pc:is(.expe3d,.raid3d) #screen{background:none!important;overflow:visible!important;padding:0!important;height:auto!important;pointer-events:none}
+body.pc:is(.expe3d,.raid3d) #sheet-root.on{pointer-events:auto;position:fixed;inset:0}
 /* le sac d'expédition : un inventaire, au milieu de l'écran */
 body.pc.expe3d #sheet-root .sheet.xbag{left:0;right:0;top:0;bottom:0;margin:auto;height:fit-content;width:min(1000px,92vw);max-height:86vh;border-radius:16px;padding:18px 22px 20px}
 body.pc.expe3d #sheet-root .sheet.xbag::before{display:none}
@@ -6788,20 +6788,20 @@ body.pc.expe3d .xsc .xo-big{position:fixed;top:26%;left:0;right:0;width:auto;tex
 #pc-xs .pcx-pri svg,#pc-xs .pcx-sec svg{width:14px;height:14px}
 @media (prefers-reduced-motion:reduce){#pc-xs .pcx-card,#pc-xs .pcx-opt{transition:none}}
 /* le combat : le titre et la vitesse en haut, les fiches de vie aux coins, le journal en bas */
-body.pc.expe3d.xb #screen>.row.between{position:fixed;top:14px;left:50%;transform:translateX(-50%);width:min(640px,70vw);margin:0!important;padding:9px 16px;border-radius:12px;
+body.pc:is(.expe3d.xb,.raid3d) #screen>.row.between{position:fixed;top:14px;left:50%;transform:translateX(-50%);width:min(640px,70vw);margin:0!important;padding:9px 16px;border-radius:12px;
   background:rgba(5,9,18,.76);border:1px solid rgba(80,120,170,.35);pointer-events:auto;zoom:1.15}
-body.pc.expe3d.xb .bspd button[data-act="bspeed"]{display:none}
-body.pc.expe3d.xb #arena{position:fixed!important;inset:0!important;height:auto!important;background:none!important;border:0!important;box-shadow:none!important;pointer-events:none;overflow:visible}
-body.pc.expe3d.xb #arena canvas.arcv{visibility:hidden}
-body.pc.expe3d.xb #arena .arplate.foe{position:fixed;top:118px;right:24px;left:auto;width:300px;zoom:1.2;pointer-events:none}
-body.pc.expe3d.xb #arena .arplate.ally{position:fixed;bottom:150px;left:24px;right:auto;top:auto;width:300px;zoom:1.2;pointer-events:none}
-body.pc.expe3d.xb #arena .turnflag{display:none}
-body.pc.expe3d.xb #arena .arhint{display:none}
-body.pc.expe3d.xb #moves:empty{display:none}
-body.pc.expe3d.xb #battle-team{position:fixed;left:14px;bottom:14px;width:min(440px,36vw);margin:0!important;padding:8px;border-radius:12px;background:rgba(5,9,18,.7);pointer-events:auto;zoom:1.05}
-body.pc.expe3d.xb #log{position:fixed;right:14px;bottom:14px;width:min(420px,34vw);max-height:22vh;overflow:auto;margin:0;padding:8px 12px;border-radius:12px;
+body.pc:is(.expe3d.xb,.raid3d) .bspd button[data-act="bspeed"]{display:none}
+body.pc:is(.expe3d.xb,.raid3d) #arena{position:fixed!important;inset:0!important;height:auto!important;background:none!important;border:0!important;box-shadow:none!important;pointer-events:none;overflow:visible}
+body.pc:is(.expe3d.xb,.raid3d) #arena canvas.arcv{visibility:hidden}
+body.pc:is(.expe3d.xb,.raid3d) #arena .arplate.foe{position:fixed;top:118px;right:24px;left:auto;width:300px;zoom:1.2;pointer-events:none}
+body.pc:is(.expe3d.xb,.raid3d) #arena .arplate.ally{position:fixed;bottom:150px;left:24px;right:auto;top:auto;width:300px;zoom:1.2;pointer-events:none}
+body.pc:is(.expe3d.xb,.raid3d) #arena .turnflag{display:none}
+body.pc:is(.expe3d.xb,.raid3d) #arena .arhint{display:none}
+body.pc:is(.expe3d.xb,.raid3d) #moves:empty{display:none}
+body.pc:is(.expe3d.xb,.raid3d) #battle-team{position:fixed;left:14px;bottom:14px;width:min(440px,36vw);margin:0!important;padding:8px;border-radius:12px;background:rgba(5,9,18,.7);pointer-events:auto;zoom:1.05}
+body.pc:is(.expe3d.xb,.raid3d) #log{position:fixed;right:14px;bottom:14px;width:min(420px,34vw);max-height:22vh;overflow:auto;margin:0;padding:8px 12px;border-radius:12px;
   background:rgba(5,9,18,.66);pointer-events:auto;font-size:13px}
-body.pc.expe3d.xb #screen>.btn.pri.wide{position:fixed;left:50%;bottom:80px;transform:translateX(-50%);width:min(380px,60vw);pointer-events:auto;zoom:1.2}
+body.pc:is(.expe3d.xb,.raid3d) #screen>.btn.pri.wide{position:fixed;left:50%;bottom:80px;transform:translateX(-50%);width:min(380px,60vw);pointer-events:auto;zoom:1.2}
 /* la carte du nœud devant soi, et les touches */
 #pc-xp-card{position:fixed;right:24px;top:96px;transform:translate(10px,0);width:min(400px,34vw);padding:12px 16px 13px;border-radius:12px;
   background:rgba(5,9,18,.86);border:1px solid var(--nc,#35f0d6);box-shadow:0 0 22px rgba(0,0,0,.4);color:#e8f0ff;font-size:14px;line-height:1.5;
@@ -6846,7 +6846,7 @@ body.pc.expe3d.xn #screen>*{visibility:hidden!important;pointer-events:none!impo
 #pc-intro .pi-g{margin-top:16px;font-size:clamp(17px,1.5vw,21px);line-height:1.4;max-width:32em;color:#dfe8f5;text-shadow:0 2px 10px rgba(0,0,0,.8)}
 #pc-intro.short .pi-t{font-size:clamp(28px,3.6vw,48px)}
 /* pendant la cinématique, le reste s'efface (et rien ne se clique) */
-body.pcintro #pchud,body.pcintro #pc-minimap,body.pcintro #pc-br-ov,body.pcintro #pc-tower-fx,body.pcintro #pc-xp-fx,body.pcintro #pc-xp-card,body.pcintro #pc-xp-keys,body.pcintro #pc-pzsay,
+body.pcintro #pc-raid-fx,body.pcintro #pc-raid-ban,body.pcintro #pchud,body.pcintro #pc-minimap,body.pcintro #pc-br-ov,body.pcintro #pc-tower-fx,body.pcintro #pc-xp-fx,body.pcintro #pc-xp-card,body.pcintro #pc-xp-keys,body.pcintro #pc-pzsay,
 body.pcintro .br-hud,body.pcintro .br-kit,body.pcintro .br-ticker,body.pcintro .br-say,
 body.pcintro.expe3d #screen,body.pcintro.breche3d #screen,
 body.pcintro.tower3d .sq2-top,body.pcintro.tower3d .sq2-dock,body.pcintro.tower3d .sq2-say,body.pcintro.tower3d .sq2-order,body.pcintro.tower3d .sq2-tip,body.pcintro.tower3d .sq2-bossbar{
@@ -6882,6 +6882,24 @@ body.pcintro .br-misintro{opacity:0!important;animation-play-state:paused!import
 #pc-check.done .pk-h b{color:#fff}
 #pc-check.done .pk-f{visibility:hidden}
 @media (prefers-reduced-motion:reduce){#pc-intro .pi-bar,#pc-intro .pi-card,#pc-check{transition:opacity .2s}#pc-check li.pop .pk-k{animation:none}}
+
+/* ---------- le raid en 3D, au pied du phare (raid3d.js) ---------- */
+#pc-raid-fx{position:fixed;inset:0;width:100vw;height:100vh;z-index:29;display:none;pointer-events:none}
+#pc-raid-fx.on{display:block}
+body.pc.raid3d #arena .arplate.foe{display:none}
+body.pc.raid3d #screen>.row.between{top:12px}
+#pc-raid-ban{position:fixed;left:50%;top:78px;transform:translate(-50%,-8px);z-index:30;min-width:300px;padding:10px 26px 12px;border-radius:14px;text-align:center;
+  background:linear-gradient(180deg,rgba(26,8,4,.86),rgba(8,4,10,.82));border:1px solid rgba(255,106,61,.55);box-shadow:0 0 34px rgba(255,90,40,.22),0 10px 30px rgba(0,0,0,.45);
+  color:#ffe9dc;opacity:0;pointer-events:none;transition:opacity .4s,transform .4s;font-family:"Pixelify Sans",sans-serif}
+#pc-raid-ban.on{opacity:1;transform:translate(-50%,0)}
+#pc-raid-ban .rb-k{font:10px "Press Start 2P",monospace;letter-spacing:1px;color:#ff8a5c}
+#pc-raid-ban .rb-n{display:flex;align-items:baseline;justify-content:center;gap:9px;margin-top:4px}
+#pc-raid-ban .rb-n b{display:inline-block;font:800 40px/1.05 Unbounded,sans-serif;color:#fff;text-shadow:0 0 18px rgba(255,138,92,.55);font-variant-numeric:tabular-nums;transform-origin:50% 60%}
+#pc-raid-ban .rb-n span{font-size:15px;color:#ffb89a}
+#pc-raid-ban .rb-t{height:4px;margin:8px 0 6px;border-radius:2px;background:rgba(255,138,92,.18);overflow:hidden}
+#pc-raid-ban .rb-t i{display:block;height:100%;width:0;background:linear-gradient(90deg,#ff6a3d,#ffd166);transition:width .3s}
+#pc-raid-ban .rb-s{font-size:14px;color:#d8c4bc}
+@media (prefers-reduced-motion:reduce){#pc-raid-ban,#pc-raid-ban .rb-t i{transition:none}}
 
 </style>
 <script src="config.js"></script>
@@ -6919,7 +6937,7 @@ body.pcintro .br-misintro{opacity:0!important;animation-play-state:paused!import
 <script>window.PCG_PC = true;</script>
 <script>
 /* version du jeu (buildver.py) */
-const BUILD_V = "477b4c5e", BUILD_LABEL = "6 novembre 2026, 21 h 57";
+const BUILD_V = "d9656d18", BUILD_LABEL = "6 novembre 2026, 23 h 04";
 /* Version hebergee : les images sont servies comme fichiers, pas encodees
    dans le HTML. Les noms portent une empreinte : on peut donc les mettre en
    cache indefiniment sans jamais servir une version perimee. */
@@ -14268,6 +14286,9 @@ function momentBusy(){
   if(typeof CINE !== "undefined" && CINE && !CINE.dead) return true;
   const d = document.getElementById("discover");
   if(d && /\bon\b/.test(d.className || "")) return true;
+  /* une page de journal qu'on lit : rien ne passe par-dessus */
+  const fr = document.getElementById("fragread");
+  if(fr && /\bon\b/.test(fr.className || "")) return true;
   if(typeof xsOpenNow === "function" && xsOpenNow()) return true;
   const b = document.getElementById("boot");
   if(b && b.style && b.style.display === "flex") return true;
@@ -14297,7 +14318,9 @@ function momentShow(m){
   const rays = (m.kind === "release" || m.kind === "door" || m.kind === "wing") ? `<div class="mo-rays"></div>` : "";
   const page = m.kind === "page" ? `<div class="mo-paper"><i></i><i></i><i></i><i></i><i></i></div>` : "";
   const zz = m.kind === "awake" ? `<div class="mo-zz"><i>z</i><i>z</i><i>Z</i></div>` : "";
-  box.className = "on k-" + m.kind;
+  /* sur PC, un moment qui propose quelque chose (lire une page) attend le clic : la souris est rendue, rien ne s'efface tout seul */
+  const PCM = typeof window !== "undefined" && !!window.PCG_PC, waits = PCM && !!m.onTap;
+  box.className = "on k-" + m.kind + (m.onTap ? " tap" : "");
   box.style.setProperty("--mc", c);
   box.innerHTML = `${band}${rays}<div class="mo-glow"></div>${door}
     <div class="mo-in">
@@ -14309,13 +14332,13 @@ function momentShow(m){
       ${m.line ? `<div class="mo-line">${typeof pzFace === "function" ? pzFace(m.lineMood || "Happy", 26) : ""}<span>${esc(typeof pzFmt === "function" ? pzFmt(m.line) : m.line)}</span></div>` : ""}
       ${m.quote && !m.quoteFirst ? `<div class="mo-quote">« ${esc(m.quote)} »</div>` : ""}
     </div>
-    <div class="mo-skip">${esc(m.tapText || "toucher pour continuer")}</div>`;
+    <div class="mo-skip">${esc(PCM ? (m.tapText || "toucher pour continuer").replace(/^toucher/, "clic") : (m.tapText || "toucher pour continuer"))}</div>`;
   try { ({door:()=>Sfx.win(), depth:()=>Sfx.win(), wing:()=>Sfx.win(), release:()=>Sfx.shiny(), awake:()=>Sfx.coin(), page:()=>Sfx.wobble(), onze:()=>Sfx.wobble()})[m.kind](); } catch(e){}
   if(typeof buzz === "function") buzz(m.kind === "release" ? [30, 60, 30, 60, 120] : [20, 40, 60]);
   const t0 = Date.now();
   box.onclick = () => { if(Date.now() - t0 > 700) momentEnd(true); };
   clearTimeout(momentShow._t);
-  momentShow._t = setTimeout(momentEnd, m.dur || (m.quote ? 6500 : m.line ? 4200 : 2800));
+  if(!waits) momentShow._t = setTimeout(momentEnd, m.dur || (m.quote ? 6500 : m.line ? 4200 : 2800));
 }
 function momentEnd(tapped){
   const box = document.getElementById("moment");
@@ -49975,6 +49998,6 @@ document.addEventListener("DOMContentLoaded", bootOnce);
 if(document.readyState !== "loading") bootOnce();
 
 </script>
-<script src="pc/game.acb633e8.js" defer></script>
+<script src="pc/game.77bc9910.js" defer></script>
 </body>
 </html>

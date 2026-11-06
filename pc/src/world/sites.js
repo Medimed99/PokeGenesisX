@@ -11,8 +11,9 @@
        son feu, ses guirlandes, un portique aux fanions dorés ;
      · le Forage (sud-est) : une galerie dans un tertre, son chevalement
        et sa roue, ses rails, son wagonnet de minerai ;
-     · le raid (ouest, après le lac) : un phare où se tient le boss de
-       la semaine ;
+     · le raid (ouest, avant Jadielle) : un phare où se tient le boss
+       de la semaine, au bord d'une arène cerclée de pierres levées ;
+       E y lance l'attaque, et le combat se joue là (raid3d.js) ;
      · le Poké-Poker (est) : un pavillon, une table, des cartes qui
        flottent.
    Chaque lieu a son parvis pavé et son cercle de lumière, qui s'éveille
@@ -29,6 +30,8 @@ export { SITES };
 
 const G = () => window.PCG;
 const S = k => SITES.find(s=>s.k === k);
+/* le phare du raid, à l'ouest de son parvis (le reste est l'arène) */
+export const RAID_OX = -7;
 const C = c => new THREE.Color(c);
 const GREY = new THREE.Color("#7a8296");
 /* le halo d'une lanterne : un dégradé rond, dessiné une fois */
@@ -72,7 +75,7 @@ export class Sites {
     for(const s of SITES) this.plaza(s);
     this.tower(); this.verrous(); this.breche(); this.expe(); this.forage(); this.raid(); this.poker();
     for(const s of SITES){
-      const L = labelSprite(1024, 200); L.sp.scale.set(8.5, 1.66, 1); L.sp.position.set(s.x, s.y + (s.labelY || 5.2), s.z); this.root.add(L.sp);
+      const L = labelSprite(1024, 200); L.sp.scale.set(8.5, 1.66, 1); L.sp.position.set(s.x + (s.lx || 0), s.y + (s.labelY || 5.2), s.z); this.root.add(L.sp);
       this.labels[s.k] = {L, txt:""};
     }
   }
@@ -364,27 +367,48 @@ export class Sites {
   }
   /* ---------- le raid : un phare, et le boss de la semaine dessus ---------- */
   raid(){
-    const s = S("raid"), g = this.grp(s, 0, 0.05);
+    /* le phare se tient à l'ouest du parvis ; le reste du parvis est l'arène du raid (raid3d.js), cerclée de pierres levées */
+    const s = S("raid"), OX = RAID_OX, g = this.grp(s, 0, 0.05); g.position.x += OX;
     const stone = glowMat({key:"raidst", color:"#3a3036", rough:0.7, flat:true,
-      glow:`float rune = step(0.8, bh(floor(vec2(atan(vOP.z, vOP.x) * 3.0, vWP.y * 2.2)))) * step(0.3, fract(vWP.y * 2.2));
-        glow += vec3(1.0, 0.42, 0.22) * rune * (0.5 + 0.5 * sin(uBT * 2.0 + vWP.y)) * 0.9;`});
+      glow:`/* des runes : de petits traits gravés, qui battent */
+        vec2 q = vec2(atan(vOP.z, vOP.x) * 3.2, vWP.y * 3.0); vec2 f = fract(q);
+        float rune = step(0.84, bh(floor(q))) * step(0.38, f.x) * step(f.x, 0.62) * step(0.15, f.y) * step(f.y, 0.85);
+        glow += vec3(1.0, 0.42, 0.22) * rune * (0.45 + 0.45 * sin(uBT * 2.0 + vWP.y)) * 0.9;`});
     const base = new THREE.Mesh(new THREE.CylinderGeometry(2.6, 3.2, 1.2, 8), stone); base.position.y = 0.6; base.castShadow = true; g.add(base);
     const col = new THREE.Mesh(new THREE.CylinderGeometry(0.9, 1.3, 6, 8), stone); col.position.y = 4.2; col.castShadow = true; g.add(col);
     const plate = new THREE.Mesh(new THREE.CylinderGeometry(2.4, 1.2, 0.5, 16), stone); plate.position.y = 7.4; g.add(plate);
     const ring = new THREE.Mesh(new THREE.TorusGeometry(2.6, 0.08, 6, 48).rotateX(Math.PI / 2), new THREE.MeshBasicMaterial({color:"#ff6a3d", transparent:true, opacity:0.8, blending:THREE.AdditiveBlending, depthWrite:false}));
     ring.position.y = 7.7; g.add(ring);
-    /* quatre pierres levées autour */
-    inst(g, prismGeo(5, 0.5), stone, [0, 1, 2, 3].map(i=>{ const a = i / 4 * Math.PI * 2 + Math.PI / 4; return {x:Math.cos(a) * 4.6, y:0, z:Math.sin(a) * 4.6, sx:0.45, sy:2.2 + (i % 2) * 0.6, sz:0.45, rz:0.06 * (i % 2 ? 1 : -1)}; }));
-    for(let i = 0; i < 4; i++){ const a = i / 4 * Math.PI * 2 + Math.PI / 4; this.col(s.x + Math.cos(a) * 4.6, s.z + Math.sin(a) * 4.6, 0.55); }
-    this.raidG = g; this.U.raidBeam = shafts(this.root, [{x:s.x, y:s.y + 7.6, z:s.z, w:4, h:12}], "#ff8a5c", 0.22);
-    this.anim.push((t, dt)=>{ ring.rotation.y += dt; ring.scale.setScalar(1 + Math.sin(t * 2) * 0.04); if(this.raidMon){ this.raidMon.group.rotation.y += dt * 0.35; } });
-    this.glow(s, s.x, s.y + 7.5, s.z, 12, "#ff6a3d", 1.2);
-    this.col(s.x, s.z, 3.1);
-    s.labelY = 14; s.ix = s.x + 3.4; s.iz = s.z;
+    /* quatre pierres levées autour de l'arène (ni devant le phare, ni du côté d'où l'on arrive) */
+    const st = this.grp(s, 0, 0.05), A = [60, 120, 240, 300].map(d=>d * Math.PI / 180);
+    inst(st, prismGeo(5, 0.5), stone, A.map((a, i)=>({x:Math.cos(a) * 8.6, y:0, z:Math.sin(a) * 8.6, sx:0.5, sy:2.6 + (i % 2) * 0.7, sz:0.5, rz:0.06 * (i % 2 ? 1 : -1)})));
+    for(const a of A) this.col(s.x + Math.cos(a) * 8.6, s.z + Math.sin(a) * 8.6, 0.6);
+    this.raidG = g; this.U.raidBeam = shafts(this.root, [{x:s.x + OX, y:s.y + 7.6, z:s.z, w:4, h:12}], "#ff8a5c", 0.22);
+    this.raidRing = ring;
+    this.anim.push((t, dt)=>{ ring.rotation.y += dt; ring.scale.setScalar(1 + Math.sin(t * 2) * 0.04); if(this.raidMon && !this.raidHold && !(this.raidWake && this.raidWake.k > 0)){ this.raidMon.group.rotation.y += dt * 0.35; } });
+    this.glow(s, s.x + OX, s.y + 7.5, s.z, 12, "#ff6a3d", 1.2);
+    this.col(s.x + OX, s.z, 3.1);
+    s.labelY = 14; s.lx = OX; s.ix = s.x + 6.5; s.iz = s.z;
   }
   /* le boss du raid : son modèle, posé sur le phare (dès que le jeu mobile sait qui c'est) */
   raidHolo(t, dt){
-    if(this.raidMon !== undefined && this.raidId === this._wantRaid()) { if(this.raidMon) this.raidMon.update(t, dt, this._rp || (this._rp = new THREE.Vector3(0, 7.65, 0)), null); return; }
+    if(this.raidMon !== undefined && this.raidId === this._wantRaid()){
+      const m = this.raidMon; if(!m) return;
+      m.update(t, dt, this._rp || (this._rp = new THREE.Vector3(0, 7.65, 0)), null);
+      /* E au pied du phare (raid3d.js) : il s'éveille, se tourne vers l'arène et grandit ; puis il descend
+         du phare jusqu'à sa place dans l'arène, à sa taille de combat */
+      const W = this.raidWake, G0 = m.group;
+      if(W && W.k > 0){
+        const sm = x => { x = Math.max(0, Math.min(1, x)); return x * x * (3 - 2 * x); };
+        const a = sm(W.k / 0.42), d = sm((W.k - 0.45) / 0.4), H = W.H / 3.6;
+        G0.rotation.y += ((Math.PI / 2) - G0.rotation.y) * Math.min(1, dt * 3);
+        G0.scale.setScalar((1 + a * 0.35) * (1 - d) + H * d);
+        G0.position.set(W.lx * d, 7.65 * (1 - d) + Math.sin(Math.PI * d) * 1.6 + a * 0.6 * (1 - d), W.lz * d);
+        if(m.uniforms && m.uniforms.uFlash) m.uniforms.uFlash.value = W.k < 0.1 ? (0.1 - W.k) * 7 : 0;
+      } else if(G0.scale.x !== 1) G0.scale.setScalar(1);
+      G0.visible = !this.raidHold;
+      return;
+    }
     const id = this._wantRaid(); if(!id) return;
     if(this.raidMon) this.raidMon.dispose();
     this.raidId = id;
@@ -478,15 +502,19 @@ export class Sites {
     lab.L.tex.needsUpdate = true;
   }
   /* ce que dit l'écran en bas, à portée d'un lieu */
-  prompt(){
+  prompt(game){
     const s = this.near; if(!s) return "";
+    this.game = game || this.game;
     const lk = this.lock[s.k];
+    if(s.k === "raid" && !lk && game && game.raid3d) return game.raid3d.promptText();
     return lk ? `<b>${s.n}</b> · ${shut(s)} : ${lk}` : `<b>E</b> · ${s.n === "Les verrous" ? "les verrous légendaires" : s.n === "Le raid" ? "le raid de la semaine" : s.n === "Poké-Poker" ? "une partie de Poké-Poker" : s.n === "Le Forage" ? "le Forage" : s.n === "L'Expédition" ? "partir en Expédition" : s.n === "La Brèche" ? "entrer dans la Brèche" : "monter dans la Tour"}`;
   }
   /* E : le terminal s'ouvre sur l'écran du module */
   interact(game){
     const s = this.near; if(!s) return false;
     if(this.lock[s.k]){ game.hud.hint(`<b>${s.n}</b> ${s.k === "boss" ? "restent" : "reste"} ${shut(s)} : ${this.lock[s.k]}`, 4); return true; }
+    /* le raid : on attaque ici, au pied du phare */
+    if(s.k === "raid" && game.raid3d){ game.raid3d.start(); return true; }
     game.terminal.show(s.screen);
     return true;
   }

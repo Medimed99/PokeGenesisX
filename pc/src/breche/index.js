@@ -173,7 +173,8 @@ export class Breche3D {
     const R = ref("BR"); if(!this.on || !R) return false;
     const m = document.getElementById("br-modal");
     const open = m && /\bon\b/.test(m.className);
-    if(e.code === "Tab"){ e.preventDefault(); if(!R.modal){ ref("brPause")(!R.paused); if(R.paused) this.game.input.unlock(); else this.relock(); } return true; }
+    /* Tab : la pause ; pendant un choix ou un bilan, il rend la souris */
+    if(e.code === "Tab"){ e.preventDefault(); if(!R.modal && !R.over){ ref("brPause")(!R.paused); if(R.paused) this.game.input.unlock(); else this.relock(); } else this.game.input.unlock(); return true; }
     if(e.code === "Escape"){ if(R.paused) setTimeout(()=>this.relock(), 30); return true; }   /* le jeu mobile bascule la pause lui-même */
     if(open){
       const d = /^(Digit|Numpad)([1-4])$/.exec(e.code);

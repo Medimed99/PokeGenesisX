@@ -101,16 +101,19 @@ vec3 corruptCol(vec3 c){
 /* les effets du sprite, transposés : éclair blanc, rouge, fondu (en trame), désindexation (bandes) */
 function patchMaterial(src, U){
   const m = src.clone();
+  /* une lueur de Pokémon GO (la queue de Muciole, le feu follet de Skelénox) : elle s'ajoute à la lumière */
+  if(src.userData && src.userData.pcg === "add"){ m.blending = THREE.AdditiveBlending; m.transparent = true; m.depthWrite = false; }
   m.onBeforeCompile = sh => {
     sh.uniforms.uFlash = U.uFlash; sh.uniforms.uRed = U.uRed; sh.uniforms.uAlpha = U.uAlpha; sh.uniforms.uGlitch = U.uGlitch; sh.uniforms.uTime = U.uTime;
     sh.uniforms.uCorrupt = U.uCorrupt; sh.uniforms.uTintC = U.uTintC; sh.uniforms.uOcc = U.uOcc;
+    sh.uniforms.uShine = U.uShine || {value:0}; sh.uniforms.uShineY = U.uShineY || {value:0}; sh.uniforms.uShineH = U.uShineH || {value:1};
     sh.uniforms.uEye = OCC.uEye; sh.uniforms.uFocus = OCC.uFocus;
     sh.uniforms.uLamp = CZ.uLamp;
     sh.vertexShader = sh.vertexShader.replace("#include <common>", "#include <common>\nvarying vec3 vM3WP;")
       .replace("#include <project_vertex>", "#include <project_vertex>\n  vM3WP = (modelMatrix * vec4(transformed, 1.0)).xyz;");
     sh.fragmentShader = sh.fragmentShader
       .replace("#include <common>", `#include <common>
-uniform float uFlash, uRed, uAlpha, uGlitch, uTime, uCorrupt, uOcc;
+uniform float uFlash, uRed, uAlpha, uGlitch, uTime, uCorrupt, uOcc, uShine, uShineY, uShineH;
 ${OCC_GLSL}
 uniform vec4 uTintC;
 varying vec3 vM3WP;
@@ -132,7 +135,17 @@ float m3h(vec2 p){ p = fract(p * vec2(123.34, 456.21)); p += dot(p, p + 45.32); 
   diffuseColor.rgb = mix(diffuseColor.rgb, uTintC.rgb, uTintC.a);`)
       .replace("#include <emissivemap_fragment>", `#include <emissivemap_fragment>
   totalEmissiveRadiance += lampLight(vM3WP, diffuseColor.rgb);
-  if(uCorrupt > 0.001){ float rimC = pow(1.0 - abs(dot(normalize(normal), normalize(vViewPosition))), 2.5); totalEmissiveRadiance += vec3(1.0, 0.16, 0.5) * rimC * 0.55 * uCorrupt; }`)
+  if(uCorrupt > 0.001){ float rimC = pow(1.0 - abs(dot(normalize(normal), normalize(vViewPosition))), 2.5); totalEmissiveRadiance += vec3(1.0, 0.16, 0.5) * rimC * 0.55 * uCorrupt; }
+  if(uShine > 0.001){
+    /* chromatique : un liseré d'or qui chatoie (irisé selon l'angle), et un éclat qui monte le long du corps */
+    float fr = pow(1.0 - abs(dot(normalize(normal), normalize(vViewPosition))), 2.2);
+    vec3 iri = 0.5 + 0.5 * cos(6.2831 * (fr * 0.9 + uTime * 0.12 + vec3(0.0, 0.33, 0.67)));
+    vec3 rim = mix(vec3(1.0, 0.8, 0.38), iri, 0.35) * fr * (0.75 + 0.25 * sin(uTime * 2.6));
+    float rel = (vM3WP.y - uShineY) / max(uShineH, 0.3);
+    float cyc = mod(uTime, 3.4) / 1.25 - 0.25;
+    float band = smoothstep(0.13, 0.0, abs(rel - cyc + (vM3WP.x + vM3WP.z) * 0.06)) * step(cyc, 1.25);
+    totalEmissiveRadiance += uShine * (rim * 0.9 + vec3(1.0, 0.95, 0.8) * band * 0.85 + diffuseColor.rgb * 0.12);
+  }`)
       .replace("#include <dithering_fragment>", `#include <dithering_fragment>
   if(uGlitch > 0.001){
     float side = step(0.5, m3h(vec2(floor(gl_FragCoord.y / 5.0), floor(uTime * 20.0) + 3.0)));
@@ -182,7 +195,9 @@ export class MonModel {
     this.id = id; this.shiny = !!shiny; this.scene = scene; this.opts = opts; this.is3D = true;
     this.H = opts.height || realHeight(id);
     this.uniforms = {uGlitch:{value:0}, uAlpha:{value:1}, uFlash:{value:0}, uRed:{value:0}, uTime:{value:0}, uXray:{value:0}, uPull:{value:0.3},
-      uCorrupt:{value:opts.corrupt ? 1 : 0}, uTintC:{value:new THREE.Vector4(0, 0, 0, 0)}, uOcc:{value:opts.occ ? 1 : 0}};
+      uCorrupt:{value:opts.corrupt ? 1 : 0}, uTintC:{value:new THREE.Vector4(0, 0, 0, 0)}, uOcc:{value:opts.occ ? 1 : 0},
+      /* la splendeur d'un chromatique (shinyfx.js) : un liseré d'or irisé, un éclat qui le parcourt */
+      uShine:{value:0}, uShineY:{value:0}, uShineH:{value:1}};
     this.group = new THREE.Group();
     this.mesh = new THREE.Group(); this.mesh.visible = false;      /* le modèle lui-même (vide tant qu'il charge) */
     this.shadow = new THREE.Mesh(new THREE.PlaneGeometry(1, 1).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({map:blobTex(), transparent:true, depthWrite:false}));
