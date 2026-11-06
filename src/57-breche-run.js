@@ -363,7 +363,8 @@ function brFoes(R, dt){
     /* trop loin derriere : on le replace devant, plutot que de le laisser errer */
     if(d > Math.max(R.W, R.H) * 1.1 && !f.fixed){ const a = Math.atan2(R.vy || 1, R.vx || 0) + (R.rng() - .5); const r2 = Math.max(R.W, R.H) * 0.6; f.x = R.x + Math.cos(a) * r2; f.y = R.y + Math.sin(a) * r2; }
     /* contact : le bouclier, le turbo et le Casque Brut passent par brTakeHit */
-    if(d < f.r + 14 && R.inv <= 0 && f.kind !== "rusher" && !f.fixed && brTakeHit(R, f.dmg, f)){
+    /* (en plein saut, version PC : on passe par-dessus la horde) */
+    if(d < f.r + 14 && R.inv <= 0 && !(R.jumpT > 0) && f.kind !== "rusher" && !f.fixed && brTakeHit(R, f.dmg, f)){
       R.inv = 0.7; brShake(R, 4);
       try { buzz(15); } catch(e){}
       R.hurt = 0.25;
@@ -620,7 +621,7 @@ function brZones(R, dt){
       if(!z.fired && z.life <= 0.08){
         z.fired = true;
         brRing(R, z.x, z.y, z.r, z.color, 0.3); brShake(R, 3);
-        if(Math.hypot(R.x - z.x, R.y - z.y) < z.r + 10 && R.inv <= 0 && brTakeHit(R, z.dmg, null)){ R.inv = 0.5; R.hurt = 0.3; }
+        if(Math.hypot(R.x - z.x, R.y - z.y) < z.r + 10 && R.inv <= 0 && !(R.jumpT > 0) && brTakeHit(R, z.dmg, null)){ R.inv = 0.5; R.hurt = 0.3; }
         if(z.after){ const a = z.after; z.after = null; a(); }
       }
       if(z.life <= 0) z.on = false;
@@ -721,7 +722,7 @@ function brBossAI(R, dt){
     b.charge.t -= dt;
     if(b.charge.t <= 0){ b.x += b.charge.vx * dt; b.y += b.charge.vy * dt; b.charge.go -= dt; if(b.charge.go <= 0) b.charge = null; }
   }
-  if(d < b.r + 16 && R.inv <= 0 && brTakeHit(R, b.dmg, b)){ R.inv = 0.7; brShake(R, 7); R.hurt = 0.3; }
+  if(d < b.r + 16 && R.inv <= 0 && !(R.jumpT > 0) && brTakeHit(R, b.dmg, b)){ R.inv = 0.7; brShake(R, 7); R.hurt = 0.3; }
   b.atk -= dt;
   if(b.atk > 0) return;
   const enraged = b.hp < b.max * 0.4;

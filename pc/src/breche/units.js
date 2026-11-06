@@ -38,9 +38,15 @@ export class Team {
   update(R, dt, t, cam, ctx){
     const shown = ref("brShownId"), isShiny = ref("brIsShiny"), memberPos = ref("brMemberPos"), memberOff = ref("brMemberOff");
     const moving = !!(R.vx || R.vy);
+    /* le saut : le chef de file d'abord, les autres à sa suite, chacun à son tour */
+    if(R.jumpT > 0 && !(this.jumpPrev > 0)) this.jump0 = R.t;
+    this.jumpPrev = R.jumpT || 0;
     for(let i = 0; i < R.team.length; i++){
       const w = R.team[i], id = shown(w), r = this.rec(i, id, !!isShiny(w));
-      const p0 = memberPos(R, i), p = memberOff ? memberOff(w, p0) : p0, lift = (p.z || 0) * S;
+      const p0 = memberPos(R, i), p = memberOff ? memberOff(w, p0) : p0;
+      const jt = this.jump0 !== undefined ? (R.t - this.jump0 - i * 0.13) / 0.62 : -1;
+      const hop = jt > 0 && jt < 1 ? 4 * jt * (1 - jt) * (i === 0 ? 1.8 : 1.1) : 0;
+      const lift = (p.z || 0) * S + hop;
       let heading;
       /* le chef de file regarde où l'on vise ; les autres, devant eux, ou leur cible quand ils frappent */
       if(i === 0) heading = ctx.aimYaw !== undefined ? ctx.aimYaw : r.heading;
@@ -67,7 +73,7 @@ export class Team {
       /* l'évolution : un éclair blanc ; touché : un voile rouge sur le chef de file ; invulnérable : il clignote */
       U.uFlash.value = R.evoFlash && R.evoFlash.w === w ? R.evoFlash.a : 0;
       U.uRed.value = i === 0 && R.hurt > 0 ? Math.min(0.55, R.hurt * 2) : 0;
-      U.uAlpha.value = i === 0 && R.inv > 0 && !R.dodgeT && Math.floor(R.t * 20) % 2 ? 0.55 : 1;
+      U.uAlpha.value = i === 0 && R.inv > 0 && !R.dodgeT && !(R.jumpT > 0) && Math.floor(R.t * 20) % 2 ? 0.55 : 1;
       r.m.groundY = 0;
       r.m.update(t, dt, V.set(p.x * S, lift, p.y * S), heading, cam, ctx.env);
       r.lift = lift; r.x = p.x * S; r.z = p.y * S; r.h = r.m.drawH || teamHeight(id, i === 0);

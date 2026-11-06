@@ -27,6 +27,7 @@
 import * as THREE from "three";
 import { S, ref, col, Pool } from "./lib.js";
 import { Inst, bandMat, setBand, SHAPES } from "./fx.js";
+import { makeMon } from "../mon/model3d.js";
 
 export const LEG3D = new Set(["lgGivre", "lgGel", "lgCage", "lgFlamme", "lgAiles", "lgNuage", "lgFoudre", "lgBombe", "lgMagma", "lgAurore", "lgAero",
   "lgCouloir", "lgArc", "lgPasse", "lgTemps", "lgMenhir", "lgPrisme", "lgVerrou", "lgFrappe", "lgOrbe", "lgBrume", "lgPique", "lgVague", "lgPic",
@@ -53,8 +54,12 @@ export class Legends {
       opacity:0.6, blending:THREE.AdditiveBlending, depthWrite:false, side:THREE.DoubleSide, fog:false})); m.renderOrder = 13; m.frustumCulled = false; return m; });
     this._v = {x:0, y:0};
   }
-  begin(){ for(const k in this.inst) this.inst[k].begin(); this.hexes.begin(); this.domes.begin(); this.rainbow.begin(); }
-  end(){ for(const k in this.inst) this.inst[k].end(); this.hexes.end(); this.domes.end(); this.rainbow.end(); }
+  begin(){ for(const k in this.inst) this.inst[k].begin(); this.hexes.begin(); this.domes.begin(); this.rainbow.begin(); this.frame = (this.frame || 0) + 1; }
+  end(){
+    for(const k in this.inst) this.inst[k].end(); this.hexes.end(); this.domes.end(); this.rainbow.end();
+    /* les Rayquaza qui ne volent plus cette image disparaissent */
+    if(this.serps) for(const [k, q] of this.serps){ if(q.seen !== this.frame){ q.m.group.visible = false; if(this.frame - q.seen > 600){ q.m.dispose(); this.serps.delete(k); } } }
+  }
 
   /* une zone d'un légendaire : vrai si elle est dessinée en volume */
   zone(z, R, t){
@@ -344,31 +349,37 @@ export class Legends {
     F.discs.add(x, y, r, z.color || "#35f0d6", {fill:0.06 * fade, rim:0.8 * fade});
   }
 
-  /* ---------- Rayquaza : le serpent céleste (lié au Pokémon, pas à une zone) ---------- */
+  /* ---------- Rayquaza : le serpent céleste (lié au Pokémon, pas à une zone) ----------
+     Rayquaza lui-même (son vrai modèle, en grand) vole sur le tracé du serpent ; derrière lui,
+     le sillage d'énergie draconique suit les anneaux que le jeu mobile calcule (ce sont eux qui
+     touchent la horde). (Avant : une chaîne de boules vertes et jaunes, qui ne lui ressemblait pas.) */
   serpent(R, w, idx, t){
     const C = w.serpC; if(!C || !C.segs) return;
     const at = ref("lgSerpAt"), mp = ref("brMemberPos"), F = this.fx;
     const c = mp(R, idx), n = C.segs, r0 = (C.r || 9) * S * 1.75, o = this._v;
+    const dt = Math.min(0.1, Math.max(0, t - (this._serpT ?? t))); this._serpT = t;
+    this.serps = this.serps || new Map();
     for(let s = 0; s < C.n; s++){
-      let hx = 0, hy = 0, hz = 0, nx = 0, nz = 0;
+      const pts = [];
       for(let i = 0; i < n; i++){
         at(R, C, c.x, c.y, s, i, o);
-        const px = o.x * S, pz = o.y * S, py = 1.5 + Math.sin(R.t * 3 - i * 0.45 + s * 2) * 0.9, tt = 1 - i / n, rr = r0 * (0.45 + 0.55 * tt) * (i === 0 ? 1.35 : 1);
-        this.inst.scale.add(px, py, pz, 0, 0, 0, rr * 2, i % 3 === 1 ? "#f2d24a" : "#2f9e5a");
-        if(i % 3 === 1) F.glow.add(px, py + rr, pz, -0.14, "#ff5c5c", 0.9);
-        if(i === 0){ hx = px; hy = py; hz = pz; }
-        if(i === 1){ nx = px; nz = pz; }
-        if(i % 2 === 0) F.shadow(px, pz, rr * 1.2);
+        const px = o.x * S, pz = o.y * S, py = 2.2 + Math.sin(R.t * 3 - i * 0.45 + s * 2) * 0.9;
+        pts.push([px, py, pz]);
+        if(i % 2 === 0) F.shadow(px, pz, r0 * 0.9 * (1 - i / n * 0.5));
       }
-      /* la tête : deux moustaches, des yeux jaunes */
-      const a = Math.atan2(hz - nz, hx - nx), rr = r0 * 1.35;
-      for(const sd of [-1, 1]){
-        const pts = [];
-        for(let j = 0; j <= 6; j++){ const u = j / 6; pts.push([hx - Math.cos(a) * rr * 3 * u + Math.cos(a + sd * 1.5) * rr * Math.sin(u * Math.PI), hy + 0.1 + Math.sin(u * 3 + t * 4) * 0.1, hz - Math.sin(a) * rr * 3 * u + Math.sin(a + sd * 1.5) * rr * Math.sin(u * Math.PI)]); }
-        F.rib.line(pts, 0.05, "#f2d24a", 0.9);
-        F.glow.add(hx + Math.cos(a + sd * 0.7) * rr * 0.55, hy + rr * 0.3, hz + Math.sin(a + sd * 0.7) * rr * 0.55, -0.12, "#ffe45e", 1);
-      }
-      F.glow.add(hx, hy, hz, 1.2, "#5ce07a", 0.35);
+      const [hx, hy, hz] = pts[0], [nx, , nz] = pts[1] || pts[0];
+      /* le sillage : un ruban vert, liseré d'or, qui s'amincit vers la queue */
+      F.rib.line(pts.slice(1), r0 * 0.7, "#2fd06a", 0.55);
+      F.rib.line(pts.slice(1, Math.ceil(n * 0.7)), r0 * 0.25, "#f2d24a", 0.75);
+      for(let i = 2; i < n; i += 3) F.glow.add(pts[i][0], pts[i][1], pts[i][2], 0.8 * (1 - i / n), "#5ce07a", 0.35);
+      /* Rayquaza */
+      const key = idx + ":" + s;
+      let q = this.serps.get(key);
+      if(!q){ q = {m:makeMon(384, !!w.shiny, F.scene, {height:3.6})}; q.m.setAnim("run"); this.serps.set(key, q); }
+      q.seen = this.frame; q.m.group.visible = true;
+      q.m.lift = hy - 1.2; q.m.groundY = 0;
+      q.m.update(t, dt, this._p || (this._p = new THREE.Vector3()).set(hx, 0, hz), Math.atan2(hx - nx, hz - nz));
+      F.glow.add(hx, hy, hz, 1.6, "#5ce07a", 0.3);
     }
   }
 }

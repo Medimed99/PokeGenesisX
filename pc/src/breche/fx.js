@@ -224,6 +224,16 @@ export class Fx {
         this.shadow(gx, gz, 0.35 + k * 0.2);
         return;
       }
+      /* le tir chargé : une grosse sphère qui file, des anneaux, une longue traîne ; à pleine charge, un cœur blanc */
+      if(s.kind === "charged"){
+        const k = s.k || 0.5, rr = r * 1.4;
+        I.orb.add(x, y + 0.2, z, 0, 0, 0, rr * 2, s.full ? "#ffffff" : C);
+        G.add(x, y + 0.2, z, rr * 9, C, 0.85); G.add(x, y + 0.2, z, rr * 3.5, "#ffffff", 0.6 + 0.4 * k);
+        for(let i = 0; i < 2 + (s.full ? 1 : 0); i++) I.ring.add(x, y + 0.2, z, yaw, Math.PI / 2, t * (8 + i * 4), rr * (2.4 + i * 0.8), i ? "#ffffff" : C);
+        this.trail(s, x, y + 0.2, z, C, 0.55 + 0.4 * k);
+        G.add(x - s.vx * S * 0.03, y + 0.2, z - s.vy * S * 0.03, rr * 6, C, 0.45);
+        return;
+      }
       if(s.kind === "flame"){
         const k2 = s.life / 0.42;
         G.add(x, y - 0.1, z, r * (2.2 - k2) * 2.6, C, Math.min(1, k2 * 1.6) * 0.6);

@@ -168,7 +168,8 @@ function buildBoundary(scene){
   const mat = new THREE.ShaderMaterial({uniforms, vertexShader:curtainVert, fragmentShader:curtainFrag, transparent:true, depthWrite:false, side:THREE.DoubleSide, blending:THREE.AdditiveBlending, fog:false});
   const group = new THREE.Group();
   /* les deux portes, au nord et au sud, à travers le chemin */
-  for(const z of [BOUNDS.z0 - 3, BOUNDS.z1 + 3]){
+  /* (au nord, le col du Foyer thermique a sa propre barrière : seul le sud reste fermé) */
+  for(const z of [BOUNDS.z1 + 3]){
     const px = pathX(z), w = 26;
     const g = new THREE.PlaneGeometry(w, 9, 26, 1);
     const p = g.attributes.position;

@@ -22,7 +22,7 @@ export class Hud {
     root.innerHTML = `
       <canvas id="h-over"></canvas>
       <div id="h-cross"><i></i></div>
-      <div id="h-loc"><b id="h-place">Route 1</b><span id="h-sub"></span></div>
+      <div id="h-loc"><b id="h-place">Routes ouvertes</b><span id="h-sub"></span></div>
       <div id="h-res"></div>
       <div id="h-target"></div>
       <div id="h-grade"></div>
@@ -30,7 +30,8 @@ export class Hud {
       <div id="h-belt"><div id="h-balls"></div><div id="h-berries"></div></div>
       <div id="h-card"></div>
       <div id="h-new"></div>
-      <div id="h-hint"></div>`;
+      <div id="h-hint"></div>
+      <div id="h-area"><small></small><b></b><span></span></div>`;
     this.root = root;
     this.over = document.getElementById("h-over");
     this.ctx = this.over.getContext("2d");
@@ -69,10 +70,16 @@ export class Hud {
     /* le lieu, l'heure, la météo */
     const h = this.game.hour(), hh = Math.floor(h), mm = Math.floor((h - hh) * 60);
     const w = g.WEATHER[S.weather] || g.WEATHER.clair;
-    this.el("h-sub").textContent = `Kanto · ${String(hh).padStart(2, "0")} h ${String(mm).padStart(2, "0")} · ${w.n}`;
-    /* dans une zone désindexée, le lieu lui-même se perd */
+    this.el("h-sub").textContent = `Zone de capture · ${String(hh).padStart(2, "0")} h ${String(mm).padStart(2, "0")} · ${w.n}`;
+    /* le biome où l'on est ; dans une zone désindexée, le lieu lui-même se perd */
+    const pl = this.game.world.place();
     const lost = (this.game.nearCorruption || 0) > 0.6 || (this.game.nearMissing || 0) > 0.3;
-    if(lost !== this.lost){ this.lost = lost; this.el("h-place").innerHTML = lost ? `Route 1 <em>zone désindexée</em>` : "Route 1"; }
+    const pk = pl.k + (lost ? "!" : "");
+    if(pk !== this.placeKey){
+      this.placeKey = pk;
+      this.el("h-place").innerHTML = lost ? `${esc(pl.n)} <em>zone désindexée</em>` : esc(pl.n);
+      if(pl.k !== this.placeK){ const first = this.placeK === undefined; this.placeK = pl.k; if(!first) this.area(pl.k); this.game.onBiome && this.game.onBiome(pl.k); }
+    }
     /* la cible */
     const e = cap.target;
     let tk = "";
@@ -144,6 +151,18 @@ export class Hud {
     if(this.game.trainer && this.game.trainer.drawOverlay) this.game.trainer.drawOverlay(c, t, this);
   }
   prompt(html){ const el = this.el("h-prompt"); if(el.innerHTML !== html) el.innerHTML = html; el.classList.toggle("on", !!html); }
+  /* en entrant dans un biome : son nom, au milieu de l'écran, et ce qu'il est */
+  area(k){
+    const g = G(), H = g && g.HABITATS && g.HABITATS[k]; if(!H) return;
+    if(this.game.t - (this.areaT || -99) < 2.5 && k === "route") return;
+    this.areaT = this.game.t;
+    const el = this.el("h-area");
+    el.querySelector("small").textContent = k === "route" ? "LA ZONE DE CAPTURE" : "BIOME · KANTO";
+    el.querySelector("b").textContent = H.n;
+    el.querySelector("span").textContent = H.d;
+    el.style.setProperty("--ac", H.c || "#35f0d6");
+    el.classList.remove("on"); void el.offsetWidth; el.classList.add("on");
+  }
   hint(html, dur = 5){ const el = this.el("h-hint"); el.innerHTML = html; el.classList.add("on"); clearTimeout(this._ht); this._ht = setTimeout(()=>el.classList.remove("on"), dur * 1000); }
   grade(gr){
     const el = this.el("h-grade");

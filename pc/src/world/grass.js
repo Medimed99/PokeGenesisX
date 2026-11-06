@@ -2,7 +2,7 @@
    Le vent les couche en vagues, le joueur les écarte en marchant, les hautes herbes frémissent
    là où un Pokémon se cache. Au loin, les brins rapetissent jusqu'à se fondre dans le sol. */
 import * as THREE from "three";
-import { heightAt, pathDist, tallGrassAt, lakeAt, normalAt, PATH_W, BOUNDS, onBeach } from "./layout.js";
+import { heightAt, pathDist, tallGrassAt, lakeAt, normalAt, PATH_W, BOUNDS, onBeach, biomeIndexAt, BIOMES, biomeMask, terrace, siteClear } from "./layout.js";
 import { mulberry32 } from "../util.js";
 import { CZ, ZONE_GLSL, LAMP_GLSL } from "./corruption.js";
 
@@ -61,7 +61,7 @@ export class Grass {
 attribute vec4 iPos;      // x, y, z, angle
 attribute vec4 iShape;    // hauteur, largeur, teinte, haute herbe
 uniform float uTime, uWind; uniform vec3 uPlayer; uniform vec4 uRustle[${RUSTLE_N}]; uniform vec2 uFade;
-varying float vY; varying float vTint; varying float vTall; varying float vAO; varying float vDead; varying vec3 vGWP;
+varying float vY; varying float vTint; varying float vTall; varying float vAO; varying float vDead; varying vec3 vGWP; varying float vBio;
 float h1(float n){ return fract(sin(n) * 43758.5453); }
 ${ZONE_GLSL}`)
       .replace("#include <beginnormal_vertex>", `
@@ -103,10 +103,10 @@ ${ZONE_GLSL}`)
   p.y -= length(bend) * t2 * H * 0.28;
   vec3 transformed = p + iPos.xyz;
   vGWP = (modelMatrix * vec4(transformed, 1.0)).xyz;
-  vY = uv.y; vTint = iShape.z; vTall = iShape.w;
-  vAO = mix(mix(0.72, 0.45, iShape.w), 1.0, smoothstep(0.0, 0.85, uv.y));`)
+  vY = uv.y; vTint = iShape.z; vTall = mod(iShape.w, 2.0); vBio = floor(iShape.w * 0.5 + 0.01);
+  vAO = mix(mix(0.72, 0.45, vTall), 1.0, smoothstep(0.0, 0.85, uv.y));`)
       sh.fragmentShader = sh.fragmentShader.replace("#include <common>", `#include <common>
-varying float vY; varying float vTint; varying float vTall; varying float vAO; varying float vDead; varying vec3 vGWP;
+varying float vY; varying float vTint; varying float vTall; varying float vAO; varying float vDead; varying vec3 vGWP; varying float vBio;
 ${LAMP_GLSL}`)
       .replace("#include <normal_fragment_begin>", `float faceDirection = 1.0;
 vec3 normal = normalize( vNormal );
@@ -121,6 +121,13 @@ vec3 nonPerturbedNormal = normal;`)
   /* près d'une zone : des brins morts, couleur de cendre */
   baseC = mix(baseC, vec3(0.02, 0.019, 0.018), vDead);
   tipC = mix(tipC, vec3(0.16, 0.15, 0.13), vDead);
+  /* les biomes : la mousse et les fougères de la Sylve, les roseaux des Nappes, l'herbe sèche et dorée des Ruines */
+  if(vBio > 0.5){
+    vec3 b0 = vec3(0.02, 0.06, 0.03), b1 = vec3(0.08, 0.22, 0.08);
+    if(abs(vBio - 2.0) < 0.5){ b0 = vec3(0.05, 0.08, 0.05); b1 = vec3(0.24, 0.3, 0.14); }
+    if(abs(vBio - 4.0) < 0.5){ b0 = vec3(0.08, 0.06, 0.03); b1 = vec3(0.42, 0.34, 0.12); }
+    baseC = b0; tipC = b1 * (0.75 + 0.5 * vTint);
+  }
   diffuseColor.rgb = mix(baseC, tipC, smoothstep(0.0, 1.0, vY)) * vAO;`)
       .replace("#include <emissivemap_fragment>", `#include <emissivemap_fragment>
   /* la lumière qui traverse le brin, à contre-jour */
@@ -149,8 +156,11 @@ vec3 nonPerturbedNormal = normal;`)
     const rnd = mulberry32((cx * 73856093) ^ (cz * 19349663));
     const x0 = cx * CHUNK, z0 = cz * CHUNK, lawn = [], tall = [];
     const area = CHUNK * CHUNK;
-    const push = (out, x, z, h, w, t) => { out.push(x, heightAt(x, z) - 0.02, z, rnd() * Math.PI * 2, h, w, rnd(), t); };
-    const ok = (x, z) => x > BOUNDS.x0 - 8 && x < BOUNDS.x1 + 8 && z > BOUNDS.z0 - 20 && z < BOUNDS.z1 + 20;
+    const push = (out, x, z, h, w, t) => { const bi = biomeIndexAt(x, z); out.push(x, heightAt(x, z) - 0.02, z, rnd() * Math.PI * 2, h, w, rnd(), t + 2 * (bi === 1 || bi === 2 || bi === 4 ? bi : 0)); };
+    /* la zone ; et dans la Sylve et les Ruines, une pelouse à elles (pas sur le travertin, la roche des Cavités, le basalte du Foyer) */
+    const inBio = (x, z, ks) => BIOMES.some(b=>ks.includes(b.k) && biomeMask(b, x, z) > 0.6);
+    const ok = (x, z) => (x > BOUNDS.x0 - 8 && x < BOUNDS.x1 + 8 && z > BOUNDS.z0 - 20 && z < BOUNDS.z1 + 20) || inBio(x, z, ["foret", "ruines"]);
+    const okTall = (x, z) => ok(x, z) || inBio(x, z, ["eaux"]);
     const n = Math.round(area * this.density);
     for(let i = 0; i < n; i++){
       const x = x0 + rnd() * CHUNK, z = z0 + rnd() * CHUNK;
@@ -161,6 +171,7 @@ vec3 nonPerturbedNormal = normal;`)
       if(lakeAt(x, z) > 0.3 || onBeach(x, z)) continue;
       if(normalAt(x, z)[1] < 0.8) continue;                    /* la roche des pentes */
       if(tallGrassAt(x, z) > 0.5) continue;                     /* les hautes herbes ont leur propre semis */
+      if(siteClear(x, z, -0.3)) continue;                       /* le parvis d'un lieu : pavé */
       const v = rnd();
       push(lawn, x, z, 0.12 + v * v * 0.22, 0.05 + rnd() * 0.03, 0);
     }
@@ -169,7 +180,7 @@ vec3 nonPerturbedNormal = normal;`)
     for(let i = 0; i < nt; i++){
       const x = x0 + rnd() * CHUNK, z = z0 + rnd() * CHUNK;
       const tg = tallGrassAt(x, z);
-      if(tg < 0.5 || !ok(x, z)) continue;
+      if(tg < 0.5 || !okTall(x, z)) continue;
       push(tall, x, z, 0.6 + rnd() * 0.5 * tg, 0.09 + rnd() * 0.06, 1);
     }
     return {lawn:this.makeMesh(lawn, this.matLawn, x0, z0), tall:this.makeMesh(tall, this.matTall, x0, z0)};

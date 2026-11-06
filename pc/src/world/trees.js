@@ -3,7 +3,9 @@
    quelques appels de dessin pour un millier d'arbres. Le feuillage ondule au vent. */
 import * as THREE from "three";
 import { mergeGeometries, mergeVertices } from "three/examples/jsm/utils/BufferGeometryUtils.js";
-import { heightAt, pathDist, tallGrassAt, lakeAt, normalAt, BOUNDS, PATH_W, LEDGES, pathX, onBeach } from "./layout.js";
+import { heightAt, pathDist, tallGrassAt, lakeAt, normalAt, BOUNDS, PATH_W, LEDGES, pathX, onBeach, BIOMES, passMask, biomeMask, siteClear } from "./layout.js";
+/* les cols vers les biomes restent dégagés (et rien ne pousse dans un biome : il a sa propre végétation) */
+const clearOf = (x, z) => !siteClear(x, z, 5) && !BIOMES.some(b=>passMask(b, x, z).m > 0.02 || biomeMask(b, x, z) > 0.02);
 import { mulberry32, noiseFn } from "../util.js";
 import { CZ, ZONES, corruptStandard } from "./corruption.js";
 
@@ -151,7 +153,7 @@ export class Trees {
     const freeOf = (x, z, r) => !this.colliders.some(c=>Math.hypot(c.x - x, c.z - z) < c.r + r);
     const addTree = (kind, x, z, s, collide) => {
       const y = heightAt(x, z);
-      if(lakeAt(x, z) > 0.1 || onBeach(x, z)) return;
+      if(lakeAt(x, z) > 0.1 || onBeach(x, z) || !clearOf(x, z)) return;
       spots[kind].push({x, y, z, s, a:rnd() * Math.PI * 2});
       if(collide) this.colliders.push({x, z, r:kind === "bush" ? 0.75 * s : 0.42 * s});
     };

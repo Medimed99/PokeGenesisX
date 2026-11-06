@@ -4,7 +4,8 @@
    sous-titres, choix de niveau, coffres) reste la même, posée sur la
    scène et mise à l'échelle d'un écran d'ordinateur. Par-dessus, une
    toile dessine ce que la troisième personne demande :
-     · le réticule (et la recharge de l'esquive autour) ;
+     · le réticule (la recharge du dash, la charge du tir autour) ;
+     · la cible verrouillée, encadrée ;
      · des chevrons rouges au bord de l'écran pour ce qui arrive dans
        le dos — avec une vue de dos, la horde vient aussi de derrière ;
      · un radar (horde, élites, gardien, lieux, arène) ;
@@ -66,7 +67,7 @@ export class BrHud {
     if(c.tipT > 0){
       const a = Math.min(1, c.tipT);
       x.save(); x.globalAlpha = a; x.textAlign = "center"; x.font = "600 17px 'Pixelify Sans',ui-monospace,monospace";
-      const msg = "ZQSD bouger  ·  souris viser  ·  Espace esquiver  ·  Échap pause", w = x.measureText(msg).width + 36;
+      const msg = "ZQSD bouger  ·  clic maintenu : tir chargé  ·  Espace sauter  ·  Maj dash  ·  Échap pause", w = x.measureText(msg).width + 36;
       x.fillStyle = "rgba(6,4,14,.72)"; x.fillRect(W / 2 - w / 2, H * 0.74 - 22, w, 36);
       x.fillStyle = "#e8f6ff"; x.fillText(msg, W / 2, H * 0.74 + 2); x.restore();
     }
@@ -79,7 +80,32 @@ export class BrHud {
     x.beginPath(); x.arc(cx, cy, on ? 9 : 11, 0, Math.PI * 2); x.stroke();
     x.fillStyle = x.strokeStyle; x.fillRect(cx - 1.5, cy - 1.5, 3, 3);
     if(on){ for(let i = 0; i < 4; i++){ const a = i * Math.PI / 2 + Math.PI / 4; x.beginPath(); x.moveTo(cx + Math.cos(a) * 13, cy + Math.sin(a) * 13); x.lineTo(cx + Math.cos(a) * 19, cy + Math.sin(a) * 19); x.stroke(); } }
-    /* l'esquive : l'anneau se remplit pendant la recharge */
+    /* la cible verrouillée : quatre coins qui l'encadrent, et se resserrent quand le tir est chargé */
+    if(c.lock){
+      const L = c.lock, lx = L.x * this.W, ly = L.y * this.H, chg = R.charging ? Math.min(1, (R.charge || 0) / 0.95) : 0;
+      const sz = Math.max(18, Math.min(90, L.s * this.H * 1.1)) * (1 - chg * 0.18) + Math.sin(c.t * 6) * 1.5, k = sz * 0.38;
+      x.strokeStyle = chg >= 1 ? "#ffffff" : chg > 0 ? "#ffd166" : "#ff5c8a"; x.lineWidth = chg > 0 ? 3 : 2.2;
+      x.shadowColor = x.strokeStyle; x.shadowBlur = chg > 0 ? 10 : 6;
+      for(const [sx, sy] of [[-1, -1], [1, -1], [1, 1], [-1, 1]]){
+        x.beginPath(); x.moveTo(lx + sx * sz, ly + sy * (sz - k)); x.lineTo(lx + sx * sz, ly + sy * sz); x.lineTo(lx + sx * (sz - k), ly + sy * sz); x.stroke();
+      }
+      x.shadowBlur = 0;
+      x.fillStyle = x.strokeStyle; x.beginPath(); x.moveTo(lx, ly - sz - 6); x.lineTo(lx - 5, ly - sz - 13); x.lineTo(lx + 5, ly - sz - 13); x.closePath(); x.fill();
+    }
+    /* le tir chargé : l'anneau doré se remplit en chargeant ; après le tir, il se recharge */
+    {
+      const ccd = Math.max(0, R.chargeCd || 0), chg = R.charging ? Math.min(1, (R.charge || 0) / 0.95) : 0;
+      x.lineWidth = 3;
+      if(chg > 0){
+        x.strokeStyle = "rgba(255,209,102,.25)"; x.beginPath(); x.arc(cx, cy, 31, 0, Math.PI * 2); x.stroke();
+        x.strokeStyle = chg >= 1 ? "#ffffff" : "#ffd166"; x.shadowColor = x.strokeStyle; x.shadowBlur = chg >= 1 ? 14 : 6;
+        x.beginPath(); x.arc(cx, cy, 31 + (chg >= 1 ? Math.sin(c.t * 18) * 1.5 : 0), -Math.PI / 2, -Math.PI / 2 + chg * Math.PI * 2); x.stroke(); x.shadowBlur = 0;
+      } else if(ccd > 0){
+        x.strokeStyle = "rgba(255,209,102,.18)"; x.beginPath(); x.arc(cx, cy, 31, 0, Math.PI * 2); x.stroke();
+        x.strokeStyle = "rgba(255,209,102,.55)"; x.beginPath(); x.arc(cx, cy, 31, -Math.PI / 2, -Math.PI / 2 + (1 - ccd / 5.5) * Math.PI * 2); x.stroke();
+      } else { x.strokeStyle = "rgba(255,209,102,.5)"; x.lineWidth = 1.5; for(let i = 0; i < 4; i++){ const a = i * Math.PI / 2; x.beginPath(); x.arc(cx, cy, 31, a - 0.32, a + 0.32); x.stroke(); } }
+    }
+    /* le dash : l'anneau se remplit pendant la recharge */
     const cd = Math.max(0, R.dodgeCd || 0), max = 1.4;
     x.lineWidth = 3;
     if(cd > 0){ x.strokeStyle = "rgba(143,236,255,.35)"; x.beginPath(); x.arc(cx, cy, 24, 0, Math.PI * 2); x.stroke();

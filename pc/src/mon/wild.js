@@ -14,7 +14,7 @@ import { makeMon, preloadMon, has3D } from "./model3d.js";
 const HOVER3D = [12, 15, 41, 42, 49, 81, 82, 92, 93, 109, 110, 142, 144, 145, 146, 151,
   /* Johto */ 163, 164, 165, 166, 169, 176, 187, 188, 189, 193, 198, 200, 201, 207, 227, 249, 250, 251,
   /* Hoenn */ 267, 269, 276, 277, 278, 279, 284, 291, 292, 329, 330, 333, 334, 337, 338, 343, 344, 353, 355, 358, 374, 375, 380, 381, 384, 385];
-import { heightAt, tallGrassAt, inWater, lakeShore, WATER_Y, BOUNDS, GRASS_PATCHES, pathDist, PATH_W } from "../world/layout.js";
+import { heightAt, tallGrassAt, inWater, lakeShore, WATER_Y, BOUNDS, GRASS_PATCHES, BIOME_PATCHES, pathDist, PATH_W, walkable, regionAt, lavaAt } from "../world/layout.js";
 import { RUSTLE_N } from "../world/grass.js";
 import { clamp } from "../util.js";
 
@@ -59,7 +59,8 @@ export class Wild {
     for(let k = 0; k < 40; k++){
       let x, z;
       if(hidden){
-        const near = GRASS_PATCHES.filter(p=>{ const d = Math.hypot(p.x - player.x, p.z - player.z); return d > 10 && d < FAR + 6; });
+        /* les hautes herbes de la zone, les fougères de la Sylve, les roseaux des Nappes, les herbes sèches des Ruines */
+        const near = GRASS_PATCHES.concat(BIOME_PATCHES).filter(p=>{ const d = Math.hypot(p.x - player.x, p.z - player.z); return d > 10 && d < FAR + 6; });
         if(!near.length) return null;
         const p = near[Math.floor(Math.random() * near.length)], a = Math.random() * Math.PI * 2, r = Math.random() * p.r * 0.75;
         x = p.x + Math.cos(a) * r; z = p.z + Math.sin(a) * r;
@@ -69,7 +70,7 @@ export class Wild {
         x = player.x + Math.cos(a) * d; z = player.z + Math.sin(a) * d;
         if(tallGrassAt(x, z) > 0.3) continue;
       }
-      if(x < BOUNDS.x0 + 2 || x > BOUNDS.x1 - 2 || z < BOUNDS.z0 + 3 || z > BOUNDS.z1 - 3) continue;
+      if(!walkable(x, z) || !walkable(x + 2, z) || !walkable(x - 2, z) || !walkable(x, z + 2) || !walkable(x, z - 2)) continue;
       const CZo = this.game.world.corruption;
       if(CZo && CZo.inCore(x, z)) continue;                 /* rien ne vit au cœur d'une zone désindexée */
       if(inWater(x, z)) continue;
@@ -80,10 +81,13 @@ export class Wild {
     return null;
   }
   spawn(player){
-    const hidden = Math.random() < 0.62;
-    const at = this.spot(player, hidden);
+    let hidden = Math.random() < 0.62;
+    let at = this.spot(player, hidden);
+    if(!at && hidden){ hidden = false; at = this.spot(player, false); }     /* (pas d'herbes près d'ici : la Cavité, le Foyer) */
     if(!at) return;
-    const hab = lakeShore(at.x, at.z) > 0.3 ? "eaux" : "route";
+    /* le biome où il apparaît : le jeu mobile tire dans cet habitat */
+    const reg = regionAt(at.x, at.z);
+    const hab = reg && reg !== "route" ? reg : lakeShore(at.x, at.z) > 0.3 ? "eaux" : "route";
     const spec = this.roll(hab);
     if(!spec) return;
     const group = [spec];
@@ -95,7 +99,7 @@ export class Wild {
     group.forEach((s, i)=>{
       const a = i / group.length * Math.PI * 2, r = i ? 1.6 + Math.random() : 0;
       const x = at.x + Math.cos(a) * r, z = at.z + Math.sin(a) * r;
-      if(inWater(x, z)) return;
+      if(inWater(x, z) || lavaAt(x, z) > 0.05 || !walkable(x, z)) return;
       this.add(s, x, z, hidden && tallGrassAt(x, z) > 0.5);
     });
   }
@@ -159,7 +163,7 @@ export class Wild {
     for(let k = 0; k < 12; k++){
       const a = Math.random() * Math.PI * 2, d = (far ? 6 : 2) + Math.random() * (far ? 8 : 6);
       const x = e.pos.x + Math.cos(a) * d, z = e.pos.z + Math.sin(a) * d;
-      if(x < BOUNDS.x0 + 2 || x > BOUNDS.x1 - 2 || z < BOUNDS.z0 + 3 || z > BOUNDS.z1 - 3 || inWater(x, z)) continue;
+      if(!walkable(x, z) || inWater(x, z) || lavaAt(x, z) > 0.05 || regionAt(x, z) !== regionAt(e.pos.x, e.pos.z)) continue;
       if(this.game.world.colliders.some(c=>Math.hypot(c.x - x, c.z - z) < c.r + 0.5)) continue;
       if(Math.abs(heightAt(x, z) - heightAt(e.pos.x, e.pos.z)) > 1.6) continue;
       return {x, z};

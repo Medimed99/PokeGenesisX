@@ -5,10 +5,14 @@
    le joue à la troisième personne, derrière le Pokémon de tête :
      · la souris oriente la caméra (et la visée) ;
      · ZQSD / WASD déplacent l'équipe, relativement à la caméra ;
-     · l'équipe tire vers le réticule (la cible la plus proche du
-       réticule, sinon droit devant) ;
-     · Espace : l'esquive (un bond court, invulnérable, rechargé en
-       1,4 s) ;
+     · l'équipe tire seule vers la cible verrouillée (la plus proche du
+       réticule, encadrée à l'écran), sinon droit devant ;
+     · clic gauche maintenu, puis relâché : le tir chargé, vers la cible
+       verrouillée (l'anneau doré autour du réticule : la charge, puis la
+       recharge) ;
+     · Espace : le saut, par-dessus la horde (l'équipe suit, chacun à
+       son tour ; l'atterrissage repousse ce qui entoure) ;
+     · Maj : le dash (un bond court, invulnérable, rechargé en 1,4 s) ;
      · 1 à 4 : les choix de niveau, R : relancer, Entrée : continuer,
        Échap ou Tab : la pause.
    La scène est la nôtre (ciel, brouillard, lumière de l'habitat) ;
@@ -99,15 +103,16 @@ export class Breche3D {
     const L = new THREE.Vector3(R.x * S, 0, R.y * S), at = (x, y, z) => L.clone().add(new THREE.Vector3(x, y, z));
     const min = Math.max(1, Math.round((R.bossAt || 480) / 60));
     this.arrive = {t0:this.game.t, burst:false};
-    I.play({id:"breche", camera:this.camera, dur:4.8, hold:true, color:col, ver:1, blend:0.6, titleAt:1.1,
+    I.play({id:"breche", camera:this.camera, dur:4.8, hold:true, color:col, ver:2, blend:0.6, titleAt:1.1,
       kicker:`${(H.n || "La faille").toUpperCase()}${R.daily ? " · BRÈCHE DU JOUR" : ""}`, title:"La Brèche",
       goal:`Tiens ${min} minutes face à la horde, puis abats le gardien qui sort de la faille.`,
       shots:[{p:at(2, 40, 9), l:at(0, 0, 0)}, {p:at(9, 22, 12), l:at(0, 0.4, -0.5)}, {p:at(7, 8, 9), l:at(0, 1, -2)}, {p:at(0.75, 5.1, 6.3), l:at(0, 1.5, -3)}],
       controls:[
         {k:["Z", "Q", "S", "D"], t:"se déplacer", on:{keys:["KeyW", "KeyA", "KeyS", "KeyD", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"]}},
-        {k:["souris"], t:"viser : l'équipe tire seule vers le réticule", on:{move:true}},
-        {k:["Espace"], t:"esquiver", on:{keys:["Space"]}},
-        {k:["molette"], t:"rapprocher la caméra", on:{wheel:true}},
+        {k:["souris"], t:"viser : l'équipe tire seule sur la cible encadrée", on:{move:true}},
+        {k:["clic"], t:"maintenir, relâcher : le tir chargé", on:{btn:0}},
+        {k:["Espace"], t:"sauter par-dessus la horde", on:{keys:["Space"]}},
+        {k:["Maj"], t:"le dash (invulnérable)", on:{keys:["ShiftLeft", "ShiftRight"]}},
         {k:["Tab"], t:"la pause", on:{keys:["Tab"]}}],
       onEnd:()=>{ const A = this.arrive; if(A && this.game.t - A.t0 < 0.9) A.t0 = this.game.t - 0.9; },
       alive:()=>this.on && this.R === R,
@@ -213,7 +218,13 @@ export class Breche3D {
     if(L > 1){ wx /= L; wz /= L; }
     R.pcMove = L > 0 ? [wx, wz] : [0, 0];
     R.pcFwd = [fx, fz];
-    if(I.locked && I.hit("Space")) ref("brDodge")(R);
+    /* Espace : le saut (par-dessus la horde) ; Maj : le dash ; clic gauche maintenu : le tir chargé */
+    if(I.locked && I.hit("Space")) ref("brJump")(R);
+    if(I.locked && (I.hit("ShiftLeft") || I.hit("ShiftRight"))) ref("brDodge")(R);
+    const lmb = I.locked && I.mouse.left;
+    if(lmb && !this.lmb) ref("brChargeStart")(R);
+    if(!lmb && this.lmb) ref("brChargeRelease")(R);
+    this.lmb = lmb;
     if(this.tipT > 0 && (L > 0 || this.tipT < 8)) this.tipT -= dt;
     /* la visée */
     this.updateAim(R);
@@ -236,7 +247,16 @@ export class Breche3D {
     this.aimDiscs.begin();
     if(I.locked && active) this.aimDiscs.add(this.aim.x, this.aim.z, this.aimFoe ? 0.7 : 0.45, this.aimFoe ? "#ff5c8a" : "#8fecff", {fill:0.05, rim:0.9, inner:0.8, a:0.8});
     this.aimDiscs.end();
-    this.hud.draw(R, {cam:this.camera, t, yaw:this.yaw, aimFoe:!!this.aimFoe, cine:!!(R.cine || R.mini), tipT:this.tipT, heightOf:f=>this.heightOf(f), dp:this.fx.depth.hud});
+    /* la cible verrouillée : celle que vise l'équipe, encadrée à l'écran */
+    const lk = I.locked && active ? ref("brLock")(R) : null;
+    let lock = null;
+    if(lk){
+      const h = this.heightOf(lk), v = this._lk || (this._lk = new THREE.Vector3());
+      v.set(lk.x * S, h * 0.55, lk.y * S).project(this.camera);
+      if(v.z < 1) lock = {x:(v.x * 0.5 + 0.5), y:(-v.y * 0.5 + 0.5), s:Math.max(0.5, h) / Math.max(2, this.camera.position.distanceTo(this._lk2 || (this._lk2 = new THREE.Vector3()).set(lk.x * S, h * 0.5, lk.y * S))), f:lk};
+    }
+    this.lock = lk;
+    this.hud.draw(R, {cam:this.camera, t, yaw:this.yaw, aimFoe:!!this.aimFoe, lock, cine:!!(R.cine || R.mini), tipT:this.tipT, heightOf:f=>this.heightOf(f), dp:this.fx.depth.hud});
     /* l'image abîmée : discrète, un peu plus quand on est touché ou face au gardien */
     const E = this.game.engine, calm = typeof window.calmFx === "function" && window.calmFx();
     const dp = this.fx.depth.hud;

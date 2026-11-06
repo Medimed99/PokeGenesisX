@@ -5,7 +5,7 @@ import { World } from "./world/world.js";
 import { Player } from "./player.js";
 import { Input } from "./input.js";
 import { Settings, saveSettings, guessQuality } from "./settings.js";
-import { heightAt, pathX, BOUNDS } from "./world/layout.js";
+import { heightAt, pathX, BOUNDS, walkable } from "./world/layout.js";
 import { Hud } from "./hud.js";
 import { Wild } from "./mon/wild.js";
 import { Capture, BALL_ORDER } from "./capture.js";
@@ -92,6 +92,9 @@ export class Game {
       if(this.expe3d && this.expe3d.on){ this.expe3d.relock(); return; }
       if(this.mode === "play" && !this.input.locked) this.input.lock();
     });
+    /* un biome qui s'ouvre (le Pokédex a grandi) : on le dit */
+    this.world.onOpen = k => { const H = this.G && this.G.HABITATS[k]; if(H && this.hud) this.hud.hint(`<b>${H.n}</b> s'ouvre : son col est libre (la carte, <b>M</b>, montre où)`, 7); };
+    this.world.refreshLocks();                 /* (une partie reprise dans un biome ouvert y reste) */
     this.restorePos();
     this.world.grass.prime(this.player.pos);
     this.progress("Prêt", 1);
@@ -137,15 +140,22 @@ export class Game {
     try { window.pcWelcomeBack("quiet"); } catch(e){ console.warn(e); }
     this.pendingNews = true;
   }
-  /* l'arrivée sur la route : la caméra descend du ciel jusqu'aux yeux du joueur */
+  /* le biome où l'on marche devient l'habitat du jeu mobile (ses apparitions, sur téléphone aussi) */
+  onBiome(k){
+    const S = this.S; if(!S || S.habitat === k) return;
+    if(S.habitat === "safari" && k === "route") return;
+    S.habitat = k;
+    try { const sv = this.G.ref("saveSoon"); if(sv) sv(); } catch(e){}
+  }
+  /* l'arrivée dans la zone de capture : la caméra descend du ciel jusqu'aux yeux du joueur */
   routeIntro(){
     const P = this.player.pos, yaw = this.player.yaw;
     const f = new THREE.Vector3(-Math.sin(yaw), 0, -Math.cos(yaw)), r = new THREE.Vector3(Math.cos(yaw), 0, -Math.sin(yaw));
     const at = (back, up, side) => P.clone().addScaledVector(f, -back).addScaledVector(r, side).add(new THREE.Vector3(0, up, 0));
     const S = this.S, integ = S ? Math.floor(S.integrity || 0) : 0;
     this.intro.play({id:"route", camera:this.engine.camera, dur:4.6, color:"#5ce07a",
-      kicker:`KANTO · INTÉGRITÉ ${integ} %`, title:"Route 1",
-      goal:"Capture les Pokémon sauvages : chaque nouvelle entrée au Pokédex répare un peu le monde.",
+      kicker:`KANTO · INTÉGRITÉ ${integ} %`, title:"Zone de capture",
+      goal:"Capture les Pokémon sauvages. Cinq biomes s'ouvrent autour, à mesure que ton Pokédex grandit.",
       shots:[{p:at(34, 26, 14), l:at(-18, 0, -2)}, {p:at(17, 11, 6), l:at(-12, 0.6, 0)}, {p:at(5, 3.2, 1.2), l:at(-9, 1.3, 0)}],
       controls:[
         {k:["Z", "Q", "S", "D"], t:"marcher", on:{keys:["KeyW", "KeyA", "KeyS", "KeyD", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"]}},
@@ -321,7 +331,7 @@ export class Game {
     this.tower3d.update(dt, this.t);
     const night = this.world.sky.state ? this.world.sky.state.night : 0;
     const cp = this.engine.camera.position;
-    this.lamp.set(cp.x, cp.y + 0.4, cp.z, night * 1.15);
+    this.lamp.set(cp.x, cp.y + 0.4, cp.z, Math.max(night * 1.15, this.world.lampBoost || 0));
     this.hud.update(dt, this.t);
     this.audio.update(dt, this.t);
     /* (après tout le reste : la cinématique d'entrée reprend la caméra que le module vient de poser) */
@@ -393,7 +403,7 @@ export class Game {
       Settings.time = order[(i + 1) % 3]; saveSettings();
       this.hud.hint({reel:"Heure réelle : le ciel suit ton horloge", jour:"Toujours le jour", nuit:"Toujours la nuit"}[Settings.time] + " · <b>H</b> pour changer", 3);
     }
-    if(I.hit("KeyE") || I.char("e")) this.trainer.interact() || this.fishing.interact() || this.companion.poke();
+    if(I.hit("KeyE") || I.char("e")) this.trainer.interact() || this.fishing.interact() || (this.world.sites && this.world.sites.interact(this)) || this.companion.poke();
   }
   prompts(){
     if(this.mode !== "play"){ return; }
@@ -401,6 +411,7 @@ export class Game {
     if(this.hud.newOpen) p = "";
     else if(this.trainer.prompt()) p = this.trainer.prompt();
     else if(this.fishing.prompt()) p = this.fishing.prompt();
+    else if(this.world.sites && this.world.sites.prompt()) p = this.world.sites.prompt();
     else if(this.capture.target && !this.capture.aiming) p = `<b>Clic droit</b> viser · <b>clic gauche</b> lancer`;
     if(this.input.locked || !p) this.hud.prompt(p);
   }
@@ -416,7 +427,7 @@ export class Game {
   restorePos(){
     let p = null;
     try { p = JSON.parse(localStorage.getItem(POS_KEY) || "null"); } catch(e){}
-    if(p && p.x > BOUNDS.x0 && p.x < BOUNDS.x1 && p.z > BOUNDS.z0 && p.z < BOUNDS.z1){ this.player.pos.set(p.x, heightAt(p.x, p.z), p.z); this.player.yaw = p.yaw || 0; }
+    if(p && walkable(p.x, p.z)){ this.player.pos.set(p.x, heightAt(p.x, p.z), p.z); this.player.yaw = p.yaw || 0; }
     else { const z = 140; this.player.pos.set(pathX(z), heightAt(pathX(z), z), z); this.player.yaw = 0; }
   }
   fatal(e){

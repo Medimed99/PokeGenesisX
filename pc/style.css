@@ -145,6 +145,15 @@ body[data-mode="play"] #h-cross{opacity:1}
 #h-hint{position:absolute;left:50%;top:132px;transform:translateX(-50%);max-width:min(720px,86vw);text-align:center;font-size:16px;padding:8px 16px;border-radius:10px;
   background:rgba(6,12,24,.7);border:1px solid rgba(80,120,170,.3);opacity:0;transition:opacity .3s}
 #h-hint.on{opacity:1}
+/* l'arrivée dans un biome : son nom, au tiers haut de l'écran, puis il s'efface */
+#h-area{position:absolute;left:50%;top:21%;transform:translateX(-50%);width:min(760px,86vw);text-align:center;opacity:0;pointer-events:none;--ac:#35f0d6;text-shadow:0 3px 18px rgba(0,0,0,.75)}
+#h-area.on{animation:hArea 5.2s ease forwards}
+#h-area small{display:block;font-family:"Press Start 2P",monospace;font-size:10px;letter-spacing:3px;color:var(--ac);margin-bottom:12px}
+#h-area b{display:block;font-family:"Unbounded",sans-serif;font-weight:800;font-size:clamp(34px,4.6vw,60px);line-height:1.05;color:#fff;letter-spacing:-.01em}
+#h-area b::after{content:"";display:block;width:120px;height:2px;margin:16px auto 14px;background:linear-gradient(90deg,transparent,var(--ac),transparent)}
+#h-area span{display:block;font-size:18px;line-height:1.4;color:#dfe8f5}
+@keyframes hArea{0%{opacity:0;transform:translate(-50%,10px);letter-spacing:.06em}12%{opacity:1;transform:translate(-50%,0)}78%{opacity:1}100%{opacity:0;transform:translate(-50%,-6px)}}
+@media (prefers-reduced-motion:reduce){#h-area.on{animation-duration:4s}}
 #h-hint b{color:#35f0d6}
 #h-belt{position:absolute;left:50%;bottom:20px;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:7px}
 #h-balls{display:flex;gap:6px}
@@ -242,6 +251,8 @@ body[data-mode="title"] #pchud{opacity:0}
 #pc-map .pm-legend i{display:inline-block;width:14px;height:14px;margin-right:10px;vertical-align:-2px;border-radius:3px}
 .lg-tall{background:#2e4a2e}.lg-water{background:#103644;border:1px solid #2b7f8f}
 .lg-zone{background:repeating-linear-gradient(90deg,#ff3d7f 0 4px,#0a0610 4px 8px,#35f0d6 8px 12px)}
+.lg-lock{background:#ff3d7f}
+.lg-site{background:#35f0d6;transform:rotate(45deg) scale(.8)}
 .lg-ledge{background:linear-gradient(180deg,transparent 45%,#c8be9f 45% 60%,transparent 60%)}
 .lg-leg{background:#ffd24a;clip-path:polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%)}
 .lg-npc{background:#ff8a3d;border-radius:50%!important}.lg-mon{background:#e9f4ff;border-radius:50%!important;transform:scale(.6)}

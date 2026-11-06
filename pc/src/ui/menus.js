@@ -11,13 +11,13 @@ const esc = s => String(s).replace(/[&<>"]/g, c=>({"&":"&amp;", "<":"&lt;", ">":
 const KEYS = [
   ["Z Q S D · W A S D", "se déplacer"], ["Maj", "courir"], ["Espace", "sauter (on descend une corniche, on ne la remonte pas)"],
   ["Souris", "regarder"], ["Clic droit (maintenir)", "viser : le cercle se resserre"], ["Clic gauche", "lancer la Ball"],
-  ["1 à 5 · molette", "choisir la Ball"], ["6 à 0", "utiliser une baie"], ["E", "parler, interagir"],
+  ["1 à 5 · molette", "choisir la Ball"], ["6 à 0", "utiliser une baie"], ["E", "parler, interagir, entrer dans un module (la Tour, la Brèche, le camp…)"],
   ["F", "sortir la canne (au bord du lac)"], ["M", "la carte"], ["H", "l'heure : réelle, jour, nuit"], ["Tab", "le terminal : Pokédex, équipe, sac, quêtes, modules"], ["Échap", "pause"]
 ];
 /* les modules en 3D (chacun les rappelle aussi à son entrée) */
 const MODULE_KEYS = [
   ["LA TOUR ET LES VERROUS", [["Clic", "attaquer un adversaire"], ["1 · 2 · 3", "choisir une compétence"], ["Entrée", "frapper la cible fléchée"], ["Espace", "la Synchro, une fois pleine"], ["A", "jeu automatique"], ["Tab", "pause"]]],
-  ["LA BRÈCHE", [["Z Q S D", "se déplacer"], ["Souris", "viser : l'équipe tire seule vers le réticule"], ["Espace", "esquiver"], ["Molette", "rapprocher la caméra"], ["1 à 4 · R", "choisir · relancer les choix"], ["Tab", "pause"]]],
+  ["LA BRÈCHE", [["Z Q S D", "se déplacer"], ["Souris", "viser : l'équipe tire seule sur la cible encadrée"], ["Clic maintenu", "le tir chargé, au relâché"], ["Espace", "sauter par-dessus la horde"], ["Maj", "le dash (invulnérable)"], ["Molette", "rapprocher la caméra"], ["1 à 4 · R", "choisir · relancer les choix"], ["Tab", "pause"]]],
   ["L'EXPÉDITION", [["Z Q S D · Maj", "marcher · courir"], ["E", "entrer dans un nœud allumé"], ["M", "la carte : un clic trace la route"], ["1 à 6 · Entrée", "choisir · valider"], ["Maj (combat)", "accélérer, le temps qu'on le tient"], ["Tab", "la souris : équipe, sac, soins"]]]
 ];
 
@@ -36,7 +36,7 @@ export class Menus {
     const online = g && g.ref("Net");
     const canRestore = fresh && online && online.configured && online.configured();
     this.title.innerHTML = `
-      <div class="pt-logo"><span class="pl-k">POKÉMON</span><b data-t="CODE GENESIS">CODE<br>GENESIS</b><em>La Route 1, telle que l'archive s'en souvient</em></div>
+      <div class="pt-logo"><span class="pl-k">POKÉMON</span><b data-t="CODE GENESIS">CODE<br>GENESIS</b><em>La zone de capture, telle que l'archive s'en souvient</em></div>
       <div class="pt-who">${fresh ? `<span>Une nouvelle partie. La même que sur téléphone, si tu en as une : connecte-toi depuis le terminal.</span>`
         : `<b>${esc(S.name || "ARCHIVISTE")}</b><span>niveau ${S.level} · ${dex} espèce${dex > 1 ? "s" : ""} · intégrité ${S.integrity.toFixed(1)} %</span>`}</div>
       <div class="pt-menu">
@@ -89,9 +89,11 @@ export class Menus {
       const grid = L => `<div class="pp-keys">${L.map(([k, d])=>`<kbd>${esc(k)}</kbd><span>${esc(d)}</span>`).join("")}</div>`;
       body = `<h3>COMMANDES · LA ROUTE</h3>${grid(KEYS)}${MODULE_KEYS.map(([h, L])=>`<h3 style="margin-top:22px">${esc(h)}</h3>${grid(L)}`).join("")}`;
     } else {
-      body = `<h3>LA ROUTE 1</h3><p style="margin:0 0 10px;line-height:1.6">Les Pokémon se cachent dans les hautes herbes (elles frémissent) ou flânent sur la route.
+      body = `<h3>LA ZONE DE CAPTURE</h3><p style="margin:0 0 10px;line-height:1.6">Les Pokémon se cachent dans les hautes herbes (elles frémissent) ou flânent sur la route.
         Approche, vise, lance. Au bord du lac, sors la canne. Un dresseur rémanent attend quelque part sur la route.</p>
-        <p style="margin:0;color:#8ea4bf;line-height:1.6">Le reste du jeu — Pokédex, équipe, Tour, Brèche, Expédition, Poké-Poker — est dans le terminal (Tab).</p>`;
+        <p style="margin:0 0 10px;line-height:1.6">Autour, cinq biomes, chacun derrière son col : la Sylve d'index et les Nappes à l'ouest, les Cavités et les Ruines d'archive à l'est, le Foyer thermique au nord, passé Jadielle. Chacun a ses Pokémon (ceux du même habitat sur mobile) et s'ouvre quand ton Pokédex de Kanto compte assez d'espèces. La carte (M) montre où ils sont.</p>
+        <p style="margin:0 0 10px;line-height:1.6">Les modules ont leur lieu dans la zone : la Tour et ses verrous au nord-est, la Brèche à l'ouest, le camp d'Expédition près de Bourg Palette, le Forage au sud-est, le phare du raid après le lac, le pavillon du Poké-Poker à l'est. Marche jusqu'à eux, E pour entrer. Un lieu fermé dit ce qu'il demande.</p>
+        <p style="margin:0;color:#8ea4bf;line-height:1.6">Tout reste aussi dans le terminal (Tab) : Pokédex, équipe, sac, quêtes, modules.</p>`;
     }
     this.pause.innerHTML = `<div class="pp-card"><div class="pp-side"><h2>${inGame ? "Pause" : "Réglages"}</h2><p>Pokémon Code Genesis · PC</p>
       <div class="pp-nav">${tabs.map(([k, l])=>`<button data-tab="${k}" class="${this.tab === k ? "on" : ""} ${k === "main" ? "main" : ""}">${l}</button>`).join("")}</div></div>

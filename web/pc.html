@@ -6412,6 +6412,15 @@ body[data-mode="play"] #h-cross{opacity:1}
 #h-hint{position:absolute;left:50%;top:132px;transform:translateX(-50%);max-width:min(720px,86vw);text-align:center;font-size:16px;padding:8px 16px;border-radius:10px;
   background:rgba(6,12,24,.7);border:1px solid rgba(80,120,170,.3);opacity:0;transition:opacity .3s}
 #h-hint.on{opacity:1}
+/* l'arrivée dans un biome : son nom, au tiers haut de l'écran, puis il s'efface */
+#h-area{position:absolute;left:50%;top:21%;transform:translateX(-50%);width:min(760px,86vw);text-align:center;opacity:0;pointer-events:none;--ac:#35f0d6;text-shadow:0 3px 18px rgba(0,0,0,.75)}
+#h-area.on{animation:hArea 5.2s ease forwards}
+#h-area small{display:block;font-family:"Press Start 2P",monospace;font-size:10px;letter-spacing:3px;color:var(--ac);margin-bottom:12px}
+#h-area b{display:block;font-family:"Unbounded",sans-serif;font-weight:800;font-size:clamp(34px,4.6vw,60px);line-height:1.05;color:#fff;letter-spacing:-.01em}
+#h-area b::after{content:"";display:block;width:120px;height:2px;margin:16px auto 14px;background:linear-gradient(90deg,transparent,var(--ac),transparent)}
+#h-area span{display:block;font-size:18px;line-height:1.4;color:#dfe8f5}
+@keyframes hArea{0%{opacity:0;transform:translate(-50%,10px);letter-spacing:.06em}12%{opacity:1;transform:translate(-50%,0)}78%{opacity:1}100%{opacity:0;transform:translate(-50%,-6px)}}
+@media (prefers-reduced-motion:reduce){#h-area.on{animation-duration:4s}}
 #h-hint b{color:#35f0d6}
 #h-belt{position:absolute;left:50%;bottom:20px;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:7px}
 #h-balls{display:flex;gap:6px}
@@ -6509,6 +6518,8 @@ body[data-mode="title"] #pchud{opacity:0}
 #pc-map .pm-legend i{display:inline-block;width:14px;height:14px;margin-right:10px;vertical-align:-2px;border-radius:3px}
 .lg-tall{background:#2e4a2e}.lg-water{background:#103644;border:1px solid #2b7f8f}
 .lg-zone{background:repeating-linear-gradient(90deg,#ff3d7f 0 4px,#0a0610 4px 8px,#35f0d6 8px 12px)}
+.lg-lock{background:#ff3d7f}
+.lg-site{background:#35f0d6;transform:rotate(45deg) scale(.8)}
 .lg-ledge{background:linear-gradient(180deg,transparent 45%,#c8be9f 45% 60%,transparent 60%)}
 .lg-leg{background:#ffd24a;clip-path:polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%)}
 .lg-npc{background:#ff8a3d;border-radius:50%!important}.lg-mon{background:#e9f4ff;border-radius:50%!important;transform:scale(.6)}
@@ -6908,7 +6919,7 @@ body.pcintro .br-misintro{opacity:0!important;animation-play-state:paused!import
 <script>window.PCG_PC = true;</script>
 <script>
 /* version du jeu (buildver.py) */
-const BUILD_V = "c24e8f9e", BUILD_LABEL = "6 novembre 2026, 16 h 03";
+const BUILD_V = "477b4c5e", BUILD_LABEL = "6 novembre 2026, 21 h 57";
 /* Version hebergee : les images sont servies comme fichiers, pas encodees
    dans le HTML. Les noms portent une empreinte : on peut donc les mettre en
    cache indefiniment sans jamais servir une version perimee. */
@@ -29238,7 +29249,8 @@ function brFoes(R, dt){
     /* trop loin derriere : on le replace devant, plutot que de le laisser errer */
     if(d > Math.max(R.W, R.H) * 1.1 && !f.fixed){ const a = Math.atan2(R.vy || 1, R.vx || 0) + (R.rng() - .5); const r2 = Math.max(R.W, R.H) * 0.6; f.x = R.x + Math.cos(a) * r2; f.y = R.y + Math.sin(a) * r2; }
     /* contact : le bouclier, le turbo et le Casque Brut passent par brTakeHit */
-    if(d < f.r + 14 && R.inv <= 0 && f.kind !== "rusher" && !f.fixed && brTakeHit(R, f.dmg, f)){
+    /* (en plein saut, version PC : on passe par-dessus la horde) */
+    if(d < f.r + 14 && R.inv <= 0 && !(R.jumpT > 0) && f.kind !== "rusher" && !f.fixed && brTakeHit(R, f.dmg, f)){
       R.inv = 0.7; brShake(R, 4);
       try { buzz(15); } catch(e){}
       R.hurt = 0.25;
@@ -29495,7 +29507,7 @@ function brZones(R, dt){
       if(!z.fired && z.life <= 0.08){
         z.fired = true;
         brRing(R, z.x, z.y, z.r, z.color, 0.3); brShake(R, 3);
-        if(Math.hypot(R.x - z.x, R.y - z.y) < z.r + 10 && R.inv <= 0 && brTakeHit(R, z.dmg, null)){ R.inv = 0.5; R.hurt = 0.3; }
+        if(Math.hypot(R.x - z.x, R.y - z.y) < z.r + 10 && R.inv <= 0 && !(R.jumpT > 0) && brTakeHit(R, z.dmg, null)){ R.inv = 0.5; R.hurt = 0.3; }
         if(z.after){ const a = z.after; z.after = null; a(); }
       }
       if(z.life <= 0) z.on = false;
@@ -29596,7 +29608,7 @@ function brBossAI(R, dt){
     b.charge.t -= dt;
     if(b.charge.t <= 0){ b.x += b.charge.vx * dt; b.y += b.charge.vy * dt; b.charge.go -= dt; if(b.charge.go <= 0) b.charge = null; }
   }
-  if(d < b.r + 16 && R.inv <= 0 && brTakeHit(R, b.dmg, b)){ R.inv = 0.7; brShake(R, 7); R.hurt = 0.3; }
+  if(d < b.r + 16 && R.inv <= 0 && !(R.jumpT > 0) && brTakeHit(R, b.dmg, b)){ R.inv = 0.7; brShake(R, 7); R.hurt = 0.3; }
   b.atk -= dt;
   if(b.atk > 0) return;
   const enraged = b.hp < b.max * 0.4;
@@ -31541,7 +31553,7 @@ function brPois(R, dt){
             R.curW = -1; R.killSrc = "feu";
             brNear(R, p.x, p.y, 115, f=>{ if(Math.hypot(f.x - p.x, f.y - p.y) < 115 + f.r) brHit(R, f, 80 + R.t / 3, "#ff8a3d", 0, -1, 200); });
             R.killSrc = null;
-            if(d < 115 && R.inv <= 0 && brTakeHit(R, 16, null)){ R.inv = 0.5; R.hurt = 0.3; }
+            if(d < 115 && R.inv <= 0 && !(R.jumpT > 0) && brTakeHit(R, 16, null)){ R.inv = 0.5; R.hurt = 0.3; }
           }
         }
         break;
@@ -33282,7 +33294,7 @@ function brAnomTick(R, dt){
         brDecal(R, "crater", m.x, m.y, 44, 7);
         R.curW = -1;
         brNear(R, m.x, m.y, 90, f=>{ if(!f.boss && Math.hypot(f.x - m.x, f.y - m.y) < 90 + f.r) brHit(R, f, 120 + R.t / 2, "#ff3d7f", 0, 0, 0); });
-        if(Math.hypot(R.x - m.x, R.y - m.y) < 90 && R.inv <= 0 && brTakeHit(R, 14 + (R.depth || 0) * 2.5, null)){ R.inv = 0.5; R.hurt = 0.3; }
+        if(Math.hypot(R.x - m.x, R.y - m.y) < 90 && R.inv <= 0 && !(R.jumpT > 0) && brTakeHit(R, 14 + (R.depth || 0) * 2.5, null)){ R.inv = 0.5; R.hurt = 0.3; }
       }
     }
   }
@@ -36506,8 +36518,14 @@ if(typeof brDrawOver === "function"){
      · R.aim     — le point visé à la souris : l'équipe tire vers lui
                    (la cible la plus proche du réticule, sinon droit
                    devant) au lieu de viser l'ennemi le plus proche ;
-     · brDodge   — l'esquive (Espace) : un bond court, invulnérable,
-                   avec un temps de recharge ;
+     · brDodge   — le dash (Maj) : un bond court, invulnérable, avec un
+                   temps de recharge ;
+     · brJump    — le saut (Espace) : on passe par-dessus la horde (ni le
+                   contact, ni le sol qui explose ne touchent ; les tirs,
+                   si), et l'atterrissage repousse ce qui est autour ;
+     · brCharge  — le tir chargé (clic gauche maintenu, puis relâché) :
+                   un trait qui transperce, vers la cible verrouillée
+                   (celle que vise l'équipe), avec un temps de recharge ;
      · R.pcFwd   — vers où regarde la caméra : Porygon-Z flotte devant
                    elle, à bonne distance (sur téléphone : au-dessus de
                    vous, dans le cadre) ;
@@ -36517,6 +36535,8 @@ if(typeof brDrawOver === "function"){
                    de la téléportation de Porygon-Z).
    ============================================================ */
 const BR_DODGE = {dur:0.22, cd:1.4, inv:0.34};
+const BR_JUMP = {dur:0.62, cd:1.05, ring:78, push:420};
+const BR_CHARGE = {full:0.95, cd:5.5, min:0.18};
 
 /* l'esquive : vers où l'on se déplace, sinon vers la visée */
 function brDodge(R){
@@ -36532,6 +36552,72 @@ function brDodge(R){
   R.dodges = (R.dodges || 0) + 1;
   try { Sfx.wobble && Sfx.wobble(); } catch(e){}
   return true;
+}
+
+/* le saut : par-dessus la horde ; on garde l'élan, un peu plus vite qu'au pas */
+function brJump(R){
+  if(!R || R.over || R.paused || R.modal || (R.jumpCd || 0) > 0 || (R.jumpT || 0) > 0 || (R.cine && R.cine.freeze) || brHeld()) return false;
+  R.jumpT = BR_JUMP.dur; R.jumpCd = BR_JUMP.cd;
+  R.jumps = (R.jumps || 0) + 1;
+  try { Sfx.jump ? Sfx.jump() : Sfx.wobble && Sfx.wobble(); } catch(e){}
+  return true;
+}
+/* l'atterrissage : une onde repousse ce qui entoure l'équipe, et l'écorche un peu */
+function brLand(R){
+  const lead = R.team[0], st = lead ? brWeaponStats(lead, R) : null, dmg = Math.max(4, (st ? st.dmg : 8) * 0.9);
+  brRing(R, R.x, R.y, BR_JUMP.ring, "#8fecff", 0.3); brShake(R, 3);
+  R.curW = 0;
+  brNear(R, R.x, R.y, BR_JUMP.ring, f=>{
+    if(f.boss || f.fixed) return;
+    const dx = f.x - R.x, dy = f.y - R.y, d = Math.hypot(dx, dy) || 1;
+    if(d < BR_JUMP.ring + f.r) brHit(R, f, dmg, "#8fecff", dx / d, dy / d, BR_JUMP.push);
+  });
+}
+/* la cible verrouillée : celle que l'équipe vise (la plus proche du réticule) */
+function brLock(R){
+  if(!R.aim) return null;
+  const f = brNearest(R, R.aim.x, R.aim.y, 240);
+  return f && f.hp > 0 ? f : null;
+}
+/* le tir chargé : on le charge en maintenant, il part au relâché (trop court : rien ne part) */
+function brChargeStart(R){
+  if(!R || R.over || R.paused || R.modal || (R.chargeCd || 0) > 0 || brHeld()) return false;
+  R.charging = true; R.charge = 0; return true;
+}
+function brChargeRelease(R){
+  if(!R || !R.charging) return false;
+  R.charging = false;
+  const k = Math.min(1, (R.charge || 0) / BR_CHARGE.full);
+  R.charge = 0;
+  if(k < BR_CHARGE.min || R.over || R.paused || R.modal) return false;
+  const tgt = brLock(R);
+  const tx = tgt ? tgt.x : R.aim ? R.aim.x : R.x + (R.face || 1), ty = tgt ? tgt.y : R.aim ? R.aim.y : R.y;
+  const a = Math.atan2(ty - R.y, tx - R.x), lead = R.team[0], st = lead ? brWeaponStats(lead, R) : null;
+  const tp = lead ? POKE[brShownId(lead)].types[0] : 0, base = st ? st.dmg : 10;
+  const s = brShot(R, R.x, R.y, Math.cos(a) * 640, Math.sin(a) * 640, {dmg:base * (1.6 + 6.4 * k * k), r:10 + 12 * k, color:st ? st.color : "#8fecff",
+    life:0.95, kind:"charged", pierce:2 + Math.round(8 * k), w:0, boom:k > 0.95 ? 70 : 0, stun:0.35 * k});
+  s.ty = tp; s.full = k > 0.95; s.k = k;
+  R.chargeCd = BR_CHARGE.cd * (0.45 + 0.55 * k);
+  R.charged = (R.charged || 0) + 1;
+  brShake(R, 2 + 4 * k);
+  try { Sfx.shoot ? Sfx.shoot() : Sfx.wobble && Sfx.wobble(); } catch(e){}
+  return true;
+}
+/* les minuteries du saut et du tir chargé (seulement là où la version PC les déclenche) */
+function brPcTick(R, dt){
+  if(R.jumpCd > 0) R.jumpCd -= dt;
+  if(R.jumpT > 0){ R.jumpT -= dt; if(R.jumpT <= 0){ R.jumpT = 0; brLand(R); } }
+  if(R.chargeCd > 0) R.chargeCd -= dt;
+  if(R.charging) R.charge = Math.min(BR_CHARGE.full, (R.charge || 0) + dt);
+}
+/* en l'air, on va un peu plus vite ; en chargeant, un peu moins */
+if(typeof brDir === "function"){
+  const _brDirPC = brDir;
+  brDir = function(R){
+    const d = _brDirPC.apply(this, arguments);
+    const k = (R.jumpT > 0 ? 1.3 : 1) * (R.charging ? 0.72 : 1);
+    return k === 1 ? d : [d[0] * k, d[1] * k];
+  };
 }
 
 /* viser à la souris : pendant un tir, « le plus proche » se cherche autour du réticule */
@@ -36574,7 +36660,12 @@ function brPc3D(){ return typeof window !== "undefined" && window.PCBR3D && wind
 function brHeld(){ return brPc3D() && !!window.PCHOLD; }
 if(typeof brUpdate === "function"){
   const _brUpdatePC = brUpdate;
-  brUpdate = function(R, dt){ if(brHeld()) return; return _brUpdatePC.apply(this, arguments); };
+  brUpdate = function(R, dt){
+    if(brHeld()) return;
+    const r = _brUpdatePC.apply(this, arguments);
+    if(!(R.cine && R.cine.freeze) && (R.jumpT > 0 || R.jumpCd > 0 || R.chargeCd > 0 || R.charging)) brPcTick(R, dt);
+    return r;
+  };
 }
 if(typeof brRender === "function"){
   const _brRenderPC = brRender;
@@ -49884,6 +49975,6 @@ document.addEventListener("DOMContentLoaded", bootOnce);
 if(document.readyState !== "loading") bootOnce();
 
 </script>
-<script src="pc/game.b1169459.js" defer></script>
+<script src="pc/game.acb633e8.js" defer></script>
 </body>
 </html>

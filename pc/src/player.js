@@ -2,7 +2,7 @@
    on ne gravit pas une corniche (on la descend d'un saut), on contourne les arbres et les
    rochers, on n'entre pas dans le lac. Le pas se balance, et on entend le sol. */
 import * as THREE from "three";
-import { heightAt, inWater, BOUNDS, tallGrassAt, pathDist, PATH_W, onBeach } from "./world/layout.js";
+import { heightAt, inWater, BOUNDS, tallGrassAt, pathDist, PATH_W, onBeach, walkable } from "./world/layout.js";
 import { clamp, damp } from "./util.js";
 
 export const EYE = 1.62;
@@ -24,7 +24,7 @@ export class Player {
     return "grass";
   }
   blocked(x, z, fromY){
-    if(x < BOUNDS.x0 || x > BOUNDS.x1 || z < BOUNDS.z0 || z > BOUNDS.z1) return true;
+    if(!walkable(x, z)) return true;                       /* la zone, les biomes ouverts, leurs cols */
     if(inWater(x, z)) return true;
     /* une marche trop haute : la corniche, vue d'en bas */
     if(heightAt(x, z) - fromY > STEP) return true;

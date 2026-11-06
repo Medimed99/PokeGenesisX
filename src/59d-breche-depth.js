@@ -129,7 +129,7 @@ function brAnomTick(R, dt){
         brDecal(R, "crater", m.x, m.y, 44, 7);
         R.curW = -1;
         brNear(R, m.x, m.y, 90, f=>{ if(!f.boss && Math.hypot(f.x - m.x, f.y - m.y) < 90 + f.r) brHit(R, f, 120 + R.t / 2, "#ff3d7f", 0, 0, 0); });
-        if(Math.hypot(R.x - m.x, R.y - m.y) < 90 && R.inv <= 0 && brTakeHit(R, 14 + (R.depth || 0) * 2.5, null)){ R.inv = 0.5; R.hurt = 0.3; }
+        if(Math.hypot(R.x - m.x, R.y - m.y) < 90 && R.inv <= 0 && !(R.jumpT > 0) && brTakeHit(R, 14 + (R.depth || 0) * 2.5, null)){ R.inv = 0.5; R.hurt = 0.3; }
       }
     }
   }

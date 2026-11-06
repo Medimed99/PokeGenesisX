@@ -65,9 +65,10 @@ const WATER_FS = `varying vec2 vP; varying float vR; uniform float uT, uIce;
 #include <fog_pars_fragment>
 float n2(vec2 p){ return sin(p.x * 1.7 + uT * 0.8) * sin(p.y * 1.3 - uT * 0.6) + sin((p.x + p.y) * 2.3 + uT * 1.4) * 0.5; }
 void main(){
-  float c = n2(vP * 1.4) * 0.5 + 0.5, c2 = n2(vP * 3.1 + 7.0) * 0.5 + 0.5;
+  /* (les vagues dépassent [0, 1] : une puissance d'un nombre négatif rend NaN sur une vraie carte graphique, et le flou lumineux étale ce NaN en blanc sur tout l'écran) */
+  float c = clamp(n2(vP * 1.4) * 0.5 + 0.5, 0.0, 1.0), c2 = clamp(n2(vP * 3.1 + 7.0) * 0.5 + 0.5, 0.0, 1.0);
   vec3 deep = vec3(0.02, 0.07, 0.10), lite = vec3(0.10, 0.32, 0.38);
-  vec3 col = mix(deep, lite, pow(c * c2, 1.6) * 0.9 + vR * 0.25);
+  vec3 col = mix(deep, lite, pow(max(c * c2, 0.0), 1.6) * 0.9 + vR * 0.25);
   col += vec3(0.7, 0.95, 1.0) * smoothstep(0.86, 0.98, c2) * 0.25;
   float foam = smoothstep(0.78, 0.97, vR) * (0.6 + 0.4 * sin(uT * 3.0 + vP.x * 4.0 + vP.y * 3.0));
   col = mix(col, vec3(0.75, 0.9, 0.95), foam * 0.7);

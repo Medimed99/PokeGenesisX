@@ -54,7 +54,7 @@ export class Weather {
     this.tintCol.lerp(new THREE.Color(L.tintCol), 1 - Math.exp(-0.6 * dt));
     this.wind = damp(this.wind, L.wind, 0.5, dt);
     const show = L.kind === 1 || L.kind === 2 || L.kind === 3 || L.kind === 4;
-    this.points.visible = show;
+    this.points.visible = show && !this.indoor;           /* (sous le plafond des Cavités, il ne pleut pas) */
     if(show){
       const U = this.uniforms;
       U.uTime.value = t; U.uCam.value.copy(cam.position);

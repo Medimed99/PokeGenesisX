@@ -278,7 +278,7 @@ function brPois(R, dt){
             R.curW = -1; R.killSrc = "feu";
             brNear(R, p.x, p.y, 115, f=>{ if(Math.hypot(f.x - p.x, f.y - p.y) < 115 + f.r) brHit(R, f, 80 + R.t / 3, "#ff8a3d", 0, -1, 200); });
             R.killSrc = null;
-            if(d < 115 && R.inv <= 0 && brTakeHit(R, 16, null)){ R.inv = 0.5; R.hurt = 0.3; }
+            if(d < 115 && R.inv <= 0 && !(R.jumpT > 0) && brTakeHit(R, 16, null)){ R.inv = 0.5; R.hurt = 0.3; }
           }
         }
         break;

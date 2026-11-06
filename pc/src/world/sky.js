@@ -42,6 +42,7 @@ const skyVert = `varying vec3 vDir; void main(){ vDir = normalize((modelMatrix *
 const skyFrag = `
 uniform vec3 uZen, uHor, uSun, uSunDir, uCloud, uGnd; uniform float uTime, uNight, uOvercast, uTint, uRift, uNameOn; uniform vec3 uTintCol, uRiftDir;
 uniform sampler2D uName;
+uniform float uBioW; uniform vec3 uBioZen, uBioHor;
 varying vec3 vDir;
 float h21(vec2 p){ p = fract(p * vec2(123.34, 456.21)); p += dot(p, p + 45.32); return fract(p.x * p.y); }
 float vn(vec2 p){ vec2 i = floor(p), f = fract(p); f = f*f*(3.0-2.0*f);
@@ -53,6 +54,8 @@ void main(){
   /* dégradé : l'horizon s'épaissit, le zénith s'approfondit */
   vec3 col = mix(uHor, uZen, pow(clamp(up, 0.0, 1.0), 0.48));
   col = mix(col, uGnd * 0.6 + uHor * 0.4, smoothstep(0.0, -0.25, up));
+  /* le ciel du biome où l'on est (la Sylve verte, le crépuscule violet des Ruines, le rouge du Foyer…) */
+  if(uBioW > 0.0) col = mix(col, mix(uBioHor, uBioZen, pow(clamp(up, 0.0, 1.0), 0.55)), uBioW);
   /* le soleil : un disque, un halo, une lueur d'horizon de son côté */
   float sd = max(dot(d, normalize(uSunDir)), 0.0);
   float day = 1.0 - uNight;
@@ -118,7 +121,8 @@ export class Sky {
     this.scene = scene; this.renderer = renderer;
     this.uniforms = {uZen:{value:C("#2c82e6")}, uHor:{value:C("#cdeeff")}, uSun:{value:C("#fff")}, uSunDir:{value:new THREE.Vector3(0, 1, 0)},
       uCloud:{value:C("#fff")}, uGnd:{value:C("#5f6f3c")}, uTime:{value:0}, uNight:{value:0}, uOvercast:{value:0}, uTint:{value:0}, uTintCol:{value:C("#fff")},
-      uRift:{value:1}, uRiftDir:{value:new THREE.Vector3(-0.22, 0, -1).normalize()}, uName:{value:null}, uNameOn:{value:0}};
+      uRift:{value:1}, uRiftDir:{value:new THREE.Vector3(-0.22, 0, -1).normalize()}, uName:{value:null}, uNameOn:{value:0},
+      uBioW:{value:0}, uBioZen:{value:C("#000")}, uBioHor:{value:C("#000")}};
     /* le nom du joueur, empilé lettre à lettre, pour le fond de la faille */
     this.nameCv = document.createElement("canvas"); this.nameCv.width = 32; this.nameCv.height = 320;
     this.nameTex = new THREE.CanvasTexture(this.nameCv); this.nameTex.magFilter = this.nameTex.minFilter = THREE.NearestFilter; this.nameTex.generateMipmaps = false;
