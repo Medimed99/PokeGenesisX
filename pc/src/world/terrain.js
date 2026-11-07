@@ -7,6 +7,7 @@ import { GRID, W, D, HGT, DPATH, GRASS, LAKEM, WATER_Y, PATH_W, lakeShore, BIDX,
 import { noiseFn, smooth, clamp, lerp } from "../util.js";
 import { CZ, ZONE_GLSL, ZONE_N, LAMP_GLSL } from "./corruption.js";
 import { BL, BL_GLSL } from "./biomes/kit.js";
+import { MK, MARKS_GLSL } from "./marks.js";
 
 const nC = noiseFn(91), nD = noiseFn(103), nF = noiseFn(117);
 const CH = 64;
@@ -107,6 +108,7 @@ function terrainMaterial(){
   m.customProgramCacheKey = () => "terrain-cz";
   m.onBeforeCompile = sh => {
     sh.uniforms.uZones = CZ.uZones; sh.uniforms.uCTime = CZ.uCTime; sh.uniforms.uLamp = CZ.uLamp; sh.uniforms.uBL = BL.uBL; sh.uniforms.uBLC = BL.uBLC;
+    sh.uniforms.uMk = MK.uMk; sh.uniforms.uMkT = MK.uMkT; sh.uniforms.uMkClock = MK.uMkClock;
     sh.vertexShader = sh.vertexShader
       .replace("#include <common>", "#include <common>\nattribute vec2 aMat; attribute vec3 aBio; varying vec2 vMat; varying vec3 vWP; varying float vZone; varying vec3 vBio;\n" + ZONE_GLSL)
       .replace("#include <begin_vertex>", `#include <begin_vertex>
@@ -120,6 +122,8 @@ varying vec2 vMat; varying vec3 vWP; varying float vZone; varying vec3 vBio;
 uniform vec4 uZones[${ZONE_N}]; uniform float uCTime;
 ${LAMP_GLSL}
 ${BL_GLSL}
+${MARKS_GLSL}
+vec3 mkEmi; float mkWet;
 float czH2(vec2 p){ p = fract(p * vec2(123.34, 456.21)); p += dot(p, p + 45.32); return fract(p.x * p.y); }
 float zoneHaloF(vec2 p){
   float m = 0.0;
@@ -159,9 +163,13 @@ float vnoise(vec2 p){ vec2 i = floor(p), f = fract(p); f = f*f*(3.0-2.0*f);
   diffuseColor.rgb *= mix(1.0, 0.82 + 0.3 * h21(floor(vWP.xz * 0.5)), isR * vMat.x);
   diffuseColor.rgb *= mix(1.0, 0.75 + 0.4 * vnoise(vWP.xz * 3.1), isF + isC);
   /* le travertin : de fines strates claires */
-  diffuseColor.rgb *= mix(1.0, 0.92 + 0.12 * sin(vWP.y * 26.0 + vnoise(vWP.xz * 0.8) * 3.0), isE);`)
+  diffuseColor.rgb *= mix(1.0, 0.92 + 0.12 * sin(vWP.y * 26.0 + vnoise(vWP.xz * 0.8) * 3.0), isE);
+  /* les traces laissées par les capacités des sauvages (marks.js) */
+  mkEmi = vec3(0.0); mkWet = 0.0;
+  applyMarks(vWP, diffuseColor.rgb, mkEmi, mkWet);`)
+      .replace("#include <roughnessmap_fragment>", "#include <roughnessmap_fragment>\n  roughnessFactor = mix(roughnessFactor, 0.14, mkWet);")
       .replace("#include <emissivemap_fragment>", `#include <emissivemap_fragment>
-  totalEmissiveRadiance += lampLight(vWP, diffuseColor.rgb) + bioLights(vWP, diffuseColor.rgb);
+  totalEmissiveRadiance += lampLight(vWP, diffuseColor.rgb) + bioLights(vWP, diffuseColor.rgb) + mkEmi;
   /* la lave du Foyer : une croûte noire fendue d'orange, qui coule */
   if(vBio.z > 0.01){
     vec2 fp = vWP.xz * 0.35 + vec2(uCTime * 0.06, uCTime * 0.04);

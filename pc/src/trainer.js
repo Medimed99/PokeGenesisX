@@ -7,11 +7,18 @@
    les dégâts, les K.O. Le moteur est celui du mobile (createBattle,
    combat automatique, rivalSetup / rivalEnd) : mêmes équipes, mêmes
    gains, même titre au bout. Une fois par jour, comme une rencontre.
+   Chaque biome a aussi le sien, au bord de son eau (ponds.js) : Moss
+   dans la Sylve, Iris aux Nappes, Silex dans les Cavités, Ayla dans
+   les Ruines, Cendre au Foyer — un combat par jour chacun. Sur la
+   route, à tour de rôle, ceux qui n'ont pas de biome (Volt, Nox).
    ============================================================ */
 import * as THREE from "three";
 import { MonSprite, realHeight } from "./mon/sprites.js";
 import { makeMon, preloadMon } from "./mon/model3d.js";
-import { heightAt, pathX } from "./world/layout.js";
+import { heightAt, pathX, walkable, inWater, lavaAt } from "./world/layout.js";
+/* les dresseurs de biome */
+export const RESIDENTS = {foret:"r_moss", eaux:"r_iris", grotte:"r_silex", ruines:"r_ayla", foyer:"r_cendre"};
+let BOX = null, BAT = null;
 
 const G = () => window.PCG;
 const esc = s => String(s).replace(/[&<>"]/g, c=>({"&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;"}[c]));
@@ -19,23 +26,32 @@ const strip = s => String(s).replace(/<[^>]+>/g, "");
 const Z = 44;
 
 export class Trainer {
-  constructor(game){
+  constructor(game, cfg = {}){
     this.game = game; this.battling = false; this.dialog = null; this.pops = [];
-    const x = pathX(Z) + 4.4;
-    this.pos = new THREE.Vector3(x, heightAt(x, Z), Z);
-    this.heading = -Math.PI / 2;
-    game.world.colliders.push({x, z:Z, r:0.45});
+    this.key = cfg.key || "route"; this.home = cfg.biome || null;
+    const x = cfg.x !== undefined ? cfg.x : pathX(Z) + 4.4, z = cfg.z !== undefined ? cfg.z : Z;
+    this.pos = new THREE.Vector3(x, heightAt(x, z), z);
+    this.heading = cfg.heading !== undefined ? cfg.heading : -Math.PI / 2;
+    game.world.colliders.push({x, z, r:0.45});
     this.sprite = this.makeSprite();
-    this.box = document.createElement("div"); this.box.id = "pc-dialog"; document.body.appendChild(this.box);
-    this.bat = document.createElement("div"); this.bat.id = "pc-battle"; document.body.appendChild(this.bat);
+    /* (une seule fenêtre de dialogue et de combat, pour tous) */
+    if(!BOX){ BOX = document.createElement("div"); BOX.id = "pc-dialog"; document.body.appendChild(BOX); BAT = document.createElement("div"); BAT.id = "pc-battle"; document.body.appendChild(BAT); }
+    this.box = BOX; this.bat = BAT;
     this.noticed = false; this.gone = 0;
   }
   rival(){
     const g = G(); if(!g) return null;
+    if(this.home) return g.RIVALS.find(r=>r.k === RESIDENTS[this.home]) || null;
+    /* sur la route : ceux qui n'ont pas de biome, à tour de rôle */
+    const free = g.RIVALS.filter(r=>!Object.values(RESIDENTS).includes(r.k)), L = free.length ? free : g.RIVALS;
     const day = Math.floor((Date.now() - new Date().getTimezoneOffset() * 60000) / 86400000);
-    return g.RIVALS[day % g.RIVALS.length];
+    return L[day % L.length];
   }
-  foughtToday(){ const S = G() && G().S; return S && S.flags && S.flags.pcRivalDay === window.today(); }
+  foughtToday(){
+    const S = G() && G().S; if(!S || !S.flags) return false;
+    if(!this.home) return S.flags.pcRivalDay === window.today();
+    return !!(S.flags.pcBiomeRival && S.flags.pcBiomeRival[this.home] === window.today());
+  }
   /* le portrait de dresseur (Rouge Feu), en panneau tourné vers nous */
   makeSprite(){
     const s = new MonSprite(1, false, this.game.engine.scene, {height:1.72});
@@ -92,7 +108,7 @@ export class Trainer {
     this.dialog = {rv, R};
     const prize = R && R.prize;
     this.box.innerHTML = `<div class="dl-in">
-      <div class="dl-who"><b>${esc(rv.n)}</b><span>dresseur rémanent · ${esc(rv.role)}${rec.met > 1 ? ` · rencontre n° ${rec.met}` : ""}</span>
+      <div class="dl-who"><b>${esc(rv.n)}</b><span>${this.home ? "dresseur du biome" : "dresseur rémanent"} · ${esc(rv.role)}${rec.met > 1 ? ` · rencontre n° ${rec.met}` : ""}</span>
         <div class="dl-types">${rv.t.map(t=>`<span class="tt t${t}">${g.TYPE_NAMES[t]}</span>`).join("")}${R ? `<span class="tt">N.${R.lv}</span>` : ""}</div></div>
       <p class="dl-txt">« ${esc(line)} »</p>
       ${R ? `<div class="dl-prize">Prime : <b>${window.fmt(prize.coins)}</b> PokéCoins · <b>${prize.shards}</b> Fragments${prize.cores ? " · <b>1 Noyau</b>" : ""}${prize.first ? ` · le titre <b>« ${esc(rv.title)} »</b>` : ""}</div>
@@ -123,9 +139,18 @@ export class Trainer {
     const g = G();
     this.battling = true; this.rv = rv; this.R = R;
     this.game.setMode("battle");
-    const P0 = this.game.player.pos, d = new THREE.Vector3(this.pos.x - P0.x, 0, this.pos.z - P0.z).normalize(), r = new THREE.Vector3(-d.z, 0, d.x);
+    const P0 = this.game.player.pos, d = new THREE.Vector3(this.pos.x - P0.x, 0, this.pos.z - P0.z).normalize();
+    /* on recule pour se faire face, à huit pas : la place des deux Pokémon (sur la terre ferme : pas dans l'eau, ni la lave, ni un rocher) */
+    const free = v => { const x = this.pos.x - v.x * 8.2, z = this.pos.z - v.z * 8.2;
+      if(!walkable(x, z) || inWater(x, z) || lavaAt(x, z) > 0.1) return false;
+      for(let k = 0.25; k < 1; k += 0.25){ const px = this.pos.x - v.x * 8.2 * k, pz = this.pos.z - v.z * 8.2 * k; if(lavaAt(px, pz) > 0.3 || this.game.world.colliders.some(c=>c.r > 0.5 && Math.hypot(c.x - px, c.z - pz) < c.r + 0.6)) return false; }
+      return !this.game.world.colliders.some(c=>Math.hypot(c.x - x, c.z - z) < c.r + 0.6); };
+    for(const off of [0, 0.4, -0.4, 0.8, -0.8, 1.2, -1.2, 1.6, -1.6, 2.2, -2.2, Math.PI]){
+      const c = Math.cos(off), s = Math.sin(off), v = new THREE.Vector3(d.x * c - d.z * s, 0, d.x * s + d.z * c);
+      if(free(v)){ d.copy(v); break; }
+    }
+    const r = new THREE.Vector3(-d.z, 0, d.x);
     this.dir = d;
-    /* on recule pour se faire face, à huit pas : la place des deux Pokémon */
     const back = this.pos.clone().addScaledVector(d, -8.2);
     this.game.player.pos.set(back.x, heightAt(back.x, back.z), back.z);
     const P = this.game.player.pos;
@@ -212,7 +237,9 @@ export class Trainer {
   end(win){
     const g = G();
     window.rivalEnd(this.rv, win, this.R.prize);
-    g.S.flags.pcRivalDay = window.today(); window.saveSoon();
+    if(this.home){ g.S.flags.pcBiomeRival = g.S.flags.pcBiomeRival || {}; g.S.flags.pcBiomeRival[this.home] = window.today(); }
+    else g.S.flags.pcRivalDay = window.today();
+    window.saveSoon();
     setTimeout(()=>this.verdict(win), 1100);
   }
   verdict(win){

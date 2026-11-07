@@ -14,9 +14,24 @@ const ONLINE_DEFAULT = (typeof window !== "undefined" && window.PCG_CONFIG)
   : {url: "", key: ""};
 const NET_CFG_KEY = "pcg.net.cfg";
 const NET_SESSION_KEY = "pcg.net.session";
+const NET_CODE_KEY = "pcg.net.code";
+/* le code de partie : douze caractères sans ceux qu'on confond (0 O 1 I L) */
+const NET_CODE_ABC = "23456789ABCDEFGHJKMNPQRSTUVWXYZ";
+function netCodeNorm(c){ return String(c || "").toUpperCase().replace(/[^0-9A-Z]/g, ""); }
+function netCodeOk(c){ return /^[2-9A-HJKMNP-Z]{12}$/.test(netCodeNorm(c)); }
+function netCodeFmt(c){ const n = netCodeNorm(c); return n.slice(0, 4) + "-" + n.slice(4, 8) + "-" + n.slice(8, 12); }
+function netNewCode(){
+  let out = "";
+  const C = typeof crypto !== "undefined" && crypto.getRandomValues ? crypto : null;
+  while(out.length < 12){
+    const b = C ? C.getRandomValues(new Uint8Array(16)) : Array.from({length:16}, ()=>Math.floor(Math.random() * 256));
+    for(const v of b){ if(v < 248 && out.length < 12) out += NET_CODE_ABC[v % 31]; }   /* (248 = 8 × 31 : sans biais) */
+  }
+  return out;
+}
 
 const Net = {
-  cfg: null, session: null, profile: null, busy: false, lastError: null,
+  cfg: null, session: null, profile: null, busy: false, lastError: null, code: null,
 
   /* ---------- configuration ---------- */
   load(){
@@ -32,6 +47,7 @@ const Net = {
       const raw = Store.get(NET_SESSION_KEY);
       this.session = raw ? JSON.parse(raw) : null;
     } catch(e){ this.session = null; }
+    try { const c = Store.get(NET_CODE_KEY); this.code = c && netCodeOk(c) ? netCodeNorm(c) : null; } catch(e){ this.code = null; }
   },
   setCfg(url, key){
     this.cfg = {url: (url||"").trim().replace(/\/+$/,""), key: (key||"").trim()};
@@ -40,6 +56,11 @@ const Net = {
   configured(){ return !!(this.cfg && this.cfg.url && this.cfg.key); },
   signedIn(){ return !!(this.session && this.session.access_token); },
   userId(){ return this.session && this.session.user && this.session.user.id; },
+  /* la partie est liée au cloud : par un compte, ou par un code de partie */
+  byCode(){ return !this.signedIn() && !!this.code; },
+  linked(){ return this.configured() && (this.signedIn() || !!this.code); },
+  ident(){ return this.signedIn() ? this.userId() : (this.code ? "code:" + this.code : null); },
+  setCode(c){ this.code = c ? netCodeNorm(c) : null; if(this.code) Store.set(NET_CODE_KEY, this.code); else Store.del(NET_CODE_KEY); },
   saveSession(s){
     this.session = s;
     if(s) Store.set(NET_SESSION_KEY, JSON.stringify(s));
@@ -189,35 +210,39 @@ const Net = {
   /* La revision est monotone : elle tranche les conflits sans dependre
      de l'horloge de l'appareil, qui n'est pas fiable. */
   async pull(){
+    if(this.byCode()){
+      const rows = await this.call("/rest/v1/rpc/code_save_get", {method:"POST", body:{p_code:this.code, p_full:true}});
+      return (rows && rows[0]) || null;
+    }
     const rows = await this.call(
       `/rest/v1/saves?user_id=eq.${this.userId()}&select=rev,updated_at,payload`);
     return (rows && rows[0]) || null;
   },
+  /* la revision seule : savoir s'il y a du neuf sans tout telecharger */
+  async peek(){
+    if(this.byCode()){
+      const rows = await this.call("/rest/v1/rpc/code_save_get", {method:"POST", body:{p_code:this.code, p_full:false}});
+      return (rows && rows[0]) || null;
+    }
+    const rows = await this.call(`/rest/v1/saves?user_id=eq.${this.userId()}&select=rev,updated_at`);
+    return (rows && rows[0]) || null;
+  },
   async push(force){
-    const S2 = JSON.parse(JSON.stringify(S));
-    delete S2.expedition; delete S2.poker;      /* les runs en cours ne se synchronisent pas */
+    const S2 = netPayload();
+    if(this.byCode()){
+      /* le cloud n'accepte que si l'on part de sa derniere revision (sinon : -1, on redemandera) */
+      const base = force === true && this._pending ? this._pending.rev : (S.netBase || 0);
+      const r = await this.call("/rest/v1/rpc/code_save_put", {method:"POST", keepalive: force === "leaving" && netSmall(S2),
+        body:{p_code:this.code, p_base:base, p_payload:S2, p_name:S.name, p_level:S.level}});
+      if(typeof r !== "number" || r < 0){ const e = new Error("La partie a avancé sur un autre appareil : synchronisez"); e.conflict = true; throw e; }
+      if(force === true) this._pending = null;
+      S.netRev = r; netMarkSynced(r); saveSoon();
+      return r;
+    }
     const rev = Math.max(S.netRev || 0, S.netBase || 0) + 1;
-    const body = {
-      user_id: this.userId(),
-      rev,
-      payload: S2,
-      name: S.name,
-      level: S.level,
-      integrity: +S.integrity.toFixed(2),
-      dex_count: dexTotal(),
-      shinies: Object.values(S.dex).filter(e=>e.shiny).length,
-      best_streak: S.stats.bestStreak,
-      best_ante: S.pokerMeta.bestAnte || 0,
-      cards: Object.keys(S.cards || {}).length,
-      guardians: S.bosses.length,
-      tower: (S.tower && S.tower.best) || 0,
-      faction: (S.faction && S.faction.k) || null,
-      breche_depth: (S.breche && S.breche.bestDepth) || 0,
-      breche_clears: (S.breche && S.breche.clears) || 0,
-      tested: !!S.flags.testUsed
-    };
+    const body = Object.assign({user_id: this.userId(), rev}, netRow(S2));
     await this.call("/rest/v1/saves?on_conflict=user_id", {
-      method:"POST", keepalive: !!force && force === "leaving",
+      method:"POST", keepalive: force === "leaving" && netSmall(S2),
       headers:{ "Prefer": "resolution=merge-duplicates" },
       body:[body]
     });
@@ -225,6 +250,25 @@ const Net = {
     netMarkSynced(rev);
     saveSoon();
     return rev;
+  },
+
+  /* ---------- code de partie ---------- */
+  async createCode(){
+    for(let k = 0; k < 4; k++){
+      const c = netNewCode();
+      const r = await this.call("/rest/v1/rpc/code_save_put", {method:"POST",
+        body:{p_code:c, p_base:0, p_payload:netPayload(), p_name:S.name, p_level:S.level}});
+      if(r === 1){ this.setCode(c); S.netUser = "code:" + c; S.netRev = 1; S.netPending = null; netMarkSynced(1); return c; }
+    }
+    throw new Error("Impossible de créer un code pour l'instant, réessayez");
+  },
+  async useCode(c){
+    if(!netCodeOk(c)) throw new Error("Un code de partie a douze caractères (chiffres 2 à 9, lettres sauf I, L et O)");
+    const n = netCodeNorm(c);
+    const rows = await this.call("/rest/v1/rpc/code_save_get", {method:"POST", body:{p_code:n, p_full:false}});
+    if(!rows || !rows[0]) throw new Error("Code inconnu : vérifiez-le sur l'autre appareil");
+    this.setCode(n);
+    return rows[0];
   },
 
   /* ---------- classements ---------- */
@@ -275,26 +319,60 @@ function netFriendly(msg, code, status){
   return msg;
 }
 /* empreinte de progression : si elle change, la partie locale a avance */
-function netFingerprint(){
-  return [S.level, S.xp, (S.stats && S.stats.catches) || 0, dexTotal(), Math.round((S.integrity || 0) * 10),
-          S.coins, (S.breche && S.breche.runs) || 0, (S.stats && S.stats.expWins) || 0].join("|");
+function netFingerprint(st){
+  st = st || S;
+  const dex = st === S ? dexTotal() : Object.keys(st.dex || {}).length;
+  return [st.level, st.xp, (st.stats && st.stats.catches) || 0, dex, Math.round((st.integrity || 0) * 10),
+          st.coins, (st.breche && st.breche.runs) || 0, (st.stats && st.stats.expWins) || 0].join("|");
 }
+/* ce qui part dans le cloud : toute la partie, sauf les runs en cours et l'etat de synchro de cet appareil */
+function netPayload(){
+  const S2 = JSON.parse(JSON.stringify(S));
+  delete S2.expedition; delete S2.poker; delete S2.netPending;
+  return S2;
+}
+/* la ligne du compte : la partie, et les colonnes de vitrine des classements */
+function netRow(payload){
+  return {
+    payload,
+    name: S.name,
+    level: S.level,
+    integrity: +S.integrity.toFixed(2),
+    dex_count: dexTotal(),
+    shinies: Object.values(S.dex).filter(e=>e.shiny).length,
+    best_streak: S.stats.bestStreak,
+    best_ante: S.pokerMeta.bestAnte || 0,
+    cards: Object.keys(S.cards || {}).length,
+    guardians: S.bosses.length,
+    tower: (S.tower && S.tower.best) || 0,
+    faction: (S.faction && S.faction.k) || null,
+    breche_depth: (S.breche && S.breche.bestDepth) || 0,
+    breche_clears: (S.breche && S.breche.clears) || 0,
+    tested: !!S.flags.testUsed
+  };
+}
+/* un envoi « en partant » (keepalive) ne passe que sous 64 Ko */
+function netSmall(p){ try { return JSON.stringify(p).length < 60000; } catch(e){ return false; } }
 /* une partie a peine commencee n'a rien a defendre face au cloud */
 function netIsFresh(){ return (S.level || 1) <= 3 && ((S.stats && S.stats.catches) || 0) < 15; }
 function netDirty(){ return netFingerprint() !== S.netSyncFp; }
 function netMarkSynced(rev){ S.netBase = rev; S.netSyncFp = netFingerprint(); S.netSyncedAt = Date.now(); saveSoon(); }
 function netSyncLabel(){
   if(!Net.configured()) return "Facultatif — sauvegarde, classements, échanges";
-  if(!Net.signedIn()) return "Non connecté — créez un compte pour sauvegarder dans le cloud";
-  if(!S.netSyncedAt) return "Connecté — première synchronisation en attente";
+  if(!Net.linked()) return "Non lié — un code de partie retrouve ta progression sur un autre appareil";
+  const who = Net.byCode() ? "Code de partie" : "Connecté";
+  if(!S.netSyncedAt) return who + " — première synchronisation en attente";
   const m = Math.round((Date.now() - S.netSyncedAt) / 60000);
-  return "Connecté · synchronisé " + (m < 1 ? "à l'instant" : "il y a " + (m < 60 ? m + " min" : Math.round(m / 60) + " h"));
+  return who + " · synchronisé " + (m < 1 ? "à l'instant" : "il y a " + (m < 60 ? m + " min" : Math.round(m / 60) + " h"));
 }
 function netApplyRemote(remote){
   S = deepFill(remote.payload, newState());
+  S.netUser = Net.ident(); S.netPending = null;          /* (l'état de synchro est celui de cet appareil) */
   S.netRev = remote.rev;
   netMarkSynced(remote.rev);
   save(); applyCorruption();
+  /* la version PC remet son monde à jour (cols, région de la zone…) */
+  try { if(typeof window !== "undefined" && typeof window.pcOnRemoteSave === "function") window.pcOnRemoteSave(); } catch(e){}
 }
 /* La synchronisation intelligente, appelee au demarrage, a la connexion et
    regulierement :
@@ -304,17 +382,26 @@ function netApplyRemote(remote){
    · seul cet appareil a avance              -> on envoie. */
 let NET_CONFLICT = false;
 async function netSyncSmart(reason){
-  if(!Net.configured() || !Net.signedIn() || Net.busy || NET_CONFLICT) return;
-  /* l'etat de synchronisation appartient a un compte : se connecter a un autre
-     compte sur le meme appareil repart de zero, sinon on ecraserait son cloud
-     avec la partie de l'ancien compte */
-  if(S.netUser !== Net.userId()){ S.netUser = Net.userId(); S.netBase = 0; S.netRev = 0; S.netSyncFp = null; }
+  if(!Net.linked() || Net.busy || NET_CONFLICT) return;
+  /* l'etat de synchronisation appartient a un compte (ou a un code) : en changer sur le
+     meme appareil repart de zero, sinon on ecraserait son cloud avec l'ancienne partie */
+  if(S.netUser !== Net.ident()){ S.netUser = Net.ident(); S.netBase = 0; S.netRev = 0; S.netSyncFp = null; S.netPending = null; }
   Net.busy = true;
   try {
-    const remote = await Net.pull();
-    if(!remote){ Net.busy = false; await Net.push(); return; }
+    let head = await Net.peek();
+    if(!head){ Net.busy = false; await Net.push(); return; }
+    /* un envoi parti en quittant l'application, dont on n'a pas vu la reponse : est-ce le notre ? */
+    if(S.netPending){
+      const P = S.netPending; S.netPending = null;
+      if(head.rev === P.rev){
+        const full = await Net.pull();
+        if(full && netFingerprint(full.payload) === P.fp){ S.netBase = S.netRev = head.rev; S.netSyncFp = P.fp; S.netSyncedAt = Date.now(); saveSoon(); }
+      }
+    }
     const base = S.netBase || 0, dirty = netDirty();
-    if(remote.rev > base){
+    if(head.rev > base){
+      const remote = await Net.pull();
+      if(!remote) return;
       if(!dirty || netIsFresh()){
         netApplyRemote(remote);
         toast("Progression récupérée depuis le cloud", "", "check");
@@ -323,13 +410,45 @@ async function netSyncSmart(reason){
       return;
     }
     if(dirty){ Net.busy = false; await Net.push(reason === "leaving" ? "leaving" : false); }
-  } catch(e){ Net.lastError = e.message || String(e); }
+    Net.lastError = null;
+  } catch(e){ if(!e.conflict) Net.lastError = e.message || String(e); }   /* (le cloud a bougé : la prochaine synchro tranche) */
   finally { Net.busy = false; }
+}
+/* En quittant (onglet masque, telephone verrouille, fenetre fermee) : un seul envoi, sans
+   relire le cloud d'abord — la page n'a peut-etre plus que quelques instants. Le cloud ne
+   l'accepte que s'il n'a pas bouge depuis la derniere synchronisation ; sinon rien n'est
+   ecrase, et la prochaine ouverture demandera laquelle garder. On note l'envoi dans la
+   partie locale : si la reponse se perd, la prochaine synchronisation le reconnaitra. */
+function netLeave(){
+  if(!Net.linked() || Net.busy || NET_CONFLICT || !netDirty()) return;
+  /* (masquée puis fermée : la même progression ne part qu'une fois ; une nouvelle attend la réponse de la précédente) */
+  const fp0 = netFingerprint();
+  if(netLeave.fp === fp0 && Date.now() - (netLeave.at || 0) < 8000) return;
+  netLeave.fp = fp0; netLeave.at = Date.now();
+  const send = () => {
+    if(!netDirty() || NET_CONFLICT) return;
+    const base = S.netBase || 0;
+    if(!base) return netSyncSmart("leaving");
+    const payload = netPayload(), rev = base + 1, fp = netFingerprint(), small = netSmall(payload);
+    S.netPending = {rev, fp}; save();
+    const done = () => { S.netRev = S.netBase = rev; S.netSyncFp = fp; S.netSyncedAt = Date.now(); S.netPending = null; save(); };
+    return (Net.byCode()
+      ? Net.call("/rest/v1/rpc/code_save_put", {method:"POST", keepalive:small,
+          body:{p_code:Net.code, p_base:base, p_payload:payload, p_name:S.name, p_level:S.level}}).then(r=>{ if(r === rev) done(); })
+      : Net.call(`/rest/v1/saves?user_id=eq.${Net.userId()}&rev=eq.${base}`, {method:"PATCH", keepalive:small,
+          headers:{"Prefer":"return=representation"}, body:Object.assign(netRow(payload), {rev})}).then(rows=>{ if(rows && rows.length) done(); })
+    ).catch(()=>{});
+  };
+  /* (un envoi précédent resté sans réponse plus de 20 s n'en bloque pas un nouveau) */
+  if(netLeave.p && Date.now() - netLeave.pAt > 20000) netLeave.p = null;
+  const p = netLeave.p ? netLeave.p.then(send) : Promise.resolve(send());
+  netLeave.p = p; netLeave.pAt = Date.now();
+  p.then(()=>{ if(netLeave.p === p) netLeave.p = null; });
 }
 /* envoi groupe apres un evenement marquant (fin de Breche, verrou leve...) */
 let NET_SOON = null;
 function netSoon(){
-  if(!Net.signedIn()) return;
+  if(!Net.linked()) return;
   clearTimeout(NET_SOON);
   NET_SOON = setTimeout(()=>netSyncSmart("event"), 8000);
 }
@@ -377,7 +496,7 @@ function netSummary(payload){
    ÉCRAN
    ============================================================ */
 let NET_TAB = "compte";
-let NET_AUTH_MODE = "signup";
+let NET_AUTH_MODE = "partie";
 let NET_BOARD = null, NET_BOARD_METRIC = "integrity";
 /* repartition des factions parmi les archivistes affiches : la question de la
    faille recoit une reponse collective, visible de tous */
@@ -398,7 +517,8 @@ function netSetBoard(rows){ NET_BOARD = rows; }
 
 function netStatusLine(){
   if(!Net.configured()) return `<span class="dim">non configuré</span>`;
-  if(!Net.signedIn())   return `<span class="gold-t">configuré, non connecté</span>`;
+  if(Net.byCode())      return `<span class="ok">code de partie</span> <span class="dim mono-num">${esc(netCodeFmt(Net.code))}</span>`;
+  if(!Net.signedIn())   return `<span class="gold-t">configuré, non lié</span>`;
   const e = Net.session.user && Net.session.user.email;
   return `<span class="ok">connecté</span> <span class="dim">${esc(e||"")}</span>`;
 }
@@ -433,12 +553,38 @@ SCREENS.online = {
           données est contrôlé par les politiques RLS, pas par le secret de la clé.</div>
       </div>`;
 
+    /* lié par un code de partie : on l'affiche, en grand, pour le recopier ailleurs */
+    if(Net.byCode()) return `
+      <div class="panel bracket netcode-panel">
+        <div class="h sm">TON CODE DE PARTIE</div>
+        <div class="netcode-big mono-num">${esc(netCodeFmt(Net.code))}</div>
+        <div class="tiny muted">Sur ton autre appareil (téléphone ou PC) : <b>Espace en ligne › Code de partie</b>,
+          saisis ce code. Les deux partagent alors la même partie, synchronisée toute seule.</div>
+        <div class="btn-grid c2" style="margin-top:9px">
+          <button class="btn pri" data-act="netcodecopy">Copier le code</button>
+          <button class="btn" data-act="netsyncnow" ${Net.busy?"disabled":""}>Synchroniser</button>
+        </div>
+        <div class="row between tiny" style="margin-top:9px"><span class="muted">Synchronisation</span><b>${esc(netSyncLabel().replace(/^Code de partie · /, ""))}</b></div>
+      </div>
+      <div class="tiny dim" style="margin-top:2px">Garde ce code pour toi : il suffit à ouvrir ta partie. La progression part
+        dans le cloud quelques secondes après chaque avancée et quand tu quittes le jeu ; elle revient dès qu'on rouvre l'autre appareil.
+        Les classements et les échanges de cartes demandent un compte.</div>
+      <button class="btn ghost wide sm" style="margin-top:9px" data-act="netcodeforget">Délier cet appareil</button>`;
+
     if(!Net.signedIn()){
       const M = NET_AUTH_MODE;
-      const tabs = [["signup","Créer un compte"],["signin","Se connecter"],["code","Code par e-mail"]];
+      const tabs = [["partie","Code de partie"],["signup","Compte"],["signin","Connexion"],["code","Par e-mail"]];
       const mail = esc(S.netMail || "");
       let form;
-      if(M === "signup") form = `
+      if(M === "partie") form = `
+        <div class="tiny muted" style="margin-bottom:9px">Sans e-mail ni mot de passe. Crée un code ici, saisis-le sur
+          ton autre appareil : téléphone et PC partagent la même partie.</div>
+        <button class="btn pri wide" data-act="netcodecreate" ${Net.busy?"disabled":""}>${Net.busy?"Création…":"Créer mon code de partie"}</button>
+        <div class="netcode-or tiny dim">ou, si tu en as déjà un</div>
+        <input id="net-pcode" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="16"
+          placeholder="XXXX-XXXX-XXXX" class="mono-num" style="text-transform:uppercase;letter-spacing:.12em;text-align:center">
+        <button class="btn wide" style="margin-top:8px" data-act="netcodeuse" ${Net.busy?"disabled":""}>Reprendre cette partie</button>`;
+      else if(M === "signup") form = `
         <div class="tiny muted" style="margin-bottom:8px">Votre progression sera sauvegardée dans le cloud et
           récupérée automatiquement sur un autre appareil.</div>
         <input id="net-pseudo" type="text" maxlength="16" placeholder="Pseudo (affiché dans les classements)" value="${esc(S.name || "")}">
@@ -479,12 +625,13 @@ SCREENS.online = {
         <button class="btn" data-act="netpwchange">Mot de passe</button>
       </div>
       <button class="btn dan wide" style="margin-top:8px" data-act="netsignout">Se déconnecter</button>
-      <div class="tiny dim" style="margin-top:7px">La progression est envoyée toutes les 2 minutes quand elle change,
-        quand vous quittez l'application et après chaque Brèche. La déconnexion ne supprime rien.</div>`;
+      <div class="tiny dim" style="margin-top:7px">La progression part dans le cloud quelques secondes après chaque avancée,
+        quand vous quittez l'application et après chaque Brèche ; elle revient dès qu'on rouvre l'autre appareil.
+        La déconnexion ne supprime rien.</div>`;
   },
 
   sync(){
-    if(!Net.signedIn()) return `<div class="empty">Connectez-vous pour synchroniser.</div>`;
+    if(!Net.linked()) return `<div class="empty">Créez un code de partie ou connectez-vous pour synchroniser.</div>`;
     return `
       <div class="panel">
         <div class="h sm">SAUVEGARDE DISTANTE</div>
@@ -611,6 +758,39 @@ ACTIONS.netverify = () => {
     await netSyncSmart("login");
   }, "Connecté");
 };
+/* ---------- le code de partie ---------- */
+ACTIONS.netcodecreate = () => netRun(async ()=>{
+  const c = await Net.createCode();
+  NET_CONFLICT = false;
+  if(typeof pwaAfterAuth === "function") pwaAfterAuth();
+  return c;
+}, "Code de partie créé");
+ACTIONS.netcodeuse = () => {
+  const v = (document.getElementById("net-pcode")?.value || "").trim();
+  if(!netCodeOk(v)){ toast("Un code a douze caractères : XXXX-XXXX-XXXX", "bad", "cross"); return; }
+  netRun(async ()=>{
+    await Net.useCode(v);
+    NET_CONFLICT = false;
+    /* la synchro décide : partie neuve ici → on prend celle du cloud ; sinon on demande */
+    await netSyncSmart("login");
+    if(typeof pwaAfterAuth === "function") pwaAfterAuth();
+  }, "Partie liée");
+};
+ACTIONS.netcodecopy = () => {
+  const t = netCodeFmt(Net.code || "");
+  try { navigator.clipboard.writeText(t).then(()=>toast("Code copié", "", "check"), ()=>toast(t, "", "check")); }
+  catch(e){ toast(t, "", "check"); }
+};
+ACTIONS.netcodeforget = () => {
+  sheet(`${sheetHead("Délier cet appareil ?")}
+    <div class="tiny muted">La partie reste sur cet appareil et dans le cloud ; elle ne se synchronise simplement plus.
+      Note le code avant : <b class="mono-num">${esc(netCodeFmt(Net.code || ""))}</b>.</div>
+    <div class="btn-grid c2" style="margin-top:10px">
+      <button class="btn" data-act="closesheet">Annuler</button>
+      <button class="btn dan" data-act="netcodeforgetok">Délier</button>
+    </div>`, true);
+};
+ACTIONS.netcodeforgetok = () => { closeSheet(); Net.setCode(null); NET_CONFLICT = false; toast("Appareil délié", "", "check"); refresh(); };
 ACTIONS.netsignout = () => { Net.signOut(); NET_CONFLICT = false; toast("Déconnecté", "", "check"); refresh(); };
 ACTIONS.netauthmode = d => { NET_AUTH_MODE = d.m; refresh(); };
 function netForm(){
@@ -747,23 +927,37 @@ ACTIONS.netoffers = () => netRun(async ()=>{
       : `<div class="empty">Aucune proposition.</div>`}`);
 });
 
-/* ---------- synchronisation automatique ---------- */
-let netAutoTimer = null;
-function netAutoSync(){
-  if(!Net.signedIn() || Net.busy) return;
-  netSyncSmart("auto");
+/* ---------- synchronisation automatique ----------
+   Application ouverte : une progression part dans le cloud au plus 8 secondes apres ; toutes
+   les 20 secondes on regarde la revision du cloud (quelques octets) — s'il a avance et pas
+   nous, on recupere. En
+   quittant, un envoi direct (netLeave) ; au retour sur l'application, on regarde aussitot. */
+let netAutoTimer = null, netFocusAt = 0, netPushAt = 0, netPeekAt = 0;
+/* toutes les 5 s : une progression part au plus 8 s après ; le cloud est regardé toutes les 20 s */
+function netAutoSync(force){
+  if(!Net.linked() || Net.busy || NET_CONFLICT) return;
+  if(typeof document !== "undefined" && document.hidden) return;
+  const now = Date.now();
+  if(netDirty() ? now - netPushAt > 8000 : (force || now - netPeekAt > 20000)){ netPushAt = netPeekAt = now; netSyncSmart("auto"); }
+}
+function netResume(){
+  if(!Net.linked() || Date.now() - netFocusAt < 4000) return;
+  netFocusAt = Date.now();
+  setTimeout(()=>netSyncSmart("resume"), 250);
 }
 function netStart(){
   Net.load();
   clearInterval(netAutoTimer);
-  netAutoTimer = setInterval(netAutoSync, 2*60*1000);
+  netAutoTimer = setInterval(()=>netAutoSync(false), 5*1000);
   if(typeof document !== "undefined" && !netStart.bound){
     netStart.bound = true;
-    /* en quittant l'application (onglet masque, telephone verrouille) : on envoie */
-    document.addEventListener("visibilitychange", ()=>{
-      if(document.hidden && Net.signedIn() && netDirty() && !NET_CONFLICT) netSyncSmart("leaving");
-    });
+    /* en quittant l'application (onglet masque, telephone verrouille) : on envoie ; en revenant : on regarde */
+    document.addEventListener("visibilitychange", ()=>{ if(document.hidden) netLeave(); else netResume(); });
+    if(typeof window !== "undefined" && window.addEventListener){
+      window.addEventListener("pagehide", ()=>netLeave());
+      window.addEventListener("focus", ()=>netResume());
+    }
   }
   netHandleAuthLink();
-  if(Net.signedIn()) setTimeout(()=>netSyncSmart("start"), 1500);
+  if(Net.linked()) setTimeout(()=>netSyncSmart("start"), 1500);
 }

@@ -152,6 +152,8 @@ body[data-mode="play"] #h-cross{opacity:1}
 #h-area b{display:block;font-family:"Unbounded",sans-serif;font-weight:800;font-size:clamp(34px,4.6vw,60px);line-height:1.05;color:#fff;letter-spacing:-.01em}
 #h-area b::after{content:"";display:block;width:120px;height:2px;margin:16px auto 14px;background:linear-gradient(90deg,transparent,var(--ac),transparent)}
 #h-area span{display:block;font-size:18px;line-height:1.4;color:#dfe8f5}
+#h-area em{display:block;margin-top:10px;font-style:normal;font-size:15px;color:var(--ac);opacity:.92}
+#h-area em:empty{display:none}
 @keyframes hArea{0%{opacity:0;transform:translate(-50%,10px);letter-spacing:.06em}12%{opacity:1;transform:translate(-50%,0)}78%{opacity:1}100%{opacity:0;transform:translate(-50%,-6px)}}
 @media (prefers-reduced-motion:reduce){#h-area.on{animation-duration:4s}}
 #h-hint b{color:#35f0d6}
@@ -255,8 +257,30 @@ body[data-mode="title"] #pchud{opacity:0}
 .lg-site{background:#35f0d6;transform:rotate(45deg) scale(.8)}
 .lg-ledge{background:linear-gradient(180deg,transparent 45%,#c8be9f 45% 60%,transparent 60%)}
 .lg-leg{background:#ffd24a;clip-path:polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%)}
-.lg-npc{background:#ff8a3d;border-radius:50%!important}.lg-mon{background:#e9f4ff;border-radius:50%!important;transform:scale(.6)}
+.lg-npc{background:#ff8a3d;border-radius:50%!important}.lg-fish{background:transparent!important;border:2px solid #7fe6f2;border-top:0;border-radius:0 0 8px 8px!important;transform:scale(.8)}.lg-mon{background:#e9f4ff;border-radius:50%!important;transform:scale(.6)}
 #pc-map .pm-key{color:#7f93aa;font-size:14px}
+/* la région de la zone : un sélecteur à quatre positions, chacune à la couleur du cœur de sa région */
+#pc-map .pm-reg{margin:0 0 22px;padding:0 0 18px;border-bottom:1px solid rgba(53,240,214,.18)}
+#pc-map .pm-reg>span{display:block;font-size:14px;color:#8fa3b8;margin:0 0 8px}
+#pc-map .pm-rb{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid #2a3a4e;border-radius:9px;overflow:hidden;background:rgba(6,10,18,.7)}
+#pc-map .pm-rb button{--c:#ff6a4a;position:relative;font:inherit;font-size:15px;color:#cfe0ef;background:none;border:0;border-left:1px solid #2a3a4e;padding:10px 4px 9px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:5px;transition:background .25s,color .25s}
+#pc-map .pm-rb button:first-child{border-left:0}
+#pc-map .pm-rb [data-r="johto"]{--c:#f0c060}#pc-map .pm-rb [data-r="hoenn"]{--c:#3ad0ff}#pc-map .pm-rb [data-r="mix"]{--c:#d6b8ff}
+#pc-map .pm-rb button kbd{font-size:9px;padding:2px 5px;border-color:#3a4c62;color:#8fa3b8}
+#pc-map .pm-rb button.on{background:color-mix(in srgb,var(--c) 22%,transparent);color:#fff;box-shadow:inset 0 -3px 0 var(--c)}
+#pc-map .pm-rb [data-r="mix"].on{background:linear-gradient(90deg,rgba(255,106,74,.2),rgba(240,192,96,.2),rgba(58,208,255,.2))}
+#pc-map .pm-rb button.on kbd{border-color:var(--c);color:var(--c)}
+#pc-map .pm-rb button.locked{color:#56657a;cursor:default}
+#pc-map .pm-rb button.locked{background:repeating-linear-gradient(135deg,transparent 0 6px,rgba(255,255,255,.025) 6px 12px)}
+#pc-map .pm-rb button:not(.locked):not(.on):hover{background:rgba(255,255,255,.05)}
+#pc-map .pm-rb button:focus-visible{outline:2px solid var(--c);outline-offset:-3px}
+#pc-map p.pm-rn{margin:9px 0 0;font-size:14px;line-height:1.45;color:#a9b6c2}
+@media (max-height:800px){
+  #pc-map .pm-reg{margin-bottom:14px;padding-bottom:12px}
+  #pc-map h3{font-size:22px}
+  #pc-map p{margin-bottom:10px;font-size:14px;line-height:1.4}
+  #pc-map .pm-legend{gap:5px;font-size:14px;margin-bottom:10px}
+}
 #pc-map kbd{font-family:"Press Start 2P",monospace;font-size:10px;padding:3px 6px;border:1px solid #3a4c62;border-radius:4px;color:#cfe0ef}
 
 /* ---------- la Tour en 3D : la scène plein écran, les commandes du jeu mobile par-dessus ---------- */
@@ -391,13 +415,13 @@ body.pc.tower3d .fn-mn img,body.pc.tower3d .fn-mn .mnspr{width:46px;height:46px}
 /* ---------- l'Expédition en 3D : le secteur où l'on marche, le combat sur place ---------- */
 #pc-xp-fx{position:fixed;inset:0;width:100vw;height:100vh;z-index:29;display:none;pointer-events:none}
 #pc-xp-fx.on{display:block}
-body.pc:is(.expe3d,.raid3d) #terminal{display:flex!important;background:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;animation:none!important;pointer-events:none}
-body.pc:is(.expe3d,.raid3d) #terminal .term-head{display:none}
-body.pc:is(.expe3d,.raid3d) #terminal #app{position:fixed!important;inset:0!important;width:auto!important;height:auto!important;max-width:none!important;max-height:none!important;
+body.pc:is(.expe3d,.raid3d,.forage3d) #terminal{display:flex!important;background:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;animation:none!important;pointer-events:none}
+body.pc:is(.expe3d,.raid3d,.forage3d) #terminal .term-head{display:none}
+body.pc:is(.expe3d,.raid3d,.forage3d) #terminal #app{position:fixed!important;inset:0!important;width:auto!important;height:auto!important;max-width:none!important;max-height:none!important;
   margin:0!important;border:0!important;border-radius:0!important;background:none!important;box-shadow:none!important;transform:none!important;overflow:visible!important;pointer-events:none}
-body.pc:is(.expe3d,.raid3d) #topbar,body.pc:is(.expe3d,.raid3d) #dock,body.pc:is(.expe3d,.raid3d) #nextstep,body.pc:is(.expe3d,.raid3d) #admfab,body.pc:is(.expe3d,.raid3d) #pchud,body.pc:is(.expe3d,.raid3d) #pc-minimap,body.pc:is(.expe3d,.raid3d) #pc-pzsay{display:none!important}
-body.pc:is(.expe3d,.raid3d) #screen{background:none!important;overflow:visible!important;padding:0!important;height:auto!important;pointer-events:none}
-body.pc:is(.expe3d,.raid3d) #sheet-root.on{pointer-events:auto;position:fixed;inset:0}
+body.pc:is(.expe3d,.raid3d,.forage3d) #topbar,body.pc:is(.expe3d,.raid3d,.forage3d) #dock,body.pc:is(.expe3d,.raid3d,.forage3d) #nextstep,body.pc:is(.expe3d,.raid3d,.forage3d) #admfab,body.pc:is(.expe3d,.raid3d,.forage3d) #pchud,body.pc:is(.expe3d,.raid3d,.forage3d) #pc-minimap,body.pc:is(.expe3d,.raid3d,.forage3d) #pc-pzsay{display:none!important}
+body.pc:is(.expe3d,.raid3d,.forage3d) #screen{background:none!important;overflow:visible!important;padding:0!important;height:auto!important;pointer-events:none}
+body.pc:is(.expe3d,.raid3d,.forage3d) #sheet-root.on{pointer-events:auto;position:fixed;inset:0}
 /* le sac d'expédition : un inventaire, au milieu de l'écran */
 body.pc.expe3d #sheet-root .sheet.xbag{left:0;right:0;top:0;bottom:0;margin:auto;height:fit-content;width:min(1000px,92vw);max-height:86vh;border-radius:16px;padding:18px 22px 20px}
 body.pc.expe3d #sheet-root .sheet.xbag::before{display:none}
@@ -633,3 +657,109 @@ body.pc.raid3d #screen>.row.between{top:12px}
 #pc-raid-ban .rb-t i{display:block;height:100%;width:0;background:linear-gradient(90deg,#ff6a3d,#ffd166);transition:width .3s}
 #pc-raid-ban .rb-s{font-size:14px;color:#d8c4bc}
 @media (prefers-reduced-motion:reduce){#pc-raid-ban,#pc-raid-ban .rb-t i{transition:none}}
+
+/* ---------- dans toutes les scènes 3D (la Tour, la Brèche, le récit, l'Expédition, le raid) ----------
+   le terminal y est transparent aux clics (la scène les reçoit) ; une fenêtre du jeu mobile qui s'ouvre
+   par-dessus (le tutoriel de Porygon-Z, une révélation, une fiche, une page) doit, elle, les recevoir */
+body.pc:is(.tower3d,.breche3d,.story3d,.expe3d,.raid3d,.forage3d) :is(#sheet-root,#discover,#fragread,#tuto,#story).on{pointer-events:auto}
+body.pc:is(.tower3d,.breche3d,.expe3d,.raid3d,.forage3d) #tuto.on{position:fixed;inset:0;z-index:74}
+body.pc:is(.tower3d,.breche3d,.expe3d,.raid3d,.forage3d) #tuto .tuto-box{left:50%;right:auto;width:min(680px,86vw);transform:translateX(-50%);font-size:15px}
+body.pc:is(.tower3d,.breche3d,.expe3d,.raid3d,.forage3d) #tuto .tuto-box.top{top:90px}
+body.pc:is(.tower3d,.breche3d,.expe3d,.raid3d,.forage3d) #tuto .tuto-box.bottom{bottom:140px}
+
+/* ---------- le Forage en 3D : la mine, son équipe, la fouille sur la vraie roche (forage/index.js) ----------
+   la lumière d'une lampe de mineur : de l'ambre sur de la roche sombre ; la couche où l'on est donne sa couleur (--sc) */
+body.pc.forage3d #screen{visibility:hidden!important}
+body.pc.forage3d #screen #dg-res.on{visibility:visible;position:fixed;right:auto;bottom:auto;left:50%;top:50%;transform:translate(-50%,-50%);width:min(460px,90vw);max-height:80vh;overflow:auto;
+  padding:22px 22px 18px;border-radius:16px;background:linear-gradient(180deg,rgba(30,20,10,.94),rgba(12,8,6,.94));border:1px solid rgba(255,200,87,.45);
+  box-shadow:0 0 60px rgba(255,170,60,.18),0 20px 50px rgba(0,0,0,.55);pointer-events:auto;z-index:40;font-size:15px}
+body.pc.forage3d #dg-res .dg-rt{font-size:18px;margin-bottom:10px}
+body.pc.forage3d #dg-res .dg-loot{max-width:none}
+body.pc.forage3d #dg-res .dg-li b{font-size:15px}body.pc.forage3d #dg-res .dg-li small{font-size:13px}
+body.pc.forage3d #dg-res .btn{font-size:15px;padding:10px 18px}
+#pc-fo-fx{position:fixed;inset:0;width:100vw;height:100vh;z-index:29;display:none;pointer-events:none}
+#pc-fo-fx.on{display:block}
+#pc-fo-hud,#pc-fo-walls,#pc-fo-prompt,#pc-fo-keys,#pc-fo-tools,#pc-fo-dig,#pc-fo-hint{display:none;font-family:"Pixelify Sans",sans-serif;color:#f6ead8;z-index:30}
+body.pc.forage3d #pc-fo-hud.on{display:flex}
+body.pc.forage3d.pcintro #pc-fo-hud,body.pc.forage3d.pcintro #pc-fo-walls,body.pc.forage3d.pcintro #pc-fo-keys{opacity:0}
+/* en haut : la profondeur qui défile, la couche ; l'Énergie, le minerai */
+#pc-fo-hud{position:fixed;left:18px;right:18px;top:16px;justify-content:space-between;align-items:flex-start;pointer-events:none;transition:opacity .4s;--sc:#c8733a}
+#pc-fo-hud .fo3-depth{min-width:250px;padding:12px 16px 12px 18px;border-radius:14px;background:linear-gradient(180deg,rgba(18,12,8,.78),rgba(10,7,5,.66));border-left:3px solid var(--sc);box-shadow:0 8px 24px rgba(0,0,0,.35)}
+#pc-fo-hud .fo3-k{font-size:13px;color:#c9a86a}
+#pc-fo-hud .fo3-m{display:flex;align-items:baseline;gap:6px;margin:2px 0 4px}
+#pc-fo-hud .fo3-m b{font:800 38px/1 Unbounded,sans-serif;color:#fff;font-variant-numeric:tabular-nums;text-shadow:0 0 18px rgba(255,179,71,.35)}
+#pc-fo-hud .fo3-m span{font-size:16px;color:#e6c89a}
+#pc-fo-hud .fo3-st{display:flex;align-items:center;gap:8px;font-size:17px;font-weight:700}
+#pc-fo-hud .fo3-st i{width:12px;height:12px;border-radius:3px;background:var(--sc);box-shadow:0 0 10px var(--sc)}
+#pc-fo-hud .fo3-bar{height:4px;margin:9px 0 5px;border-radius:2px;background:rgba(255,255,255,.1);overflow:hidden}
+#pc-fo-hud .fo3-bar i{display:block;height:100%;background:linear-gradient(90deg,var(--sc),#ffd166);transition:width .5s}
+#pc-fo-hud .fo3-nx{font-size:13px;color:#b8a48a}
+#pc-fo-hud .fo3-res{display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+#pc-fo-hud .fo3-e{display:flex;align-items:baseline;gap:7px;padding:8px 14px;border-radius:12px;background:rgba(10,7,5,.7)}
+#pc-fo-hud .fo3-e span{font-size:18px;color:#ffd166}
+#pc-fo-hud .fo3-e b{font:800 24px/1 Unbounded,sans-serif;color:#ffe9b8;font-variant-numeric:tabular-nums}
+#pc-fo-hud .fo3-e small{font-size:13px;color:#b8a48a}
+#pc-fo-hud .fo3-ores{display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end;max-width:440px}
+#pc-fo-hud .fo3-ores span{display:flex;align-items:center;gap:4px;padding:3px 8px 3px 5px;border-radius:9px;background:rgba(10,7,5,.62);font-size:14px}
+#pc-fo-hud .fo3-ores span.here{box-shadow:inset 0 0 0 1px rgba(255,209,102,.6)}
+#pc-fo-hud .fo3-ores span.unk{opacity:.45}
+#pc-fo-hud .fo3-ores b{font-variant-numeric:tabular-nums}
+/* en bas : les fouilles qui attendent */
+body.pc.forage3d #pc-fo-walls.on{display:block}
+#pc-fo-walls{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);min-width:min(420px,80vw);padding:10px 18px 12px;border-radius:14px;text-align:center;pointer-events:none;
+  background:rgba(10,7,5,.72);border:1px solid rgba(255,255,255,.08);transition:opacity .4s,border-color .4s,box-shadow .4s;overflow:hidden}
+#pc-fo-walls b{display:block;font-size:16px}
+#pc-fo-walls small{display:block;font-size:13px;color:#b8a48a;margin-top:2px}
+#pc-fo-walls>i{position:absolute;left:0;bottom:0;height:3px;background:linear-gradient(90deg,#c9a86a,#ffd166);transition:width .6s}
+#pc-fo-walls.ready{border-color:rgba(255,200,87,.6);box-shadow:0 0 28px rgba(255,190,70,.25)}
+#pc-fo-walls.ready b{color:#ffd166}
+/* l'invite d'un poste, au centre */
+#pc-fo-prompt{position:fixed;left:50%;top:66%;transform:translate(-50%,6px);padding:9px 18px;border-radius:12px;background:rgba(10,7,5,.8);border:1px solid rgba(255,200,87,.35);
+  font-size:17px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .2s,transform .2s}
+body.pc.forage3d #pc-fo-prompt.on{display:block}
+#pc-fo-prompt.show{opacity:1;transform:translate(-50%,0)}
+#pc-fo-prompt b,#pc-fo-keys b,#pc-fo-tools kbd{display:inline-block;min-width:22px;padding:1px 7px;border-radius:5px;background:#2a1e12;border:1px solid #6a5232;color:#fff;font:600 13px ui-monospace,monospace;text-align:center}
+#pc-fo-prompt span{color:#b8a48a;font-size:15px}
+body.pc.forage3d.fo-dig #pc-fo-prompt{display:none}
+#pc-fo-keys{position:fixed;right:16px;bottom:18px;padding:7px 14px;border-radius:10px;background:rgba(10,7,5,.6);color:#d8c8b0;font-size:13px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .3s}
+body.pc.forage3d #pc-fo-keys.on{display:block;opacity:1}
+body.pc.forage3d.fo-dig #pc-fo-keys{display:none}
+/* la fouille : les deux outils, la solidité */
+body.pc.forage3d #pc-fo-tools.on{display:flex}
+#pc-fo-tools{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);gap:10px;pointer-events:auto}
+#pc-fo-tools button{display:flex;align-items:center;gap:10px;padding:8px 16px 8px 10px;border-radius:14px;cursor:pointer;color:#f6ead8;font-family:inherit;text-align:left;
+  background:rgba(10,7,5,.78);border:1px solid rgba(255,255,255,.1);transition:border-color .15s,background .15s,transform .15s}
+#pc-fo-tools button:hover{border-color:rgba(255,200,87,.5)}
+#pc-fo-tools button.on{border-color:#ffc857;background:rgba(60,40,14,.85);transform:translateY(-3px)}
+#pc-fo-tools button span b{display:block;font-size:15px}
+#pc-fo-tools button span small{display:block;font-size:12px;color:#b8a48a}
+#pc-fo-tools button:focus-visible{outline:2px solid #ffc857;outline-offset:2px}
+body.pc.forage3d #pc-fo-dig.on{display:block}
+#pc-fo-dig{position:fixed;left:50%;top:16px;transform:translateX(-50%);width:min(520px,80vw);padding:10px 18px 12px;border-radius:14px;text-align:center;pointer-events:none;background:rgba(10,7,5,.74)}
+#pc-fo-dig .fd-k{font:10px "Press Start 2P",monospace;letter-spacing:1px;color:#c9a86a}
+#pc-fo-dig .fd-n{margin:6px 0 8px;font-size:15px}
+#pc-fo-dig .fd-n b{font:800 24px Unbounded,sans-serif;color:#ffd166}
+#pc-fo-dig .fd-n small{color:#b8a48a;font-size:13px}
+#pc-fo-dig .fd-stab{position:relative;height:16px;border-radius:8px;background:rgba(255,255,255,.08);overflow:hidden}
+#pc-fo-dig .fd-stab i{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,#7ad08a,#c8f08a);transition:width .25s}
+#pc-fo-dig .fd-stab.mid i{background:linear-gradient(90deg,#e8b040,#ffd166)}
+#pc-fo-dig .fd-stab.low i{background:linear-gradient(90deg,#d04a3a,#ff8a6a)}
+#pc-fo-dig .fd-stab span{position:relative;font-size:12px;line-height:16px;color:#1a120c;font-weight:700}
+#pc-fo-dig .fd-tip{margin-top:7px;font-size:13px;color:#b8a48a}
+#pc-fo-dig .fd-tip b{color:#f6ead8}
+body.pc.forage3d.fo-dig #pc-fo-hud{display:none}
+body.pc.forage3d.fo-dig canvas{cursor:crosshair}
+/* les fenêtres du Forage (la forge, l'équipe, les chantiers) : au milieu de la mine */
+body.pc.forage3d #sheet-root .sheet.fo3-sheet{left:0;right:0;top:0;bottom:0;margin:auto;height:fit-content;width:min(720px,92vw);max-height:84vh;border-radius:16px;padding:18px 22px 20px;
+  background:linear-gradient(180deg,rgba(26,18,10,.96),rgba(12,9,7,.96));border:1px solid rgba(255,200,87,.25);font-size:15px}
+body.pc.forage3d #sheet-root .sheet.fo3-sheet::before{display:none}
+body.pc.forage3d #sheet-root .sheet:not(.fo3-sheet){left:0;right:0;top:0;bottom:0;margin:auto;height:fit-content;width:min(620px,92vw);max-height:84vh;border-radius:16px}
+body.pc.forage3d .fo3-sheet .fo-crew{grid-template-columns:repeat(6,1fr)}
+body.pc.forage3d .fo3-sheet .tiny{font-size:13px}
+body.pc.forage3d .fo3-sheet .item .t{font-size:15px}body.pc.forage3d .fo3-sheet .item .d{font-size:13px}
+#pc-fo-hint{position:fixed;left:50%;top:20%;transform:translate(-50%,-6px);padding:10px 20px;border-radius:12px;background:rgba(10,7,5,.84);border:1px solid rgba(255,200,87,.3);
+  font-size:16px;text-align:center;max-width:min(560px,86vw);pointer-events:none;opacity:0;transition:opacity .3s,transform .3s}
+body.pc.forage3d #pc-fo-hint{display:block}
+#pc-fo-hint.on{opacity:1;transform:translate(-50%,0)}
+body.pc.forage3d.fo-open #pc-fo-walls,body.pc.forage3d.fo-open #pc-fo-fx{opacity:0}
+@media (prefers-reduced-motion:reduce){#pc-fo-hint,#pc-fo-prompt,#pc-fo-walls,#pc-fo-tools button,#pc-fo-hud .fo3-bar i{transition:none}}

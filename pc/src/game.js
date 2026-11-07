@@ -13,12 +13,14 @@ import { Terminal } from "./ui/terminal.js";
 import { Menus } from "./ui/menus.js";
 import { Audio } from "./audio.js";
 import { Fishing } from "./fishing.js";
-import { Trainer } from "./trainer.js";
+import { Trainer, RESIDENTS } from "./trainer.js";
+import { POND_BY } from "./world/ponds.js";
 import { Sentinels } from "./sentinels.js";
 import { RouteMap } from "./ui/map.js";
 import { Tower3D } from "./tower3d.js";
 import { Expe3D } from "./expe/index.js";
 import { Raid3D } from "./raid3d.js";
+import { Forage3D } from "./forage/index.js";
 import { popupOpen } from "./ui/popups.js";
 import { Breche3D } from "./breche/index.js";
 import { Story3D } from "./story/index.js";
@@ -70,6 +72,9 @@ export class Game {
     this.capture = new Capture(this);
     this.fishing = new Fishing(this);
     this.trainer = new Trainer(this);
+    /* un dresseur par biome, au bord de son eau */
+    this.trainers = [this.trainer];
+    for(const k in RESIDENTS){ const P = POND_BY[k]; if(P && P.trainer) this.trainers.push(new Trainer(this, {key:k, biome:k, x:P.trainer.x, z:P.trainer.z, heading:P.trainer.heading})); }
     this.sentinels = new Sentinels(this);
     this.map = new RouteMap(this);
     this.tower3d = new Tower3D(this);
@@ -77,6 +82,7 @@ export class Game {
     this.story3d = new Story3D(this);
     this.expe3d = new Expe3D(this);
     this.raid3d = new Raid3D(this);
+    this.forage3d = new Forage3D(this);
     this.companion = new Companion(this);
     /* l'entrée dans chaque module : une cinématique, le but, le check des commandes */
     this.intro = new Intro(this);
@@ -94,11 +100,18 @@ export class Game {
       if(this.story3d && this.story3d.on) return;
       if(this.breche3d.on){ this.breche3d.relock(); return; }
       if(this.expe3d && this.expe3d.on){ this.expe3d.relock(); return; }
+      if(this.forage3d && this.forage3d.on){ this.forage3d.click(); return; }
       if(this.mode === "play" && !this.input.locked) this.input.lock();
     });
     /* un biome qui s'ouvre (le Pokédex a grandi) : on le dit */
     this.world.onOpen = k => { const H = this.G && this.G.HABITATS[k]; if(H && this.hud) this.hud.hint(`<b>${H.n}</b> s'ouvre : son col est libre (la carte, <b>M</b>, montre où)`, 7); };
     this.world.refreshLocks();                 /* (une partie reprise dans un biome ouvert y reste) */
+    /* la partie revient du cloud (jouée sur l'autre appareil) : le monde se remet à jour */
+    window.pcOnRemoteSave = () => {
+      this.world.refreshLocks();
+      if(this.wild) this.wild.rewrite();
+      if(this.mode === "play") this.hud.hint("Progression reprise depuis ton autre appareil", 3.5);
+    };
     this.restorePos();
     this.world.grass.prime(this.player.pos);
     this.progress("Prêt", 1);
@@ -168,15 +181,15 @@ export class Game {
         {k:["clic"], t:"lancer la Ball", on:{btn:0}},
         {k:["M"], t:"la carte", on:{chars:["m"]}},
         {k:["Tab"], t:"le terminal", on:{keys:["Tab"]}}],
-      alive:()=>this.started && !this.story3d.on && !this.tower3d.on && !this.breche3d.on && !this.expe3d.on && !(this.raid3d && (this.raid3d.on || this.raid3d.pending)),
+      alive:()=>this.started && !this.story3d.on && !this.tower3d.on && !this.breche3d.on && !this.expe3d.on && !(this.forage3d && this.forage3d.on) && !(this.raid3d && (this.raid3d.on || this.raid3d.pending)),
       visible:()=>this.mode === "play" && this.input.locked && !this.hud.newOpen});
   }
   restore(){
     this.started = true;
     this.pendingIntro = true;              /* refermé sans se connecter : l'ouverture d'une partie neuve */
     this.setMode("play");
-    /* « J'ai déjà une partie » : la connexion au compte, dans le terminal (comme sur mobile) */
-    try { this.G.ref('NET_AUTH_MODE = "signin"'); this.G.ref('NET_TAB = "compte"'); } catch(e){}
+    /* « J'ai déjà une partie » : le code de partie (ou le compte), dans le terminal, comme sur mobile */
+    try { this.G.ref('NET_AUTH_MODE = "partie"'); this.G.ref('NET_TAB = "compte"'); } catch(e){}
     this.terminal.show("online", false);
   }
   resume(){
@@ -193,6 +206,8 @@ export class Game {
     if(this.story3d && this.story3d.on) return;
     /* l'Expédition : rendre la souris, c'est seulement reprendre la main sur ses boutons */
     if(this.expe3d && this.expe3d.on) return;
+    /* le Forage : pareil, la souris rendue sert aux postes et à la fouille */
+    if(this.forage3d && this.forage3d.on) return;
     /* la Brèche : rendre la souris, c'est mettre en pause (sauf si une fenêtre l'a demandé) */
     if(this.breche3d && this.breche3d.on){
       const R = this.G && this.G.ref("BR");
@@ -218,6 +233,7 @@ export class Game {
     if(this.story3d && this.story3d.on){ this.story3d.key(e); return; }
     if(this.breche3d && this.breche3d.on){ this.breche3d.key(e); return; }
     if(this.expe3d && this.expe3d.on){ this.expe3d.key(e); return; }
+    if(this.forage3d && this.forage3d.on){ this.forage3d.key(e); return; }
     if(this.tower3d && this.tower3d.on && this.tower3d.key(e)) return;
     /* pendant le raid : Tab et Échap n'interrompent rien */
     if(this.raid3d && this.raid3d.on && this.raid3d.key(e)) return;
@@ -328,10 +344,18 @@ export class Game {
       this.intro.update(dt, this.t);
       return;
     }
+    /* le Forage en 3D : la mine, au fond du puits ; la route attend */
+    this.forage3d.update(dt, this.t);
+    if(this.forage3d.on){
+      this.hud.update(dt, this.t);
+      this.audio.update(dt, this.t);
+      this.intro.update(dt, this.t);
+      return;
+    }
     const playing = this.mode === "play";
     const look = this.input.locked && playing ? this.input.consumeLook() : (this.input.consumeLook(), {x:0, y:0});
     if(Settings.invertY) look.y = -look.y;
-    this.player.frozen = !playing || this.hud.newOpen || (this.trainer && this.trainer.battling) || this.intro.active;
+    this.player.frozen = !playing || this.hud.newOpen || this.duelOn() || this.intro.active;
     if(this.mode === "title") this.titleCam(dt);
     else if(!(this.tower3d && this.tower3d.on) && !(this.raid3d && this.raid3d.on)) this.player.update(dt, this.input, look);   /* pendant la Tour, le raid, la caméra est à eux */
     const S = this.S;
@@ -346,7 +370,7 @@ export class Game {
     this.companion.update(dt, this.t);
     this.capture.update(dt, this.t, this.input);
     this.fishing.update(dt, this.t);
-    this.trainer.update(dt, this.t);
+    for(const tr of this.trainers) tr.update(dt, this.t);
     this.sentinels.update(dt, this.t);
     this.map.update(dt);
     this.tower3d.update(dt, this.t);
@@ -405,13 +429,15 @@ export class Game {
     for(const c of I.consumeClicks()){
       if(c !== "left") continue;
       if(this.hud.newOpen){ this.hud.closeNew(); continue; }
-      if(this.trainer.battling){ continue; }
+      if(this.duelOn()){ continue; }
       if(this.fishing.active){ this.fishing.click(); continue; }
       cap.throw();
     }
     const w = I.consumeWheel();
     if(w && !this.fishing.active) cap.cycle(w > 0 ? 1 : -1);
-    BALL_ORDER.forEach((k, i)=>{ if(I.hit("Digit" + (i + 1)) || I.hit("Numpad" + (i + 1))) cap.setBall(k); });
+    /* la grande carte ouverte : 1 à 4 choisissent la région de la zone ; sinon, la Ball */
+    if(this.map.open){ for(let i = 1; i <= 4; i++) if(I.hit("Digit" + i) || I.hit("Numpad" + i)) this.map.pickRegion(i - 1); }
+    else BALL_ORDER.forEach((k, i)=>{ if(I.hit("Digit" + (i + 1)) || I.hit("Numpad" + (i + 1))) cap.setBall(k); });
     for(const code in BERRY_KEYS) if(I.hit(code)){
       const k = BERRY_KEYS[code], S = this.S;
       if((S.berries[k] || 0) <= 0) window.toast("Plus de " + this.G.BERRIES[k].name, "bad", "cross");
@@ -425,13 +451,15 @@ export class Game {
       Settings.time = order[(i + 1) % 3]; saveSettings();
       this.hud.hint({reel:"Heure réelle : le ciel suit ton horloge", jour:"Toujours le jour", nuit:"Toujours la nuit"}[Settings.time] + " · <b>H</b> pour changer", 3);
     }
-    if(I.hit("KeyE") || I.char("e")) this.trainer.interact() || this.fishing.interact() || (this.world.sites && this.world.sites.interact(this)) || this.companion.poke();
+    if(I.hit("KeyE") || I.char("e")) this.trainers.some(tr=>tr.interact()) || this.fishing.interact() || (this.world.sites && this.world.sites.interact(this)) || this.companion.poke();
   }
+  duelOn(){ return !!(this.trainers && this.trainers.some(tr=>tr.battling)); }
+  trainerPrompt(){ for(const tr of this.trainers || []){ const p = tr.prompt(); if(p) return p; } return ""; }
   prompts(){
     if(this.mode !== "play"){ return; }
     let p = "";
     if(this.hud.newOpen) p = "";
-    else if(this.trainer.prompt()) p = this.trainer.prompt();
+    else if(this.trainerPrompt()) p = this.trainerPrompt();
     else if(this.fishing.prompt()) p = this.fishing.prompt();
     else if(this.world.sites && this.world.sites.prompt(this)) p = this.world.sites.prompt(this);
     else if(this.capture.target && !this.capture.aiming) p = `<b>Clic droit</b> viser · <b>clic gauche</b> lancer`;

@@ -480,10 +480,12 @@ let DIG_TOOL = "pick";
 SCREENS.idle = {
   after(host, arg){
     if(arg === "wall" && DIG){ digAfter(); return; }
-    tutoMaybe("idle");
+    /* (sur PC, on descend dans la mine en 3D : elle a sa cinématique, ses commandes, et pas de puits dessiné) */
+    const pc3d = !!window.PCFO3D;
+    if(!pc3d) tutoMaybe("idle");
     /* ce qui a changé pendant qu'on était ailleurs : une seule annonce */
-    if(typeof forAnnounceNew === "function") setTimeout(()=>{ try { if(currentScreen === "idle") forAnnounceNew(); } catch(e){} }, 600);
-    forShaftStart();
+    if(typeof forAnnounceNew === "function") setTimeout(()=>{ try { if(currentScreen === "idle") forAnnounceNew(); } catch(e){} }, pc3d ? 2800 : 600);
+    if(!pc3d) forShaftStart();
     if(typeof pmdWake === "function") pmdWake();
   },
   html(arg){
@@ -526,17 +528,7 @@ SCREENS.idle = {
 
       <div class="row between" style="margin:14px 0 4px"><div class="h sm" style="margin:0">TON ÉQUIPE</div>
         <button class="btn xs" data-act="foauto">${ic("refresh")} Choisir les meilleurs</button></div>
-      <div class="fo-tip">Dans cette couche (${esc(st.mat.toLowerCase())}), ${goodTxt} creusent <b>deux fois plus vite</b>.</div>
-      <div class="fo-crew">${Array.from({length:FOR_SLOTS_MAX}, (_, i)=>{
-        const id = crew[i];
-        if(i >= f.slots) return `<div class="fo-slot locked">${ic("lock")}</div>`;
-        if(!id) return `<button class="fo-slot empty" data-act="fopick" data-i="${i}"><span>+</span></button>`;
-        const a = digAff(id, si);
-        return `<button class="fo-slot ${a > 1 ? "good" : a < 1 ? "bad" : ""}" data-act="fopick" data-i="${i}">
-          ${sprite(id, S.dex[id].shiny, "")}
-          <small>N.${S.dex[id].lvl}</small>
-          ${a !== 1 ? `<i class="fo-aff ${a > 1 ? "up" : "dn"}">${a > 1 ? "rapide" : "lent"}</i>` : ""}</button>`; }).join("")}</div>
-      <div class="tiny dim" style="margin-top:4px">Touche un Pokémon pour le remplacer. Plus son niveau est haut, plus il creuse vite.</div>
+      ${forCrewHtml()}
 
       <div class="row between" style="margin:16px 0 6px"><div class="h sm" style="margin:0">LA FORGE</div>
         <span class="pill">${ic("bolt")} ${fmt(Math.floor(f.energy))}</span></div>
@@ -545,13 +537,7 @@ SCREENS.idle = {
       <div class="row between" style="margin:16px 0 6px"><div class="h sm" style="margin:0">AMÉLIORER</div>
         <span class="pill">${ic("bolt")} <b id="fo-energy">${fmt(Math.floor(f.energy))}</b> Énergie</span></div>
       <div class="tiny dim" style="margin:-2px 0 6px">L'Énergie se gagne toute seule en creusant : plus c'est profond, plus elle monte vite.</div>
-      <div class="list">${Object.entries(FOR_UPS).map(([k, u])=>{
-        const lv = forUpLv(k), maxed = lv >= u.max, c = maxed ? 0 : u.cost(lv);
-        return `<div class="item fo-up ${maxed ? "on" : ""}">
-          <div class="grow"><div class="t">${esc(u.n)}</div>
-            <div class="d">${maxed ? `${esc(u.d(lv))} · au maximum` : `${esc(u.d(lv))} <span class="fo-arr">→</span> <b>${esc(u.d(lv + 1))}</b>`}</div></div>
-          ${maxed ? `<span class="tiny cy">max</span>` : `<button class="btn sm ${f.energy >= c ? "gold" : ""}" data-act="foup" data-k="${k}" ${f.energy >= c ? "" : "disabled"}>${ic("bolt")} ${fmt(c)}</button>`}
-        </div>`; }).join("")}</div>
+      ${forUpsHtml()}
 
       <div class="row between" style="margin:16px 0 6px"><div class="h sm" style="margin:0">LES CHANTIERS</div>
         <span class="tiny dim">${FOR_SITES.filter(x=>siteOpen(x.id)).length} / ${FOR_SITES.length} ouverts</span></div>
@@ -560,23 +546,12 @@ SCREENS.idle = {
 
       <details class="fo-more">
         <summary>Les couches · ${STRATA.filter(x=>f.maxM >= x.need).length} sur ${STRATA.length} découvertes</summary>
-        <div class="fo-strata">${STRATA.map((x, i)=>{
-          const here = i === si, done = f.maxM >= x.need;
-          return `<div class="fo-st ${here ? "here" : ""} ${done ? "" : "unk"}" style="--sc:${x.c}">
-            <i></i><div class="grow"><b>${done ? esc(x.n) : "Pas encore atteinte"}</b><small>${fmt(x.need)} m${done ? " · " + esc(x.mat) : ""}</small></div>
-            ${done ? `<span class="fo-stt">${x.good.map(t=>`<span class="tt t${t}">${TYPE_NAMES[t]}</span>`).join("")}</span>` : ""}
-          </div>`; }).join("")}</div>
+        ${forStrataHtml()}
       </details>
 
       <details class="fo-more">
         <summary>Dépenser l'Énergie autrement</summary>
-        ${botPanel()}
-        <div class="h sm" style="margin-top:12px">ÉCHANGER CONTRE…</div>
-        <div class="btn-grid c3">
-          <button class="btn sm" data-act="forconv" data-k="coins" ${f.energy >= 300 ? "" : "disabled"}>${fmt(Math.round(100 * (1 + si * 0.6)))} PokéCoins<br><small>300 Énergie</small></button>
-          <button class="btn sm" data-act="forconv" data-k="shards" ${f.energy >= 9000 ? "" : "disabled"}>${10 + si * 4} Fragments<br><small>9 000 Énergie</small></button>
-          <button class="btn sm" data-act="forconv" data-k="cores" ${f.energy >= 260000 ? "" : "disabled"}>${1 + Math.floor(si / 4)} Noyau<br><small>260 000 Énergie</small></button>
-        </div>
+        ${forConvHtml()}
       </details>
 
       <div class="tiles" style="margin-top:11px">
@@ -588,6 +563,55 @@ SCREENS.idle = {
       <button class="btn ghost wide" style="margin-top:10px" data-act="goto" data-to="modules">Retour aux modules</button>`;
   }
 };
+
+/* ---------- des morceaux de l'écran, réutilisés tels quels par la version PC (le Forage en 3D) ---------- */
+function forConvHtml(){
+  const f = forage(), si = f.depth;
+  return `${botPanel()}
+        <div class="h sm" style="margin-top:12px">ÉCHANGER CONTRE…</div>
+        <div class="btn-grid c3">
+          <button class="btn sm" data-act="forconv" data-k="coins" ${f.energy >= 300 ? "" : "disabled"}>${fmt(Math.round(100 * (1 + si * 0.6)))} PokéCoins<br><small>300 Énergie</small></button>
+          <button class="btn sm" data-act="forconv" data-k="shards" ${f.energy >= 9000 ? "" : "disabled"}>${10 + si * 4} Fragments<br><small>9 000 Énergie</small></button>
+          <button class="btn sm" data-act="forconv" data-k="cores" ${f.energy >= 260000 ? "" : "disabled"}>${1 + Math.floor(si / 4)} Noyau<br><small>260 000 Énergie</small></button>
+        </div>`;
+}
+function forCrewHtml(){
+  const f = forage(), si = f.depth, st = STRATA[si], crew = crewIds();
+  const goodTxt = st.good.map(t=>`<span class="tt t${t}">${TYPE_NAMES[t]}</span>`).join(" ");
+  return `
+      <div class="fo-tip">Dans cette couche (${esc(st.mat.toLowerCase())}), ${goodTxt} creusent <b>deux fois plus vite</b>.</div>
+      <div class="fo-crew">${Array.from({length:FOR_SLOTS_MAX}, (_, i)=>{
+        const id = crew[i];
+        if(i >= f.slots) return `<div class="fo-slot locked">${ic("lock")}</div>`;
+        if(!id) return `<button class="fo-slot empty" data-act="fopick" data-i="${i}"><span>+</span></button>`;
+        const a = digAff(id, si);
+        return `<button class="fo-slot ${a > 1 ? "good" : a < 1 ? "bad" : ""}" data-act="fopick" data-i="${i}">
+          ${sprite(id, S.dex[id].shiny, "")}
+          <small>N.${S.dex[id].lvl}</small>
+          ${a !== 1 ? `<i class="fo-aff ${a > 1 ? "up" : "dn"}">${a > 1 ? "rapide" : "lent"}</i>` : ""}</button>`; }).join("")}</div>
+      <div class="tiny dim" style="margin-top:4px">Touche un Pokémon pour le remplacer. Plus son niveau est haut, plus il creuse vite.</div>`;
+}
+function forUpsHtml(){
+  const f = forage();
+  return `
+      <div class="list">${Object.entries(FOR_UPS).map(([k, u])=>{
+        const lv = forUpLv(k), maxed = lv >= u.max, c = maxed ? 0 : u.cost(lv);
+        return `<div class="item fo-up ${maxed ? "on" : ""}">
+          <div class="grow"><div class="t">${esc(u.n)}</div>
+            <div class="d">${maxed ? `${esc(u.d(lv))} · au maximum` : `${esc(u.d(lv))} <span class="fo-arr">→</span> <b>${esc(u.d(lv + 1))}</b>`}</div></div>
+          ${maxed ? `<span class="tiny cy">max</span>` : `<button class="btn sm ${f.energy >= c ? "gold" : ""}" data-act="foup" data-k="${k}" ${f.energy >= c ? "" : "disabled"}>${ic("bolt")} ${fmt(c)}</button>`}
+        </div>`; }).join("")}</div>`;
+}
+function forStrataHtml(){
+  const f = forage(), si = f.depth;
+  return `
+        <div class="fo-strata">${STRATA.map((x, i)=>{
+          const here = i === si, done = f.maxM >= x.need;
+          return `<div class="fo-st ${here ? "here" : ""} ${done ? "" : "unk"}" style="--sc:${x.c}">
+            <i></i><div class="grow"><b>${done ? esc(x.n) : "Pas encore atteinte"}</b><small>${fmt(x.need)} m${done ? " · " + esc(x.mat) : ""}</small></div>
+            ${done ? `<span class="fo-stt">${x.good.map(t=>`<span class="tt t${t}">${TYPE_NAMES[t]}</span>`).join("")}</span>` : ""}
+          </div>`; }).join("")}</div>`;
+}
 function forFmtRate(r){ return r >= 10 ? fmt(Math.round(r)) : r.toFixed(r >= 1 ? 1 : 2).replace(".", ","); }
 
 /* ---------- l'equipe ---------- */

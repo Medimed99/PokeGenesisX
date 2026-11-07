@@ -3,14 +3,18 @@
    Une mini-carte ronde en haut à gauche (le nord en haut, ta flèche au
    centre), et la grande carte sur M : le chemin, les hautes herbes, le lac,
    les corniches, les arbres, les zones désindexées encore actives (avec
-   le seuil d'intégrité qui les guérit), les deux sentinelles, le dresseur
-   du jour, et les Pokémon débusqués autour de toi.
+   le seuil d'intégrité qui les guérit), les deux sentinelles, les
+   dresseurs (celui de la route, un par biome), les eaux où pêcher, et
+   les Pokémon débusqués autour de toi.
    Le fond est peint une fois, à partir du relevé du terrain.
    ============================================================ */
 import { BOUNDS, GRID, W, D, DPATH, GRASS, LAKEM, PATH_W, LEDGES, pathX, LAKE, HGT, BIDX, BWT, TRAIL, LAVA, BIOMES, LOCKS, terrace } from "../world/layout.js";
 import { HAB_NAMES } from "../world/biomes/index.js";
 import { SITES } from "../world/sites.js";
 import { ZONES } from "../world/corruption.js";
+import { PONDS } from "../world/ponds.js";
+import { endemicCount } from "../mon/endemic.js";
+import { PC_REGIONS, pcRegion, setPcRegion, regionOpen, openRegions, regionName } from "../mon/region.js";
 
 const X0 = -276, X1 = 276, Z0 = -408, Z1 = 222, PPM = 2;     /* pixels par mètre du fond : la zone et ses cinq biomes */
 const BIO_C = {foret:[[24, 46, 30], [58, 48, 34]], eaux:[[150, 160, 152], [78, 190, 186]], grotte:[[36, 30, 46], [110, 80, 150]], ruines:[[96, 88, 56], [138, 128, 112]], foyer:[[30, 26, 26], [240, 110, 30]]};
@@ -29,20 +33,23 @@ export class RouteMap {
     /* la grande carte */
     this.big = document.createElement("div"); this.big.id = "pc-map";
     this.big.innerHTML = `<div class="pm-in"><canvas></canvas><div class="pm-side">
+      <div class="pm-reg"><span>Les Pokémon de la zone</span><div class="pm-rb">${PC_REGIONS.map((r, i)=>`<button data-r="${r.k}"><kbd>${i + 1}</kbd>${r.n}</button>`).join("")}</div><p class="pm-rn"></p></div>
       <h3>La zone de capture</h3><p>Routes ouvertes au centre, de Bourg Palette à Jadielle ; cinq biomes autour, chacun derrière son col.</p>
       <ul class="pm-legend">
         <li><i class="lg-lock"></i>Col fermé : il s'ouvre avec le Pokédex</li>
         <li><i class="lg-site"></i>Un module : la Tour, la Brèche, le camp… (E pour y entrer)</li>
         <li><i class="lg-tall"></i>Hautes herbes : les Pokémon s'y cachent</li>
         <li><i class="lg-water"></i>Le lac : la canne (F) sur la rive</li>
+        <li><i class="lg-fish"></i>L'eau d'un biome : ses poissons à elle</li>
         <li><i class="lg-zone"></i>Zone désindexée : elle guérit quand l'intégrité monte</li>
         <li><i class="lg-ledge"></i>Corniche : on la saute vers le sud</li>
         <li><i class="lg-leg"></i>Sentinelle légendaire</li>
-        <li><i class="lg-npc"></i>Le dresseur du jour</li>
+        <li><i class="lg-npc"></i>Un dresseur : un combat par jour</li>
         <li><i class="lg-mon"></i>Pokémon débusqué</li>
       </ul><div class="pm-zones"></div><p class="pm-key"><kbd>M</kbd> refermer la carte</p></div></div>`;
     document.body.appendChild(this.big);
     this.bigCv = this.big.querySelector("canvas");
+    this.big.querySelector(".pm-rb").onclick = e => { const b = e.target.closest("[data-r]"); if(b) this.pickRegion(b.dataset.r); };
     this.t = 0;
   }
   /* ---------- le fond : relevé du terrain, peint une fois ---------- */
@@ -90,6 +97,8 @@ export class RouteMap {
       }
     }
     g.putImageData(img, 0, 0);
+    /* les eaux creusées des biomes */
+    for(const P of PONDS) if(P.kind === "basin"){ g.fillStyle = "rgb(18,58,72)"; g.beginPath(); g.arc((P.x - X0) * PPM, (P.z - Z0) * PPM, P.r * PPM, 0, Math.PI * 2); g.fill(); g.fillStyle = "rgb(10,36,50)"; g.beginPath(); g.arc((P.x - X0) * PPM, (P.z - Z0) * PPM, P.r * PPM * 0.55, 0, Math.PI * 2); g.fill(); }
     /* les arbres et buissons : des taches sombres */
     const T = this.game.world.trees ? this.game.world.trees.colliders : [];
     g.fillStyle = "rgba(8,16,12,0.85)";
@@ -108,7 +117,30 @@ export class RouteMap {
   toggle(){
     this.open = !this.open;
     this.big.classList.toggle("on", this.open);
-    if(this.open) this.drawBig();
+    if(this.open){ this.drawRegions(); this.drawBig(); }
+  }
+  /* ---------- la région : Kanto, Johto, Hoenn, ou le mélange (1 à 4, ou un clic) ---------- */
+  drawRegions(){
+    const cur = pcRegion(), open = openRegions();
+    for(const b of this.big.querySelectorAll(".pm-rb [data-r]")){
+      const k = b.dataset.r, ok = regionOpen(k);
+      b.classList.toggle("on", k === cur); b.classList.toggle("locked", !ok);
+    }
+    this.big.querySelector(".pm-rn").textContent = cur === "mix"
+      ? `Un mélange de ${open.map(regionName).join(", ").replace(/, ([^,]*)$/, " et $1")} : chaque apparition tire sa région.`
+      : open.length < 2 ? "Les autres régions s'ouvrent en refermant le cœur de celle d'avant." : `Les sauvages, les poissons et les résidents des biomes sont ceux de ${regionName(cur)}.`;
+  }
+  pickRegion(k){
+    if(typeof k === "number") k = (PC_REGIONS[k] || {}).k; if(!k) return;
+    if(!regionOpen(k)){
+      this.game.hud.hint(k === "mix" ? "Le mélange s'ouvre avec une deuxième région." : `${regionName(k)} : verrouillée. Elle s'ouvre en refermant le cœur de la région d'avant.`, 3);
+      return;
+    }
+    if(!setPcRegion(k)) return;
+    this.game.wild.rewrite();
+    this.drawRegions();
+    this.game.hud.hint(k === "mix" ? "La zone se réécrit : <b>un peu de chaque région</b>" : `La zone se réécrit : <b>les Pokémon de ${regionName(k)}</b>`, 3.2);
+    if(this.game.audio && this.game.audio.ok && this.game.audio.burst) this.game.audio.burst({freq:900, q:0.6, dur:0.5, vol:0.12, sweep:0.4, attack:0.02});
   }
   /* ---------- ce qui bouge : zones, sentinelles, dresseur, Pokémon, toi ---------- */
   markers(){
@@ -116,13 +148,14 @@ export class RouteMap {
     const CZ = g.world.corruption;
     if(CZ) ZONES.forEach((z, i)=>{ const s = CZ.uniforms.uZones.value[i].w; if(s > 0.01) out.push({k:"zone", x:z.x, z:z.z, r:z.r * s, heal:z.heal}); });
     if(g.sentinels) for(const s of g.sentinels.list) if(s.state !== "gone") out.push({k:"leg", x:s.pos.x, z:s.pos.z, n:s.d.id === 150 ? "Mewtwo" : "Électhor"});
-    if(g.trainer && g.trainer.present && g.trainer.present()) out.push({k:"npc", x:g.trainer.pos.x, z:g.trainer.pos.z, n:"Dresseur"});
+    for(const tr of g.trainers || []){ if(!tr.present() || (tr.home && !LOCKS[tr.home])) continue; const rv = tr.rival(); out.push({k:"npc", x:tr.pos.x, z:tr.pos.z, n:rv ? rv.n : "Dresseur"}); }
+    for(const P of PONDS) if(LOCKS[P.k]) out.push({k:"fish", x:P.x, z:P.z, n:P.n});
     /* les lieux des modules (la Tour, la Brèche, le camp de l'Expédition…) */
     const W = g.world && g.world.sites;
     if(W) for(const s of SITES) out.push({k:"site", x:s.x, z:s.z, n:s.n, c:s.col, off:!!W.lock[s.k]});
     const P = g.player.pos;
     for(const e of g.wild.list){
-      if(e.state === "hidden" || e.state === "gone" || e.state === "fled" || e.state === "caught" || e.state === "held") continue;
+      if(e.state === "hidden" || e.state === "gone" || e.state === "fled" || e.state === "unwrite" || e.state === "caught" || e.state === "held") continue;
       if(Math.hypot(e.pos.x - P.x, e.pos.z - P.z) > 40) continue;
       out.push({k:"mon", x:e.pos.x, z:e.pos.z, missing:!!e.spec.missing});
     }
@@ -152,6 +185,12 @@ export class RouteMap {
         c.fillStyle = "#ff8a3d"; c.strokeStyle = "#160a02"; c.lineWidth = 2;
         c.beginPath(); c.arc(x, y, 5.5, 0, Math.PI * 2); c.fill(); c.stroke();
         if(big){ c.font = "13px 'Pixelify Sans', sans-serif"; c.fillStyle = "#ffb07a"; c.textAlign = "left"; c.fillText(m.n, x + 9, y + 4); }
+      } else if(m.k === "fish"){
+        /* un hameçon */
+        c.strokeStyle = "#7fe6f2"; c.lineWidth = 2.2; c.lineCap = "round";
+        c.beginPath(); c.moveTo(x, y - 7); c.lineTo(x, y + 2); c.arc(x - 3, y + 2, 3, 0, Math.PI, false); c.stroke();
+        if(big){ c.font = "12px 'Pixelify Sans', sans-serif"; c.textAlign = "left"; c.lineJoin = "round"; c.strokeStyle = "rgba(4,6,12,.9)"; c.lineWidth = 4;
+          c.strokeText(m.n, x + 8, y + 4); c.fillStyle = "#9fe9f4"; c.fillText(m.n, x + 8, y + 4); }
       } else if(m.k === "site"){
         c.save(); c.translate(x, y); c.rotate(Math.PI / 4);
         c.fillStyle = m.off ? "#4a5262" : m.c; c.strokeStyle = "#04060c"; c.lineWidth = 2;
@@ -208,7 +247,8 @@ export class RouteMap {
       const label = (txt, yy) => { c.lineJoin = "round"; c.strokeStyle = "rgba(4,6,12,0.9)"; c.lineWidth = 5; c.strokeText(txt, x, yy); c.fillText(txt, x, yy); };
       c.font = "bold 15px Unbounded, sans-serif"; c.fillStyle = open ? b.col : "#a6b0c2"; label(HAB_NAMES[b.k], y + (b.k === "foyer" ? 34 : 0));
       c.font = "12px 'Pixelify Sans', sans-serif"; c.fillStyle = open ? "#e6eef8" : "#ffb0c6";
-      label(open ? "ouvert" : `fermé · ${info.need[b.k] || "?"} espèces (${Math.min(info.have, info.need[b.k] || 0)})`, y + 17 + (b.k === "foyer" ? 34 : 0));
+      const ec = endemicCount(b.k);
+      label(open ? (ec ? `ne vivent qu'ici : ${ec.have} / ${ec.n}` : "ouvert") : `fermé · ${info.need[b.k] || "?"} espèces (${Math.min(info.have, info.need[b.k] || 0)})`, y + 17 + (b.k === "foyer" ? 34 : 0));
       if(!open){ const px = tx(b.A[0] + (b.B[0] - b.A[0]) * 0.14), py = ty(b.A[1] + (b.B[1] - b.A[1]) * 0.14); c.fillStyle = "#ff3d7f"; c.fillRect(px - 5, py - 3, 10, 8); c.strokeStyle = "#ff3d7f"; c.lineWidth = 2; c.beginPath(); c.arc(px, py - 3, 3.5, Math.PI, 0); c.stroke(); }
     }
     this.drawMarkers(c, tx, ty, s, true);

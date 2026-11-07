@@ -152,11 +152,11 @@ SCREENS.profile = {
         <div class="grow"><div class="t">${esc(n)}</div><div class="d">${d}</div></div>
         ${extra || ic("arrow")}</div>`;
     /* une fois la progression digne d'etre protegee, on propose le compte */
-    const invite = Net.configured() && !Net.signedIn() && S.level >= 3
+    const invite = Net.configured() && !Net.linked() && S.level >= 3
       ? `<div class="net-invite" data-act="goto" data-to="online">
           <div class="grow"><b>Sauvegardez votre progression</b>
-            <div class="tiny">Un compte la protège et la retrouve sur n'importe quel appareil.</div></div>
-          <span class="btn sm pri">Créer un compte</span></div>` : "";
+            <div class="tiny">Un code de partie la protège et la retrouve sur ton téléphone ou ton PC.</div></div>
+          <span class="btn sm pri">Créer mon code</span></div>` : "";
     return `
       ${invite}
       ${heroHtml(true)}

@@ -5,6 +5,8 @@ import * as THREE from "three";
 import { heightAt, pathDist, tallGrassAt, lakeAt, normalAt, PATH_W, BOUNDS, onBeach, biomeIndexAt, BIOMES, biomeMask, terrace, siteClear } from "./layout.js";
 import { mulberry32 } from "../util.js";
 import { CZ, ZONE_GLSL, LAMP_GLSL } from "./corruption.js";
+import { MK, MARKS_GRASS_GLSL } from "./marks.js";
+import { pondAt } from "./ponds.js";
 
 const CHUNK = 12;
 export const RUSTLE_N = 6;
@@ -56,14 +58,15 @@ export class Grass {
     m.onBeforeCompile = sh => {
       Object.assign(sh.uniforms, this.uniforms);
       sh.uniforms.uZones = CZ.uZones; sh.uniforms.uCTime = CZ.uCTime; sh.uniforms.uLamp = CZ.uLamp;
-      sh.uniforms.uFade = fade;
+      sh.uniforms.uFade = fade; sh.uniforms.uMk = MK.uMk; sh.uniforms.uMkT = MK.uMkT;
       sh.vertexShader = sh.vertexShader.replace("#include <common>", `#include <common>
 attribute vec4 iPos;      // x, y, z, angle
 attribute vec4 iShape;    // hauteur, largeur, teinte, haute herbe
 uniform float uTime, uWind; uniform vec3 uPlayer; uniform vec4 uRustle[${RUSTLE_N}]; uniform vec2 uFade;
-varying float vY; varying float vTint; varying float vTall; varying float vAO; varying float vDead; varying vec3 vGWP; varying float vBio;
+varying float vY; varying float vTint; varying float vTall; varying float vAO; varying float vDead; varying vec3 vGWP; varying float vBio; varying vec4 vMk;
 float h1(float n){ return fract(sin(n) * 43758.5453); }
-${ZONE_GLSL}`)
+${ZONE_GLSL}
+${MARKS_GRASS_GLSL}`)
       .replace("#include <beginnormal_vertex>", `
   vec3 objectNormal = vec3(0.0, 1.0, 0.0);
   #ifdef USE_TANGENT
@@ -78,6 +81,10 @@ ${ZONE_GLSL}`)
   float zc = zoneCore(iPos.xz), zh = zoneHalo(iPos.xz);
   vDead = max(zh, zc);
   grow *= (1.0 - zc) * (1.0 - zh * 0.45);
+  /* les traces des capacités : brins brûlés, couchés, givrés */
+  vec2 mkPush = vec2(0.0); float mkShrink = 0.0;
+  vMk = grassMarks(iPos.xz, mkPush, mkShrink);
+  grow *= 1.0 - mkShrink;
   float H = iShape.x * grow, Wd = iShape.y * (1.0 + smoothstep(10.0, uFade.y, dist) * 1.4);
   vec3 p = vec3(position.x * Wd, position.y * H, position.z * Wd);
   float c = cos(ang), s = sin(ang);
@@ -99,6 +106,7 @@ ${ZONE_GLSL}`)
     float rk = smoothstep(r.w, 0.0, length(rd)) * step(0.001, r.w);
     bend += vec2(sin(uTime * 23.0 + iPos.x * 3.0), cos(uTime * 19.0 + iPos.z * 3.0)) * rk * 0.5;
   }
+  bend += mkPush;
   p.xz += bend * t2 * H;
   p.y -= length(bend) * t2 * H * 0.28;
   vec3 transformed = p + iPos.xyz;
@@ -106,7 +114,7 @@ ${ZONE_GLSL}`)
   vY = uv.y; vTint = iShape.z; vTall = mod(iShape.w, 2.0); vBio = floor(iShape.w * 0.5 + 0.01);
   vAO = mix(mix(0.72, 0.45, vTall), 1.0, smoothstep(0.0, 0.85, uv.y));`)
       sh.fragmentShader = sh.fragmentShader.replace("#include <common>", `#include <common>
-varying float vY; varying float vTint; varying float vTall; varying float vAO; varying float vDead; varying vec3 vGWP; varying float vBio;
+varying float vY; varying float vTint; varying float vTall; varying float vAO; varying float vDead; varying vec3 vGWP; varying float vBio; varying vec4 vMk;
 ${LAMP_GLSL}`)
       .replace("#include <normal_fragment_begin>", `float faceDirection = 1.0;
 vec3 normal = normalize( vNormal );
@@ -128,6 +136,11 @@ vec3 nonPerturbedNormal = normal;`)
     if(abs(vBio - 4.0) < 0.5){ b0 = vec3(0.08, 0.06, 0.03); b1 = vec3(0.42, 0.34, 0.12); }
     baseC = b0; tipC = b1 * (0.75 + 0.5 * vTint);
   }
+  /* les traces des capacités : la cendre, le givre, le violet du poison, le vert des fleurs */
+  baseC = mix(baseC, vec3(0.012, 0.011, 0.01), vMk.x); tipC = mix(tipC, vec3(0.1, 0.09, 0.08), vMk.x);
+  tipC = mix(tipC, vec3(0.7, 0.82, 0.92), vMk.y); baseC = mix(baseC, vec3(0.3, 0.38, 0.45), vMk.y * 0.6);
+  tipC = mix(tipC, vec3(0.2, 0.06, 0.24), vMk.z); baseC = mix(baseC, vec3(0.05, 0.015, 0.06), vMk.z);
+  tipC = mix(tipC, tipC * vec3(0.9, 1.35, 0.8) + vec3(0.02, 0.05, 0.0), vMk.w);
   diffuseColor.rgb = mix(baseC, tipC, smoothstep(0.0, 1.0, vY)) * vAO;`)
       .replace("#include <emissivemap_fragment>", `#include <emissivemap_fragment>
   /* la lumière qui traverse le brin, à contre-jour */
@@ -159,7 +172,7 @@ vec3 nonPerturbedNormal = normal;`)
     const push = (out, x, z, h, w, t) => { const bi = biomeIndexAt(x, z); out.push(x, heightAt(x, z) - 0.02, z, rnd() * Math.PI * 2, h, w, rnd(), t + 2 * (bi === 1 || bi === 2 || bi === 4 ? bi : 0)); };
     /* la zone ; et dans la Sylve et les Ruines, une pelouse à elles (pas sur le travertin, la roche des Cavités, le basalte du Foyer) */
     const inBio = (x, z, ks) => BIOMES.some(b=>ks.includes(b.k) && biomeMask(b, x, z) > 0.6);
-    const ok = (x, z) => (x > BOUNDS.x0 - 8 && x < BOUNDS.x1 + 8 && z > BOUNDS.z0 - 20 && z < BOUNDS.z1 + 20) || inBio(x, z, ["foret", "ruines"]);
+    const ok = (x, z) => !pondAt(x, z, 0.3) && ((x > BOUNDS.x0 - 8 && x < BOUNDS.x1 + 8 && z > BOUNDS.z0 - 20 && z < BOUNDS.z1 + 20) || inBio(x, z, ["foret", "ruines"]));
     const okTall = (x, z) => ok(x, z) || inBio(x, z, ["eaux"]);
     const n = Math.round(area * this.density);
     for(let i = 0; i < n; i++){

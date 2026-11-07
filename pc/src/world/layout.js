@@ -205,13 +205,15 @@ export function terrace(x, z){
   const n = Math.min(9, Math.floor(r / TERR)), f = n >= 9 ? 0.5 : r / TERR - n;
   return {n, f, level:b.F - n * 1.05};
 }
-/* le Foyer : des rivières de lave, et sa caldeira */
+/* le Foyer : des rivières de lave, et sa caldeira ; et le Chaudron, une mare de lave où l'on pêche (ponds.js) */
+export const LAVA_POOL = {x:16, z:-278, r:3.6};
 export function lavaMask(x, z){
   const b = BIOME_BY.foyer, m = biomeMask(b, x, z); if(m <= 0.02) return 0;
   const v = Math.abs(nL(x / 46, z / 46) + 0.3 * nL(x / 15, z / 15)) + 0.05 * smooth(-0.2, 0.5, nE(x / 70, z / 70));
   const core = smooth(16, 11, Math.hypot(x - b.c[0], z - b.c[1]));          /* l'anneau de lave au pied du dissipateur */
   const ring = core * smooth(5.5, 8, Math.hypot(x - b.c[0], z - b.c[1]));
-  let k = Math.max(smooth(0.05, 0.02, v), ring);
+  const pool = smooth(LAVA_POOL.r + 1.3, LAVA_POOL.r - 0.2, Math.hypot(x - LAVA_POOL.x, z - LAVA_POOL.z));
+  let k = Math.max(smooth(0.05, 0.02, v), ring, pool);
   k *= smooth(0.3, 0.75, m) * smooth(1.2, 3.6, trailDist("foyer", x, z));    /* le sentier passe sur un pont de basalte */
   k *= smooth(40, 52, Math.hypot(x - b.B[0], z - b.B[1]));                   /* rien à l'entrée */
   return k;

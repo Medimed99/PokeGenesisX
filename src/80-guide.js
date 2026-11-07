@@ -466,28 +466,31 @@ function tutoSeen(k){ return (S.tutos||[]).includes(k); }
 function overlayBusy(){
   /* une scene d'Expedition en cours : on ne l'interrompt pas */
   if(typeof xsOpenNow === "function" && xsOpenNow()) return true;
-  for(const id of ["story", "sheet-root", "discover", "levelup", "boot"]){
+  for(const id of ["story", "sheet-root", "discover", "levelup", "boot", "moment"]){
     const el = document.getElementById(id);
-    if(el && el.className && el.className.indexOf("on") >= 0) return true;
+    if(el && el.className && /\bon\b/.test(el.className)) return true;
     if(id === "boot" && el && el.style && el.style.display === "flex") return true;
   }
   return false;
 }
 function tutoMaybe(k){
-  if(!TUTOS[k] || tutoSeen(k)) return false;
-  if(overlayBusy()) return false;
+  if(!TUTOS[k] || tutoSeen(k) || TUTO_WAIT === k) return false;
+  /* une annonce passe (un chapitre, une page…) : le tutoriel attend qu'elle se referme */
+  if(overlayBusy()){ TUTO_WAIT = k; setTimeout(()=>startTuto(k, 0, true), 500); return false; }
   (S.tutos = S.tutos || []).push(k);
   saveSoon();
   setTimeout(()=>startTuto(k), 380);
   return true;
 }
-function startTuto(k, tries){
+let TUTO_WAIT = null;
+function startTuto(k, tries, mark){
   /* si une couche s'est ouverte entre-temps, on attend qu'elle se referme */
   if(overlayBusy()){
-    if((tries||0) > 40) return;
-    setTimeout(()=>startTuto(k, (tries||0)+1), 500);
+    if((tries||0) > 120){ TUTO_WAIT = null; return; }
+    setTimeout(()=>startTuto(k, (tries||0)+1, mark), 500);
     return;
   }
+  if(mark){ TUTO_WAIT = null; if(tutoSeen(k)) return; (S.tutos = S.tutos || []).push(k); saveSoon(); }
   TUTO = {k, i:0};
   drawTuto();
 }
@@ -500,7 +503,10 @@ function drawTuto(){
   const app = document.getElementById("app").getBoundingClientRect();
   let hole = "";
   let bubbleTop = true;
-  const el = step.sel ? document.querySelector(step.sel) : null;
+  const el0 = step.sel ? document.querySelector(step.sel) : null;
+  /* (un élément caché, comme la carte sur PC pendant qu'on marche : pas de découpe, l'écran est voilé) */
+  const r0 = el0 && el0.getBoundingClientRect();
+  const el = r0 && r0.width > 2 && r0.height > 2 ? el0 : null;
   if(el){
     const r = el.getBoundingClientRect();
     const x = r.left - app.left - 6, y = r.top - app.top - 6;

@@ -19,7 +19,8 @@ const MODULE_KEYS = [
   ["LA TOUR ET LES VERROUS", [["Clic", "attaquer un adversaire"], ["1 · 2 · 3", "choisir une compétence"], ["Entrée", "frapper la cible fléchée"], ["Espace", "la Synchro, une fois pleine"], ["A", "jeu automatique"], ["Tab", "pause"]]],
   ["LA BRÈCHE", [["Z Q S D", "se déplacer"], ["Souris", "viser : l'équipe tire seule sur la cible encadrée"], ["Clic maintenu", "le tir chargé, au relâché"], ["Espace", "sauter par-dessus la horde"], ["Maj", "le dash (invulnérable)"], ["Molette", "rapprocher la caméra"], ["1 à 4 · R", "choisir · relancer les choix"], ["Tab", "pause"]]],
   ["LE RAID", [["E (au phare)", "attaquer le boss de la semaine"], ["Maj (combat)", "accélérer, le temps qu'on le tient"]]],
-  ["L'EXPÉDITION", [["Z Q S D · Maj", "marcher · courir"], ["E", "entrer dans un nœud allumé"], ["M", "la carte : un clic trace la route"], ["1 à 6 · Entrée", "choisir · valider"], ["Maj (combat)", "accélérer, le temps qu'on le tient"], ["Tab", "la souris : équipe, sac, soins"]]]
+  ["L'EXPÉDITION", [["Z Q S D · Maj", "marcher · courir"], ["E", "entrer dans un nœud allumé"], ["M", "la carte : un clic trace la route"], ["1 à 6 · Entrée", "choisir · valider"], ["Maj (combat)", "accélérer, le temps qu'on le tient"], ["Tab", "la souris : équipe, sac, soins"]]],
+  ["LE FORAGE", [["Z Q S D · Maj", "marcher · courir dans la mine"], ["E", "les postes : la paroi de fouille, la forge, l'équipe, les chantiers, le monte-charge"], ["Clic (fouille)", "frapper la case visée"], ["1 · 2", "la pioche · le marteau"], ["Échap", "remonter avec ce qui est dégagé"], ["Tab", "la souris"]]]
 ];
 
 export class Menus {
@@ -38,7 +39,7 @@ export class Menus {
     const canRestore = fresh && online && online.configured && online.configured();
     this.title.innerHTML = `
       <div class="pt-logo"><span class="pl-k">POKÉMON</span><b data-t="CODE GENESIS">CODE<br>GENESIS</b><em>La zone de capture, telle que l'archive s'en souvient</em></div>
-      <div class="pt-who">${fresh ? `<span>Une nouvelle partie. La même que sur téléphone, si tu en as une : connecte-toi depuis le terminal.</span>`
+      <div class="pt-who">${fresh ? `<span>Une nouvelle partie. Tu joues déjà sur téléphone ? « J'ai déjà une partie », puis ton code de partie.</span>`
         : `<b>${esc(S.name || "ARCHIVISTE")}</b><span>niveau ${S.level} · ${dex} espèce${dex > 1 ? "s" : ""} · intégrité ${S.integrity.toFixed(1)} %</span>`}</div>
       <div class="pt-menu">
         <button class="pt-btn main" data-m="play">${fresh ? "Commencer" : "Entrer dans l'archive"}</button>

@@ -36,6 +36,9 @@ const RIVALS = [
   {k:"r_nox",    n:"Nox",    role:"veilleur de nuit",          cls:"channeler",      t:[17,8],  title:"Veilleur",          ace:94,
    intro:["Tu n'aurais pas dû capturer celui-là. Il était sous ma garde.", "La nuit se souvient de ton visage.", "Les ombres m'ont prévenu de ton arrivée."],
    win:"…L'aube vient toujours trop tôt.", lose:"Rentre avant la nuit. Elle est à moi."},
+  {k:"r_silex",  n:"Silex",  role:"tailleur de blocs mémoire", cls:"hiker",          t:[6,5],   title:"Tailleur de blocs", ace:76,
+   intro:["Ces blocs n'ont pas bougé depuis la dernière écriture. Toi, tu bouges trop.", "Je t'ai entendu arriver à trois couches d'ici.", "La roche se souvient de chaque coup. Du tien aussi."],
+   win:"Bien taillé. La roche a cédé du bon côté.", lose:"Reviens quand tu auras la tête plus dure."},
   {k:"r_ayla",   n:"Ayla",   role:"copiste draconique",        cls:"expert_f",       t:[16,14], title:"Draconologue",      ace:149,
    intro:["J'ai recopié chaque écaille de ce secteur. Toi, tu le salis.", "Mes dragons ont lu tes combats. Ils ne sont pas impressionnés.", "La dernière page de mon registre est pour toi."],
    win:"Je recopierai ce combat. Il le mérite.", lose:"Une ligne de plus dans mon registre. Rien d'autre."}

@@ -3096,6 +3096,10 @@ body.calm .brr-phone{animation:none}
 .net-invite{display:flex;align-items:center;gap:10px;margin-bottom:10px;padding:10px 12px;border-radius:var(--r);cursor:pointer;
   border:1px solid rgba(255,210,74,.55);background:linear-gradient(90deg,rgba(255,210,74,.12),transparent)}
 .net-invite b{font-size:12px;color:var(--amber)}
+/* le code de partie : gros, lisible de loin, à recopier sur l'autre appareil */
+.netcode-big{font-family:var(--font-px);font-size:19px;letter-spacing:3px;color:var(--cyan);text-align:center;
+  margin:8px 0 10px;padding:12px 6px;border:1px dashed rgba(53,240,214,.55);border-radius:var(--r);background:rgba(53,240,214,.06);user-select:all}
+.netcode-or{text-align:center;margin:12px 0 8px}
 .br-rank{width:26px;height:26px;display:flex;align-items:center;justify-content:center;border-radius:6px;font-family:var(--font-px);
   font-size:9px;background:rgba(255,255,255,.06);color:var(--ink2)}
 .br-rank.top{background:rgba(255,210,74,.18);color:#ffd24a}

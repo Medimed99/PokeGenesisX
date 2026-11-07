@@ -21,9 +21,8 @@ function momentBusy(){
   if(typeof CINE !== "undefined" && CINE && !CINE.dead) return true;
   const d = document.getElementById("discover");
   if(d && /\bon\b/.test(d.className || "")) return true;
-  /* une page de journal qu'on lit : rien ne passe par-dessus */
-  const fr = document.getElementById("fragread");
-  if(fr && /\bon\b/.test(fr.className || "")) return true;
+  /* une page de journal qu'on lit, Porygon-Z qui explique : rien ne passe par-dessus */
+  for(const id of ["fragread", "tuto"]){ const el = document.getElementById(id); if(el && /\bon\b/.test(el.className || "")) return true; }
   if(typeof xsOpenNow === "function" && xsOpenNow()) return true;
   const b = document.getElementById("boot");
   if(b && b.style && b.style.display === "flex") return true;

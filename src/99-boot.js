@@ -160,7 +160,7 @@ function boot(){
          ou l'import d'une sauvegarde exportee */
       if(!S.story.includes("intro")) S.story.push("intro");
       save();
-      if(Net.configured()){ NET_AUTH_MODE = "signin"; NET_TAB = "compte"; go("online"); }
+      if(Net.configured()){ NET_AUTH_MODE = "partie"; NET_TAB = "compte"; go("online"); }
       else { go("settings"); ACTIONS.importsave(); }
       return;
     }
@@ -237,7 +237,7 @@ function pcWelcomeBack(part){
 
 /* --- cycle de vie --- */
 document.addEventListener("visibilitychange", ()=>{
-  if(document.hidden){ save(); netAutoSync(); }
+  if(document.hidden){ save(); }          /* (l'envoi au cloud en partant : netLeave, dans 95-online) */
   else {
     if(!S) return;
     const rep = offlineReport();
@@ -247,7 +247,13 @@ document.addEventListener("visibilitychange", ()=>{
     maybeNotify();
   }
 });
-window.addEventListener("beforeunload", ()=>{ if(S){ save(); netAutoSync(); } });
+window.addEventListener("beforeunload", e=>{
+  if(!S) return;
+  save(); netLeave();
+  /* sur PC, une progression pas encore partie dans le cloud : le navigateur demande confirmation,
+     le temps que l'envoi parte (sur mobile, la page est rarement fermée ainsi) */
+  if(typeof PC_MODE !== "undefined" && PC_MODE && Net.linked() && netDirty() && !NET_CONFLICT){ e.preventDefault(); e.returnValue = ""; }
+});
 window.addEventListener("error", e=>{ console.error(e.error||e.message); });
 
 /* empeche le zoom par double-tap sans bloquer le defilement */

@@ -88,13 +88,13 @@ function pwaOffer(stage, after){
     actions = `<button class="btn pri" data-act="pwacopy">Copier le lien</button>`;
   } else if(sep && progressed && stage !== "ready"){
     /* iPhone, partie deja avancee : l'app installee repart de zero, on securise d'abord */
-    if(typeof Net !== "undefined" && Net.configured() && !Net.signedIn()){
+    if(typeof Net !== "undefined" && Net.configured() && !Net.linked()){
       body = `<div class="tiny muted">Sur iPhone, l'app installée démarre sa propre partie. Créez d'abord un
-        compte (30 secondes) : il suffira de vous y connecter dans l'app pour tout retrouver.</div>`;
-      actions = `<button class="btn pri" data-act="pwaaccount">Créer mon compte d'abord</button>`;
-    } else if(typeof Net !== "undefined" && Net.configured() && Net.signedIn()){
-      body = `<div class="tiny muted">Votre compte vous suivra : dans l'app installée, touchez
-        « J'ai déjà une partie » puis connectez-vous.</div>${pwaSteps()}`;
+        code de partie (un clic) : il suffira de le saisir dans l'app pour tout retrouver.</div>`;
+      actions = `<button class="btn pri" data-act="pwaaccount">Créer mon code d'abord</button>`;
+    } else if(typeof Net !== "undefined" && Net.configured() && Net.linked()){
+      body = `<div class="tiny muted">Votre partie vous suivra : dans l'app installée, touchez
+        « J'ai déjà une partie » puis ${Net.byCode() ? `saisissez votre code <b>${esc(netCodeFmt(Net.code))}</b>` : "connectez-vous"}.</div>${pwaSteps()}`;
       actions = "";
     } else {
       body = `<div class="tiny muted">Sur iPhone, l'app installée démarre sa propre partie. Exportez d'abord
@@ -138,7 +138,7 @@ ACTIONS.pwacopy = () => {
 ACTIONS.pwaaccount = () => {
   S.flags.pwaAfterAccount = true; saveSoon();
   PWA.onClose = null; closeSheet();
-  if(typeof NET_AUTH_MODE !== "undefined"){ NET_AUTH_MODE = "signup"; NET_TAB = "compte"; }
+  if(typeof NET_AUTH_MODE !== "undefined"){ NET_AUTH_MODE = "partie"; NET_TAB = "compte"; }
   go("online");
 };
 /* compte cree ou connecte apres la proposition : on reprend l'installation */

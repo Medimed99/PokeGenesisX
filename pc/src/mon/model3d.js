@@ -205,6 +205,8 @@ export class MonModel {
     this.group.add(this.mesh, this.shadow);
     scene.add(this.group);
     this.anim = "idle"; this.scale = 1; this.lift = 0; this.frozen = false;
+    /* une pose par-dessus l'animation (les sauvages : renifler, se secouer, tourner sur soi, s'écraser au sol) */
+    this.tilt = 0; this.roll = 0; this.spin = 0; this.squash = 1;
     this.drawH = this.H; this.width = Math.max(0.3, this.H * 0.8);
     this.xray = 0;
     this.ready = false; this.disposed = false;
@@ -228,7 +230,8 @@ export class MonModel {
       if(o.isSkinnedMesh){ tw.bind(o.skeleton, o.bindMatrix); }
       o.parent.add(tw); this.xrays.push(tw);
     });
-    this.mesh.add(root);
+    this.pose = new THREE.Group(); this.pose.add(root);
+    this.mesh.add(this.pose);
     if(this.shiny) this.applyShiny(root);
     this.root = root;
     this.mixer = new THREE.AnimationMixer(root);
@@ -318,6 +321,11 @@ export class MonModel {
       }
       this.mesh.scale.setScalar(Math.max(0.001, this.scale));
       this.mesh.position.y = this.lift;
+      if(this.pose){
+        this.pose.rotation.set(this.tilt, this.spin, this.roll, "YXZ");
+        const sq = Math.max(0.3, this.squash), wq = 1 / Math.sqrt(sq);
+        this.pose.scale.set(wq, sq, wq);
+      }
       U.uXray.value += ((this.xray || 0) - U.uXray.value) * Math.min(1, dt * 6);
       const xv = U.uXray.value > 0.02;
       for(const x of this.xrays) x.visible = xv;

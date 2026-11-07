@@ -166,7 +166,7 @@ export class Capture {
   }
   hitTest(f, prev){
     for(const e of this.game.wild.list){
-      if(e.state === "fled" || e.state === "gone" || e.state === "held" || e.state === "caught") continue;
+      if(e.state === "fled" || e.state === "unwrite" || e.state === "gone" || e.state === "held" || e.state === "caught") continue;
       const h = e.sprite.drawH || e.H;
       const c = new THREE.Vector3(e.pos.x, e.pos.y + h * 0.5, e.pos.z);
       const rad = Math.max(0.32, Math.min(2.2, Math.max(h * 0.48, (e.sprite.width || 0.5) * 0.5)));
@@ -211,7 +211,7 @@ export class Capture {
     f.t += dt;
     const prev = b.position.clone();
     /* un peu d'aimant vers la cible verrouillée : on vise juste, la Ball suit */
-    if(!f.landed && !f.bounces && f.target && f.target.state !== "fled" && f.target.state !== "gone"){
+    if(!f.landed && !f.bounces && f.target && f.target.state !== "fled" && f.target.state !== "unwrite" && f.target.state !== "gone"){
       const e = f.target, c = new THREE.Vector3(e.pos.x, e.pos.y + (e.sprite.drawH || e.H) * 0.5, e.pos.z);
       const to = c.sub(b.position), dist = to.length();
       const lateral = to.clone().sub(f.v.clone().normalize().multiplyScalar(to.dot(f.v.clone().normalize()))).length();
@@ -392,7 +392,7 @@ export class Capture {
     };
     /* les dresseurs rémanents ont leur place sur la route (pas d'écran surgissant) */
     window.rivalTick = function(){
-      if(self.resolving) return self.game.trainer ? self.game.trainer.tick() : false;
+      if(self.resolving) return false;   /* (les dresseurs : rien à faire surgir) */
       return orig.rivalTick.apply(this, arguments);
     };
   }

@@ -24,7 +24,8 @@ const SRV = {
   url:"https://demo.supabase.co", key:"anon_key_de_test_suffisamment_longue",
   users:{}, saves:{}, trades:{}, tokenSeq:0, tokens:{},
   expireNext:false, lastOtp:null,
-  reset(){ this.users={}; this.saves={}; this.trades={}; this.tokenSeq=0; this.tokens={}; this.expireNext=false; }
+  codes:{}, dropResponses:false,
+  reset(){ this.users={}; this.saves={}; this.trades={}; this.codes={}; this.tokenSeq=0; this.tokens={}; this.expireNext=false; this.dropResponses=false; }
 };
 function mkSession(email){
   const u = SRV.users[email] || (SRV.users[email] = {id:"uid-"+Object.keys(SRV.users).length});
@@ -83,6 +84,23 @@ global.fetch = async (url, opt) => {
     return ok(mkSession(email));
   }
 
+  /* --- code de partie : meme contrat que les fonctions SQL (sans compte : la cle publique suffit) --- */
+  if(u.startsWith("/rest/v1/rpc/code_save_")){
+    const n = String(body.p_code || "").toUpperCase().replace(/[^0-9A-Z]/g, "");
+    if(!/^[2-9A-HJKMNP-Z]{12}$/.test(n)) return err(400, "code de partie invalide", "22023");
+    if(bearer.startsWith("at-")) SRV.codeWithUser = true;
+    const row = SRV.codes[n];
+    let res;
+    if(u.includes("code_save_get")) res = row ? [{rev:row.rev, updated_at:row.updated_at, payload:body.p_full === false ? null : JSON.parse(JSON.stringify(row.payload))}] : [];
+    else {
+      if(!body.p_payload || typeof body.p_payload !== "object") return err(400, "sauvegarde invalide", "22023");
+      if((body.p_base || 0) <= 0){ if(row) res = -1; else { SRV.codes[n] = {rev:1, payload:body.p_payload, updated_at:new Date().toISOString()}; res = 1; } }
+      else if(row && row.rev === body.p_base){ row.rev++; row.payload = body.p_payload; row.updated_at = new Date().toISOString(); res = row.rev; }
+      else res = -1;
+    }
+    if(SRV.dropResponses) return new Promise(()=>{});          /* la page s'est fermee : la reponse ne revient jamais */
+    return ok(res);
+  }
   /* toutes les routes REST exigent un jeton utilisateur valide */
   const isRest = u.startsWith("/rest/");
   if(isRest){
@@ -96,6 +114,15 @@ global.fetch = async (url, opt) => {
     const m = u.match(/user_id=eq\.([^&]+)/);
     const row = SRV.saves[m ? m[1] : uid];
     return ok(row ? [row] : []);
+  }
+  if(u.startsWith("/rest/v1/saves?") && opt.method === "PATCH"){
+    /* mise a jour conditionnelle : seulement si la revision n'a pas bouge */
+    const id = (u.match(/user_id=eq\.([^&]+)/) || [])[1], rv = +((u.match(/rev=eq\.(\d+)/) || [])[1]);
+    if(id !== uid) return ok([]);
+    const prev = SRV.saves[id];
+    if(!prev || prev.rev !== rv) return ok([]);
+    SRV.saves[id] = Object.assign({}, prev, body, {updated_at:new Date().toISOString()});
+    return ok([SRV.saves[id]]);
   }
   if(u.startsWith("/rest/v1/saves") && opt.method === "POST"){
     const r = body[0];
@@ -174,7 +201,8 @@ eval(ORDER.map(f=>fs.readFileSync("src/"+f,"utf8")).join("\n") +
  "\n;global.G={Net:Net,newState:newState,setS:v=>S=v,getS:()=>S,SCREENS:SCREENS,ACTIONS:ACTIONS," +
  "netCompare:netCompare,netSummary:netSummary,addToDex:addToDex,grantCardV:grantCardV,grantSecretCard:grantSecretCard,cardVariants:cardVariants,cardHas:cardHas,cardOwnedCount:cardOwnedCount,cardTotal:cardTotal,CARD_MONS:CARD_MONS,CARD_SERIES_DEF:CARD_SERIES_DEF,CARD_ORDER:CARD_ORDER,rollCardSeries:rollCardSeries,randomCard:randomCard,migrateCards:migrateCards,CARD_INDEX:CARD_INDEX," +
  "setScreen:n=>currentScreen=n,dexTotal:dexTotal,Store:Store,netStart:netStart,netAutoSync:netAutoSync,netSetBoard:netSetBoard," +
- "netSyncSmart:netSyncSmart,netDirty:netDirty,isoDay:isoDay,getConflict:()=>NET_CONFLICT,resetConflict:()=>{NET_CONFLICT=false}};");
+ "netSyncSmart:netSyncSmart,netDirty:netDirty,isoDay:isoDay,getConflict:()=>NET_CONFLICT,resetConflict:()=>{NET_CONFLICT=false}," +
+ "netLeave:netLeave,resetLeave:()=>{netLeave.at=0;netLeave.fp=null;netLeave.p=null},netCodeFmt:netCodeFmt,netNewCode:netNewCode,netFingerprint:netFingerprint};");
 
 const A = G;
 let pass=0, fail=0, errs=[];
@@ -501,6 +529,102 @@ const must = (c, m) => { if(!c) throw new Error(m||"condition non remplie"); };
     must(r.total === 21500 && r.players === 2, "total " + r.total + ", joueurs " + r.players);
   });
 
+  /* --- code de partie : deux appareils, sans compte --- */
+  A.Net.signOut(); A.resetConflict(); SRV.reset(); A.Store.del("pcg.net.code"); A.Net.load();
+  const flush = async () => { for(let i = 0; i < 6; i++) await Promise.resolve(); };
+  const dev = {};
+  const park = k => { dev[k] = {S:A.getS(), code:A.Net.code}; };
+  const take = k => { A.setS(dev[k].S); A.Net.setCode(dev[k].code); A.resetConflict(); A.resetLeave(); };
+  await t("code de partie : alphabet sans 0 O 1 I L, douze caractères, format lisible", async ()=>{
+    for(let i = 0; i < 200; i++){ const c = A.netNewCode(); must(/^[2-9A-HJKMNP-Z]{12}$/.test(c), "code " + c); }
+    must(A.netCodeFmt("k7m42qx9hp3t") === "K7M4-2QX9-HP3T", A.netCodeFmt("k7m42qx9hp3t"));
+  });
+  await t("code de partie : création sur le PC", async ()=>{
+    const S1 = A.newState(); S1.name = "Zav"; S1.level = 12; S1.stats.catches = 40; A.setS(S1);
+    const c = await A.Net.createCode();
+    must(A.Net.byCode() && A.Net.linked() && !A.Net.signedIn(), "lié par le code");
+    must(SRV.codes[c] && SRV.codes[c].rev === 1 && SRV.codes[c].payload.level === 12, "partie absente du cloud");
+    must(!SRV.codeWithUser, "le code ne doit pas exiger de compte");
+    must(A.getS().netBase === 1 && !A.netDirty(), "état de synchro après création");
+    park("pc");
+  });
+  await t("code de partie : saisi sur le téléphone, la partie y arrive", async ()=>{
+    A.setS(A.newState()); A.Net.setCode(null);
+    let threw = 0;
+    try { await A.Net.useCode("ABC"); } catch(e){ threw++; }
+    try { await A.Net.useCode("ZZZZ-ZZZZ-ZZZZ"); } catch(e){ threw++; must(/inconnu/i.test(e.message), e.message); }
+    must(threw === 2 && !A.Net.linked(), "codes invalides ou inconnus refusés");
+    await A.Net.useCode(A.netCodeFmt(dev.pc.code).toLowerCase());
+    await A.netSyncSmart("login");
+    must(A.getS().level === 12 && A.getS().name === "Zav", "partie récupérée : niveau " + A.getS().level);
+    must(!A.getConflict(), "pas de conflit pour une partie neuve");
+    park("tel");
+  });
+  await t("code de partie : captures sur le téléphone, le PC les a en revenant", async ()=>{
+    take("tel"); A.getS().stats.catches += 3; A.getS().level = 13;
+    await A.netSyncSmart("auto");
+    must(SRV.codes[dev.pc.code].rev === 2 && SRV.codes[dev.pc.code].payload.level === 13, "envoi du téléphone");
+    park("tel");
+    take("pc"); await A.netSyncSmart("resume");
+    must(A.getS().level === 13 && A.getS().stats.catches === 43, "le PC n'a pas récupéré : niveau " + A.getS().level);
+    park("pc");
+  });
+  await t("code de partie : en quittant, un envoi direct (sans relire le cloud)", async ()=>{
+    take("pc"); A.getS().stats.catches += 2;
+    must(A.netDirty(), "devrait avoir avancé");
+    A.netLeave(); await flush();
+    must(SRV.codes[dev.pc.code].rev === 3 && SRV.codes[dev.pc.code].payload.stats.catches === 45, "envoi en partant : rév. " + SRV.codes[dev.pc.code].rev);
+    must(!A.netDirty() && A.getS().netBase === 3 && !A.getS().netPending, "état après l'envoi");
+    park("pc");
+    take("tel"); await A.netSyncSmart("resume");
+    must(A.getS().stats.catches === 45, "le téléphone n'a pas récupéré");
+    park("tel");
+  });
+  await t("code de partie : réponse perdue en fermant, reconnue à la réouverture", async ()=>{
+    take("pc"); A.getS().stats.catches += 1;
+    SRV.dropResponses = true; A.netLeave(); await flush(); SRV.dropResponses = false;
+    must(SRV.codes[dev.pc.code].rev === 4, "le cloud a reçu l'envoi");
+    must(A.getS().netPending && A.getS().netPending.rev === 4 && A.netDirty(), "envoi noté, en attente");
+    await A.netSyncSmart("start");
+    must(!A.getConflict(), "pas de faux conflit");
+    must(!A.netDirty() && A.getS().netBase === 4 && !A.getS().netPending, "envoi reconnu");
+    park("pc");
+  });
+  await t("code de partie : un appareil en retard n'écrase rien en partant", async ()=>{
+    take("tel"); A.getS().level = 30; A.getS().stats.catches += 9;        /* le téléphone, resté en rév. 3 */
+    A.netLeave(); await flush();
+    must(SRV.codes[dev.pc.code].rev === 4 && SRV.codes[dev.pc.code].payload.level === 13, "le cloud a été écrasé");
+    await A.netSyncSmart("resume");
+    must(A.getConflict(), "les deux ont avancé : le jeu doit demander");
+    A.resetConflict(); park("tel");
+  });
+  await t("compte : en quittant, la mise à jour ne passe que si le cloud n'a pas bougé", async ()=>{
+    A.Net.setCode(null);
+    const S3 = A.newState(); S3.level = 5; A.setS(S3);
+    await A.Net.signIn("ash@test.fr", "pikachu25");
+    await A.netSyncSmart("login");
+    const uid = A.Net.userId(), r0 = SRV.saves[uid].rev;
+    A.getS().stats.catches += 4; A.resetLeave(); A.netLeave(); await flush();
+    must(SRV.saves[uid].rev === r0 + 1 && SRV.saves[uid].payload.stats.catches === A.getS().stats.catches, "envoi en partant (compte)");
+    must(!A.netDirty(), "marqué synchronisé");
+    SRV.saves[uid].rev += 5;                                              /* un autre appareil a avancé */
+    A.getS().stats.catches += 1; A.resetLeave(); A.netLeave(); await flush();
+    must(SRV.saves[uid].rev === r0 + 6, "le cloud ne doit pas reculer");
+    A.Net.signOut();
+  });
+  await t("écran en ligne avec un code de partie", async ()=>{
+    take("pc"); A.setScreen("online");
+    for(const tab of ["compte","sync","board","trade"]){
+      A.ACTIONS.nettab({t:tab});
+      const h = A.SCREENS.online.html();
+      must(!/undefined|\[object Object\]/.test(h), "sortie suspecte pour " + tab);
+      if(tab === "compte") must(h.includes(A.netCodeFmt(dev.pc.code)), "le code doit s'afficher");
+    }
+    A.Net.setCode(null); A.ACTIONS.nettab({t:"compte"}); A.ACTIONS.netauthmode({m:"partie"});
+    const h2 = A.SCREENS.online.html();
+    must(/Créer mon code de partie/.test(h2) && /XXXX-XXXX-XXXX/.test(h2), "formulaire du code absent");
+  });
+
   console.log(errs.map(e=>"  ECHEC: "+e).join("\n"));
   
 /* ---------- contrat de schéma ----------
@@ -512,7 +636,8 @@ const must = (c, m) => { if(!c) throw new Error(m||"condition non remplie"); };
   const fs = require("fs");
   const src = fs.readFileSync(__dirname + "/src/95-online.js", "utf8");
   const sql = fs.readFileSync(__dirname + "/sql/schema.sql", "utf8");
-  const body = src.slice(src.indexOf("const body = {"), src.indexOf("};", src.indexOf("const body = {")));
+  const i0 = src.indexOf("function netRow(payload){"), body = src.slice(src.indexOf("return {", i0), src.indexOf("};", i0));
+  if(i0 < 0 || body.length < 40){ fail++; errs.push("contrat de schéma : netRow introuvable"); }
   const sent = [...body.matchAll(/^\s*([a-z_]+)\s*[:,]/gm)].map(m=>m[1]);
   const table = sql.slice(sql.indexOf("create table if not exists public.saves"), sql.indexOf(");", sql.indexOf("create table if not exists public.saves")));
   const cols = new Set([...table.matchAll(/^\s+([a-z_]+)\s+[a-z]/gm)].map(m=>m[1]));

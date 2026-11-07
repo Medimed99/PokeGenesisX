@@ -507,7 +507,7 @@ export class Sites {
     this.game = game || this.game;
     const lk = this.lock[s.k];
     if(s.k === "raid" && !lk && game && game.raid3d) return game.raid3d.promptText();
-    return lk ? `<b>${s.n}</b> · ${shut(s)} : ${lk}` : `<b>E</b> · ${s.n === "Les verrous" ? "les verrous légendaires" : s.n === "Le raid" ? "le raid de la semaine" : s.n === "Poké-Poker" ? "une partie de Poké-Poker" : s.n === "Le Forage" ? "le Forage" : s.n === "L'Expédition" ? "partir en Expédition" : s.n === "La Brèche" ? "entrer dans la Brèche" : "monter dans la Tour"}`;
+    return lk ? `<b>${s.n}</b> · ${shut(s)} : ${lk}` : `<b>E</b> · ${s.n === "Les verrous" ? "les verrous légendaires" : s.n === "Le raid" ? "le raid de la semaine" : s.n === "Poké-Poker" ? "une partie de Poké-Poker" : s.n === "Le Forage" ? "descendre au Forage" : s.n === "L'Expédition" ? "partir en Expédition" : s.n === "La Brèche" ? "entrer dans la Brèche" : "monter dans la Tour"}`;
   }
   /* E : le terminal s'ouvre sur l'écran du module */
   interact(game){

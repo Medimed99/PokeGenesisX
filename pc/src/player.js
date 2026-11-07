@@ -8,6 +8,7 @@ import { clamp, damp } from "./util.js";
 export const EYE = 1.62;
 const WALK = 4.3, RUN = 7.2, ACCEL = 14, GRAV = 22, JUMP = 6.2, STEP = 0.42;
 
+const SHK = new THREE.Vector3();
 export class Player {
   constructor(camera, colliders){
     this.cam = camera; this.colliders = colliders;
@@ -89,6 +90,11 @@ export class Player {
     const bobY = Math.sin(this.bob * 2) * 0.045 * this.bobAmp - this.landKick;
     const bobX = Math.cos(this.bob) * 0.03 * this.bobAmp;
     this.cam.position.set(this.pos.x + r.x * bobX, this.pos.y + EYE + bobY, this.pos.z + r.y * bobX);
+    /* une secousse (une capacité qui frappe le sol tout près) */
+    if(this.shakeK > 0.002){
+      if(!(typeof window.calmFx === "function" && window.calmFx())) this.cam.position.add(SHK.set((Math.random() - 0.5) * this.shakeK * 0.16, (Math.random() - 0.5) * this.shakeK * 0.12, (Math.random() - 0.5) * this.shakeK * 0.16));
+      this.shakeK = damp(this.shakeK, 0, 6, dt);
+    }
     this.cam.rotation.set(this.pitch, this.yaw, Math.cos(this.bob) * 0.006 * this.bobAmp);
     const targetFov = this.fov * (1 - this.zoom * 0.28) + (run && sp > 5 ? 4 : 0);
     if(Math.abs(this.cam.fov - targetFov) > 0.05){ this.cam.fov = damp(this.cam.fov, targetFov, 9, dt); this.cam.updateProjectionMatrix(); }

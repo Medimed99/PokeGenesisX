@@ -24,6 +24,7 @@ import * as THREE from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import { BIOMES, BIOME_BY, heightAt, trailDist, terrace, lavaAt, biomeWeight, LOCKS, tallGrassAt } from "../layout.js";
 import { mulberry32, noiseFn, smooth, lerp, clamp } from "../../util.js";
+import { pondAvoid } from "../ponds.js";
 import { BT, BL, BL_N, rockGeo, prismGeo, trunkGeo, crownGeo, rootGeo, fernGeo, glowMat, inst, swarm, shafts, labelSprite } from "./kit.js";
 
 const C = s => new THREE.Color(s);
@@ -59,6 +60,7 @@ export class Biomes {
       const x = b.c[0] + Math.cos(a) * b.r[0] * e, z = b.c[1] + Math.sin(a) * b.r[1] * e;
       if(o.trail !== undefined && trailDist(b.k, x, z) < o.trail) continue;
       if(o.avoid && o.avoid.some(p=>Math.hypot(p.x - x, p.z - z) < p.r)) continue;
+      if(pondAvoid(x, z, sp * 0.3)) continue;                 /* la pêche du biome et son dresseur (ponds.js) */
       if(o.lava && lavaAt(x, z) > 0.05) continue;
       if(o.grass !== undefined && tallGrassAt(x, z) > o.grass) continue;
       if(o.test && !o.test(x, z, rnd)) continue;
@@ -504,10 +506,11 @@ export class Biomes {
     }
     for(const U of Object.values(this.U)) if(U && U.uFocus) U.uFocus.value.copy(player);
     /* les lueurs : les quatre plus proches du joueur */
-    const ls = this.lights.map(l=>({l, d:Math.hypot(l.p.x - player.x, l.p.z - player.z)})).sort((a, b)=>a.d - b.d);
+    /* (les lueurs d'une capacité, tout près, passent devant) */
+    const ls = this.lights.map(l=>({l, d:Math.hypot(l.p.x - player.x, l.p.z - player.z) - (l.k === "fx" ? 40 : 0)})).sort((a, b)=>a.d - b.d);
     for(let i = 0; i < BL_N; i++){
       const q = ls[i], V = BL.uBL.value[i], Cc = BL.uBLC.value[i];
-      if(!q || q.d > q.l.r + 120){ V.set(0, -999, 0, 1); Cc.setRGB(0, 0, 0); continue; }
+      if(!q || q.d > q.l.r + 120 || q.l.base <= 0.001){ V.set(0, -999, 0, 1); Cc.setRGB(0, 0, 0); continue; }
       V.set(q.l.p.x, q.l.p.y, q.l.p.z, q.l.r);
       Cc.copy(q.l.c).multiplyScalar(q.l.base * (q.l.k === "foyer" ? 0.85 + 0.15 * Math.sin(t * 2.3) : 0.9 + 0.1 * Math.sin(t * 1.1 + i)));
     }

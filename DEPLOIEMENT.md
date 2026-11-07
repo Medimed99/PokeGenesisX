@@ -211,9 +211,11 @@ ligne échoue.
 
 # Connecter Supabase — guide complet
 
-Ce que Supabase apporte au jeu : **comptes joueurs** (pseudo, e-mail, mot de passe), **sauvegarde
-automatique dans le cloud** récupérée sur un autre appareil, **classements**, **échanges de cartes** et
-**classement de la Brèche du jour**. Tout reste facultatif : sans Supabase, le jeu fonctionne en local.
+Ce que Supabase apporte au jeu : le **code de partie** (sans e-mail : un code de douze caractères
+créé sur un appareil, saisi sur l'autre — téléphone et PC partagent la même partie), les **comptes
+joueurs** (pseudo, e-mail, mot de passe), la **sauvegarde automatique dans le cloud** récupérée sur un
+autre appareil, les **classements**, les **échanges de cartes** et le **classement de la Brèche du
+jour**. Tout reste facultatif : sans Supabase, le jeu fonctionne en local.
 
 ## 1. Créer le projet
 1. Sur supabase.com, **New project**. Choisissez un nom, un mot de passe de base de données
@@ -260,12 +262,21 @@ automatique dans le cloud** récupérée sur un autre appareil, **classements**,
    construction.
 
 ## 6. Vérifier
-1. Ouvrez le jeu → **Profil → Espace en ligne** : l'état indique *configuré, non connecté*.
+1. Ouvrez le jeu → **Profil → Espace en ligne** : l'état indique *configuré, non lié*.
+   **Code de partie → Créer mon code de partie** : un code `XXXX-XXXX-XXXX` s'affiche, et
+   **Table Editor → code_saves** contient une ligne (seule l'empreinte du code y est gardée).
+   Sur le PC : écran titre → **J'ai déjà une partie** → saisir le code : la partie du téléphone arrive.
+   Si l'écran titre du PC n'a pas ce bouton, le service n'est pas configuré (étape 5).
 2. **Créer un compte**. Dans Supabase, **Authentication → Users** montre le nouveau joueur.
 3. Jouez deux minutes (ou **Synchroniser**) : **Table Editor → saves** contient une ligne.
 4. Sur un autre appareil, **Se connecter** avec le même compte : la progression revient seule.
 
 ## Bon à savoir
+- **Synchronisation** (code ou compte) : une progression part dans le cloud au plus 8 secondes après,
+  et quand on quitte le jeu (onglet masqué, téléphone verrouillé, fenêtre fermée — sur PC, le navigateur
+  demande confirmation si un envoi n'est pas encore parti). En revenant sur le jeu, il regarde aussitôt
+  le cloud, puis toutes les 20 secondes. Un appareil qui a pris du retard n'écrase jamais le cloud : la
+  révision n'avance que depuis la dernière connue, sinon le jeu demande laquelle garder.
 - **Offre gratuite** : un projet sans activité pendant 7 jours peut être mis en pause ; il se relance
   depuis le tableau de bord. Les sauvegardes de la base ne sont pas téléchargeables sur cette offre.
 - **Conflits** : si deux appareils ont progressé chacun de leur côté, le jeu demande laquelle garder.

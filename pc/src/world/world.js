@@ -12,6 +12,7 @@ import { Weather } from "./weather.js";
 import { Corruption } from "./corruption.js";
 import { Biomes, HAB_NAMES } from "./biomes/index.js";
 import { Sites } from "./sites.js";
+import { ensurePonds, PondsView } from "./ponds.js";
 import { LOCKS, BIOMES } from "./layout.js";
 
 export class World {
@@ -21,7 +22,7 @@ export class World {
   }
   async build(quality, progress){
     const step = async (label, fn) => { if(progress) progress(label); await new Promise(r=>setTimeout(r, 0)); return fn(); };
-    await step("Lecture de la zone de capture", ()=>buildGrid());
+    await step("Lecture de la zone de capture", ()=>{ buildGrid(); ensurePonds(); });
     await step("Reconstruction du sol", ()=>{ this.terrain = buildTerrain(); this.scene.add(this.terrain); });
     await step("Le ciel", ()=>{ this.sky = new Sky(this.scene, this.engine.renderer); });
     await step("Le lac", ()=>{ this.lake = new Lake(this.scene); });
@@ -31,6 +32,7 @@ export class World {
     await step("Les zones désindexées", ()=>{ this.corruption = new Corruption(this.scene); });
     await step("Les biomes", ()=>{ this.biomes = new Biomes(this.scene, this.colliders); });
     await step("Les lieux des modules", ()=>{ this.sites = new Sites(this.scene, this.colliders, this.biomes.lights); });
+    await step("Les eaux des biomes", ()=>{ this.ponds = new PondsView(this.scene, this.colliders, this.biomes.lights); });
     this.weather = new Weather(this.scene);
     this.setQuality(quality);
   }
@@ -44,6 +46,7 @@ export class World {
     this.sky.rift = this.corruption.level > 0.001 ? 0.3 + 0.7 * this.corruption.level : 0;   /* restaurée : la faille s'est refermée */
     this.sky.update(hour, t, this.focus || player);       /* l'ombre suit la scène regardée (la Tour, sinon toi) */
     this.lake.update(t, this.sky, this.scene);
+    if(this.ponds) this.ponds.update(t, this.sky, this.scene);
     this.grass.uniforms.uWind.value = W.wind;
     this.grass.update(t, player);
     this.trees.update(t, W.wind);

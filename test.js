@@ -3249,9 +3249,9 @@ t("Poké-Poker : Paralysie bloque une carte, Torrent en emporte deux, Fournaise 
   P.ante = 7; P.opps = {}; A.pkStartRound();
   return blocked && washed && P.discardsLeft === 0 && P.handsLeft === P.hands + 1;
 })());
-t("archivistes rivaux : six rivaux, un portrait, un as, et des gains qui montent", (()=>{
+t("archivistes rivaux : sept rivaux (Silex, le tailleur de blocs, garde les Cavités), un portrait, un as, et des gains qui montent", (()=>{
   A.setS(A.newState());
-  const ok = A.RIVALS.length === 6 && A.RIVALS.every(r=>r.cls && r.ace && r.intro.length >= 3 && r.win && r.lose && A.COSMETICS["title_" + r.k]);
+  const ok = A.RIVALS.length === 7 && A.RIVALS.some(r=>r.k === "r_silex") && A.RIVALS.every(r=>r.cls && r.ace && r.intro.length >= 3 && r.win && r.lose && A.COSMETICS["title_" + r.k]);
   const p0 = A.rivalPrize(A.RIVALS[0], 30); A.rivalRec(A.RIVALS[0].k).w = 2; const p2 = A.rivalPrize(A.RIVALS[0], 30);
   return ok && p2.coins > p0.coins && p2.shards > p0.shards && p2.cores === 1;
 })());

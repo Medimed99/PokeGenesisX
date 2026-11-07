@@ -22,6 +22,7 @@ uniform float uTime; uniform vec3 uSunDir, uSun, uZen, uHor, uFog; uniform float
 uniform vec4 uFish[${FISH_MAX}];      // x, z, angle, taille (0 = aucune)
 uniform vec4 uFishK[${FISH_MAX}];     // chromatique, trésor, alpha, -
 uniform vec4 uRip[${RIPPLE_MAX}];     // x, z, t0, force
+uniform vec3 uShallow, uDeep, uShadowC, uRipC; uniform float uOverlay;
 varying float vDepth; varying vec3 vWP; varying float vFogDepth;
 float h21(vec2 p){ p = fract(p * vec2(123.34, 456.21)); p += dot(p, p + 45.32); return fract(p.x * p.y); }
 float vn(vec2 p){ vec2 i = floor(p), f = fract(p); f = f*f*(3.0-2.0*f);
@@ -55,7 +56,7 @@ void main(){
   vec3 refl = skyCol(reflect(-v, n));
   float dep = clamp(vDepth, 0.0, 6.0);
   /* une eau sombre et lourde, presque noire au fond */
-  vec3 shallow = vec3(0.06, 0.1, 0.095), deep = vec3(0.008, 0.022, 0.03);
+  vec3 shallow = uShallow, deep = uDeep;
   vec3 body = mix(shallow, deep, smoothstep(0.0, 2.4, dep));
   /* les ombres sous la surface : la taille dit la rareté */
   float sh = 0.0, glint = 0.0;
@@ -72,6 +73,23 @@ void main(){
     if(k.y > 0.5){ m = 1.0 - smoothstep(0.6, 1.0, length(q / (0.32 * f.w))); }
     sh = max(sh, clamp(m, 0.0, 1.0) * k.z);
     if(k.x > 0.5 || k.y > 0.5){ float tw = step(0.6, fract(uTime * 0.7 + f.x * 0.13)); glint = max(glint, (1.0 - smoothstep(0.0, 0.25 * f.w, length(q - vec2(L * 0.2, 0.0)))) * tw * k.z); }
+  }
+  /* posé sur une autre surface (une vasque, la lave) : seulement les ombres, les ronds, les reflets */
+  if(uOverlay > 0.5){
+    float rk = 0.0;
+    for(int i = 0; i < ${RIPPLE_MAX}; i++){
+      vec4 r = uRip[i]; float age = uTime - r.z;
+      if(r.w <= 0.0 || age < 0.0 || age > 2.2) continue;
+      rk = max(rk, (1.0 - smoothstep(0.0, 0.08, abs(distance(p, r.xy) - age * 1.6))) * (1.0 - age / 2.2) * r.w);
+    }
+    float edge = smoothstep(0.25, 0.55, sh) - smoothstep(0.6, 0.95, sh);
+    vec3 oc = mix(uShadowC, uRipC, max(rk, edge * uOverlay * 0.5 - 0.25));
+    float oa = max(sh * 0.78, rk * 0.7);
+    oc += vec3(1.0, 0.86, 0.35) * glint * 1.6; oa = max(oa, glint);
+    float fogO = 1.0 - exp(-uFogDensity * uFogDensity * vFogDepth * vFogDepth);
+    gl_FragColor = vec4(mix(oc, uFog, fogO), clamp(oa * smoothstep(0.0, 0.3, dep), 0.0, 1.0));
+    #include <colorspace_fragment>
+    return;
   }
   body = mix(body, body * 0.28, sh * 0.85);
   vec3 col = mix(body, refl, fres * 0.85);
@@ -96,6 +114,7 @@ void main(){
   #include <colorspace_fragment>
 }`;
 
+export const WATER_VERT = vert, WATER_FRAG = frag;
 export class Lake {
   constructor(scene){
     this.y = WATER_Y;
@@ -116,7 +135,9 @@ export class Lake {
     this.uniforms = {uTime:{value:0}, uSunDir:{value:new THREE.Vector3(0, 1, 0)}, uSun:{value:new THREE.Color()}, uZen:{value:new THREE.Color()},
       uHor:{value:new THREE.Color()}, uFog:{value:new THREE.Color()}, uFogDensity:{value:0.006}, uNight:{value:0},
       uFish:{value:Array.from({length:FISH_MAX}, ()=>new THREE.Vector4())}, uFishK:{value:Array.from({length:FISH_MAX}, ()=>new THREE.Vector4())},
-      uRip:{value:Array.from({length:RIPPLE_MAX}, ()=>new THREE.Vector4())}};
+      uRip:{value:Array.from({length:RIPPLE_MAX}, ()=>new THREE.Vector4())},
+      uShallow:{value:new THREE.Vector3(0.06, 0.1, 0.095)}, uDeep:{value:new THREE.Vector3(0.008, 0.022, 0.03)}, uOverlay:{value:0},
+      uShadowC:{value:new THREE.Vector3(0, 0, 0)}, uRipC:{value:new THREE.Vector3(0.5, 0.58, 0.62)}};
     this.material = new THREE.ShaderMaterial({uniforms:this.uniforms, vertexShader:vert, fragmentShader:frag, transparent:true, depthWrite:false});
     this.mesh = new THREE.Mesh(geo, this.material);
     this.mesh.renderOrder = 2;

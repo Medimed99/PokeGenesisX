@@ -102,6 +102,92 @@ create policy saves_update_own on public.saves
   for update using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
 -- ------------------------------------------------------------
+-- 1 bis. CODE DE PARTIE
+-- Sans compte ni e-mail : un code de douze caractères (affiché
+-- K7M4-2QX9-HP3T) désigne une sauvegarde. Le créer sur un appareil,
+-- le saisir sur un autre : les deux partagent la même partie.
+-- Le code est le secret (31^12 possibilités, environ 2^59) : la table
+-- n'en garde que l'empreinte, et on n'y accède que par les deux
+-- fonctions ci-dessous, jamais directement.
+-- La révision ne monte que si l'appareil part de la dernière connue :
+-- deux appareils qui ont avancé chacun de leur côté ne s'écrasent pas,
+-- le jeu demande laquelle garder.
+-- ------------------------------------------------------------
+create table if not exists public.code_saves (
+  code_hash   text primary key,
+  rev         integer     not null default 1,
+  payload     jsonb       not null default '{}'::jsonb,
+  name        text        not null default 'Archiviste',
+  level       integer     not null default 1,
+  created_at  timestamptz not null default now(),
+  updated_at  timestamptz not null default now(),
+  constraint code_saves_rev_positive check (rev >= 1),
+  constraint code_saves_payload_size check (pg_column_size(payload) < 1048576)
+);
+alter table public.code_saves enable row level security;
+revoke all on public.code_saves from anon, authenticated;
+
+-- le code, débarrassé des tirets et des espaces, en majuscules
+create or replace function public.code_norm(p_code text)
+returns text language sql immutable as $$
+  select upper(regexp_replace(coalesce(p_code, ''), '[^0-9A-Za-z]', '', 'g'))
+$$;
+create or replace function public.code_hash(p_code text)
+returns text language sql immutable as $$
+  select md5('pcg-code:' || public.code_norm(p_code))
+$$;
+
+-- lire : la révision seule (p_full = false, pour savoir s'il y a du neuf), ou toute la partie
+create or replace function public.code_save_get(p_code text, p_full boolean default true)
+returns table(rev integer, updated_at timestamptz, payload jsonb)
+language plpgsql security definer set search_path = public as $$
+begin
+  if public.code_norm(p_code) !~ '^[2-9A-HJKMNP-Z]{12}$' then
+    raise exception 'code de partie invalide' using errcode = '22023';
+  end if;
+  return query
+    select s.rev, s.updated_at, case when p_full then s.payload else null end
+      from public.code_saves s
+     where s.code_hash = public.code_hash(p_code);
+end $$;
+
+-- écrire : p_base = la révision dont l'appareil est parti (0 pour créer le code).
+-- Renvoie la nouvelle révision, ou -1 si le cloud a avancé entre-temps.
+create or replace function public.code_save_put(p_code text, p_base integer, p_payload jsonb,
+                                                p_name text default null, p_level integer default null)
+returns integer
+language plpgsql security definer set search_path = public as $$
+declare
+  v_hash text := public.code_hash(p_code);
+  v_rev  integer;
+begin
+  if public.code_norm(p_code) !~ '^[2-9A-HJKMNP-Z]{12}$' then
+    raise exception 'code de partie invalide' using errcode = '22023';
+  end if;
+  if p_payload is null or jsonb_typeof(p_payload) <> 'object' then
+    raise exception 'sauvegarde invalide' using errcode = '22023';
+  end if;
+  if coalesce(p_base, 0) <= 0 then
+    insert into public.code_saves (code_hash, rev, payload, name, level)
+    values (v_hash, 1, p_payload, coalesce(left(p_name, 16), 'Archiviste'), least(greatest(coalesce(p_level, 1), 1), 500))
+    on conflict (code_hash) do nothing;
+    if found then return 1; end if;
+    return -1;
+  end if;
+  update public.code_saves
+     set rev = rev + 1, payload = p_payload, updated_at = now(),
+         name = coalesce(left(p_name, 16), name), level = least(greatest(coalesce(p_level, level), 1), 500)
+   where code_hash = v_hash and rev = p_base
+  returning rev into v_rev;
+  return coalesce(v_rev, -1);
+end $$;
+
+revoke all on function public.code_save_get(text, boolean) from public;
+revoke all on function public.code_save_put(text, integer, jsonb, text, integer) from public;
+grant execute on function public.code_save_get(text, boolean) to anon, authenticated;
+grant execute on function public.code_save_put(text, integer, jsonb, text, integer) to anon, authenticated;
+
+-- ------------------------------------------------------------
 -- 2. CLASSEMENT
 -- Vue publique : n'expose que les colonnes de vitrine, jamais `payload`.
 -- security_invoker = off (défaut) : la vue lit avec les droits de son

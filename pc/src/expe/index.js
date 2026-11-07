@@ -158,7 +158,9 @@ export class Expe3D {
     const I = this.game.input;
     if(e.code === "Tab"){ e.preventDefault(); if(I.locked) I.unlock(); else this.relock(); return true; }
     if(e.code === "Escape"){ if(this.mapOpen){ this.toggleMap(false); return true; } if(!I.locked){ this.game.terminal.escape(); } return true; }
-    if(e.code === "KeyM" && this.mode === "walk"){ e.preventDefault(); this.toggleMap(); return true; }
+    /* M : la lettre imprimée (en AZERTY, la touche M n'a pas le code KeyM) */
+    const typing = e.target && /^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName || "");
+    if(!typing && (e.code === "KeyM" || (e.key || "").toLowerCase() === "m") && this.mode === "walk"){ e.preventDefault(); this.toggleMap(); return true; }
     /* une scène : 1 à 6 choisissent (cartes, reliques, membres, articles, réponses), Entrée valide */
     if(this.mode === "scene"){
       const d = /^(Digit|Numpad)([1-6])$/.exec(e.code);

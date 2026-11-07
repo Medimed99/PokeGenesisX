@@ -277,7 +277,7 @@ function forOreRow(){
 }
 function forForgeHtml(){
   const f = forage();
-  return `<div class="tiny dim" style="margin:-2px 0 6px">Ton équipe remonte du <b>${esc(oreDef(oreOf(f.depth)).n.toLowerCase())}</b> dans cette couche, et les fouilles en cachent.
+  return `<div class="tiny dim" style="margin:-2px 0 6px">Ton équipe remonte ${({cu:"du", fe:"du", ag:"de l'", au:"de l'", dr:"de la"})[oreOf(f.depth)] || "du"}${["ag", "au"].includes(oreOf(f.depth)) ? "" : " "}<b>${esc(oreDef(oreOf(f.depth)).n.toLowerCase())}</b> dans cette couche, et les fouilles en cachent.
       Le minerai sert à forger de meilleurs outils.</div>
     ${forOreRow()}
     <div class="fo-forge">${TOOL_IDS.map(k=>{

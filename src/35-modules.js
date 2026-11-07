@@ -56,7 +56,7 @@ SCREENS.modules = {
           <div class="ic">${ic("wave")}</div>
           <div class="grow"><div class="t">Espace en ligne</div>
             <div class="d">Sauvegarde distante, classements, échange de cartes.</div>
-            <div class="tiny ${Net.signedIn()?"cy":"dim"}">${Net.signedIn()?"connecté":"facultatif — non connecté"}</div>
+            <div class="tiny ${Net.linked()?"cy":"dim"}">${Net.signedIn()?"connecté":Net.byCode()?"code de partie":"facultatif — non lié"}</div>
           </div>
           ${ic("arrow")}
         </div>
